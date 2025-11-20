@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 
 const APP = () => {
   return (
@@ -11,19 +13,20 @@ const APP = () => {
           My ERP helps you streamline Products, Customers, Orders, Accounting, and HR, all in one unified platform.
         </p>
         <div className="flex gap-4">
-          <a
-            href="/login"
+          <Link
+            to="/login"
             className="px-8 py-3 bg-white text-blue-600 font-semibold rounded shadow hover:bg-gray-100 transition"
           >
             Login
-          </a>
-          <a
-            href="/signup"
+          </Link>
+          <Link
+            to="/signup"
             className="px-8 py-3 bg-blue-500 bg-opacity-20 text-white font-semibold rounded shadow hover:bg-opacity-30 transition"
           >
             Sign Up
-          </a>
+          </Link>
         </div>
+       
       </section>
 
       {/* Features Section */}
