@@ -2,12 +2,19 @@ import { createBrowserRouter } from "react-router";
 import App from "../App";
 import NotFound from "../pages/NotFound";
 import DashboardLayout from "../Layout/Dashboard";
-import Dashboard from "../pages/dashboard/Dashboard";
+import Dashboard from "../pages/Dashboard/Dashboard";
+import { generateRoutes } from "../utils/routesGenerators";
+import { sidebarItemLInk } from "../config/sidebarItemLInk";
 
+
+
+
+// Generate dynamic dashboard routes (relative paths)
+const dashboardRoutes = generateRoutes(sidebarItemLInk, "dashboard");
 
 
 // Define routes using createBrowserRouter
-const router = createBrowserRouter([
+const rootRouter = createBrowserRouter([
     {
         path: "/",
         element: <App />,             // Layout or main App
@@ -23,23 +30,19 @@ const router = createBrowserRouter([
         ],
     },
     {
-
-        path: '/dashboard',
+        path: "/dashboard",
         element: <DashboardLayout />,
         children: [
             {
                 index: true,
-                element: <Dashboard />
-
+                element: <Dashboard />,
             },
-
-            // You can add more child routes here
+            ...dashboardRoutes,
         ],
-
-    }
+    },
 ]);
 
-export default router;
+export default rootRouter;
 
 
 
