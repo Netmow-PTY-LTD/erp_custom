@@ -25,6 +25,12 @@ const APP = () => {
           >
             Sign Up
           </Link>
+          <Link
+            to="/dashboard"
+            className="px-8 py-3 bg-red-600 bg-opacity-20 text-white font-semibold rounded shadow hover:bg-opacity-30 transition"
+          >
+            Dashboard
+          </Link>
         </div>
        
       </section>
