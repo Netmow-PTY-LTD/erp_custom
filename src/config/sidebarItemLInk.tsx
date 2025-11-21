@@ -166,7 +166,7 @@ export const sidebarItemLInk = [
     },
     {
         title: "Reports",
-        url: "/dashboard/reports",
+        url: "#",
         icon: LineChart,
         items: [
             {
