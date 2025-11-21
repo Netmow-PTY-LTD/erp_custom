@@ -1,4 +1,3 @@
-"use client";
 import {
   Bell,
   Car,
@@ -179,7 +178,7 @@ export const sidebarItemLInk = [
   },
   {
     title: "Reports",
-    url: "/dashboard/reports",
+    url: "#",
     icon: LineChart,
     items: [
       {
