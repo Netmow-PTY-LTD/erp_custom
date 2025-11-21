@@ -3,49 +3,58 @@ import App from "../App";
 import NotFound from "../pages/NotFound";
 import DashboardLayout from "../Layout/Dashboard";
 import Dashboard from "../pages/dashboard/Dashboard";
-
-
+import CreateProduct from "../pages/products/create";
+import Products from "../pages/products/Products";
+import Login from "../pages/auth/Login";
 
 // Define routes using createBrowserRouter
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <App />,             // Layout or main App
-        errorElement: <NotFound />,
+  {
+    path: "/",
+    element: <App />, // Layout or main App
+    errorElement: <NotFound />,
+    children: [
+      {
+        index: true,
+        element: <App />,
+      },
+
+      // You can add more child routes here
+    ],
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/dashboard",
+    element: <DashboardLayout />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />,
+      },
+      {
+        path: '/dashboard/products',
+        element: <Products />,
         children: [
-            {
-                index: true,
-                element: <App />
+          {
+            index: true,
+            element: <Products />,
+          },
+          {
+            path: '/dashboard/products/create',
+            element: <CreateProduct />,
+          },
+        ]
+      },
 
-            },
-
-            // You can add more child routes here
-        ],
-    },
-    {
-
-        path: '/dashboard',
-        element: <DashboardLayout />,
-        children: [
-            {
-                index: true,
-                element: <Dashboard />
-
-            },
-
-            // You can add more child routes here
-        ],
-
-    }
+      // You can add more child routes here
+    ],
+  },
 ]);
 
 export default router;
-
-
-
-
-
-
 
 //   protected route example
 
