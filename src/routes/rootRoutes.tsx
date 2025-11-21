@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import App from "../App";
 import NotFound from "../pages/NotFound";
 import DashboardLayout from "../Layout/Dashboard";
-import Dashboard from "../pages/Dashboard/Dashboard";
+import Dashboard from "../pages/dashboard/Dashboard";
 import { generateRoutes } from "../utils/routesGenerators";
 import { sidebarItemLInk } from "../config/sidebarItemLInk";
 
