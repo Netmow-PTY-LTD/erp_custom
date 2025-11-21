@@ -15,11 +15,6 @@ export interface RoleRoute {
 }
 
 
-
-
-
-
-
 export const roleRoutes: RoleRoute[] = [
     {
         path: "/dashboard",

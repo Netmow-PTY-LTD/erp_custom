@@ -12,12 +12,13 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
+//   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "react-router";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -38,7 +39,7 @@ export function LoginForm({
 
   const onSubmit = (data: z.infer<typeof loginSchema>) => {
     console.log(data);
-  }
+  };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -51,7 +52,7 @@ export function LoginForm({
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <Field>
+              {/* <Field>
                 <Button variant="outline" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
@@ -70,36 +71,56 @@ export function LoginForm({
                   </svg>
                   Login with Google
                 </Button>
-              </Field>
-              <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+              </Field> */}
+              {/* <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
-              </FieldSeparator>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="m@example.com"
-                
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" name="password" type="password"  />
-              </Field>
+              </FieldSeparator> */}
+              <Controller
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Email</FieldLabel>
+                    <Input
+                      type="email"
+                      placeholder="m@example.com"
+                      {...field}
+                    />
+                    {form.formState.errors.email?.message && (
+                      <p className="text-red-500 text-sm">
+                        {form.formState.errors.email.message}
+                      </p>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <Field>
+                    <div className="flex items-center">
+                      <FieldLabel htmlFor="password">Password</FieldLabel>
+                      <a
+                        href="#"
+                        className="ml-auto text-sm underline-offset-4 hover:underline"
+                      >
+                        Forgot your password?
+                      </a>
+                    </div>
+                    <Input type="password" {...field} />
+                    {form.formState.errors.password?.message && (
+                      <p className="text-red-500 text-sm">
+                        {form.formState.errors.password.message}
+                      </p>
+                    )}
+                  </Field>
+                )}
+              />
               <Field>
                 <Button type="submit">Login</Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Don&apos;t have an account? <Link to="/register">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
