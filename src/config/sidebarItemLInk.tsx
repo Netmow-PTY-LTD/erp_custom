@@ -1,8 +1,8 @@
 "use client";
 import { Bell, Car, HandCoins, LayoutDashboard, LineChart, Monitor, Package, Palette, Settings, ShoppingCart, UserPlus, Users, Wrench, } from "lucide-react";
-import Dashboard from "../pages/Dashboard/Dashboard";
-import PackagePage from "../pages/Package/Package";
-import Products from "../pages/Products/Products";
+import Dashboard from "../pages/dashboard/Dashboard";
+import PackagePage from "../pages/package/Package";
+import Products from "../pages/products/Products";
 
 
 // This is sample data.
