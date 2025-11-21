@@ -16,6 +16,7 @@ import {
 import Dashboard from "../pages/dashboard/Dashboard";
 import PackagePage from "../pages/package/Package";
 import Products from "../pages/products/Products";
+import CreateProduct from "@/pages/products/create";
 
 // This is sample data.
 export const sidebarItemLInk = [
@@ -39,6 +40,7 @@ export const sidebarItemLInk = [
       {
         title: "Add Product",
         url: "/dashboard/products/create",
+        element: <CreateProduct />,
       },
       {
         title: "Categories",
