@@ -21,7 +21,7 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
     const currentPath = location.pathname + location.search;
 
     // navigate({ to: string }) is not standard; use `navigate(path, options)` in React Router v6
-    navigate(`/sign-in?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+    navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
   };
 
   return (
