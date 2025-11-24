@@ -1,91 +1,109 @@
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
-import { MoreHorizontal } from "lucide-react";
+
+
 
 export type Customer = {
   id: string;
   name: string;
+  company: string;
   email: string;
   phone: string;
-  membership: string;
+  address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  latitude: string;
+  longitude: string;
+  creditLimit: number;
   status: string;
+  route: string;
 };
 
 const customers: Customer[] = [
-  { id: "C001", name: "John Doe", email: "john@example.com", phone: "+6012345678", membership: "Gold", status: "Active" },
-  { id: "C002", name: "Jane Smith", email: "jane@example.com", phone: "+6019876543", membership: "Silver", status: "Active" },
-  { id: "C003", name: "Michael Lee", email: "michael@example.com", phone: "+6011122334", membership: "Bronze", status: "Inactive" },
-  { id: "C004", name: "Sara Khan", email: "sara@example.com", phone: "+6012233445", membership: "Gold", status: "Active" },
-  { id: "C005", name: "Ali Rahman", email: "ali@example.com", phone: "+6019988776", membership: "Silver", status: "Inactive" },
+  {
+    id: "C001",
+    name: "John Doe",
+    company: "Company A",
+    email: "john@example.com",
+    phone: "+6012345678",
+    address: "123 Street, Kuala Lumpur",
+    city: "Kuala Lumpur",
+    state: "Kuala Lumpur",
+    postalCode: "50000",
+    country: "Malaysia",
+    latitude: "3.1390",
+    longitude: "101.6869",
+    creditLimit: 1000,
+    status: "Active",
+    route: "Route A",
+  },
+  {
+    id: "C002",
+    name: "Jane Smith",
+    company: "Company B",
+    email: "jane@example.com",
+    phone: "+6019876543",
+    address: "456 Street, Selangor",
+    city: "Shah Alam",
+    state: "Selangor",
+    postalCode: "40000",
+    country: "Malaysia",
+    latitude: "3.0738",
+    longitude: "101.5183",
+    creditLimit: 500,
+    status: "Inactive",
+    route: "Route B",
+  },
 ];
+
+
+
+
+
 
 export default function Customers() {
   const [pageIndex, setPageIndex] = useState(0);
 
-  const customerColumns: ColumnDef<Customer>[] = [
-    { accessorKey: "id", header: "Customer ID" },
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "email", header: "Email" },
-    { accessorKey: "phone", header: "Phone" },
-    {
-      accessorKey: "membership",
-      header: "Membership",
-      cell: ({ row }) => {
-        const level = row.getValue("membership") as string;
-        const variant =
-          level === "Gold" ? "success" : level === "Silver" ? "secondary" : "destructive";
 
-        return <Badge variant={variant}>{level}</Badge>;
-      },
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const variant = status === "Active" ? "success" : "destructive";
-        return <Badge variant={variant}>{status}</Badge>;
-      },
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const customer = row.original;
 
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(customer.id)}>
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>View</DropdownMenuItem>
-              <DropdownMenuItem>Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+
+ const customerColumns: ColumnDef<Customer>[] = [
+  { accessorKey: "id", header: "Customer ID" },
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "company", header: "Company" },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "phone", header: "Phone" },
+  { accessorKey: "address", header: "Address" },
+  { accessorKey: "city", header: "City" },
+  { accessorKey: "state", header: "State" },
+  { accessorKey: "postalCode", header: "Postal Code" },
+  { accessorKey: "country", header: "Country" },
+  { accessorKey: "latitude", header: "Latitude" },
+  { accessorKey: "longitude", header: "Longitude" },
+  { accessorKey: "creditLimit", header: "Credit Limit (RM)" },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      const variant = status === "Active" ? "success" : "destructive";
+      return <Badge variant={variant}>{status}</Badge>;
     },
-  ];
+  },
+  { accessorKey: "route", header: "Route" },
+];
+
+
+
+
+
+
+
+
 
   return (
     <div>

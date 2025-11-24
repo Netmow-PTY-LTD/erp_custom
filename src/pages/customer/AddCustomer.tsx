@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Link } from "react-router";
 
 export default function AddCustomer() {
   const [status, setStatus] = useState("Active");
@@ -14,7 +15,9 @@ export default function AddCustomer() {
   return (
     <div className="space-y-6 p-6 bg-white rounded-lg shadow">
       {/* Back Button */}
+    <Link to={'/dashboard/customers'}> 
       <Button variant="outline" className="mb-4">← Back to Customers</Button>
+     </Link>
 
       {/* Basic Information */}
       <div className="space-y-2">
