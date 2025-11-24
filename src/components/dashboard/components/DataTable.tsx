@@ -77,7 +77,7 @@ export function DataTable<TData>({
   pageSize,
   // onPageChange,
   // onPageSizeChange,
-  onGlobalFilterChange,
+  // onGlobalFilterChange,
   globalFilterValue,
 }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = useState(globalFilterValue || "");
@@ -98,7 +98,7 @@ export function DataTable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
+    // onGlobalFilterChange: setGlobalFilter,
     manualPagination: true,
     pageCount: Math.ceil(totalCount / pageSize),
   });
@@ -109,14 +109,12 @@ export function DataTable<TData>({
 
   return (
     <div className="space-y-4">
-      {onGlobalFilterChange && (
         <Input
           placeholder="Search..."
           value={globalFilter}
           onChange={(e) => setGlobalFilter(e.target.value)}
           className="max-w-sm"
         />
-      )}
 
       <div className="rounded-md border">
         <Table>

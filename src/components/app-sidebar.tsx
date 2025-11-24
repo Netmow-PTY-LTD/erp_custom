@@ -2,7 +2,7 @@
 
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenuButton } from "./ui/sidebar";
 import { NavMain } from "./nav-main";
-import { sidebarItemLInk } from "../config/sidebarItemLInk";
+import { sidebarItemLink } from "../config/sidebarItemLInk";
 
 
 
@@ -41,7 +41,7 @@ export function AppSidebar({ ...props }) {
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItemLInk ?? []} />
+        <NavMain items={sidebarItemLink ?? []} />
       </SidebarContent>
 
 

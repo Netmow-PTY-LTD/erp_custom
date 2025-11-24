@@ -5,9 +5,11 @@ import Products from "../pages/products/Products";
 import CreateProduct from "@/pages/products/create";
 import Customers from "@/pages/customer/Customers";
 import AddCustomer from "@/pages/customer/AddCustomer";
+import ProductCategories from "@/pages/products/categories";
+import StockManagement from "@/pages/products/stock";
 
 // This is sample data.
-export const sidebarItemLInk = [
+export const sidebarItemLink = [
   {
     title: "Dashboard",
     url: "/dashboard",
@@ -32,10 +34,12 @@ export const sidebarItemLInk = [
       {
         title: "Categories",
         url: "/dashboard/products/categories",
+        element: <ProductCategories />,
       },
       {
         title: "Stock Management",
         url: "/dashboard/products/stock",
+        element: <StockManagement />,
       },
     ],
   },
