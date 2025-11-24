@@ -29,12 +29,12 @@ const productSchema = z.object({
   category: z.string().nullable(),
   unit: z.string(),
   status: z.string(),
-  unitPrice: z.coerce.number().nonnegative(),
-  costPrice: z.coerce.number().nonnegative(),
-  initialStock: z.coerce.number().int().nonnegative(),
-  minStock: z.coerce.number().int().nonnegative(),
-  maxStock: z.coerce.number().int().nonnegative(),
-  weight: z.coerce.number().nonnegative(),
+  unitPrice: z.number(),
+  costPrice: z.number(),
+  initialStock: z.number(),
+  minStock: z.number(),
+  maxStock: z.number(),
+  weight: z.number(),
   dimensions: z.string().optional(),
 });
 
@@ -225,7 +225,16 @@ export default function AddProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>{label}</FieldLabel>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      value={field.value ?? ""} // <- THIS FIXES THE ERROR
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
