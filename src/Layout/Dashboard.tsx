@@ -12,7 +12,7 @@ export default function DashboardLayout() {
     <SidebarProvider className={`bg-white`}>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-14 shrink-0 gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b border-gray-100">
+        <header className="flex h-14 shrink-0 gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b border-gray-100 sticky top-0 z-30 bg-background">
           <div className="flex items-center gap-2 px-4 w-full">
             <SidebarTrigger className="-ml-1 cursor-pointer" />
             <div className="ml-auto flex items-center gap-4">

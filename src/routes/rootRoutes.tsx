@@ -4,12 +4,12 @@ import NotFound from "../pages/NotFound";
 import DashboardLayout from "../Layout/Dashboard";
 import Dashboard from "../pages/dashboard/Dashboard";
 import { generateRoutes } from "../utils/routesGenerators";
-import { sidebarItemLInk } from "../config/sidebarItemLInk";
+import { sidebarItemLink } from "../config/sidebarItemLInk";
 import Login from "@/pages/auth/Login";
 import RegisterPage from "@/pages/auth/Register";
 
 // Generate dynamic dashboard routes (relative paths)
-const dashboardRoutes = generateRoutes(sidebarItemLInk, "dashboard");
+const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
 
 // Define routes using createBrowserRouter
 const rootRouter = createBrowserRouter([
