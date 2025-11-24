@@ -151,7 +151,15 @@ export function Analytics() {
   );
 }
 
-function SimpleBarList({ items, valueFormatter, barClass }) {
+function SimpleBarList({
+  items,
+  valueFormatter,
+  barClass,
+}: {
+  items: { name: string; value: number }[]
+  valueFormatter: (n: number) => string
+  barClass: string
+}) {
   const max = Math.max(...items.map((i) => i.value), 1);
   return (
     <ul className="space-y-3">

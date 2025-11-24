@@ -1,21 +1,10 @@
-import {
-  Bell,
-  Car,
-  HandCoins,
-  LayoutDashboard,
-  LineChart,
-  Monitor,
-  Package,
-  Palette,
-  Settings,
-  ShoppingCart,
-  UserPlus,
-  Users,
-  Wrench,
-} from "lucide-react";
+
+import { Bell, Car, HandCoins, LayoutDashboard, LineChart, Monitor, Package, Palette, Settings, ShoppingCart, UserPlus, Users, Wrench, } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
-import PackagePage from "../pages/package/Package";
 import Products from "../pages/products/Products";
+import CreateProduct from "@/pages/products/create";
+import Customers from "@/pages/customer/Customers";
+import AddCustomer from "@/pages/customer/AddCustomer";
 
 // This is sample data.
 export const sidebarItemLInk = [
@@ -29,7 +18,6 @@ export const sidebarItemLInk = [
     title: "Products",
     url: "#",
     icon: Package,
-    element: <PackagePage />,
     items: [
       {
         title: "Products",
@@ -39,6 +27,7 @@ export const sidebarItemLInk = [
       {
         title: "Add Product",
         url: "/dashboard/products/create",
+        element: <CreateProduct />,
       },
       {
         title: "Categories",
@@ -58,10 +47,12 @@ export const sidebarItemLInk = [
       {
         title: "List of Customers",
         url: "/dashboard/customers",
+         element: <Customers />,
       },
       {
         title: "Add Customer",
         url: "/dashboard/customers/create",
+         element: <AddCustomer />,
       },
     ],
   },
