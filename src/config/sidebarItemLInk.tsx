@@ -7,6 +7,7 @@ import Customers from "@/pages/customer/Customers";
 import AddCustomer from "@/pages/customer/AddCustomer";
 import ProductCategories from "@/pages/products/categories";
 import StockManagement from "@/pages/products/stock";
+import AddIncomePage from "@/pages/accounting/AddIncomePage";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -126,6 +127,15 @@ export const sidebarItemLink = [
       {
         title: "Expenses",
         url: "/dashboard/accounting/expenses",
+      },
+      {
+        title: "Add Income",
+        url: "/dashboard/accounting/add-income",
+        element:<AddIncomePage/>
+      },
+      {
+        title: "Add Expanse",
+        url: "/dashboard/accounting/add-expanse",
       },
     ],
   },
