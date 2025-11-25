@@ -141,7 +141,7 @@ export default function Orders() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Orders Management</h1>
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/invoices">
