@@ -69,8 +69,8 @@ export default function Payments() {
       const payment = row.original;
       return (
         <div className="flex items-center gap-2">
-          <Link to={`/payments/${payment.paymentNumber}`}>
-            <Button size="sm">View</Button>
+          <Link to={`/dashboard/payments/${payment.id}`}>
+            <Button size="sm" variant="outline-info">View</Button>
           </Link>
         </div>
       );
@@ -83,7 +83,7 @@ export default function Payments() {
     <div className="w-full">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Payments</h1>
-        <Link to="/orders/new">
+        <Link to="/dashboard/payments/create">
           <Button variant="info">
             <PlusCircle className="h-4 w-4" />
             Record Payment

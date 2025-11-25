@@ -3,6 +3,7 @@ import type { Invoice, Order, Payment } from "@/types/types";
 
 export const invoiceData: Invoice[] = [
   {
+    id: 1,
     invoiceNumber: "INV-20251121-36A05F",
     customer: "Modern Enterprises",
     customerId: "CUST005",
@@ -15,6 +16,7 @@ export const invoiceData: Invoice[] = [
     status: "Sent",
   },
   {
+    id: 2,
     invoiceNumber: "INV-20251121-13BE5E",
     customer: "Arif R.",
     customerId: "CUST010",
@@ -27,6 +29,7 @@ export const invoiceData: Invoice[] = [
     status: "Sent",
   },
   {
+    id: 3,
     invoiceNumber: "INV-20251110-63F242",
     customer: "Tech Solutions Sdn Bhd",
     customerId: "CUST001",
@@ -39,6 +42,7 @@ export const invoiceData: Invoice[] = [
     status: "Sent",
   },
   {
+    id: 4,
     invoiceNumber: "INV-20251012-FBB652",
     customer: "Digital Works Sdn Bhd",
     customerId: "CUST006",
@@ -51,6 +55,7 @@ export const invoiceData: Invoice[] = [
     status: "Paid",
   },
   {
+    id: 5,
     invoiceNumber: "INV-20251012-D72F5C",
     customer: "Modern Enterprises",
     customerId: "CUST005",
@@ -63,6 +68,7 @@ export const invoiceData: Invoice[] = [
     status: "Sent",
   },
   {
+    id: 6,
     invoiceNumber: "INV2025001",
     customer: "Tech Solutions Sdn Bhd",
     customerId: "CUST001",
@@ -75,6 +81,7 @@ export const invoiceData: Invoice[] = [
     status: "Paid",
   },
   {
+    id: 7,
     invoiceNumber: "INV2025002",
     customer: "Global Trading Co",
     customerId: "CUST002",
@@ -87,6 +94,7 @@ export const invoiceData: Invoice[] = [
     status: "Paid",
   },
   {
+    id: 8,
     invoiceNumber: "INV2025003",
     customer: "Innovative Systems",
     customerId: "CUST003",
@@ -99,6 +107,7 @@ export const invoiceData: Invoice[] = [
     status: "Sent",
   },
   {
+    id: 9,
     invoiceNumber: "INV2025004",
     customer: "Office Hub Malaysia",
     customerId: "CUST004",
@@ -111,6 +120,7 @@ export const invoiceData: Invoice[] = [
     status: "Sent",
   },
   {
+    id: 10,
     invoiceNumber: "INV2025005",
     customer: "Modern Enterprises",
     customerId: "CUST005",
@@ -219,6 +229,7 @@ export const ordersData: Order[] = [
 // Payment data array
 export const payments: Payment[] = [
   {
+    id: 1,
     paymentNumber: "PAY-20251012-09E0E3",
     customer: "Digital Works Sdn Bhd",
     customerId: "CUST006",
@@ -229,6 +240,7 @@ export const payments: Payment[] = [
     reference: "-",
   },
   {
+    id: 2,
     paymentNumber: "PAY2025001",
     customer: "Tech Solutions Sdn Bhd",
     customerId: "CUST001",
@@ -239,6 +251,7 @@ export const payments: Payment[] = [
     reference: "TXN789456123",
   },
   {
+    id: 3,
     paymentNumber: "PAY2025002",
     customer: "Global Trading Co",
     customerId: "CUST002",
@@ -249,6 +262,7 @@ export const payments: Payment[] = [
     reference: "CC987654321",
   },
   {
+    id: 4,
     paymentNumber: "PAY2025003",
     customer: "Tech Solutions Sdn Bhd",
     customerId: "CUST001",
