@@ -111,7 +111,7 @@ export default function CreateOrderPage() {
                     <FormLabel>Customer</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange}>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a customer..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -197,7 +197,7 @@ export default function CreateOrderPage() {
                         <FormLabel>Product</FormLabel>
                         <FormControl>
                           <Select onValueChange={field.onChange}>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select product..." />
                             </SelectTrigger>
                             <SelectContent>

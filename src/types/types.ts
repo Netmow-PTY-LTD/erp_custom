@@ -42,3 +42,28 @@ export type Payment = {
   amount: number;
   reference: string;
 };
+
+export type WarehouseOrder = {
+  orderId: string;
+  customer: string;
+  total: number;
+  date: string;
+  status: "confirmed";
+};
+
+export interface DeliveryOrder {
+  id: number;
+  orderNumber: string;
+  customer: string;
+  total: number;
+  date: string;
+  status: string;
+}
+
+export interface SalesRoute {
+  id: number;
+  name: string;
+  description: string;
+  staff: number;
+  customers: number;
+}

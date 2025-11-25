@@ -76,7 +76,7 @@ export default function InvoiceDetailsPage() {
 
         <div className="flex items-center gap-2">
           <Link to="/dashboard/invoices">
-            <Button variant="outline">← Back</Button>
+            <Button variant="outline">← Back to Invoices</Button>
           </Link>
           <Link to={`/dashboard/invoices/${invoice.invoiceNo}/payment`}>
             <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
