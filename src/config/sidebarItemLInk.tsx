@@ -36,6 +36,9 @@ import CreatePaymentPage from "@/pages/payments/create";
 import PaymentDetails from "@/pages/payments/PaymentDetails";
 import SuppliersList from "@/pages/suppliers/suppliersList";
 import AddSupplierPage from "@/pages/suppliers/AddSupplier";
+import WarehousesPage from "@/pages/warehouse";
+import DeliveryPage from "@/pages/delivery";
+import SalesRoutesPage from "@/pages/sales-routes";
 import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
@@ -101,12 +104,12 @@ export const sidebarItemLink = [
       {
         title: "List of Suppliers",
         url: "/dashboard/suppliers",
-        element:<SuppliersList/>
+        element: <SuppliersList />,
       },
       {
         title: "Add Supplier",
         url: "/dashboard/suppliers/create",
-        element:<AddSupplierPage/>
+        element: <AddSupplierPage />,
       },
       {
         title: "",
@@ -160,8 +163,8 @@ export const sidebarItemLink = [
         url: "/dashboard/invoices",
         element: <Invoices />,
       },
-       {
-        title: "Invoice Details",
+      {
+        title: "",
         url: "/dashboard/invoices/:invoiceId",
         element: <InvoiceDetailsPage />,
       },
@@ -170,23 +173,39 @@ export const sidebarItemLink = [
         url: "/dashboard/payments",
         element: <Payments />,
       },
-       {
-        title: "Payments Details",
+      {
+        title: "",
         url: "/dashboard/payments/:paymentId",
         element: <PaymentDetails />,
       },
-       {
-        title: "Payments",
+      {
+        title: "",
         url: "/dashboard/payments/create",
         element: <CreatePaymentPage />,
       },
       {
         title: "Warehouses",
         url: "/dashboard/warehouses",
+        element: <WarehousesPage />,
       },
       {
         title: "Delivery",
         url: "/dashboard/delivery",
+        element: <DeliveryPage />,
+      },
+      {
+        title: "Sales Routes",
+        url: "/dashboard/sales-routes",
+        element: <SalesRoutesPage />,
+      },
+       {
+        title: "",
+        url: "/dashboard/sales-routes/:routeId",
+        element: <div>Sales Route</div>,
+      },
+        {
+        title: "",
+        url: "/dashboard/sales-routes/create",
       },
     ],
   },
@@ -198,27 +217,27 @@ export const sidebarItemLink = [
       {
         title: "Overview",
         url: "/dashboard/accounting",
-        element:<AccountingOverview/>
+        element: <AccountingOverview />,
       },
       {
         title: "Incomes",
         url: "/dashboard/accounting/incomes",
-        element: <IncomePage />
+        element: <IncomePage />,
       },
       {
         title: "Expenses",
         url: "/dashboard/accounting/expenses",
-        element: <Expenses />
+        element: <Expenses />,
       },
       {
         title: "",
         url: "/dashboard/accounting/add-income",
-        element: <AddIncomePage />
+        element: <AddIncomePage />,
       },
       {
         title: "",
         url: "/dashboard/accounting/add-expanse",
-        element: <AddExpensePage />
+        element: <AddExpensePage />,
       },
     ],
   },

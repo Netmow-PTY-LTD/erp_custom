@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 export default function OrderDetails() {
   const { orderId } = useParams();
@@ -16,10 +17,38 @@ export default function OrderDetails() {
     createdBy: "—",
     dueDate: "2025-11-22",
     items: [
-      { product: "Desk Lamp", sku: "SKU007", price: 75, qty: 2, discount: 0, total: 150 },
-      { product: "Office Chair", sku: "SKU002", price: 299, qty: 5, discount: 0, total: 1495 },
-      { product: "Wireless Mouse", sku: "SKU001", price: 45, qty: 10, discount: 10, total: 405 },
-      { product: "Wireless Mouse", sku: "SKU001", price: 45, qty: 10, discount: 10, total: 405 },
+      {
+        product: "Desk Lamp",
+        sku: "SKU007",
+        price: 75,
+        qty: 2,
+        discount: 0,
+        total: 150,
+      },
+      {
+        product: "Office Chair",
+        sku: "SKU002",
+        price: 299,
+        qty: 5,
+        discount: 0,
+        total: 1495,
+      },
+      {
+        product: "Wireless Mouse",
+        sku: "SKU001",
+        price: 45,
+        qty: 10,
+        discount: 10,
+        total: 405,
+      },
+      {
+        product: "Wireless Mouse",
+        sku: "SKU001",
+        price: 45,
+        qty: 10,
+        discount: 10,
+        total: 405,
+      },
     ],
     summary: {
       subtotal: 4345,
@@ -46,16 +75,27 @@ export default function OrderDetails() {
   return (
     <div className="space-y-8">
       {/* ------------------ PAGE HEADER ------------------ */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-5">
         <h1 className="text-2xl font-bold">Order {order.orderNumber}</h1>
-        <Button variant="info">Print</Button>
+        <div className="flex items-center gap-2">
+          <Link to={`/dashboard/orders`}>
+            <Button variant="outline">
+              <ArrowLeft className="h-4 w-4" /> Back to Orders
+            </Button>
+          </Link>
+          <Link to={`/dashboard/invoices/${order.orderNumber}`} className="flex gap-2">
+            <Button variant="info">View Invoice</Button>
+          </Link>
+          <Button variant="outline-info">Print</Button>
+        </div>
       </div>
 
       {/* ------------------ ORDER ITEMS ------------------ */}
       <Card className="p-6">
         <h2 className="text-lg font-semibold">Order Items</h2>
 
-        <table className="w-full border-collapse text-sm">
+        <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b bg-gray-50">
               <th className="p-3 text-left">Product</th>
@@ -75,11 +115,14 @@ export default function OrderDetails() {
                 <td className="p-3 text-center">{item.price.toFixed(2)}</td>
                 <td className="p-3 text-center">{item.qty}</td>
                 <td className="p-3 text-center">{item.discount.toFixed(2)}</td>
-                <td className="p-3 text-center font-medium">{item.total.toFixed(2)}</td>
+                <td className="p-3 text-center font-medium">
+                  {item.total.toFixed(2)}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       </Card>
 
       {/* ------------------ GRID: ORDER INFO + SUMMARY + CUSTOMER ------------------ */}
@@ -115,7 +158,9 @@ export default function OrderDetails() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-medium">RM {order.summary.subtotal.toFixed(2)}</span>
+              <span className="font-medium">
+                RM {order.summary.subtotal.toFixed(2)}
+              </span>
             </div>
 
             <div className="flex justify-between">
@@ -127,7 +172,9 @@ export default function OrderDetails() {
 
             <div className="flex justify-between">
               <span>Tax</span>
-              <span className="font-medium">RM {order.summary.tax.toFixed(2)}</span>
+              <span className="font-medium">
+                RM {order.summary.tax.toFixed(2)}
+              </span>
             </div>
 
             <div className="flex justify-between text-lg font-bold pt-2 border-t">
