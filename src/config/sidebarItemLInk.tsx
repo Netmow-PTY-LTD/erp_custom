@@ -9,6 +9,8 @@ import ProductCategories from "@/pages/products/categories";
 import StockManagement from "@/pages/products/stock";
 import AddIncomePage from "@/pages/accounting/AddIncomePage";
 import AddExpensePage from "@/pages/accounting/AddExpanse";
+import Expenses from "@/pages/accounting/Expenses";
+import IncomePage from "@/pages/accounting/Income";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -53,12 +55,12 @@ export const sidebarItemLink = [
       {
         title: "List of Customers",
         url: "/dashboard/customers",
-         element: <Customers />,
+        element: <Customers />,
       },
       {
         title: "Add Customer",
         url: "/dashboard/customers/create",
-         element: <AddCustomer />,
+        element: <AddCustomer />,
       },
     ],
   },
@@ -124,21 +126,22 @@ export const sidebarItemLink = [
       {
         title: "Incomes",
         url: "/dashboard/accounting/incomes",
+        element: <IncomePage />
       },
       {
         title: "Expenses",
         url: "/dashboard/accounting/expenses",
-          
+        element: <Expenses />
       },
       {
         title: "Add Income",
         url: "/dashboard/accounting/add-income",
-        element:<AddIncomePage/>
+        element: <AddIncomePage />
       },
       {
         title: "Add Expanse",
         url: "/dashboard/accounting/add-expanse",
-        element:<AddExpensePage/>
+        element: <AddExpensePage />
       },
     ],
   },
