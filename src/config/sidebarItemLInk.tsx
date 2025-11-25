@@ -36,6 +36,10 @@ import CreatePaymentPage from "@/pages/payments/create";
 import PaymentDetails from "@/pages/payments/PaymentDetails";
 import SuppliersList from "@/pages/suppliers/suppliersList";
 import AddSupplierPage from "@/pages/suppliers/AddSupplier";
+import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
+import EditSupplierPage from "@/pages/suppliers/EditSupplier";
+import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
+import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -105,8 +109,24 @@ export const sidebarItemLink = [
         element:<AddSupplierPage/>
       },
       {
+        title: "",
+        url: "/dashboard/suppliers/:supplierId/edit",
+        element:<EditSupplierPage/>
+      },
+      {
         title: "Purchase Orders",
         url: "/dashboard/suppliers/purchase-orders",
+        element:<PurchaseOrdersList/>
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/:purchaseId",
+        element:<ViewPurchaseOrderPage/>
+      },
+      {
+        title: "",
+        url: "/purchase-orders/create",
+        element:<CreatePurchaseOrderPage/>
       },
     ],
   },
@@ -191,12 +211,12 @@ export const sidebarItemLink = [
         element: <Expenses />
       },
       {
-        title: "Add Income",
+        title: "",
         url: "/dashboard/accounting/add-income",
         element: <AddIncomePage />
       },
       {
-        title: "Add Expanse",
+        title: "",
         url: "/dashboard/accounting/add-expanse",
         element: <AddExpensePage />
       },

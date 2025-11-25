@@ -74,7 +74,6 @@ export default function IncomePage() {
             <DataTable
                 columns={incomeColumns}
                 data={incomes}
-                totalCount={incomes.length}
                 pageIndex={pageIndex}
                 pageSize={10}
                 onPageChange={setPageIndex}
