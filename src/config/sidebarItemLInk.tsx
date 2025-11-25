@@ -211,12 +211,12 @@ export const sidebarItemLink = [
         element: <Expenses />
       },
       {
-        title: "Add Income",
+        title: "",
         url: "/dashboard/accounting/add-income",
         element: <AddIncomePage />
       },
       {
-        title: "Add Expanse",
+        title: "",
         url: "/dashboard/accounting/add-expanse",
         element: <AddExpensePage />
       },
