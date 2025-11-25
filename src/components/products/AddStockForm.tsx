@@ -78,7 +78,7 @@ export default function AddStockForm({
         <SheetHeader>
           <SheetTitle>Add Stock</SheetTitle>
         </SheetHeader>
-        <div className="p-4">
+        <div className="p-4 max-h-[90vh] overflow-y-auto">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}

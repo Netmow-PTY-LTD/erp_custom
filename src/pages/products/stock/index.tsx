@@ -53,14 +53,92 @@ const stocks: Stock[] = [
     stockStatus: "Low Stock",
     status: "Active",
   },
+  {
+    sku: "101112",
+    name: "Product 4",
+    category: "Category 4",
+    price: 400,
+    stock: 15,
+    stockStatus: "Normal",
+    status: "Inactive",
+  },
+  {
+    sku: "131415",
+    name: "Product 5",
+    category: "Category 5",
+    price: 500,
+    stock: 20,
+    stockStatus: "High Stock",
+    status: "Active",
+  },
+  {
+    sku: "161718",
+    name: "Product 6",
+    category: "Category 6",
+    price: 600,
+    stock: 10,
+    stockStatus: "Normal",
+    status: "Inactive",
+  },
+  {
+    sku: "192021",
+    name: "Product 7",
+    category: "Category 7",
+    price: 700,
+    stock: 5,
+    stockStatus: "Low Stock",
+    status: "Active",
+  },
+  {
+    sku: "222324",
+    name: "Product 8",
+    category: "Category 8",
+    price: 800,
+    stock: 0,
+    stockStatus: "Low Stock",
+    status: "Inactive",
+  },
+  {
+    sku: "252627",
+    name: "Product 9",
+    category: "Category 9",
+    price: 900,
+    stock: 15,
+    stockStatus: "Normal",
+    status: "Active",
+  },
+  {
+    sku: "282930",
+    name: "Product 10",
+    category: "Category 10",
+    price: 1000,
+    stock: 20,
+    stockStatus: "High Stock",
+    status: "Inactive",
+  },
+  {
+    sku: "313233",
+    name: "Product 11",
+    category: "Category 11",
+    price: 1100,
+    stock: 10,
+    stockStatus: "Normal",
+    status: "Active",
+  },
+  {
+    sku: "343536",
+    name: "Product 12",
+    category: "Category 12",
+    price: 1200,
+    stock: 5,
+    stockStatus: "Low Stock",
+    status: "Inactive",
+  },
 ];
 
 export default function StockManagement() {
   const [openEditStockForm, setOpenEditStockForm] = useState<boolean>(false);
-  const [pageIndex, setPageIndex] = useState(0);
   const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
-
-  const pageSize = 10;
 
   const handleDeleteStock = (sku: string) => {
     // Handle stock deletion logic here
@@ -129,12 +207,17 @@ export default function StockManagement() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setOpenEditStockForm(true)}>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => setOpenEditStockForm(true)}
+              >
                 Edit
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDeleteStock(item?.sku)}>
+              <DropdownMenuItem className="cursor-pointer">View</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer" onClick={() => handleDeleteStock(item?.sku)}>
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -145,7 +228,7 @@ export default function StockManagement() {
   ];
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="space-y-8">
       <div className="flex">
         <h1 className="text-2xl font-bold">Stocks Management</h1>
         <div className="ml-auto">
@@ -156,10 +239,6 @@ export default function StockManagement() {
       <DataTable
         columns={columns}
         data={stocks}
-        totalCount={stocks.length}
-        pageIndex={pageIndex}
-        pageSize={pageSize}
-        onPageChange={setPageIndex}
       />
       <EditStockForm open={openEditStockForm} setOpen={setOpenEditStockForm} />
     </div>

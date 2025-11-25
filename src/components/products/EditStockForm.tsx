@@ -199,7 +199,7 @@ export default function EditStockForm({ open, setOpen }: { open: boolean; setOpe
               />
 
               <div className="md:col-span-2">
-                <Button type="submit">Add Stock</Button>
+                <Button type="submit">Update Stock</Button>
               </div>
             </form>
           </Form>
