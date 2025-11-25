@@ -10,7 +10,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useState } from "react";
 import {
   AlertCircle,
   AlertTriangle,
@@ -21,6 +20,7 @@ import {
   Tags,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router";
 
 export type Product = {
   sku: string;
@@ -162,7 +162,6 @@ const stats = [
 ];
 
 export default function Products() {
-  const [pageIndex, setPageIndex] = useState(0);
 
   const productColumns: ColumnDef<Product>[] = [
     {
@@ -242,25 +241,29 @@ export default function Products() {
   ];
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full">
+      <div className="flex flex-wrap justify-between items-center mb-6">
         <h2 className="text-3xl font-semibold">Product Management</h2>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">
             <AlertCircle size={18} />
             Stock Alerts
           </button>
 
-          <button className="flex items-center gap-2 bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-500">
+          <Link to="/dashboard/products/categories">
+            <button className="flex items-center gap-2 bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-500">
             <Tags size={18} />
             Categories
           </button>
+          </Link>
 
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
+          <Link to="/dashboard/products/create">
+            <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
             <PackagePlus size={18} />
             Add Product
           </button>
+          </Link>
         </div>
       </div>
 
@@ -287,10 +290,6 @@ export default function Products() {
           <DataTable
             columns={productColumns}
             data={products}
-            totalCount={products.length}
-            pageIndex={pageIndex}
-            pageSize={10}
-            onPageChange={setPageIndex}
           />
         </CardContent>
       </Card>

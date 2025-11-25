@@ -1,5 +1,18 @@
-
-import { Bell, Car, HandCoins, LayoutDashboard, LineChart, Monitor, Package, Palette, Settings, ShoppingCart, UserPlus, Users, Wrench, } from "lucide-react";
+import {
+  Bell,
+  Car,
+  HandCoins,
+  LayoutDashboard,
+  LineChart,
+  Monitor,
+  Package,
+  Palette,
+  Settings,
+  ShoppingCart,
+  UserPlus,
+  Users,
+  Wrench,
+} from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Products from "../pages/products/Products";
 import CreateProduct from "@/pages/products/create";
@@ -7,6 +20,17 @@ import Customers from "@/pages/customer/Customers";
 import AddCustomer from "@/pages/customer/AddCustomer";
 import ProductCategories from "@/pages/products/categories";
 import StockManagement from "@/pages/products/stock";
+import Orders from "@/pages/orders";
+import Invoices from "@/pages/invoices";
+import Payments from "@/pages/payments";
+import CreateOrderPage from "@/pages/orders/create";
+import EditOrderPage from "@/pages/orders/edit";
+import OrderDetails from "@/pages/orders/OrderDetails";
+import AddIncomePage from "@/pages/accounting/AddIncomePage";
+import AddExpensePage from "@/pages/accounting/AddExpanse";
+import Expenses from "@/pages/accounting/Expenses";
+import IncomePage from "@/pages/accounting/Income";
+import AccountingOverview from "@/pages/accounting/Accounting";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -51,12 +75,12 @@ export const sidebarItemLink = [
       {
         title: "List of Customers",
         url: "/dashboard/customers",
-         element: <Customers />,
+        element: <Customers />,
       },
       {
         title: "Add Customer",
         url: "/dashboard/customers/create",
-         element: <AddCustomer />,
+        element: <AddCustomer />,
       },
     ],
   },
@@ -87,18 +111,32 @@ export const sidebarItemLink = [
       {
         title: "Orders",
         url: "/dashboard/orders",
+        element: <Orders />,
+      },
+      {
+        title: "",
+        url: "/dashboard/orders/:orderId",
+        element: <OrderDetails />,
       },
       {
         title: "Create Order",
         url: "/dashboard/orders/create",
+        element: <CreateOrderPage />,
+      },
+      {
+        title: "",
+        url: "/dashboard/orders/:orderId/edit",
+        element: <EditOrderPage />,
       },
       {
         title: "Invoices",
         url: "/dashboard/invoices",
+        element: <Invoices />,
       },
       {
         title: "Payments",
         url: "/dashboard/payments",
+        element: <Payments />,
       },
       {
         title: "Warehouses",
@@ -118,14 +156,27 @@ export const sidebarItemLink = [
       {
         title: "Overview",
         url: "/dashboard/accounting",
+        element:<AccountingOverview/>
       },
       {
         title: "Incomes",
         url: "/dashboard/accounting/incomes",
+        element: <IncomePage />
       },
       {
         title: "Expenses",
         url: "/dashboard/accounting/expenses",
+        element: <Expenses />
+      },
+      {
+        title: "Add Income",
+        url: "/dashboard/accounting/add-income",
+        element: <AddIncomePage />
+      },
+      {
+        title: "Add Expanse",
+        url: "/dashboard/accounting/add-expanse",
+        element: <AddExpensePage />
       },
     ],
   },
