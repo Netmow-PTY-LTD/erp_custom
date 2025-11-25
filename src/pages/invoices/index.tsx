@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { invoiceData } from "@/data/data";
 import type { Invoice } from "@/types/types";
 import type { ColumnDef } from "@tanstack/react-table";
+import { PlusCircle } from "lucide-react";
 import { Link } from "react-router";
 
 
@@ -113,7 +114,10 @@ export default function Invoices() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
         <Link to="/dashboard/orders/create">
-          <Button>Create Order</Button>
+          <Button variant="info">
+            <PlusCircle className="h-4 w-4" />
+            Create Order
+          </Button>
         </Link>
       </div>
       <DataTable
