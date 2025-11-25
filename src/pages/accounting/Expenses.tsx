@@ -74,7 +74,6 @@ export default function Expenses() {
             <DataTable
                 columns={expenseColumns}
                 data={expenses}
-                totalCount={expenses.length}
                 pageIndex={pageIndex}
                 pageSize={10}
                 onPageChange={setPageIndex}
