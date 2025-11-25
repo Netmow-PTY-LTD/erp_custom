@@ -26,6 +26,11 @@ import Payments from "@/pages/payments";
 import CreateOrderPage from "@/pages/orders/create";
 import EditOrderPage from "@/pages/orders/edit";
 import OrderDetails from "@/pages/orders/OrderDetails";
+import AddIncomePage from "@/pages/accounting/AddIncomePage";
+import AddExpensePage from "@/pages/accounting/AddExpanse";
+import Expenses from "@/pages/accounting/Expenses";
+import IncomePage from "@/pages/accounting/Income";
+import AccountingOverview from "@/pages/accounting/Accounting";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -151,14 +156,27 @@ export const sidebarItemLink = [
       {
         title: "Overview",
         url: "/dashboard/accounting",
+        element:<AccountingOverview/>
       },
       {
         title: "Incomes",
         url: "/dashboard/accounting/incomes",
+        element: <IncomePage />
       },
       {
         title: "Expenses",
         url: "/dashboard/accounting/expenses",
+        element: <Expenses />
+      },
+      {
+        title: "Add Income",
+        url: "/dashboard/accounting/add-income",
+        element: <AddIncomePage />
+      },
+      {
+        title: "Add Expanse",
+        url: "/dashboard/accounting/add-expanse",
+        element: <AddExpensePage />
       },
     ],
   },
