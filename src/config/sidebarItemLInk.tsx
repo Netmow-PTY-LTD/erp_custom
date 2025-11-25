@@ -11,6 +11,7 @@ import AddIncomePage from "@/pages/accounting/AddIncomePage";
 import AddExpensePage from "@/pages/accounting/AddExpanse";
 import Expenses from "@/pages/accounting/Expenses";
 import IncomePage from "@/pages/accounting/Income";
+import AccountingOverview from "@/pages/accounting/Accounting";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -122,6 +123,7 @@ export const sidebarItemLink = [
       {
         title: "Overview",
         url: "/dashboard/accounting",
+        element:<AccountingOverview/>
       },
       {
         title: "Incomes",
