@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Plus } from "lucide-react";
+import { Link } from "react-router";
 
 // Helper to generate random numbers for dummy data
 const randomAmount = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
@@ -40,7 +41,7 @@ export default function AccountingOverview() {
 
 
 
- const periods: Array<keyof typeof summaryData> = ["today", "week", "month"];
+  const periods: Array<keyof typeof summaryData> = ["today", "week", "month"];
 
 
 
@@ -55,58 +56,65 @@ export default function AccountingOverview() {
         <h2 className="text-2xl font-semibold">Accounting Overview</h2>
 
         <div className="flex gap-2">
-          <Button variant="success">
-            <Plus className="h-4 w-4 mr-1" /> Add Income
-          </Button>
+          <Link to={'/dashboard/accounting/add-income'} >
+            <Button variant="success">
+              <Plus className="h-4 w-4 mr-1" /> Add Income
+            </Button>
+          </Link>
 
+          <Link to={'/dashboard/accounting/add-expanse'}>
+          
           <Button variant="destructive">
             <Plus className="h-4 w-4 mr-1" /> Add Expense
           </Button>
+          </Link>
+
+          
         </div>
       </div>
 
-         {/* Summary Cards */}
-     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  {periods.map((period) => {
-    const data = summaryData[period];
-    const periodLabel =
-      period === "today" ? "Today" : period === "week" ? "This Week" : "This Month";
-    const incomePercent = ((data.income / (data.income + data.expense)) * 100).toFixed(0);
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {periods.map((period) => {
+          const data = summaryData[period];
+          const periodLabel =
+            period === "today" ? "Today" : period === "week" ? "This Week" : "This Month";
+          const incomePercent = ((data.income / (data.income + data.expense)) * 100).toFixed(0);
 
-    return (
-      <Card
-        key={period}
-        className="rounded-xl shadow border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700"
-      >
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {periodLabel}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-gray-900 dark:text-gray-100">
-          <div className="flex justify-between items-center">
-            <div>
-              <span className="text-gray-500 dark:text-gray-400">Income</span>
-              <p className="font-semibold text-lg">
-                RM {data.income.toLocaleString()}.00
-              </p>
-            </div>
-            <span className="font-semibold">{incomePercent}%</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <div>
-              <span className="text-gray-500 dark:text-gray-400">Expense</span>
-              <p className="font-semibold text-lg">
-                RM {data.expense.toLocaleString()}.00
-              </p>
-            </div>
-            <span className="font-semibold">{(100 - Number(incomePercent)).toFixed(0)}%</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  })}
-</div>
+          return (
+            <Card
+              key={period}
+              className="rounded-xl shadow border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700"
+            >
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {periodLabel}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-gray-900 dark:text-gray-100">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Income</span>
+                    <p className="font-semibold text-lg">
+                      RM {data.income.toLocaleString()}.00
+                    </p>
+                  </div>
+                  <span className="font-semibold">{incomePercent}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Expense</span>
+                    <p className="font-semibold text-lg">
+                      RM {data.expense.toLocaleString()}.00
+                    </p>
+                  </div>
+                  <span className="font-semibold">{(100 - Number(incomePercent)).toFixed(0)}%</span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
 
 
       {/* Trend Chart */}

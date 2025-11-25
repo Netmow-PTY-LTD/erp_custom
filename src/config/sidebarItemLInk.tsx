@@ -34,6 +34,8 @@ import AccountingOverview from "@/pages/accounting/Accounting";
 import InvoiceDetailsPage from "@/pages/invoices/InvoiceDetails";
 import CreatePaymentPage from "@/pages/payments/create";
 import PaymentDetails from "@/pages/payments/PaymentDetails";
+import SuppliersList from "@/pages/suppliers/suppliersList";
+import AddSupplierPage from "@/pages/suppliers/AddSupplier";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -95,10 +97,12 @@ export const sidebarItemLink = [
       {
         title: "List of Suppliers",
         url: "/dashboard/suppliers",
+        element:<SuppliersList/>
       },
       {
         title: "Add Supplier",
         url: "/dashboard/suppliers/create",
+        element:<AddSupplierPage/>
       },
       {
         title: "Purchase Orders",
