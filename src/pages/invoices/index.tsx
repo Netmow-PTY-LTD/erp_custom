@@ -99,8 +99,8 @@ export default function Invoices() {
         const invoice = row.original;
         return (
           <div className="flex items-center gap-2">
-            <Link to={`/orders/${invoice.invoiceNumber}`}>
-              <Button size="sm">View</Button>
+            <Link to={`/dashboard/invoices/${invoice.id}`}>
+              <Button size="sm" variant="outline-info">View</Button>
             </Link>
           </div>
         );
@@ -110,9 +110,9 @@ export default function Invoices() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
-        <Link to="/orders/new">
+        <Link to="/dashboard/orders/create">
           <Button>Create Order</Button>
         </Link>
       </div>
