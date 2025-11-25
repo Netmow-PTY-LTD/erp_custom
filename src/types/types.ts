@@ -17,6 +17,7 @@ export type Order = {
 };
 
 export type Invoice = {
+  id: number;
   invoiceNumber: string;
   customer: string;
   customerId: string;
@@ -31,6 +32,7 @@ export type Invoice = {
 
 // Payment type
 export type Payment = {
+  id: number;
   paymentNumber: string;
   customer: string;
   customerId: string;
