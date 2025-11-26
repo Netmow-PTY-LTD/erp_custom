@@ -45,6 +45,7 @@ import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
 import EditCustomerPage from "@/pages/customer/EditCustomerPage";
 import CustomerViewPage from "@/pages/customer/CustomerViewPage";
+import CustomersMapPage from "@/pages/customer/CustomersMapPage";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -109,7 +110,7 @@ export const sidebarItemLink = [
       {
         title: "Customer Maps",
         url: "/dashboard/customers/map",
-        element: <EditCustomerPage />,
+        element: <CustomersMapPage />,
       },
     ],
   },
