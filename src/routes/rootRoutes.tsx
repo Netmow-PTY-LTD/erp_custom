@@ -11,6 +11,7 @@ import RegisterPage from "@/pages/auth/Register";
 // Generate dynamic dashboard routes (relative paths)
 const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
 
+
 // Define routes using createBrowserRouter
 const rootRouter = createBrowserRouter([
   {
@@ -47,8 +48,11 @@ const rootRouter = createBrowserRouter([
         element: <Dashboard />,
       },
       ...dashboardRoutes,
+
+
     ],
   },
+
 ]);
 
 export default rootRouter;
