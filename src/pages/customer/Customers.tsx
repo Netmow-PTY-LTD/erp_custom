@@ -1,7 +1,10 @@
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Eye, Pencil } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 
 
 
@@ -95,6 +98,34 @@ export default function Customers() {
     },
   },
   { accessorKey: "route", header: "Route" },
+
+
+    {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const id = row.original.id;
+
+      return (
+        <div className="flex items-center gap-2">
+          {/* VIEW BUTTON */}
+          <Link to={`/dashboard/customers/${id}`}>
+            <Button variant="outline" size="icon">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+
+          {/* EDIT BUTTON */}
+          <Link to={`/dashboard/customers/${id}/edit`}>
+            <Button variant="secondary" size="icon">
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      );
+    },
+  },
+
 ];
 
 
