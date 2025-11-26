@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlertCircle, Users, UserCheck, DollarSign, UserPlus, Eye, PackagePlus, Pencil, Tags, MapPin } from "lucide-react";
+import { Users, UserCheck, DollarSign, UserPlus, Eye, PackagePlus, Pencil, Tags, MapPin } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
