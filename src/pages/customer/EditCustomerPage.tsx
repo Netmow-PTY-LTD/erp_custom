@@ -1,4 +1,4 @@
-
+import { useEffect } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
@@ -43,7 +43,9 @@ const customerSchema = z.object({
 type CustomerFormValues = z.infer<typeof customerSchema>;
 
 /* ------------------ PAGE ------------------ */
-export default function AddCustomerPage() {
+export default function EditCustomerPage() {
+  const { id } = useParams(); // customer/:id
+
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
@@ -55,7 +57,7 @@ export default function AddCustomerPage() {
       city: "",
       state: "",
       postalCode: "",
-      country: "Malaysia", // must match schema
+      country: "Malaysia",
       latitude: "",
       longitude: "",
       creditLimit: 0,
@@ -64,10 +66,46 @@ export default function AddCustomerPage() {
     },
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, reset } = form;
 
-  const onSubmit: SubmitHandler<CustomerFormValues> = (values) => {
-    console.log(values);
+  /* ------------------ FETCH CUSTOMER BY ID ------------------ */
+  useEffect(() => {
+    async function fetchCustomer() {
+      // Replace this with your real fetch API call
+      const res = await fetch(`/api/customers/${id}`);
+      const data = await res.json();
+
+      // Reset form with API data
+      reset({
+        name: data.name ?? "",
+        company: data.company ?? "",
+        email: data.email ?? "",
+        phone: data.phone ?? "",
+        address: data.address ?? "",
+        city: data.city ?? "",
+        state: data.state ?? "",
+        postalCode: data.postalCode ?? "",
+        country: data.country ?? "Malaysia",
+        latitude: data.latitude ?? "",
+        longitude: data.longitude ?? "",
+        creditLimit: data.creditLimit ?? 0,
+        status: data.status ?? "Active",
+        route: data.route ?? "",
+      });
+    }
+
+    fetchCustomer();
+  }, [id, reset]);
+
+  /* ------------------ SUBMIT ------------------ */
+  const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
+    console.log("Updated:", values);
+
+    await fetch(`/api/customers/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
   };
 
   return (
@@ -76,7 +114,7 @@ export default function AddCustomerPage() {
         <Link to="/dashboard/customers">
           <Button variant="outline">← Back to Customers</Button>
         </Link>
-        <h1 className="text-3xl font-bold">Add Customer</h1>
+        <h1 className="text-3xl font-bold">Edit Customer</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -87,6 +125,7 @@ export default function AddCustomerPage() {
           </CardHeader>
 
           <CardContent className="grid gap-4 md:grid-cols-2">
+            {/* NAME */}
             <Controller
               control={control}
               name="name"
@@ -99,6 +138,7 @@ export default function AddCustomerPage() {
               )}
             />
 
+            {/* COMPANY */}
             <Controller
               control={control}
               name="company"
@@ -111,6 +151,7 @@ export default function AddCustomerPage() {
               )}
             />
 
+            {/* EMAIL */}
             <Controller
               control={control}
               name="email"
@@ -123,6 +164,7 @@ export default function AddCustomerPage() {
               )}
             />
 
+            {/* PHONE */}
             <Controller
               control={control}
               name="phone"
@@ -144,6 +186,7 @@ export default function AddCustomerPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
+            {/* Address */}
             <Controller
               control={control}
               name="address"
@@ -156,6 +199,7 @@ export default function AddCustomerPage() {
               )}
             />
 
+            {/* City / State / Postal / Country */}
             <div className="grid gap-4 md:grid-cols-4">
               {/* CITY */}
               <Controller
@@ -282,11 +326,11 @@ export default function AddCustomerPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -318,7 +362,7 @@ export default function AddCustomerPage() {
 
         {/* SUBMIT */}
         <div className="flex justify-end">
-          <Button type="submit">Add Customer</Button>
+          <Button type="submit">Update Customer</Button>
         </div>
       </form>
     </div>

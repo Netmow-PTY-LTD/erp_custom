@@ -43,6 +43,9 @@ import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
+import EditCustomerPage from "@/pages/customer/EditCustomerPage";
+import CustomerViewPage from "@/pages/customer/CustomerViewPage";
+import CustomersMapPage from "@/pages/customer/CustomersMapPage";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -90,9 +93,24 @@ export const sidebarItemLink = [
         element: <Customers />,
       },
       {
+        title: "",
+        url: "/dashboard/customers/:customerId",
+        element: <CustomerViewPage />,
+      },
+      {
         title: "Add Customer",
         url: "/dashboard/customers/create",
         element: <AddCustomer />,
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/:customerId/edit",
+        element: <EditCustomerPage />,
+      },
+      {
+        title: "Customer Maps",
+        url: "/dashboard/customers/map",
+        element: <CustomersMapPage />,
       },
     ],
   },
