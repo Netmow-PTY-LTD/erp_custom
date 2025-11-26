@@ -48,6 +48,13 @@ import CustomerViewPage from "@/pages/customer/CustomerViewPage";
 import CustomersMapPage from "@/pages/customer/CustomersMapPage";
 import UserProfilePage from "@/pages/Settings/UserProfilePage";
 import AccountSettings from "@/pages/Settings/Account";
+import SalesRprots from "@/pages/reports/SalesRprots";
+import InventoryReports from "@/pages/reports/InventoryReports";
+import CustomerReports from "@/pages/reports/CustomerReports";
+import StaffReports from "@/pages/reports/StaffReports";
+import SuppliersReports from "@/pages/reports/SuppliersReports";
+import PurchaseReports from "@/pages/reports/PurchaseReports";
+import PaymentsReport from "@/pages/reports/PaymentsReport";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -299,30 +306,37 @@ export const sidebarItemLink = [
       {
         title: "Sales Reports",
         url: "/dashboard/reports/sales",
+        element:<SalesRprots/>
       },
       {
         title: "Inventory Reports",
         url: "/dashboard/reports/inventory",
+        element:<InventoryReports/>
       },
       {
         title: "Customers Reports",
         url: "/dashboard/reports/customers",
+        element:<CustomerReports/>
       },
       {
         title: "Suppliers Reports",
         url: "/dashboard/reports/suppliers",
+        element:<SuppliersReports/>
       },
       {
         title: "Purchase Reports",
         url: "/dashboard/reports/purchases",
+        element:<PurchaseReports/>
       },
       {
         title: "Payments",
         url: "/dashboard/reports/payments",
+        element:<PaymentsReport/>
       },
       {
         title: "Staff Reports",
         url: "/dashboard/reports/staff",
+        element:<StaffReports/>
       },
     ],
   },
