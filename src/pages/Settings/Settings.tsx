@@ -1,43 +1,51 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Card, CardContent } from "@/components/ui/card";
+import { sidebarItemLink } from "@/config/sidebarItemLInk";
 
+import { Outlet } from "react-router";
 
-export default function SettingsLayout() {
-  const navigate = useNavigate();
-  const location = useLocation();
+// Render sidebar recursively
+export default function SettingsSidebarLayout() {
+  const renderSidebarItems = (items: typeof sidebarItemLink) =>
+    items.map((item) => {
+      if (item.items && item.items.length > 0) {
+        return (
+          <div key={item.title} className="mb-4">
+            <div className="font-semibold px-3 py-1 flex items-center gap-2">
+              {item.icon && <item.icon className="w-4 h-4 opacity-80" />}
+              <span>{item.title}</span>
+            </div>
+            <div className="ml-4">{renderSidebarItems(item.items as typeof sidebarItemLink)}</div>
+          </div>
+        );
+      }
 
-  const tabs = [
-    { label: "Profile", path: "profile" },
-    { label: "Billing Details", path: "billing" },
-    { label: "My Credits", path: "credits" },
-    { label: "Lead Settings", path: "lead-settings" },
-    { label: "Services", path: "services" },
-  ];
-
-  // Active tab from last segment of URL
-  const activeTab = location.pathname.split("/").pop() || "profile";
+      return (
+        <a
+          key={item.url}
+          href={item.url}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-200"
+        >
+          {item.icon && <item.icon className="w-4 h-4 opacity-80" />}
+          <span>{item.title}</span>
+        </a>
+      );
+    });
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Settings</h1>
+    <div className="flex h-screen gap-4 ">
+      {/* Sidebar */}
+      <Card className="w-64 h-full overflow-y-auto">
+        <CardContent className="space-y-6">
+          {renderSidebarItems(sidebarItemLink.filter((item) => item.layout))}
+        </CardContent>
+      </Card>
 
-      <Tabs value={activeTab} className="w-full">
-        <TabsList>
-          {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.path}
-              value={tab.path}
-              onClick={() => navigate(tab.path)}
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <div className="mt-4">
+      {/* Main content */}
+      <Card className="flex-1 h-full overflow-y-auto">
+        <CardContent className="p-6">
           <Outlet />
-        </div>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 }

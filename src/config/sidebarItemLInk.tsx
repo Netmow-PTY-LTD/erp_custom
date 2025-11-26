@@ -49,7 +49,7 @@ import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
 import StaffReports from "@/pages/reports/StaffReports";
-import SettingsLayout from "@/pages/Settings/Settings";
+import SettingsSidebarLayout from "@/pages/Settings/Settings";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -281,7 +281,7 @@ export const sidebarItemLink = [
     // url: "#",
     url: "/dashboard/settings",
     icon: Settings,
-    layout: <SettingsLayout />,
+    layout: <SettingsSidebarLayout />,
     items: [
       {
         title: "Profile",

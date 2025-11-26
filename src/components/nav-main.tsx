@@ -112,7 +112,7 @@ import {
   SidebarMenuSubItem,
 } from "./ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import React from "react";
+import React, { type ReactNode } from "react";
 
 // Type for sub-menu items
 export interface NavSubItem {
@@ -128,6 +128,7 @@ export interface NavItem {
   icon?: React.ElementType;
   items?: NavSubItem[];
   isActive?: boolean;
+  layout?:ReactNode
 }
 
 // Props type
@@ -143,6 +144,24 @@ export function NavMain({ items }: NavMainProps) {
         {items.map((item) => {
           if (!item.title) return null; //  completely hide the item
           const hasSubItems = Array.isArray(item.items) && item.items.length > 0;
+
+
+
+          
+          // Special logic: skip children if layout and url exist
+          if (item.layout && item.url) {
+            return (
+              <SidebarMenuItem key={item.title} className="cursor-pointer">
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link to={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          }
+
 
           // CASE 1: With sub-items -> collapsible
           if (hasSubItems) {
