@@ -43,15 +43,16 @@ import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
 import EditCustomerPage from "@/pages/customer/EditCustomerPage";
 import CustomerViewPage from "@/pages/customer/CustomerViewPage";
 import CustomersMapPage from "@/pages/customer/CustomersMapPage";
-import UserProfilePage from "@/pages/Settings/UserProfilePage";
-import AccountSettings from "@/pages/Settings/Account";
+import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
+import AccountSettings from "@/pages/Settings/pages/Account";
 import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
 import StaffReports from "@/pages/reports/StaffReports";
-import SuppliersReports from "@/pages/reports/SuppliersReports";
-import PurchaseReports from "@/pages/reports/PurchaseReports";
-import PaymentsReport from "@/pages/reports/PaymentsReport";
+import SettingsLayout from "@/pages/Settings/Settings";
+// import SuppliersReports from "@/pages/reports/SuppliersReports";
+// import PurchaseReports from "@/pages/reports/PurchaseReports";
+// import PaymentsReport from "@/pages/reports/PaymentsReport";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -138,22 +139,22 @@ export const sidebarItemLink = [
       {
         title: "",
         url: "/dashboard/suppliers/:supplierId/edit",
-        element:<EditSupplierPage/>
+        element: <EditSupplierPage />
       },
       {
         title: "Purchase Orders",
         url: "/dashboard/suppliers/purchase-orders",
-        element:<PurchaseOrdersList/>
+        element: <PurchaseOrdersList />
       },
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId",
-        element:<ViewPurchaseOrderPage/>
+        element: <ViewPurchaseOrderPage />
       },
       {
         title: "",
         url: "/purchase-orders/create",
-        element:<CreatePurchaseOrderPage/>
+        element: <CreatePurchaseOrderPage />
       },
     ],
   },
@@ -222,12 +223,12 @@ export const sidebarItemLink = [
         url: "/dashboard/sales-routes",
         element: <SalesRoutesPage />,
       },
-       {
+      {
         title: "",
         url: "/dashboard/sales-routes/:routeId",
         element: <div>Sales Route</div>,
       },
-        {
+      {
         title: "",
         url: "/dashboard/sales-routes/create",
       },
@@ -277,22 +278,24 @@ export const sidebarItemLink = [
   },
   {
     title: "Settings",
-    url: "#",
+    // url: "#",
+    url: "/dashboard/settings",
     icon: Settings,
+    layout: <SettingsLayout />,
     items: [
       {
         title: "Profile",
         url: "/dashboard/settings/profile",
         icon: UserPlus,
-        element:<UserProfilePage/>
+        element: <UserProfilePage />
       },
       {
         title: "Account",
         url: "/dashboard/settings/account",
         icon: Wrench,
-        element:<AccountSettings/>
+        element: <AccountSettings />
       },
-      
+
     ],
   },
   {
@@ -303,38 +306,41 @@ export const sidebarItemLink = [
       {
         title: "Sales Reports",
         url: "/dashboard/reports/sales",
-        element:<SalesRprots/>
+        element: <SalesRprots />
       },
       {
         title: "Inventory Reports",
         url: "/dashboard/reports/inventory",
-        element:<InventoryReports/>
+        element: <InventoryReports />
       },
       {
         title: "Customers Reports",
         url: "/dashboard/reports/customers",
-        element:<CustomerReports/>
+        element: <CustomerReports />
       },
-      {
-        title: "Suppliers Reports",
-        url: "/dashboard/reports/suppliers",
-        element:<SuppliersReports/>
-      },
-      {
-        title: "Purchase Reports",
-        url: "/dashboard/reports/purchases",
-        element:<PurchaseReports/>
-      },
-      {
-        title: "Payments",
-        url: "/dashboard/reports/payments",
-        element:<PaymentsReport/>
-      },
+      // {
+      //   title: "Suppliers Reports",
+      //   url: "/dashboard/reports/suppliers",
+      //   element:<SuppliersReports/>
+      // },
+      // {
+      //   title: "Purchase Reports",
+      //   url: "/dashboard/reports/purchases",
+      //   element:<PurchaseReports/>
+      // },
+      // {
+      //   title: "Payments",
+      //   url: "/dashboard/reports/payments",
+      //   element:<PaymentsReport/>
+      // },
       {
         title: "Staff Reports",
         url: "/dashboard/reports/staff",
-        element:<StaffReports/>
+        element: <StaffReports />
       },
     ],
   },
 ];
+
+
+

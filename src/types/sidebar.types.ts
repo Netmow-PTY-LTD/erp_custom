@@ -9,6 +9,7 @@ export type TUserPath = {
     icon?: React.ReactNode | ForwardRefExoticComponent<LucideProps & RefAttributes<SVGSVGElement>>;
     items?: TUserPath[];
     element?: React.ReactNode;
+    layout?: React.ReactNode;
 };
 
 export type TRoute = {

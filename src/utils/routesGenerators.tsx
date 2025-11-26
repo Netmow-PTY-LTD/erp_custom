@@ -1,6 +1,6 @@
 
 
-import type { RouteObject } from "react-router";
+import { Navigate, type RouteObject } from "react-router";
 import type { TUserPath } from "../types/sidebar.types";
 
 // Dummy fallback page
@@ -30,6 +30,31 @@ export const generateRoutes = (items: TUserPath[], parentPath = ""): RouteObject
         relativePath = relativePath.replace(parentPath + "/", "");
       }
     }
+
+
+    if (item.items && item.items.length > 0 && item.layout) {
+      // Use layout for nested children
+      routes.push({
+        path: relativePath + "/*",
+        element: item.layout,
+        children: [
+          {
+            index: true, element: (
+              <Navigate
+                to={item.items[0].url.split("/").pop() || ""}
+                replace
+              />
+            ),
+          },
+          ...item.items.map((child) => ({
+            path: child.url.split("/").pop(),
+            element: child.element || <DummyPage title={child.title} />,
+          })),
+        ],
+      });
+      return; // Skip normal route push since handled here
+    }
+
 
     // Add route
     routes.push({
