@@ -123,7 +123,7 @@ export default function EditProfilePage() {
           <p className="text-xs text-gray-500 mb-2">
             Add links to your website, blog, or social media profiles.
           </p>
-          {urls.map((url, index) => (
+          {urls.map((_url, index) => (
             <Controller
               key={index}
               control={control}
