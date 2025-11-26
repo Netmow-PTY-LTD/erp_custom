@@ -1,4 +1,4 @@
-import type { Invoice, Order, Payment } from "@/types/types";
+import type { DeliveryOrder, Invoice, Order, Payment, SalesRoute, WarehouseOrder } from "@/types/types";
 
 
 export const invoiceData: Invoice[] = [
@@ -271,5 +271,136 @@ export const payments: Payment[] = [
     method: "Bank Transfer",
     amount: 500.0,
     reference: "TXN123789456",
+  },
+];
+
+
+export const warehouseOrders: WarehouseOrder[] = [
+  {
+    orderId: "ORD-20251121-7E2E87",
+    customer: "Modern Enterprises",
+    total: 4300.0,
+    date: "2025-11-21 13:12:25",
+    status: "confirmed",
+  },
+  {
+    orderId: "ORD-20251121-2E44EB",
+    customer: "Arif R.",
+    total: 487.5,
+    date: "2025-11-21 10:38:55",
+    status: "confirmed",
+  },
+  {
+    orderId: "ORD-20251022-31B0D9",
+    customer: "Tech Solutions Sdn Bhd",
+    total: 836.5,
+    date: "2025-10-22 18:36:25",
+    status: "confirmed",
+  },
+  {
+    orderId: "ORD-20251012-1D4C95",
+    customer: "Digital Works Sdn Bhd",
+    total: 59800.0,
+    date: "2025-10-12 18:44:31",
+    status: "confirmed",
+  },
+  {
+    orderId: "ORD2025004",
+    customer: "Office Hub Malaysia",
+    total: 918.4,
+    date: "2025-10-08 16:45:57",
+    status: "confirmed",
+  },
+  {
+    orderId: "ORD2025005",
+    customer: "Modern Enterprises",
+    total: 1325.0,
+    date: "2025-10-08 16:45:57",
+    status: "confirmed",
+  },
+  {
+    orderId: "ORD2025007",
+    customer: "Smart Office Solutions",
+    total: 329.2,
+    date: "2025-10-08 16:45:57",
+    status: "confirmed",
+  },
+];
+
+
+export const deliveryOrders: DeliveryOrder[] = [
+  {
+    id: 1,
+    orderNumber: "ORD-20251121-7E2E87",
+    customer: "Modern Enterprises",
+    total: 4300.0,
+    date: "2025-11-21 13:12:25",
+    status: "Ready to Dispatch",
+  },
+  {
+    id: 2,
+    orderNumber: "ORD-20251121-2E44EB",
+    customer: "Arif R.",
+    total: 487.5,
+    date: "2025-11-21 10:38:55",
+    status: "Ready to Dispatch",
+  },
+  {
+    id: 3,
+    orderNumber: "ORD-20251022-31B0D9",
+    customer: "Tech Solutions Sdn Bhd",
+    total: 836.5,
+    date: "2025-10-22 18:36:25",
+    status: "Ready to Dispatch",
+  },
+  {
+    id: 4,
+    orderNumber: "ORD-20251012-1D4C95",
+    customer: "Digital Works Sdn Bhd",
+    total: 59800.0,
+    date: "2025-10-12 18:44:31",
+    status: "Ready to Dispatch",
+  },
+  {
+    id: 5,
+    orderNumber: "ORD2025004",
+    customer: "Office Hub Malaysia",
+    total: 918.4,
+    date: "2025-10-08 16:45:57",
+    status: "Ready to Dispatch",
+  },
+  {
+    id: 6,
+    orderNumber: "ORD2025005",
+    customer: "Modern Enterprises",
+    total: 1325.0,
+    date: "2025-10-08 16:45:57",
+    status: "Ready to Dispatch",
+  },
+  {
+    id: 7,
+    orderNumber: "ORD2025007",
+    customer: "Smart Office Solutions",
+    total: 329.2,
+    date: "2025-10-08 16:45:57",
+    status: "Ready to Dispatch",
+  },
+];
+
+
+export const SalesRoutes: SalesRoute[] = [
+  {
+    id: 1,
+    name: "Downtown Area",
+    description: "Central business district",
+    staff: 0,
+    customers: 0,
+  },
+  {
+    id: 2,
+    name: "Downtown Area",
+    description: "Central business district",
+    staff: 0,
+    customers: 0,
   },
 ];

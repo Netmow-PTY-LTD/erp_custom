@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, } from "lucide-react";
 import { Link } from "react-router";
 
 /* ------------------ TYPE ------------------ */
