@@ -7,8 +7,6 @@ import { Users, UserCheck, DollarSign, UserPlus, Eye, PackagePlus, Pencil,  MapP
 import { useState } from "react";
 import { Link } from "react-router";
 
-
-
 export type Customer = {
   id: string;
   name: string;

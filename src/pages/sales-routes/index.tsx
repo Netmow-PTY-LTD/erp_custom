@@ -73,7 +73,7 @@ export default function SalesRoutesPage() {
                 View
               </Button>
             </Link>
-            <Link to={`/dashboard/orders/${route.id}`}>
+            <Link to={`/dashboard/sales-routes/${route.id}/assign`}>
               <Button size="sm" variant="outline-info">
                 Assign
               </Button>

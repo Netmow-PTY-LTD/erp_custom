@@ -12,11 +12,11 @@ export function AppSidebar({ ...props }) {
 
   // Dummy team data
   const activeTeam = {
-    name: "Dummy Team",
+    name: "Inleads IT",
     plan: "Free",
     logo: () => (
-      <div className="bg-gray-400 text-white flex items-center justify-center w-6 h-6 rounded-full">
-        ERP
+      <div className="w-6 h-6 object-contain rounded-full">
+        <img src="https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png" alt="" />
       </div>
     ),
   };
@@ -31,7 +31,7 @@ export function AppSidebar({ ...props }) {
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
-          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+          <div className="text-sidebar-primary-foreground flex aspect-square size-8 justify-center rounded-lg">
             <activeTeam.logo />
           </div>
           <div className="grid flex-1 text-start text-sm leading-tight">
