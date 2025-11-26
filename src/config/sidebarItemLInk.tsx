@@ -43,6 +43,13 @@ import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
+import CreateRoutePage from "@/pages/sales-routes/create";
+import RouteDetails from "@/pages/sales-routes/RouteDetails";
+import AssignRoutePage from "@/pages/sales-routes/AssignRoute";
+import Staffs from "@/pages/staffs";
+import StaffDetails from "@/pages/staffs/StaffDetails";
+import AddStaffPage from "@/pages/staffs/add";
+import EditStaff from "@/pages/staffs/edit";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -114,22 +121,66 @@ export const sidebarItemLink = [
       {
         title: "",
         url: "/dashboard/suppliers/:supplierId/edit",
-        element:<EditSupplierPage/>
+        element: <EditSupplierPage />,
       },
       {
         title: "Purchase Orders",
         url: "/dashboard/suppliers/purchase-orders",
-        element:<PurchaseOrdersList/>
+        element: <PurchaseOrdersList />,
       },
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId",
-        element:<ViewPurchaseOrderPage/>
+        element: <ViewPurchaseOrderPage />,
       },
       {
         title: "",
         url: "/purchase-orders/create",
-        element:<CreatePurchaseOrderPage/>
+        element: <CreatePurchaseOrderPage />,
+      },
+    ],
+  },
+   {
+    title: "Staffs",
+    url: "#",
+    icon: Users,
+    items: [
+      {
+        title: "All Staffs",
+        url: "/dashboard/staffs",
+        element: <Staffs />,
+      },
+      {
+        title: "",
+        url: "/dashboard/staffs/:staffId",
+        element: <StaffDetails />,
+      },
+      {
+        title: "Add Staff",
+        url: "/dashboard/staffs/add",
+        element: <AddStaffPage />,
+      },
+      {
+        title: "",
+        url: "/dashboard/staffs/:staffId/edit",
+        element: <EditStaff />,
+      },
+      {
+        title: "Departments",
+        url: "/dashboard/departments",
+      },
+      {
+        title: "Attendance",
+        url: "/dashboard/staffs/attendance",
+      },
+      {
+        title: "Leave Management",
+        url: "/dashboard/staffs/leaves",
+        element: <AddExpensePage />,
+      },
+      {
+        title: "Staff Map",
+        url: "/dashboard/staffs/map",
       },
     ],
   },
@@ -198,14 +249,20 @@ export const sidebarItemLink = [
         url: "/dashboard/sales-routes",
         element: <SalesRoutesPage />,
       },
-       {
+      {
         title: "",
         url: "/dashboard/sales-routes/:routeId",
-        element: <div>Sales Route</div>,
+        element: <RouteDetails />,
       },
-        {
+      {
         title: "",
         url: "/dashboard/sales-routes/create",
+        element: <CreateRoutePage />,
+      },
+      {
+        title: "",
+        url: "/dashboard/sales-routes/:routeId/assign",
+        element: <AssignRoutePage />,
       },
     ],
   },

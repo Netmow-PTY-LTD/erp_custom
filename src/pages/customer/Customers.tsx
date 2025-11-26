@@ -3,8 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 
-
-
 export type Customer = {
   id: string;
   name: string;
@@ -60,43 +58,34 @@ const customers: Customer[] = [
   },
 ];
 
-
-
-
-
-
 export default function Customers() {
   const [pageIndex, setPageIndex] = useState(0);
 
-
-
-
- const customerColumns: ColumnDef<Customer>[] = [
-  { accessorKey: "id", header: "Customer ID" },
-  { accessorKey: "name", header: "Name" },
-  { accessorKey: "company", header: "Company" },
-  { accessorKey: "email", header: "Email" },
-  { accessorKey: "phone", header: "Phone" },
-  { accessorKey: "address", header: "Address" },
-  { accessorKey: "city", header: "City" },
-  { accessorKey: "state", header: "State" },
-  { accessorKey: "postalCode", header: "Postal Code" },
-  { accessorKey: "country", header: "Country" },
-  { accessorKey: "latitude", header: "Latitude" },
-  { accessorKey: "longitude", header: "Longitude" },
-  { accessorKey: "creditLimit", header: "Credit Limit (RM)" },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      const variant = status === "Active" ? "success" : "destructive";
-      return <Badge variant={variant}>{status}</Badge>;
+  const customerColumns: ColumnDef<Customer>[] = [
+    { accessorKey: "id", header: "Customer ID" },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "company", header: "Company" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "phone", header: "Phone" },
+    { accessorKey: "address", header: "Address" },
+    { accessorKey: "city", header: "City" },
+    { accessorKey: "state", header: "State" },
+    { accessorKey: "postalCode", header: "Postal Code" },
+    { accessorKey: "country", header: "Country" },
+    { accessorKey: "latitude", header: "Latitude" },
+    { accessorKey: "longitude", header: "Longitude" },
+    { accessorKey: "creditLimit", header: "Credit Limit (RM)" },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        const variant = status === "Active" ? "success" : "destructive";
+        return <Badge variant={variant}>{status}</Badge>;
+      },
     },
-  },
-  { accessorKey: "route", header: "Route" },
-];
-
+    { accessorKey: "route", header: "Route" },
+  ];
 
   return (
     <div>
