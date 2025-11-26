@@ -98,20 +98,12 @@ export default function Customers() {
 ];
 
 
-
-
-
-
-
-
-
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-4">All Customers</h2>
       <DataTable
         columns={customerColumns}
         data={customers}
-        totalCount={customers.length}
         pageIndex={pageIndex}
         pageSize={10}
         onPageChange={setPageIndex}
