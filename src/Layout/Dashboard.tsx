@@ -1,11 +1,14 @@
-
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "../components/ui/sidebar";
 
 import { AppSidebar } from "../components/app-sidebar";
 import { ProfileDropdown } from "../components/dashboard/components/ProfileDropdown";
 
 import { ThemeSwitch } from "../components/theme-switch";
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 
 export default function DashboardLayout() {
   return (
@@ -21,9 +24,27 @@ export default function DashboardLayout() {
             </div>
           </div>
         </header>
-        <main className="p-6 max-w-7xl w-full mx-auto">
+        <main className="p-6 max-w-7xl w-full mx-auto flex-1">
           <Outlet />
         </main>
+        <footer>
+          <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-3">
+            &copy; {new Date().getFullYear()} ERP. Designed and Developed by{" "}
+            <Link
+              to="https://inleadsit.com.my"
+              className="flex items-center gap-2"
+              target="_blank"
+            >
+              <img
+                src="https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"
+                alt=""
+                className="w-5 h-5"
+              />
+              Inleads IT
+            </Link>
+            .
+          </div>
+        </footer>
       </SidebarInset>
     </SidebarProvider>
   );
