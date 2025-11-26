@@ -106,6 +106,11 @@ export const sidebarItemLink = [
         url: "/dashboard/customers/:customerId/edit",
         element: <EditCustomerPage />,
       },
+      {
+        title: "Customer Maps",
+        url: "/dashboard/customers/map",
+        element: <EditCustomerPage />,
+      },
     ],
   },
   {
