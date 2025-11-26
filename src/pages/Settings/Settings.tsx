@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { sidebarItemLink } from "@/config/sidebarItemLInk";
 
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 
 // Render sidebar recursively
 export default function SettingsSidebarLayout() {
@@ -20,14 +20,14 @@ export default function SettingsSidebarLayout() {
       }
 
       return (
-        <a
+        <Link
           key={item.url}
-          href={item.url}
+          to={item.url}
           className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-200"
         >
           {item.icon && <item.icon className="w-4 h-4 opacity-80" />}
           <span>{item.title}</span>
-        </a>
+        </Link>
       );
     });
 

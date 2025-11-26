@@ -41,7 +41,7 @@ export function ProfileDropdown() {
             </DropdownMenuItem>
            
             <DropdownMenuItem asChild>
-              <Link to="/dashboard/settings/account">
+              <Link to="/dashboard/settings">
                 Settings
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
               </Link>
