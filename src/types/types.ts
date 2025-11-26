@@ -67,3 +67,14 @@ export interface SalesRoute {
   staff: number;
   customers: number;
 }
+
+export interface Staff {
+  id: number;
+  employeeId: string;
+  name: string;
+  email: string;
+  department: string | null; // "-" values can be treated as null
+  position: string;
+  status: "Active" | "On Leave" | "Inactive"; // restrict to known statuses
+  hireDate: string; // could use Date if you want to parse it
+}
