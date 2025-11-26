@@ -46,6 +46,8 @@ import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
 import EditCustomerPage from "@/pages/customer/EditCustomerPage";
 import CustomerViewPage from "@/pages/customer/CustomerViewPage";
 import CustomersMapPage from "@/pages/customer/CustomersMapPage";
+import UserProfilePage from "@/pages/Settings/UserProfilePage";
+import AccountSettings from "@/pages/Settings/Account";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -276,29 +278,17 @@ export const sidebarItemLink = [
     items: [
       {
         title: "Profile",
-        url: "/dashboard/settings",
+        url: "/dashboard/settings/profile",
         icon: UserPlus,
+        element:<UserProfilePage/>
       },
       {
         title: "Account",
         url: "/dashboard/settings/account",
         icon: Wrench,
+        element:<AccountSettings/>
       },
-      {
-        title: "Appearance",
-        url: "/dashboard/settings/appearance",
-        icon: Palette,
-      },
-      {
-        title: "Notifications",
-        url: "/dashboard/settings/notifications",
-        icon: Bell,
-      },
-      {
-        title: "Display",
-        url: "/dashboard/settings/display",
-        icon: Monitor,
-      },
+      
     ],
   },
   {
