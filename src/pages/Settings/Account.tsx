@@ -38,7 +38,7 @@ export default function AccountSettings() {
     };
 
     return (
-        <div className="max-w-xl mx-auto p-6 bg-white shadow-md">
+        <div className=" mx-auto p-6 bg-white ">
             <h2 className="text-2xl font-semibold mb-2">Account</h2>
             <p className="text-gray-500 mb-6 text-sm">
                 Update your account settings. Set your preferred language and timezone.
