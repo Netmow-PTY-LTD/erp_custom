@@ -1,12 +1,9 @@
 import {
-  Bell,
   Car,
   HandCoins,
   LayoutDashboard,
   LineChart,
-  Monitor,
   Package,
-  Palette,
   Settings,
   ShoppingCart,
   UserPlus,
