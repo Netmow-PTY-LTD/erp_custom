@@ -57,6 +57,7 @@ import InventoryReports from "@/pages/reports/InventoryReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
 import StaffReports from "@/pages/reports/StaffReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
+import LeavesManagement from "@/pages/staffs/leaves";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -201,7 +202,7 @@ export const sidebarItemLink = [
       {
         title: "Leave Management",
         url: "/dashboard/staffs/leaves",
-        element: <AddExpensePage />,
+        element: <LeavesManagement />,
       },
       {
         title: "Staff Map",
