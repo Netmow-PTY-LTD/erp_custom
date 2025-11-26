@@ -43,6 +43,7 @@ import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
+import EditCustomerPage from "@/pages/customer/EditCustomerPage";
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -93,6 +94,11 @@ export const sidebarItemLink = [
         title: "Add Customer",
         url: "/dashboard/customers/create",
         element: <AddCustomer />,
+      },
+      {
+        title: "Edit Customer",
+        url: "/dashboard/customers/edit",
+        element: <EditCustomerPage />,
       },
     ],
   },
