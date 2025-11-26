@@ -107,10 +107,10 @@ export default function SalesReports() {
       </div>
 
 
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
         {/* Revenue Chart */}
-        <Card className="rounded-2xl shadow-sm">
+        <Card className="rounded-2xl shadow-sm lg:col-span-2">
           <CardHeader>
             <CardTitle>Revenue by Day</CardTitle>
           </CardHeader>
@@ -128,7 +128,7 @@ export default function SalesReports() {
         </Card>
 
         {/* Top Customers */}
-        <Card className="rounded-2xl shadow-sm">
+        <Card className="rounded-2xl shadow-sm lg:col-span-1">
           <CardHeader>
             <CardTitle>Top Customers</CardTitle>
           </CardHeader>
