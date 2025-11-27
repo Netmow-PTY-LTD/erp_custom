@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   LineChart,
   Package,
+  Pencil,
   Settings,
   ShoppingCart,
   UserPlus,
@@ -58,6 +59,13 @@ import CustomerReports from "@/pages/reports/CustomerReports";
 import StaffReports from "@/pages/reports/StaffReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
+import UsersPage from "@/pages/users/UsersList";
+import UsersList from "@/pages/users/UsersList";
+import AddUser from "@/pages/users/AddUser";
+import EditUser from "@/pages/users/EditUser";
+import UserDetails from "@/pages/users/UserDetails";
+import AddUserPage from "@/pages/users/AddUser";
+import EditUserPage from "@/pages/users/EditUser";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -166,7 +174,7 @@ export const sidebarItemLink = [
       },
     ],
   },
-   {
+  {
     title: "Staffs",
     url: "#",
     icon: Users,
@@ -331,12 +339,37 @@ export const sidebarItemLink = [
   },
   {
     title: "Users",
-    url: "/dashboard/users",
+    url: "#",
     icon: Users,
+    items: [
+      {
+        title: "User List",
+        url: "/dashboard/users/list",
+        icon: Users,
+        element: <UsersList />,
+      },
+      {
+        title: "Add Users",
+        url: "/dashboard/users/add",
+        icon: UserPlus,
+        element: <AddUserPage />
+      },
+      {
+        title: "",
+        url: "/dashboard/users/:userId/edit",
+        icon: Pencil,
+        element: <EditUserPage />
+      },
+      {
+        title: "",
+        url: "/dashboard/users/:userId",
+        element: <UserDetails />
+      },
+
+    ],
   },
   {
     title: "Settings",
-    // url: "#",
     url: "/dashboard/settings",
     icon: Settings,
     layout: <SettingsSidebarLayout />,
