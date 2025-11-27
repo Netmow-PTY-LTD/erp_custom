@@ -15,8 +15,6 @@ import {
   Users,
   UserPlus,
   UserCheck,
-  Mail,
-  Phone,
   Eye,
   Pencil,
 } from "lucide-react";
