@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
 
 export type Product = {
+  id: number;
   sku: string;
   name: string;
   category: string;
@@ -34,6 +35,7 @@ export type Product = {
 
 const products: Product[] = [
   {
+    id: 1,
     sku: "abc01",
     name: "Pran Chini Gura Chal",
     category: "Office Supplies",
@@ -43,6 +45,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 2,
     sku: "SKU001",
     name: "Wireless Mouse",
     category: "Electronics",
@@ -52,6 +55,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 3,
     sku: "SKU002",
     name: "Office Chair",
     category: "Furniture",
@@ -61,6 +65,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 4,
     sku: "SKU003",
     name: "Power Drill",
     category: "Industrial Tools",
@@ -70,6 +75,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 5,
     sku: "SKU004",
     name: "Laptop Computer",
     category: "Computer Hardware",
@@ -79,6 +85,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 6,
     sku: "SKU005",
     name: "A4 Paper",
     category: "Office Supplies",
@@ -88,6 +95,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 7,
     sku: "SKU006",
     name: "Network Switch",
     category: "Networking",
@@ -97,6 +105,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 8,
     sku: "SKU007",
     name: "Desk Lamp",
     category: "Electronics",
@@ -106,6 +115,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 9,
     sku: "SKU008",
     name: "Printer Ink",
     category: "Office Supplies",
@@ -115,6 +125,7 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 10,
     sku: "SKU009",
     name: "Whiteboard",
     category: "Office Supplies",
@@ -124,7 +135,18 @@ const products: Product[] = [
     status: "Active",
   },
   {
+    id: 11,
     sku: "SKU010",
+    name: "Cable Management",
+    category: "Office Supplies",
+    price: "RM 25.00",
+    stock: "0 pcs",
+    stockStatus: "Low Stock",
+    status: "Active",
+  },
+  {
+    id: 12,
+    sku: "SKU011",
     name: "Cable Management",
     category: "Office Supplies",
     price: "RM 25.00",
@@ -213,7 +235,7 @@ export default function Products() {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const payment = row.original;
+        const product = row.original;
 
         return (
           <DropdownMenu>
@@ -225,14 +247,23 @@ export default function Products() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(payment.sku)}
               >
-                Edit
+                <Link to={`/dashboard/products/${product.id}/edit`} className="w-full">
+                  Edit
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>View</DropdownMenuItem>
-              <DropdownMenuItem>Delete</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link to={`/dashboard/products/${product.id}`} className="w-full">
+                  View
+                </Link>
+              </DropdownMenuItem>
+               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={()=> alert(`Product with id ${product.id} has been deleted successfully.`)} className="cursor-pointer">
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
