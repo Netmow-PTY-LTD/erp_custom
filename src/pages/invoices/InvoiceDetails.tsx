@@ -78,7 +78,7 @@ export default function InvoiceDetailsPage() {
           <Link to="/dashboard/invoices">
             <Button variant="outline">← Back to Invoices</Button>
           </Link>
-          <Link to={`/dashboard/invoices/${invoice.invoiceNo}/payment`}>
+          <Link to={`/dashboard/payments/create`}>
             <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
               Record Payment
             </Button>
