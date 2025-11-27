@@ -3,6 +3,7 @@ import {
   HandCoins,
   LayoutDashboard,
   LineChart,
+  List,
   Package,
   Settings,
   ShoppingCart,
@@ -58,6 +59,13 @@ import CustomerReports from "@/pages/reports/CustomerReports";
 import StaffReports from "@/pages/reports/StaffReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
+import Roles from "@/pages/roles";
+import AttendancePage from "@/pages/staffs/attendance";
+import PermissionsPage from "@/pages/permissions";
+import UnitsPage from "@/pages/unit";
+import DepartmentsPage from "@/pages/departments";
+import ProductDetailsPage from "@/pages/products/ProductDetails";
+import EditProductPage from "@/pages/products/edit";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -81,14 +89,29 @@ export const sidebarItemLink = [
         element: <Products />,
       },
       {
+        title: "",
+        url: "/dashboard/products/:productId",
+        element: <ProductDetailsPage />,
+      },
+      {
         title: "Add Product",
         url: "/dashboard/products/create",
         element: <CreateProduct />,
       },
       {
+        title: "",
+        url: "/dashboard/products/:productId/edit",
+        element: <EditProductPage />,
+      },
+      {
         title: "Categories",
         url: "/dashboard/products/categories",
         element: <ProductCategories />,
+      },
+      {
+        title: "Unit",
+        url: "/dashboard/products/unit",
+        element: <UnitsPage />,
       },
       {
         title: "Stock Management",
@@ -194,10 +217,12 @@ export const sidebarItemLink = [
       {
         title: "Departments",
         url: "/dashboard/departments",
+        element: <DepartmentsPage />,
       },
       {
         title: "Attendance",
         url: "/dashboard/staffs/attendance",
+        element: <AttendancePage />,
       },
       {
         title: "Leave Management",
@@ -333,6 +358,23 @@ export const sidebarItemLink = [
     title: "Users",
     url: "/dashboard/users",
     icon: Users,
+  },
+   {
+    title: "Roles & Permissions",
+    url: "#",
+    icon: List,
+    items: [
+      {
+        title: "Roles",
+        url: "/dashboard/roles",
+        element: <Roles />,
+      },
+      {
+        title: "Permissions",
+        url: "/dashboard/permissions",
+        element: <PermissionsPage />,
+      },
+    ]
   },
   {
     title: "Settings",
