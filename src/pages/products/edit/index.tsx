@@ -20,9 +20,9 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { ImageUploader } from "@/components/form/ImageUploader";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import { ImageUploader } from "@/components/form/ImageUploader";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const productSchema = z.object({
@@ -62,7 +62,7 @@ const numericFields: NumericFieldTuple[] = [
 ];
 
 /* ------------------ PAGE ------------------ */
-export default function AddProductPage() {
+export default function EditProductPage() {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -92,7 +92,7 @@ export default function AddProductPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-6">
       <div className="flex flex-wrap justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold">Add Product</h1>
+        <h1 className="text-3xl font-bold">Edit Product</h1>
         <Link to="/dashboard/products">
           <Button variant="outline">
             <ArrowLeft className="h-4 w-4" /> Back to Products
@@ -318,7 +318,7 @@ export default function AddProductPage() {
 
         {/* SUBMIT */}
         <div className="flex justify-end">
-          <Button type="submit">Save Product</Button>
+          <Button type="submit">Update Product</Button>
         </div>
       </form>
     </div>
