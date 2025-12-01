@@ -1,7 +1,6 @@
 import {
   Briefcase,
   Car,
-  CreativeCommonsIcon,
   HandCoins,
   Layers,
   LayoutDashboard,
