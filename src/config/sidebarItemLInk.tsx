@@ -56,8 +56,6 @@ import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import AccountSettings from "@/pages/Settings/pages/Account";
 import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
-import CustomerReports from "@/pages/reports/CustomerReports";
-import StaffReports from "@/pages/reports/StaffReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
 import Roles from "@/pages/roles";
@@ -71,9 +69,29 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
-// import SuppliersReports from "@/pages/reports/SuppliersReports";
-// import PurchaseReports from "@/pages/reports/PurchaseReports";
-// import PaymentsReport from "@/pages/reports/PaymentsReport";
+import AccountingReports from "@/pages/reports/AccountingReports";
+import AttendanceReport from "@/pages/reports/AttendanceReport";
+import ConversionReport from "@/pages/reports/ConversionReport";
+import SavedReports from "@/pages/reports/SavedReports";
+import ScheduledReports from "@/pages/reports/ScheduledReports";
+import ModuleManagement from "@/pages/modules/ModuleManagement";
+import CompanyProfilePage from "@/pages/modules/CompanyProfilePage";
+import EmailSmsSettingsPage from "@/pages/modules/EmailSmsSettingsPage";
+import LanguageRegionSettings from "@/pages/modules/LanguageRegionSettings";
+import BranchesPage from "@/pages/modules/BranchesPage";
+import NumberingSequencesPage from "@/pages/modules/NumberingSequencesPage";
+import TaxesPage from "@/pages/modules/TaxesPage";
+import CurrenciesPage from "@/pages/modules/CurrenciesPage";
+import DocumentTemplatesPage from "@/pages/modules/DocumentTemplatesPage";
+import BackupRestorePage from "@/pages/modules/BackupRestorePage";
+import IntegrationsPage from "@/pages/modules/IntegrationsPage";
+import ProjectsPage from "@/pages/projects/ProjectsPage";
+import ProjectPhasesPage from "@/pages/projects/ProjectPhasesPage";
+import TaskManagementPage from "@/pages/projects/TaskManagementPage";
+import TimesheetsPage from "@/pages/projects/TimesheetsPage";
+import ProjectCostingPage from "@/pages/projects/ProjectCostingPage";
+import ProjectProfitabilityPage from "@/pages/projects/ProjectProfitabilityPage";
+
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -390,7 +408,7 @@ export const sidebarItemLink = [
 
     ],
   },
-   {
+  {
     title: "Roles & Permissions",
     url: "#",
     icon: List,
@@ -443,31 +461,136 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/inventory",
         element: <InventoryReports />
       },
+
       {
-        title: "Customers Reports",
-        url: "/dashboard/reports/customers",
-        element: <CustomerReports />
+        title: "Accounting Reports",
+        url: "/dashboard/reports/accounting",
+        element: <AccountingReports />
       },
-      // {
-      //   title: "Suppliers Reports",
-      //   url: "/dashboard/reports/suppliers",
-      //   element:<SuppliersReports/>
-      // },
-      // {
-      //   title: "Purchase Reports",
-      //   url: "/dashboard/reports/purchases",
-      //   element:<PurchaseReports/>
-      // },
-      // {
-      //   title: "Payments",
-      //   url: "/dashboard/reports/payments",
-      //   element:<PaymentsReport/>
-      // },
       {
-        title: "Staff Reports",
-        url: "/dashboard/reports/staff",
-        element: <StaffReports />
+        title: "Attendence Reports",
+        url: "/dashboard/reports/attendence",
+        element: <AttendanceReport />
       },
+      {
+        title: "CRM & Projects Reports",
+        url: "/dashboard/reports/crm",
+        element: <ConversionReport />
+      },
+      {
+        title: "Save Reports",
+        url: "/dashboard/reports/saved-reports",
+        element: <SavedReports />
+      },
+      {
+        title: "Scheduled Reports",
+        url: "/dashboard/reports/schedule",
+        element: <ScheduledReports />
+      },
+
+    ],
+  },
+  {
+    title: "Module Management",
+    url: "#",
+    icon: LineChart,
+    items: [
+      {
+        title: "Module List",
+        url: "/dashboard/module/list",
+        element: <ModuleManagement />
+      },
+      {
+        title: "Company Profile",
+        url: "/dashboard/module/company-profile",
+        element: <CompanyProfilePage />
+      },
+      {
+        title: "Email settings",
+        url: "/dashboard/module/email-settings",
+        element: <EmailSmsSettingsPage />
+      },
+      {
+        title: "Language & Region settings",
+        url: "/dashboard/module/lang-region",
+        element: < LanguageRegionSettings />
+      },
+      {
+        title: "Branches",
+        url: "/dashboard/module/branch",
+        element: < BranchesPage />
+      },
+      {
+        title: "Numbering Sequences ",
+        url: "/dashboard/module/numbering-sequences",
+        element: < NumberingSequencesPage />
+      },
+      {
+        title: "Taxes & Vat ",
+        url: "/dashboard/module/tax",
+        element: < TaxesPage />
+      },
+      {
+        title: "Currencies ",
+        url: "/dashboard/module/currencies",
+        element: < CurrenciesPage />
+      },
+      {
+        title: "Document Templates ",
+        url: "/dashboard/module/document-templates",
+        element: < DocumentTemplatesPage />
+      },
+      {
+        title: "Backup & Restore ",
+        url: "/dashboard/module/backup-restore",
+        element: < BackupRestorePage />
+      },
+      {
+        title: "Integrations ",
+        url: "/dashboard/module/integrations",
+        element: < IntegrationsPage />
+      },
+
+    ],
+  },
+  {
+    title: "Projects/Jobs",
+    url: "#",
+    icon: LineChart,
+    items: [
+      {
+        title: "Projects",
+        url: "/dashboard/projects",
+        element: <ProjectsPage />
+      },
+      
+      {
+        title: "Project Phases",
+        url: "/dashboard/project-phases",
+        element: <ProjectPhasesPage/>
+      },
+      {
+        title: "Task Management",
+        url: "/dashboard/task-management",
+        element: <TaskManagementPage/>
+      },
+      {
+        title: "Time Sheets",
+        url: "/dashboard/time-sheets",
+        element: <TimesheetsPage/>
+      },
+      {
+        title: "Project Costing",
+        url: "/dashboard/project-costing",
+        element: <ProjectCostingPage/>
+      },
+      {
+        title: "Project Profitability",
+        url: "/dashboard/project-profitability",
+        element: <ProjectProfitabilityPage/>
+      },
+      
+
     ],
   },
 ];
