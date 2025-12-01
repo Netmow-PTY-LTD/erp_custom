@@ -78,6 +78,7 @@ import ModuleManagement from "@/pages/modules/ModuleManagement";
 import CompanyProfilePage from "@/pages/modules/CompanyProfilePage";
 import EmailSmsSettingsPage from "@/pages/modules/EmailSmsSettingsPage";
 import LanguageRegionSettings from "@/pages/modules/LanguageRegionSettings";
+import BranchesPage from "@/pages/modules/BranchesPage";
 
 
 // This is sample data.
@@ -501,6 +502,11 @@ export const sidebarItemLink = [
         title: "Language & Region settings",
         url: "/dashboard/module/lang-region",
         element: < LanguageRegionSettings/>
+      },
+      {
+        title: "Branches",
+        url: "/dashboard/module/branch",
+        element: < BranchesPage/>
       },
 
     ],
