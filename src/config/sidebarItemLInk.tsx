@@ -98,6 +98,7 @@ import ProjectProfitabilityPage from "@/pages/projects/ProjectProfitabilityPage"
 import CRMLeadsPage from "@/pages/crm/CRMLeadsPage";
 import OpportunitiesPage from "@/pages/crm/OpportunitiesPage";
 import PipelineStagesPage from "@/pages/crm/PipelineStagesPage";
+import ActivitiesPage from "@/pages/crm/ActivitiesPage";
 
 
 // This is sample data.
@@ -619,6 +620,11 @@ export const sidebarItemLink = [
         title: "PipelineStages",
         url: "/dashboard/crm/pipeline-stages",
         element: <PipelineStagesPage/>
+      },
+      {
+        title: "Activities",
+        url: "/dashboard/crm/activities",
+        element: <ActivitiesPage/>
       },
       
     
