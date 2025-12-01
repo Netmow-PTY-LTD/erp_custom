@@ -81,6 +81,8 @@ import LanguageRegionSettings from "@/pages/modules/LanguageRegionSettings";
 import BranchesPage from "@/pages/modules/BranchesPage";
 import NumberingSequencesPage from "@/pages/modules/NumberingSequencesPage";
 import TaxesPage from "@/pages/modules/TaxesPage";
+import CurrenciesPage from "@/pages/modules/CurrenciesPage";
+import DocumentTemplatesPage from "@/pages/modules/DocumentTemplatesPage";
 
 
 // This is sample data.
@@ -519,6 +521,16 @@ export const sidebarItemLink = [
         title: "Taxes & Vat ",
         url: "/dashboard/module/tax",
         element: < TaxesPage/>
+      },
+      {
+        title: "Currencies ",
+        url: "/dashboard/module/currencies",
+        element: < CurrenciesPage/>
+      },
+      {
+        title: "Document Templates ",
+        url: "/dashboard/module/document-templates",
+        element: < DocumentTemplatesPage/>
       },
 
     ],
