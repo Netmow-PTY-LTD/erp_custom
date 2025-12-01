@@ -80,6 +80,7 @@ import EmailSmsSettingsPage from "@/pages/modules/EmailSmsSettingsPage";
 import LanguageRegionSettings from "@/pages/modules/LanguageRegionSettings";
 import BranchesPage from "@/pages/modules/BranchesPage";
 import NumberingSequencesPage from "@/pages/modules/NumberingSequencesPage";
+import TaxesPage from "@/pages/modules/TaxesPage";
 
 
 // This is sample data.
@@ -513,6 +514,11 @@ export const sidebarItemLink = [
         title: "Numbering Sequences ",
         url: "/dashboard/module/numbering-sequences",
         element: < NumberingSequencesPage/>
+      },
+      {
+        title: "Taxes & Vat ",
+        url: "/dashboard/module/tax",
+        element: < TaxesPage/>
       },
 
     ],
