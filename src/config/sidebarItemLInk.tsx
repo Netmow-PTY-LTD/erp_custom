@@ -71,6 +71,7 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
+import AccountingReports from "@/pages/reports/AccountingReports";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -447,6 +448,11 @@ export const sidebarItemLink = [
         title: "Customers Reports",
         url: "/dashboard/reports/customers",
         element: <CustomerReports />
+      },
+      {
+        title: "Accounting Reports",
+        url: "/dashboard/reports/accounting",
+        element: <AccountingReports />
       },
       // {
       //   title: "Suppliers Reports",
