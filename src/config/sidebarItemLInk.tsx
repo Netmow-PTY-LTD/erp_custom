@@ -1,6 +1,7 @@
 import {
   Briefcase,
   Car,
+  CreativeCommonsIcon,
   HandCoins,
   Layers,
   LayoutDashboard,
@@ -10,6 +11,7 @@ import {
   Pencil,
   Settings,
   ShoppingCart,
+  UserCircle,
   UserPlus,
   Users,
   Wrench,
@@ -93,6 +95,7 @@ import TaskManagementPage from "@/pages/projects/TaskManagementPage";
 import TimesheetsPage from "@/pages/projects/TimesheetsPage";
 import ProjectCostingPage from "@/pages/projects/ProjectCostingPage";
 import ProjectProfitabilityPage from "@/pages/projects/ProjectProfitabilityPage";
+import CRMLeadsPage from "@/pages/crm/CRMLeadsPage";
 
 
 // This is sample data.
@@ -591,6 +594,22 @@ export const sidebarItemLink = [
         url: "/dashboard/project-profitability",
         element: <ProjectProfitabilityPage/>
       },
+      
+
+    ],
+  },
+  {
+    title: "CRM",
+    url: "#",
+    icon: UserCircle,
+    items: [
+      {
+        title: "Projects",
+        url: "/dashboard/crm/leads",
+        element: <CRMLeadsPage />
+      },
+      
+    
       
 
     ],
