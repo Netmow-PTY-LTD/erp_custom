@@ -1,4 +1,3 @@
-
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +21,7 @@ const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
+  password: z.string().min(4, "Password must be at least 4 characters"),
   role: z.string().min(1, "Role is required"),
   status: z.string().min(1, "Status is required"),
 });
@@ -35,6 +35,7 @@ export default function AddUserPage() {
       name: "",
       email: "",
       phone: "",
+      password: "",
       role: "User",
       status: "Active",
     },
@@ -47,12 +48,12 @@ export default function AddUserPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto py-6">
-      <div className="flex items-center gap-4 mb-4">
+    <div className="space-y-6 max-w-4xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+        <h1 className="text-3xl font-bold">Add User</h1>
         <Link to="/dashboard/users/list">
           <Button variant="outline">← Back to Users</Button>
         </Link>
-        <h1 className="text-3xl font-bold">Add User</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -96,6 +97,18 @@ export default function AddUserPage() {
                 <Field>
                   <FieldLabel>Phone</FieldLabel>
                   <Input placeholder="Phone Number" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Password</FieldLabel>
+                  <Input placeholder="******" {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
