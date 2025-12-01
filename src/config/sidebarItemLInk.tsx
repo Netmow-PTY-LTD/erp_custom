@@ -56,7 +56,6 @@ import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import AccountSettings from "@/pages/Settings/pages/Account";
 import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
-
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
 import Roles from "@/pages/roles";
@@ -76,9 +75,8 @@ import ConversionReport from "@/pages/reports/ConversionReport";
 import SavedReports from "@/pages/reports/SavedReports";
 import ScheduledReports from "@/pages/reports/ScheduledReports";
 import ModuleManagement from "@/pages/modules/ModuleManagement";
-// import SuppliersReports from "@/pages/reports/SuppliersReports";
-// import PurchaseReports from "@/pages/reports/PurchaseReports";
-// import PaymentsReport from "@/pages/reports/PaymentsReport";
+import CompanyProfilePage from "@/pages/modules/CompanyProfilePage";
+
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -486,6 +484,11 @@ export const sidebarItemLink = [
         title: "Module List",
         url: "/dashboard/module/list",
         element: <ModuleManagement />
+      },
+      {
+        title: "Company Profile",
+        url: "/dashboard/module/company-profile",
+        element: <CompanyProfilePage/>
       },
 
     ],
