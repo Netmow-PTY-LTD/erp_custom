@@ -86,6 +86,7 @@ import DocumentTemplatesPage from "@/pages/modules/DocumentTemplatesPage";
 import BackupRestorePage from "@/pages/modules/BackupRestorePage";
 import IntegrationsPage from "@/pages/modules/IntegrationsPage";
 import ProjectsPage from "@/pages/projects/ProjectsPage";
+import ProjectPhasesPage from "@/pages/projects/ProjectPhasesPage";
 
 
 // This is sample data.
@@ -557,6 +558,12 @@ export const sidebarItemLink = [
         title: "Projects",
         url: "/dashboard/projects",
         element: <ProjectsPage />
+      },
+      
+      {
+        title: "Project Phases",
+        url: "/dashboard/project-phases",
+        element: <ProjectPhasesPage/>
       },
       
 
