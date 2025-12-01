@@ -84,6 +84,7 @@ import TaxesPage from "@/pages/modules/TaxesPage";
 import CurrenciesPage from "@/pages/modules/CurrenciesPage";
 import DocumentTemplatesPage from "@/pages/modules/DocumentTemplatesPage";
 import BackupRestorePage from "@/pages/modules/BackupRestorePage";
+import IntegrationsPage from "@/pages/modules/IntegrationsPage";
 
 
 // This is sample data.
@@ -454,7 +455,7 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/inventory",
         element: <InventoryReports />
       },
-    
+
       {
         title: "Accounting Reports",
         url: "/dashboard/reports/accounting",
@@ -480,7 +481,7 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/schedule",
         element: <ScheduledReports />
       },
-     
+
     ],
   },
   {
@@ -496,47 +497,52 @@ export const sidebarItemLink = [
       {
         title: "Company Profile",
         url: "/dashboard/module/company-profile",
-        element: <CompanyProfilePage/>
+        element: <CompanyProfilePage />
       },
       {
         title: "Email settings",
         url: "/dashboard/module/email-settings",
-        element: <EmailSmsSettingsPage/>
+        element: <EmailSmsSettingsPage />
       },
       {
         title: "Language & Region settings",
         url: "/dashboard/module/lang-region",
-        element: < LanguageRegionSettings/>
+        element: < LanguageRegionSettings />
       },
       {
         title: "Branches",
         url: "/dashboard/module/branch",
-        element: < BranchesPage/>
+        element: < BranchesPage />
       },
       {
         title: "Numbering Sequences ",
         url: "/dashboard/module/numbering-sequences",
-        element: < NumberingSequencesPage/>
+        element: < NumberingSequencesPage />
       },
       {
         title: "Taxes & Vat ",
         url: "/dashboard/module/tax",
-        element: < TaxesPage/>
+        element: < TaxesPage />
       },
       {
         title: "Currencies ",
         url: "/dashboard/module/currencies",
-        element: < CurrenciesPage/>
+        element: < CurrenciesPage />
       },
       {
         title: "Document Templates ",
         url: "/dashboard/module/document-templates",
-        element: < DocumentTemplatesPage/>
+        element: < DocumentTemplatesPage />
       },
       {
         title: "Backup & Restore ",
         url: "/dashboard/module/backup-restore",
-        element: < BackupRestorePage/>
+        element: < BackupRestorePage />
+      },
+      {
+        title: "Integrations ",
+        url: "/dashboard/module/integrations",
+        element: < IntegrationsPage />
       },
 
     ],
