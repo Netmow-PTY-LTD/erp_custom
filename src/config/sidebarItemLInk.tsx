@@ -83,6 +83,7 @@ import NumberingSequencesPage from "@/pages/modules/NumberingSequencesPage";
 import TaxesPage from "@/pages/modules/TaxesPage";
 import CurrenciesPage from "@/pages/modules/CurrenciesPage";
 import DocumentTemplatesPage from "@/pages/modules/DocumentTemplatesPage";
+import BackupRestorePage from "@/pages/modules/BackupRestorePage";
 
 
 // This is sample data.
@@ -531,6 +532,11 @@ export const sidebarItemLink = [
         title: "Document Templates ",
         url: "/dashboard/module/document-templates",
         element: < DocumentTemplatesPage/>
+      },
+      {
+        title: "Backup & Restore ",
+        url: "/dashboard/module/backup-restore",
+        element: < BackupRestorePage/>
       },
 
     ],
