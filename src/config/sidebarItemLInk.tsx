@@ -71,6 +71,9 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
+import PayrollPage from "@/pages/payroll";
+import CustomerGroups from "@/pages/customer/groups";
+import CustomerContacts from "@/pages/customer/contacts";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -149,6 +152,36 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/customers/:customerId/edit",
         element: <EditCustomerPage />,
+      },
+      {
+        title: "Customer Groups / Types",
+        url: "/dashboard/customers/groups",
+        element: <CustomerGroups />,
+      },
+      {
+        title: "Customer Contacts",
+        url: "/dashboard/customers/contacts",
+        element: <CustomerContacts />,
+      },
+      {
+        title: "Customer Payments",
+        url: "/dashboard/payments",
+        element: <Payments />,
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId",
+        element: <RouteDetails />,
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId/assign",
+        element: <AssignRoutePage />,
+      },
+      {
+        title: "Sales Routes",
+        url: "/dashboard/customers/sales-routes",
+        element: <SalesRoutesPage />,
       },
       {
         title: "Customer Maps",
@@ -358,6 +391,7 @@ export const sidebarItemLink = [
     title: "Payroll",
     url: "/dashboard/payroll",
     icon: HandCoins,
+    element: <PayrollPage />
   },
   {
     title: "Users",
