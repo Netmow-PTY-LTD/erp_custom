@@ -1,6 +1,8 @@
 import {
+  Briefcase,
   Car,
   HandCoins,
+  Layers,
   LayoutDashboard,
   LineChart,
   List,
@@ -493,7 +495,7 @@ export const sidebarItemLink = [
   {
     title: "Module Management",
     url: "#",
-    icon: LineChart,
+    icon: Layers,
     items: [
       {
         title: "Module List",
@@ -556,7 +558,7 @@ export const sidebarItemLink = [
   {
     title: "Projects/Jobs",
     url: "#",
-    icon: LineChart,
+    icon: Briefcase,
     items: [
       {
         title: "Projects",
