@@ -1,6 +1,9 @@
 import {
+  Briefcase,
   Car,
+  CreativeCommonsIcon,
   HandCoins,
+  Layers,
   LayoutDashboard,
   LineChart,
   List,
@@ -8,6 +11,7 @@ import {
   Pencil,
   Settings,
   ShoppingCart,
+  UserCircle,
   UserPlus,
   Users,
   Wrench,
@@ -91,6 +95,13 @@ import TaskManagementPage from "@/pages/projects/TaskManagementPage";
 import TimesheetsPage from "@/pages/projects/TimesheetsPage";
 import ProjectCostingPage from "@/pages/projects/ProjectCostingPage";
 import ProjectProfitabilityPage from "@/pages/projects/ProjectProfitabilityPage";
+import CRMLeadsPage from "@/pages/crm/CRMLeadsPage";
+import OpportunitiesPage from "@/pages/crm/OpportunitiesPage";
+import PipelineStagesPage from "@/pages/crm/PipelineStagesPage";
+import ActivitiesPage from "@/pages/crm/ActivitiesPage";
+import FollowUpsPage from "@/pages/crm/FollowUpsPage";
+import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
+import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
 
 
 // This is sample data.
@@ -493,7 +504,7 @@ export const sidebarItemLink = [
   {
     title: "Module Management",
     url: "#",
-    icon: LineChart,
+    icon: Layers,
     items: [
       {
         title: "Module List",
@@ -556,7 +567,7 @@ export const sidebarItemLink = [
   {
     title: "Projects/Jobs",
     url: "#",
-    icon: LineChart,
+    icon: Briefcase,
     items: [
       {
         title: "Projects",
@@ -589,6 +600,52 @@ export const sidebarItemLink = [
         url: "/dashboard/project-profitability",
         element: <ProjectProfitabilityPage/>
       },
+      
+
+    ],
+  },
+  {
+    title: "CRM",
+    url: "#",
+    icon: UserCircle,
+    items: [
+      {
+        title: "Projects",
+        url: "/dashboard/crm/leads",
+        element: <CRMLeadsPage />
+      },
+      {
+        title: "Opportunities",
+        url: "/dashboard/crm/opportunities",
+        element: <OpportunitiesPage/>
+      },
+      {
+        title: "PipelineStages",
+        url: "/dashboard/crm/pipeline-stages",
+        element: <PipelineStagesPage/>
+      },
+      {
+        title: "Activities",
+        url: "/dashboard/crm/activities",
+        element: <ActivitiesPage/>
+      },
+      {
+        title: "FollowUps",
+        url: "/dashboard/crm/followups",
+        element: <FollowUpsPage/>
+      },
+      {
+        title: "Lead Source Analysis",
+        url: "/dashboard/crm/lead-source-analysis",
+        element: <LeadSourceAnalysis/>
+      },
+      {
+        title: "Lead Conversion Tracking",
+        url: "/dashboard/crm/lead-conversion-tracking",
+        element: <LeadConversionTracking/>
+      },
+      
+    
       
 
     ],
