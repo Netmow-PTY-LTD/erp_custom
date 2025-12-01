@@ -183,7 +183,7 @@ export default function CustomerReports() {
           <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} />
         </div>
 
-        <Button variant="info" className="mt-6">
+        <Button color="info" className="mt-6">
           Apply Filter
         </Button>
       </div>

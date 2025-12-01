@@ -76,6 +76,7 @@ import AttendanceReport from "@/pages/reports/AttendanceReport";
 import ConversionReport from "@/pages/reports/ConversionReport";
 import SavedReports from "@/pages/reports/SavedReports";
 import ScheduledReports from "@/pages/reports/ScheduledReports";
+import ModuleManagement from "@/pages/modules/ModuleManagement";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -395,7 +396,7 @@ export const sidebarItemLink = [
 
     ],
   },
-   {
+  {
     title: "Roles & Permissions",
     url: "#",
     icon: List,
@@ -478,26 +479,24 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/schedule",
         element: <ScheduledReports />
       },
-      // {
-      //   title: "Suppliers Reports",
-      //   url: "/dashboard/reports/suppliers",
-      //   element:<SuppliersReports/>
-      // },
-      // {
-      //   title: "Purchase Reports",
-      //   url: "/dashboard/reports/purchases",
-      //   element:<PurchaseReports/>
-      // },
-      // {
-      //   title: "Payments",
-      //   url: "/dashboard/reports/payments",
-      //   element:<PaymentsReport/>
-      // },
       {
         title: "Staff Reports",
         url: "/dashboard/reports/staff",
         element: <StaffReports />
       },
+    ],
+  },
+  {
+    title: "Module Management",
+    url: "#",
+    icon: LineChart,
+    items: [
+      {
+        title: "Module List",
+        url: "/dashboard/module/list",
+        element: <ModuleManagement />
+      },
+
     ],
   },
 ];
