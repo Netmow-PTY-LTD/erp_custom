@@ -87,6 +87,7 @@ import BackupRestorePage from "@/pages/modules/BackupRestorePage";
 import IntegrationsPage from "@/pages/modules/IntegrationsPage";
 import ProjectsPage from "@/pages/projects/ProjectsPage";
 import ProjectPhasesPage from "@/pages/projects/ProjectPhasesPage";
+import TaskManagementPage from "@/pages/projects/TaskManagementPage";
 
 
 // This is sample data.
@@ -564,6 +565,11 @@ export const sidebarItemLink = [
         title: "Project Phases",
         url: "/dashboard/project-phases",
         element: <ProjectPhasesPage/>
+      },
+      {
+        title: "Task Management",
+        url: "/dashboard/task-management",
+        element: <TaskManagementPage/>
       },
       
 
