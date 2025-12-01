@@ -90,6 +90,7 @@ import ProjectPhasesPage from "@/pages/projects/ProjectPhasesPage";
 import TaskManagementPage from "@/pages/projects/TaskManagementPage";
 import TimesheetsPage from "@/pages/projects/TimesheetsPage";
 import ProjectCostingPage from "@/pages/projects/ProjectCostingPage";
+import ProjectProfitabilityPage from "@/pages/projects/ProjectProfitabilityPage";
 
 
 // This is sample data.
@@ -582,6 +583,11 @@ export const sidebarItemLink = [
         title: "Project Costing",
         url: "/dashboard/project-costing",
         element: <ProjectCostingPage/>
+      },
+      {
+        title: "Project Profitability",
+        url: "/dashboard/project-profitability",
+        element: <ProjectProfitabilityPage/>
       },
       
 
