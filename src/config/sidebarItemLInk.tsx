@@ -85,6 +85,7 @@ import CurrenciesPage from "@/pages/modules/CurrenciesPage";
 import DocumentTemplatesPage from "@/pages/modules/DocumentTemplatesPage";
 import BackupRestorePage from "@/pages/modules/BackupRestorePage";
 import IntegrationsPage from "@/pages/modules/IntegrationsPage";
+import ProjectsPage from "@/pages/projects/ProjectsPage";
 
 
 // This is sample data.
@@ -544,6 +545,20 @@ export const sidebarItemLink = [
         url: "/dashboard/module/integrations",
         element: < IntegrationsPage />
       },
+
+    ],
+  },
+  {
+    title: "Projects/Jobs",
+    url: "#",
+    icon: LineChart,
+    items: [
+      {
+        title: "Projects",
+        url: "/dashboard/projects",
+        element: <ProjectsPage />
+      },
+      
 
     ],
   },
