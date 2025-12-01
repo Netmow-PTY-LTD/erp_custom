@@ -88,6 +88,7 @@ import IntegrationsPage from "@/pages/modules/IntegrationsPage";
 import ProjectsPage from "@/pages/projects/ProjectsPage";
 import ProjectPhasesPage from "@/pages/projects/ProjectPhasesPage";
 import TaskManagementPage from "@/pages/projects/TaskManagementPage";
+import TimesheetsPage from "@/pages/projects/TimesheetsPage";
 
 
 // This is sample data.
@@ -570,6 +571,11 @@ export const sidebarItemLink = [
         title: "Task Management",
         url: "/dashboard/task-management",
         element: <TaskManagementPage/>
+      },
+      {
+        title: "Time Sheets",
+        url: "/dashboard/time-sheets",
+        element: <TimesheetsPage/>
       },
       
 
