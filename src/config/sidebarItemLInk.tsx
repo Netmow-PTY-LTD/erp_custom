@@ -79,6 +79,7 @@ import CompanyProfilePage from "@/pages/modules/CompanyProfilePage";
 import EmailSmsSettingsPage from "@/pages/modules/EmailSmsSettingsPage";
 import LanguageRegionSettings from "@/pages/modules/LanguageRegionSettings";
 import BranchesPage from "@/pages/modules/BranchesPage";
+import NumberingSequencesPage from "@/pages/modules/NumberingSequencesPage";
 
 
 // This is sample data.
@@ -507,6 +508,11 @@ export const sidebarItemLink = [
         title: "Branches",
         url: "/dashboard/module/branch",
         element: < BranchesPage/>
+      },
+      {
+        title: "Numbering Sequences ",
+        url: "/dashboard/module/numbering-sequences",
+        element: < NumberingSequencesPage/>
       },
 
     ],
