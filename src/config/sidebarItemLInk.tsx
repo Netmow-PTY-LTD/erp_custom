@@ -101,6 +101,7 @@ import PipelineStagesPage from "@/pages/crm/PipelineStagesPage";
 import ActivitiesPage from "@/pages/crm/ActivitiesPage";
 import FollowUpsPage from "@/pages/crm/FollowUpsPage";
 import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
+import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
 
 
 // This is sample data.
@@ -637,6 +638,11 @@ export const sidebarItemLink = [
         title: "Lead Source Analysis",
         url: "/dashboard/crm/lead-source-analysis",
         element: <LeadSourceAnalysis/>
+      },
+      {
+        title: "Lead Conversion Tracking",
+        url: "/dashboard/crm/lead-conversion-tracking",
+        element: <LeadConversionTracking/>
       },
       
     
