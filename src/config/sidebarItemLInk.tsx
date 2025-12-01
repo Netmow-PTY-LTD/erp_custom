@@ -75,6 +75,7 @@ import AccountingReports from "@/pages/reports/AccountingReports";
 import AttendanceReport from "@/pages/reports/AttendanceReport";
 import ConversionReport from "@/pages/reports/ConversionReport";
 import SavedReports from "@/pages/reports/SavedReports";
+import ScheduledReports from "@/pages/reports/ScheduledReports";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -471,6 +472,11 @@ export const sidebarItemLink = [
         title: "Save Reports",
         url: "/dashboard/reports/saved-reports",
         element: <SavedReports />
+      },
+      {
+        title: "Scheduled Reports",
+        url: "/dashboard/reports/schedule",
+        element: <ScheduledReports />
       },
       // {
       //   title: "Suppliers Reports",
