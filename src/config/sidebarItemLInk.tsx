@@ -77,6 +77,7 @@ import ScheduledReports from "@/pages/reports/ScheduledReports";
 import ModuleManagement from "@/pages/modules/ModuleManagement";
 import CompanyProfilePage from "@/pages/modules/CompanyProfilePage";
 import EmailSmsSettingsPage from "@/pages/modules/EmailSmsSettingsPage";
+import LanguageRegionSettings from "@/pages/modules/LanguageRegionSettings";
 
 
 // This is sample data.
@@ -492,9 +493,14 @@ export const sidebarItemLink = [
         element: <CompanyProfilePage/>
       },
       {
-        title: "Email setting Page",
+        title: "Email settings",
         url: "/dashboard/module/email-settings",
         element: <EmailSmsSettingsPage/>
+      },
+      {
+        title: "Language & Region settings",
+        url: "/dashboard/module/lang-region",
+        element: < LanguageRegionSettings/>
       },
 
     ],
