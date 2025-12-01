@@ -56,8 +56,7 @@ import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import AccountSettings from "@/pages/Settings/pages/Account";
 import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
-import CustomerReports from "@/pages/reports/CustomerReports";
-import StaffReports from "@/pages/reports/StaffReports";
+
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
 import Roles from "@/pages/roles";
@@ -449,11 +448,7 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/inventory",
         element: <InventoryReports />
       },
-      {
-        title: "Customers Reports",
-        url: "/dashboard/reports/customers",
-        element: <CustomerReports />
-      },
+    
       {
         title: "Accounting Reports",
         url: "/dashboard/reports/accounting",
@@ -479,11 +474,7 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/schedule",
         element: <ScheduledReports />
       },
-      {
-        title: "Staff Reports",
-        url: "/dashboard/reports/staff",
-        element: <StaffReports />
-      },
+     
     ],
   },
   {
