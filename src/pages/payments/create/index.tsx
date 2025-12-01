@@ -21,7 +21,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CalendarIcon, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router";
 
 const paymentSchema = z.object({
@@ -220,9 +220,8 @@ export default function CreatePaymentPage() {
                       </FormLabel>
                       <div className="relative">
                         <FormControl>
-                          <Input type="date" className="pr-10" {...field} />
+                          <Input type="date" className="block" {...field} />
                         </FormControl>
-                        <CalendarIcon className="absolute right-3 top-3 h-4 w-4 text-gray-500" />
                       </div>
                       <FormMessage />
                     </FormItem>

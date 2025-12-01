@@ -14,52 +14,31 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { Link, useParams } from "react-router";
+import { Link } from "react-router";
 
 // -------------------- ZOD SCHEMA --------------------
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
+  password: z.string().min(4, "Password must be at least 4 characters"),
   role: z.string().min(1, "Role is required"),
   status: z.string().min(1, "Status is required"),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
 
-// Dummy user data (You will replace with API call)
-const dummyUsers = [
-  {
-    id: "1",
-    name: "Rabby Hasan",
-    email: "rabby@example.com",
-    phone: "+8801700000000",
-    role: "Admin",
-    status: "Active",
-  },
-  {
-    id: "2",
-    name: "Nabil Khan",
-    email: "nabil@example.com",
-    phone: "+8801800000000",
-    role: "User",
-    status: "Inactive",
-  },
-];
-
 export default function EditUserPage() {
-  const { userId } = useParams();
-
-  // Find user by param (later: API fetch)
-  const user = dummyUsers.find((u) => u.id === userId);
-
-  if (!user) {
-    return <p className="text-center text-red-500">User Not Found</p>;
-  }
-
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
-    defaultValues: user,
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      role: "Admin",
+      status: "Active",
+    },
   });
 
   const { control, handleSubmit } = form;
@@ -69,12 +48,12 @@ export default function EditUserPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto py-6">
-      <div className="flex items-center gap-4 mb-4">
+    <div className="space-y-6 max-w-4xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+        <h1 className="text-3xl font-bold">Edit User</h1>
         <Link to="/dashboard/users/list">
           <Button variant="outline">← Back to Users</Button>
         </Link>
-        <h1 className="text-3xl font-bold">Edit User</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -122,7 +101,17 @@ export default function EditUserPage() {
                 </Field>
               )}
             />
-
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Password</FieldLabel>
+                  <Input placeholder="******" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
             {/* ROLE */}
             <Controller
               control={control}

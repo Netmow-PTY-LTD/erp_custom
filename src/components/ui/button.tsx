@@ -19,25 +19,6 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
-        success:
-          "bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500/50 dark:bg-green-500 dark:hover:bg-green-600",
-        warning:
-          "bg-yellow-500 text-white hover:bg-yellow-600 focus-visible:ring-yellow-400/50 dark:bg-yellow-400 dark:hover:bg-yellow-500",
-        info:
-          "bg-blue-500 text-white hover:bg-blue-600 focus-visible:ring-blue-400/50 dark:bg-blue-400 dark:hover:bg-blue-500",
-        neutral:
-          "bg-gray-500 text-white hover:bg-gray-600 focus-visible:ring-gray-400/50 dark:bg-gray-400 dark:hover:bg-gray-500",
-
-        "outline-success":
-          "border border-green-600 text-green-600 hover:bg-green-600 hover:text-white focus-visible:ring-green-500/50 dark:border-green-500 dark:hover:bg-green-500 dark:hover:text-white",
-        "outline-warning":
-          "border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-white focus-visible:ring-yellow-400/50 dark:border-yellow-400 dark:hover:bg-yellow-400 dark:hover:text-white",
-        "outline-info":
-          "border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white focus-visible:ring-blue-400/50 dark:border-blue-400 dark:hover:bg-blue-400 dark:hover:text-white",
-        "outline-destructive":
-          "border border-destructive text-destructive hover:bg-destructive hover:text-white focus-visible:ring-destructive/20 dark:border-destructive/60 dark:hover:bg-destructive/60 dark:hover:text-white",
-        "outline-neutral":
-          "border border-gray-500 text-gray-500 hover:bg-gray-500 hover:text-white focus-visible:ring-gray-400/50 dark:border-gray-400 dark:hover:bg-gray-400 dark:hover:text-white",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
