@@ -74,6 +74,7 @@ import EditUserPage from "@/pages/users/EditUser";
 import AccountingReports from "@/pages/reports/AccountingReports";
 import AttendanceReport from "@/pages/reports/AttendanceReport";
 import ConversionReport from "@/pages/reports/ConversionReport";
+import SavedReports from "@/pages/reports/SavedReports";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -465,6 +466,11 @@ export const sidebarItemLink = [
         title: "CRM & Projects Reports",
         url: "/dashboard/reports/crm",
         element: <ConversionReport />
+      },
+      {
+        title: "Save Reports",
+        url: "/dashboard/reports/saved-reports",
+        element: <SavedReports />
       },
       // {
       //   title: "Suppliers Reports",
