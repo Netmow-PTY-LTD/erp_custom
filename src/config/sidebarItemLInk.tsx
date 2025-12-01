@@ -76,6 +76,7 @@ import SavedReports from "@/pages/reports/SavedReports";
 import ScheduledReports from "@/pages/reports/ScheduledReports";
 import ModuleManagement from "@/pages/modules/ModuleManagement";
 import CompanyProfilePage from "@/pages/modules/CompanyProfilePage";
+import EmailSmsSettingsPage from "@/pages/modules/EmailSmsSettingsPage";
 
 
 // This is sample data.
@@ -489,6 +490,11 @@ export const sidebarItemLink = [
         title: "Company Profile",
         url: "/dashboard/module/company-profile",
         element: <CompanyProfilePage/>
+      },
+      {
+        title: "Email setting Page",
+        url: "/dashboard/module/email-settings",
+        element: <EmailSmsSettingsPage/>
       },
 
     ],
