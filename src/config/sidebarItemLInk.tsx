@@ -107,6 +107,18 @@ import ActivitiesPage from "@/pages/crm/ActivitiesPage";
 import FollowUpsPage from "@/pages/crm/FollowUpsPage";
 import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
 import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
+import HRPayrollEmployeeMaster from "@/pages/HrAndPayroll";
+import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
+import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
+import Attendance from "@/pages/HrAndPayroll/Attendance";
+import LeaveTypes from "@/pages/HrAndPayroll/LeaveTypes";
+import LeaveRequests from "@/pages/HrAndPayroll/LeaveRequests";
+import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
+import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
+import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
+import Payslips from "@/pages/HrAndPayroll/Payslips";
+import StatutoryContributions from "@/pages/HrAndPayroll/StatutoryContributions";
+import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
 
 
 // This is sample data.
@@ -419,10 +431,84 @@ export const sidebarItemLink = [
     ],
   },
   {
-    title: "Payroll",
-    url: "/dashboard/payroll",
+    title: "Hr & Payroll",
+    url: "#",
     icon: HandCoins,
-    element: <PayrollPage />
+    items: [
+      {
+        title: "Employee Master",
+        url: "/dashboard/payroll",
+        element: <HRPayrollEmployeeMaster />,
+      },
+      {
+        title: "Departments Designations",
+        url: "/dashboard/payroll/departments-designations",
+
+        element: <DepartmentsDesignations />,
+      },
+      {
+        title: "Employment Details",
+        url: "/dashboard/payroll/employment-details",
+
+        element: <EmploymentDetails />,
+      },
+      {
+        title: "Attendance",
+        url: "/dashboard/payroll/attendance",
+
+        element: <Attendance />,
+      },
+      {
+        title: "LeaveTypes",
+        url: "/dashboard/payroll/leave-ypes",
+
+        element: <LeaveTypes />,
+      },
+      {
+        title: "LeaveRequests",
+        url: "/dashboard/payroll/leave-requests",
+
+        element: <LeaveRequests />,
+      },
+      {
+        title: "Payroll Components",
+        url: "/dashboard/payroll/payroll-components",
+
+        element: <PayrollComponents />,
+      },
+      {
+        title: "Salary Structures",
+        url: "/dashboard/payroll/salary-structures",
+
+        element: <SalaryStructures/>,
+      },
+      {
+        title: "Payroll Runs",
+        url: "/dashboard/payroll/payroll-runs",
+
+        element: <PayrollRuns/>,
+      },
+      {
+        title: "Payslips",
+        url: "/dashboard/payroll/payslips",
+
+        element: <Payslips/>,
+      },
+      {
+        title: "Statutory Contributions",
+        url: "/dashboard/payroll/statutory-contributions",
+
+        element: <StatutoryContributions/>,
+      },
+      {
+        title: "Payroll Reports",
+        url: "/dashboard/payroll/payroll-reports",
+
+        element: <PayrollReports/>,
+      },
+
+
+    ],
   },
   {
     title: "Users",
@@ -610,33 +696,33 @@ export const sidebarItemLink = [
         url: "/dashboard/projects",
         element: <ProjectsPage />
       },
-      
+
       {
         title: "Project Phases",
         url: "/dashboard/project-phases",
-        element: <ProjectPhasesPage/>
+        element: <ProjectPhasesPage />
       },
       {
         title: "Task Management",
         url: "/dashboard/task-management",
-        element: <TaskManagementPage/>
+        element: <TaskManagementPage />
       },
       {
         title: "Time Sheets",
         url: "/dashboard/time-sheets",
-        element: <TimesheetsPage/>
+        element: <TimesheetsPage />
       },
       {
         title: "Project Costing",
         url: "/dashboard/project-costing",
-        element: <ProjectCostingPage/>
+        element: <ProjectCostingPage />
       },
       {
         title: "Project Profitability",
         url: "/dashboard/project-profitability",
-        element: <ProjectProfitabilityPage/>
+        element: <ProjectProfitabilityPage />
       },
-      
+
 
     ],
   },
@@ -653,36 +739,36 @@ export const sidebarItemLink = [
       {
         title: "Opportunities",
         url: "/dashboard/crm/opportunities",
-        element: <OpportunitiesPage/>
+        element: <OpportunitiesPage />
       },
       {
         title: "PipelineStages",
         url: "/dashboard/crm/pipeline-stages",
-        element: <PipelineStagesPage/>
+        element: <PipelineStagesPage />
       },
       {
         title: "Activities",
         url: "/dashboard/crm/activities",
-        element: <ActivitiesPage/>
+        element: <ActivitiesPage />
       },
       {
         title: "FollowUps",
         url: "/dashboard/crm/followups",
-        element: <FollowUpsPage/>
+        element: <FollowUpsPage />
       },
       {
         title: "Lead Source Analysis",
         url: "/dashboard/crm/lead-source-analysis",
-        element: <LeadSourceAnalysis/>
+        element: <LeadSourceAnalysis />
       },
       {
         title: "Lead Conversion Tracking",
         url: "/dashboard/crm/lead-conversion-tracking",
-        element: <LeadConversionTracking/>
+        element: <LeadConversionTracking />
       },
-      
-    
-      
+
+
+
 
     ],
   },
