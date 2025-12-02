@@ -1,10 +1,18 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { Button } from "@/components/ui/button";
+import type { ColumnDef } from "@tanstack/react-table";
 
+type LeadSource = {
+  source: string;
+  leads: number;
+  opportunities: number;
+  won: number;
+  conv: string;
+  totalValueWon: number;
+}
 export default function LeadSourceAnalysis() {
   // Mock data
-  const leadSources = [
+  const leadSources: LeadSource[] = [
     {
       source: "Website",
       leads: 35,
@@ -32,7 +40,7 @@ export default function LeadSourceAnalysis() {
   ];
 
   // Table columns
-  const columns = [
+  const columns:ColumnDef<LeadSource>[] = [
     { accessorKey: "source", header: "Source" },
     { accessorKey: "leads", header: "Leads" },
     { accessorKey: "opportunities", header: "Opportunities" },
@@ -41,8 +49,8 @@ export default function LeadSourceAnalysis() {
     {
       accessorKey: "totalValueWon",
       header: "Total Value Won",
-      cell: ({ row }: { row: any }) => {
-        const value = row.getValue("totalValueWon");
+      cell: ({ row }) => {
+        const value = row.getValue("totalValueWon") as number;
         return <span>{value.toLocaleString()}</span>;
       },
     },

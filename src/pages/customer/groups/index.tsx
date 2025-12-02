@@ -3,65 +3,37 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import AddNewRoleForm from "@/components/roles/AddRoleForm";
 import { useState } from "react";
-import EditRoleForm from "@/components/roles/EditRoleForm";
+import AddCustomerGroupForm from "./AddCustomerGroupForm";
+import EditCustomerGroupForm from "./EditCustomerGroupForm";
 
-interface Role {
+interface Group {
   id: number;
   name: string;
-  displayName: string;
   description: string;
   status: string;
 }
 
-const roles: Role[] = [
+const groups: Group[] = [
   {
     id: 1,
-    name: "Admin",
-    displayName: "System Administrator",
-    description: "Full system access",
+    name: "Retail",
+    description: "Small and medium retail customers",
     status: "Active",
   },
   {
     id: 2,
-    name: "Sales",
-    displayName: "Sales Executive",
-    description: "Manage sales",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Store",
-    displayName: "Store keeper",
-    description: "Store access",
+    name: "Wholesale",
+    description: "Bulk orders and distributors",
     status: "Active",
   },
 ];
 
-export default function Roles() {
+export default function CustomerGroups() {
   const [open, setOpen] = useState<boolean>(false);
   const [openEditForm, setOpenEditForm] = useState<boolean>(false);
-  //const [newRole, setNewRole] = useState({ name: "", description: "" });
 
-  // const addRole = () => {
-  //   if (!newRole.name.trim()) return;
-  //   setRoles([
-  //     ...roles,
-  //     {
-  //       id: roles.length + 1,
-  //       name: newRole.name,
-  //       description: newRole.description,
-  //     },
-  //   ]);
-  //   setNewRole({ name: "", description: "" });
-  // };
-
-  // const deleteRole = (id: number) => {
-  //   setRoles(roles.filter((role) => role.id !== id));
-  // };
-
-  const columns: ColumnDef<Role>[] = [
+  const columns: ColumnDef<Group>[] = [
     {
       accessorKey: "id",
       header: "ID",
@@ -71,18 +43,9 @@ export default function Roles() {
     },
     {
       accessorKey: "name",
-      header: "Role",
+      header: "Group Name",
       cell: ({ row }) => (
         <span className="font-medium">{row.getValue("name")}</span>
-      ),
-    },
-    {
-      accessorKey: "displayName",
-      header: "Display Name",
-      cell: ({ row }) => (
-        <div>
-          <div className="">{row.getValue("displayName")}</div>
-        </div>
       ),
     },
     {
@@ -142,42 +105,19 @@ export default function Roles() {
   return (
     <div className="w-full">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Existing Roles</h1>
-        <AddNewRoleForm open={open} setOpen={setOpen} />
+        <h1 className="text-3xl font-bold">Customer Groups / Types</h1>
+        <AddCustomerGroupForm open={open} setOpen={setOpen} />
       </div>
-
-      {/* Add New Role */}
-      {/* <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Add New Role</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            placeholder="Role name"
-            value={newRole.name}
-            onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
-          />
-          <Input
-            placeholder="Role description"
-            value={newRole.description}
-            onChange={(e) =>
-              setNewRole({ ...newRole, description: e.target.value })
-            }
-          />
-          <Button onClick={addRole}>Add Role</Button>
-        </CardContent>
-      </Card> */}
-
       {/* Roles List */}
       <Card>
         <CardHeader>
-          <CardTitle>Available Roles</CardTitle>
+          <CardTitle>Available Groups</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={roles} />
+          <DataTable columns={columns} data={groups} />
         </CardContent>
       </Card>
-      <EditRoleForm open={openEditForm} setOpen={setOpenEditForm} />
+      <EditCustomerGroupForm open={openEditForm} setOpen={setOpenEditForm} />
     </div>
   );
 }

@@ -21,23 +21,18 @@ import { Link, useParams } from "react-router";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
+  code: z.string().optional(),
   name: z.string().min(1, "Name is required"),
-  company: z.string().optional(),
+  group: z.string().optional(),
+  taxId: z.string().optional(),
   email: z.string().email("Invalid email").optional(),
   phone: z.string().optional(),
-
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
-
-  latitude: z.string().optional(),
-  longitude: z.string().optional(),
-
+  billingAddress: z.string().min(1, "Billing address is required"),
+  shippingAddress: z.string().optional(),
   creditLimit: z.number().min(0, "Credit limit must be 0 or more"),
+  creditDays: z.number().min(0, "Credit days must be 0 or more"),
+  risk: z.string().min(1, "Risk is required"),
   status: z.string().min(1, "Status is required"),
-  route: z.string().optional(),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -49,20 +44,18 @@ export default function EditCustomerPage() {
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
+      code: "",
       name: "",
-      company: "",
+      group: "retail",
+      taxId: "",
       email: "",
       phone: "",
-      address: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "Malaysia",
-      latitude: "",
-      longitude: "",
+      billingAddress: "",
+      shippingAddress: "",
       creditLimit: 0,
+      creditDays: 0,
+      risk: "low",
       status: "Active",
-      route: "",
     },
   });
 
@@ -77,20 +70,18 @@ export default function EditCustomerPage() {
 
       // Reset form with API data
       reset({
+        code: data.code ?? "",
         name: data.name ?? "",
-        company: data.company ?? "",
+        group: data.group ?? "retail",
+        taxId: data.taxId ?? "",
         email: data.email ?? "",
         phone: data.phone ?? "",
-        address: data.address ?? "",
-        city: data.city ?? "",
-        state: data.state ?? "",
-        postalCode: data.postalCode ?? "",
-        country: data.country ?? "Malaysia",
-        latitude: data.latitude ?? "",
-        longitude: data.longitude ?? "",
+        billingAddress: data.billingAddress ?? "",
+        shippingAddress: data.shippingAddress ?? "",
         creditLimit: data.creditLimit ?? 0,
+        creditDays: data.creditDays ?? 0,
+        risk: data.risk ?? "Low",
         status: data.status ?? "Active",
-        route: data.route ?? "",
       });
     }
 
@@ -110,125 +101,59 @@ export default function EditCustomerPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-5">
+        <h1 className="text-3xl font-bold">Edit Customer</h1>
         <Link to="/dashboard/customers">
           <Button variant="outline">← Back to Customers</Button>
         </Link>
-        <h1 className="text-3xl font-bold">Edit Customer</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFORMATION */}
         <Card>
           <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-          </CardHeader>
-
-          <CardContent className="grid gap-4 md:grid-cols-2">
-            {/* NAME */}
-            <Controller
-              control={control}
-              name="name"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input placeholder="Enter name" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            {/* COMPANY */}
-            <Controller
-              control={control}
-              name="company"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Company</FieldLabel>
-                  <Input placeholder="Enter company" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            {/* EMAIL */}
-            <Controller
-              control={control}
-              name="email"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Email</FieldLabel>
-                  <Input placeholder="Enter email" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            {/* PHONE */}
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Phone</FieldLabel>
-                  <Input placeholder="Enter phone" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        {/* ADDRESS */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Address</CardTitle>
+            <CardTitle>Information</CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {/* Address */}
-            <Controller
-              control={control}
-              name="address"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Address</FieldLabel>
-                  <Textarea placeholder="Enter address" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            {/* City / State / Postal / Country */}
-            <div className="grid gap-4 md:grid-cols-4">
-              {/* CITY */}
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <Controller
                 control={control}
-                name="city"
+                name="name"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>City</FieldLabel>
-                    <Input placeholder="Start typing city..." {...field} />
+                    <FieldLabel>Customer Code</FieldLabel>
+                    <Input placeholder="e.g. CUST-001" {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Name</FieldLabel>
+                    <Input placeholder="Legal / trading name" {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
               />
 
-              {/* STATE */}
               <Controller
                 control={control}
-                name="state"
+                name="group"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>State</FieldLabel>
+                    <FieldLabel>Customer Group/Type</FieldLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select state" />
+                        <SelectValue placeholder="Select group" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Selangor">Selangor</SelectItem>
-                        <SelectItem value="Kuala Lumpur">Kuala Lumpur</SelectItem>
-                        <SelectItem value="Johor">Johor</SelectItem>
+                        <SelectItem value="retail">Retail</SelectItem>
+                        <SelectItem value="wholesale">Wholesale</SelectItem>
+                        <SelectItem value="key_account">Key Account</SelectItem>
                       </SelectContent>
                     </Select>
                     <FieldError>{fieldState.error?.message}</FieldError>
@@ -236,85 +161,120 @@ export default function EditCustomerPage() {
                 )}
               />
 
-              {/* POSTAL CODE */}
               <Controller
                 control={control}
-                name="postalCode"
+                name="taxId"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Postal Code</FieldLabel>
-                    <Input placeholder="Enter postal code" {...field} />
+                    <FieldLabel>Tax Number / Registration Number</FieldLabel>
+                    <Input placeholder="GST / VAT / Company Reg." {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="email"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Email</FieldLabel>
+                    <Input placeholder="Enter email" {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
               />
 
-              {/* COUNTRY */}
               <Controller
                 control={control}
-                name="country"
-                render={({ field }) => (
+                name="phone"
+                render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Country</FieldLabel>
-                    <Input disabled {...field} />
+                    <FieldLabel>Phone</FieldLabel>
+                    <Input placeholder="Enter phone" {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="billingAddress"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Billing Address</FieldLabel>
+                    <Textarea placeholder="Enter address" {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="shippingAddress"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Shipping Address</FieldLabel>
+                    <Textarea placeholder="Enter address" {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
               />
             </div>
-
-            {/* LAT / LNG */}
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Controller
                 control={control}
-                name="latitude"
+                name="creditLimit"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Latitude</FieldLabel>
-                    <Input placeholder="Latitude" {...field} />
+                    <FieldLabel>Credit Limit (RM)</FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
               />
 
+              {/* STATUS */}
               <Controller
                 control={control}
-                name="longitude"
+                name="creditDays"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Longitude</FieldLabel>
-                    <Input placeholder="Longitude" {...field} />
+                    <FieldLabel>Credit Days (Payment Terms)</FieldLabel>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 30"
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              {/* ROUTE */}
+              <Controller
+                control={control}
+                name="risk"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Risk</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select risk" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
               />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* ACCOUNT */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account</CardTitle>
-          </CardHeader>
-
-          <CardContent className="grid gap-4 md:grid-cols-3">
-            {/* CREDIT LIMIT */}
-            <Controller
-              control={control}
-              name="creditLimit"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Credit Limit (RM)</FieldLabel>
-                  <Input
-                    type="number"
-                    value={field.value}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
             {/* STATUS */}
             <Controller
               control={control}
@@ -323,34 +283,12 @@ export default function EditCustomerPage() {
                 <Field>
                   <FieldLabel>Status</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            {/* ROUTE */}
-            <Controller
-              control={control}
-              name="route"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Assign to Route</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="-- Select Route --" />
-                    </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Route A">Route A</SelectItem>
-                      <SelectItem value="Route B">Route B</SelectItem>
-                      <SelectItem value="Route C">Route C</SelectItem>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
@@ -359,7 +297,6 @@ export default function EditCustomerPage() {
             />
           </CardContent>
         </Card>
-
         {/* SUBMIT */}
         <div className="flex justify-end">
           <Button type="submit">Update Customer</Button>

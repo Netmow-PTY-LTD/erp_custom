@@ -6,7 +6,6 @@
 // app/dashboard/users/page.tsx (or Users.tsx)
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -90,8 +89,8 @@ export default function UsersList() {
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        const variant = status === "Active" ? "success" : "destructive";
-        return <Badge variant={variant}>{status}</Badge>;
+        const bgColor = status.toLowerCase() === "active" ? "bg-green-500" : "bg-red-500";
+        return <span className={`py-1 px-2 rounded-full text-xs text-white font-medium ${bgColor}`}>{status}</span>;
       },
     },
 

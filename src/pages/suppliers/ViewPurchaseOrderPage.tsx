@@ -55,7 +55,7 @@ export default function PurchaseOrderView() {
         <div className="flex gap-2">
           <Button variant="outline-success">Receive All</Button>
           <Link to="/dashboard/suppliers/purchase-orders">
-            <Button variant="outline-neutral">
+            <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back
             </Button>

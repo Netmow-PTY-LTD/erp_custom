@@ -4,12 +4,26 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/dashboard/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
 
+type Department = {
+  department: string;
+  head: string;
+  employees: number;
+  status: string;
+};
+
+type Designation = {
+  designation: string;
+  department: string;
+  grade: string;
+  status: string;
+};
 export default function DepartmentsDesignations() {
   const [searchDept, setSearchDept] = useState("");
 
   // --- Departments data ---
-  const departments = [
+  const departments: Department[] = [
     {
       department: "Sales",
       head: "Md. Abdullah",
@@ -24,21 +38,19 @@ export default function DepartmentsDesignations() {
     },
   ];
 
-  const departmentColumns = [
+  const departmentColumns: ColumnDef<Department>[] = [
     { accessorKey: "department", header: "Department" },
     { accessorKey: "head", header: "Head" },
     {
       accessorKey: "employees",
       header: "Employees",
-      cell: ({ row }: { row: any }) => (
-        <span>{row.getValue("employees")}</span>
-      ),
+      cell: ({ row }) => <span>{row.getValue("employees")}</span>,
     },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }: { row: any }) => {
-        const value = row.getValue("status");
+      cell: ({ row }) => {
+        const value = row.getValue("status") as string;
         return (
           <span
             className={`px-2 py-1 text-xs rounded-full ${
@@ -70,15 +82,15 @@ export default function DepartmentsDesignations() {
     },
   ];
 
-  const designationColumns = [
+  const designationColumns: ColumnDef<Designation>[] = [
     { accessorKey: "designation", header: "Designation" },
     { accessorKey: "department", header: "Department" },
     { accessorKey: "grade", header: "Grade" },
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }: { row: any }) => {
-        const value = row.getValue("status");
+      cell: ({ row }) => {
+        const value = row.getValue("status") as string;
         return (
           <span
             className={`px-2 py-1 text-xs rounded-full ${
@@ -96,13 +108,10 @@ export default function DepartmentsDesignations() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 py-6">
-
       {/* Departments */}
       <Card className="rounded-sm border border-gray-300 dark:border-gray-700 shadow-sm">
         <CardHeader className="flex justify-between items-center border-b dark:border-gray-700 pb-3">
-          <CardTitle className="text-lg font-semibold">
-            Departments
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold">Departments</CardTitle>
           <Button className="bg-gray-800 hover:bg-gray-900 text-white rounded-sm">
             + New Department
           </Button>
@@ -135,9 +144,7 @@ export default function DepartmentsDesignations() {
       {/* Designations */}
       <Card className="rounded-sm border border-gray-300 dark:border-gray-700 shadow-sm">
         <CardHeader className="border-b dark:border-gray-700 pb-3">
-          <CardTitle className="text-lg font-semibold">
-            Designations
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold">Designations</CardTitle>
         </CardHeader>
 
         <CardContent className="pt-4">

@@ -1,7 +1,6 @@
 import {
   Briefcase,
   Car,
-  CreativeCommonsIcon,
   HandCoins,
   Layers,
   LayoutDashboard,
@@ -73,6 +72,11 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
+import CustomerGroups from "@/pages/customer/groups";
+import CustomerContacts from "@/pages/customer/contacts";
+// import SuppliersReports from "@/pages/reports/SuppliersReports";
+// import PurchaseReports from "@/pages/reports/PurchaseReports";
+// import PaymentsReport from "@/pages/reports/PaymentsReport";
 import AccountingReports from "@/pages/reports/AccountingReports";
 import AttendanceReport from "@/pages/reports/AttendanceReport";
 import ConversionReport from "@/pages/reports/ConversionReport";
@@ -102,6 +106,8 @@ import ActivitiesPage from "@/pages/crm/ActivitiesPage";
 import FollowUpsPage from "@/pages/crm/FollowUpsPage";
 import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
 import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
+import Brands from "@/pages/products/brands";
+import Attributes from "@/pages/products/attributes";
 import HRPayrollEmployeeMaster from "@/pages/HrAndPayroll";
 import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
 import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
@@ -160,6 +166,16 @@ export const sidebarItemLink = [
         element: <UnitsPage />,
       },
       {
+        title: "Brands",
+        url: "/dashboard/products/brands",
+        element: <Brands />,
+      },
+      {
+        title: "Attributes",
+        url: "/dashboard/products/attributes",
+        element: <Attributes />,
+      },
+      {
         title: "Stock Management",
         url: "/dashboard/products/stock",
         element: <StockManagement />,
@@ -190,6 +206,36 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/customers/:customerId/edit",
         element: <EditCustomerPage />,
+      },
+      {
+        title: "Customer Groups / Types",
+        url: "/dashboard/customers/groups",
+        element: <CustomerGroups />,
+      },
+      {
+        title: "Customer Contacts",
+        url: "/dashboard/customers/contacts",
+        element: <CustomerContacts />,
+      },
+      {
+        title: "Customer Payments",
+        url: "/dashboard/payments",
+        element: <Payments />,
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId",
+        element: <RouteDetails />,
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId/assign",
+        element: <AssignRoutePage />,
+      },
+      {
+        title: "Sales Routes",
+        url: "/dashboard/customers/sales-routes",
+        element: <SalesRoutesPage />,
       },
       {
         title: "Customer Maps",
