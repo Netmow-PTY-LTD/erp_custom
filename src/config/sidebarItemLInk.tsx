@@ -102,6 +102,7 @@ import ActivitiesPage from "@/pages/crm/ActivitiesPage";
 import FollowUpsPage from "@/pages/crm/FollowUpsPage";
 import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
 import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
+import HRPayrollEmployeeMaster from "@/pages/HrAndPayroll";
 
 
 // This is sample data.
@@ -384,9 +385,19 @@ export const sidebarItemLink = [
     ],
   },
   {
-    title: "Payroll",
-    url: "/dashboard/payroll",
+    title: "Hr & Payroll",
+    url: "#",
     icon: HandCoins,
+    items: [
+      {
+        title: "Employee Master",
+        url: "/dashboard/payroll",
+        icon: Users,
+        element: <HRPayrollEmployeeMaster/>,
+      },
+   
+
+    ],
   },
   {
     title: "Users",
@@ -574,33 +585,33 @@ export const sidebarItemLink = [
         url: "/dashboard/projects",
         element: <ProjectsPage />
       },
-      
+
       {
         title: "Project Phases",
         url: "/dashboard/project-phases",
-        element: <ProjectPhasesPage/>
+        element: <ProjectPhasesPage />
       },
       {
         title: "Task Management",
         url: "/dashboard/task-management",
-        element: <TaskManagementPage/>
+        element: <TaskManagementPage />
       },
       {
         title: "Time Sheets",
         url: "/dashboard/time-sheets",
-        element: <TimesheetsPage/>
+        element: <TimesheetsPage />
       },
       {
         title: "Project Costing",
         url: "/dashboard/project-costing",
-        element: <ProjectCostingPage/>
+        element: <ProjectCostingPage />
       },
       {
         title: "Project Profitability",
         url: "/dashboard/project-profitability",
-        element: <ProjectProfitabilityPage/>
+        element: <ProjectProfitabilityPage />
       },
-      
+
 
     ],
   },
@@ -617,36 +628,36 @@ export const sidebarItemLink = [
       {
         title: "Opportunities",
         url: "/dashboard/crm/opportunities",
-        element: <OpportunitiesPage/>
+        element: <OpportunitiesPage />
       },
       {
         title: "PipelineStages",
         url: "/dashboard/crm/pipeline-stages",
-        element: <PipelineStagesPage/>
+        element: <PipelineStagesPage />
       },
       {
         title: "Activities",
         url: "/dashboard/crm/activities",
-        element: <ActivitiesPage/>
+        element: <ActivitiesPage />
       },
       {
         title: "FollowUps",
         url: "/dashboard/crm/followups",
-        element: <FollowUpsPage/>
+        element: <FollowUpsPage />
       },
       {
         title: "Lead Source Analysis",
         url: "/dashboard/crm/lead-source-analysis",
-        element: <LeadSourceAnalysis/>
+        element: <LeadSourceAnalysis />
       },
       {
         title: "Lead Conversion Tracking",
         url: "/dashboard/crm/lead-conversion-tracking",
-        element: <LeadConversionTracking/>
+        element: <LeadConversionTracking />
       },
-      
-    
-      
+
+
+
 
     ],
   },
