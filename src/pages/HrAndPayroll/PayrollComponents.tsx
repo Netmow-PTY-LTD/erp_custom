@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -9,7 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export default function PayrollComponents() {
   const [searchComponent, setSearchComponent] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [, setTypeFilter] = useState("all");
 
   // --- Payroll Components Data ---
   const payrollComponents = [
