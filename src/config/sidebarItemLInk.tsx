@@ -103,6 +103,7 @@ import FollowUpsPage from "@/pages/crm/FollowUpsPage";
 import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
 import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
 import HRPayrollEmployeeMaster from "@/pages/HrAndPayroll";
+import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
 
 
 // This is sample data.
@@ -392,10 +393,15 @@ export const sidebarItemLink = [
       {
         title: "Employee Master",
         url: "/dashboard/payroll",
-        icon: Users,
-        element: <HRPayrollEmployeeMaster/>,
+        element: <HRPayrollEmployeeMaster />,
       },
-   
+      {
+        title: "Departments Designations",
+        url: "/dashboard/payroll/departments-designations",
+
+        element: <DepartmentsDesignations />,
+      },
+
 
     ],
   },
