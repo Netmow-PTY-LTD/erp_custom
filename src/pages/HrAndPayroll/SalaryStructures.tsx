@@ -9,7 +9,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export default function SalaryStructures() {
   const [searchStructure, setSearchStructure] = useState("");
-  const [frequencyFilter, setFrequencyFilter] = useState("all");
+  const [, setFrequencyFilter] = useState("all");
 
   // --- Salary Structures Data ---
   const salaryStructures = [

@@ -9,7 +9,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export default function PayrollComponents() {
   const [searchComponent, setSearchComponent] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [, setTypeFilter] = useState("all");
 
   // --- Payroll Components Data ---
   const payrollComponents = [

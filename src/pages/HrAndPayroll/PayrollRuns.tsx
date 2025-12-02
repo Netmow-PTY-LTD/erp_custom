@@ -9,7 +9,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export default function PayrollRuns() {
   const [searchPeriod, setSearchPeriod] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [, setStatusFilter] = useState("all");
 
   // --- Payroll Runs Data ---
   const payrollRuns = [
@@ -56,7 +56,7 @@ export default function PayrollRuns() {
     {
       accessorKey: "actions",
       header: "Actions",
-      cell: ({ row }: { row: any }) => (
+      cell: () => (
         <div className="flex gap-2">
           <Button size="sm" className="bg-gray-800 hover:bg-gray-900 text-white rounded-sm">
             Review
