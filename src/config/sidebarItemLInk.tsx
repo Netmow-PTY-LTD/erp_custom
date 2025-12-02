@@ -107,6 +107,8 @@ import ActivitiesPage from "@/pages/crm/ActivitiesPage";
 import FollowUpsPage from "@/pages/crm/FollowUpsPage";
 import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
 import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
+import Brands from "@/pages/products/brands";
+import Attributes from "@/pages/products/attributes";
 
 
 // This is sample data.
@@ -151,6 +153,16 @@ export const sidebarItemLink = [
         title: "Unit",
         url: "/dashboard/products/unit",
         element: <UnitsPage />,
+      },
+      {
+        title: "Brands",
+        url: "/dashboard/products/brands",
+        element: <Brands />,
+      },
+      {
+        title: "Attributes",
+        url: "/dashboard/products/attributes",
+        element: <Attributes />,
       },
       {
         title: "Stock Management",
