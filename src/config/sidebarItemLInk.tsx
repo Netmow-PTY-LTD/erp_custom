@@ -109,6 +109,7 @@ import Attendance from "@/pages/HrAndPayroll/Attendance";
 import LeaveTypes from "@/pages/HrAndPayroll/LeaveTypes";
 import LeaveRequests from "@/pages/HrAndPayroll/LeaveRequests";
 import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
+import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
 
 
 // This is sample data.
@@ -435,6 +436,12 @@ export const sidebarItemLink = [
         url: "/dashboard/payroll/payroll-components",
 
         element: <PayrollComponents />,
+      },
+      {
+        title: "Salary Structures",
+        url: "/dashboard/payroll/salary-structures",
+
+        element: <SalaryStructures/>,
       },
 
 
