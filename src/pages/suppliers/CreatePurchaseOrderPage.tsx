@@ -76,7 +76,7 @@ export default function CreatePurchaseOrderPage() {
       <div className="flex flex-wrap items-center">
         <h1 className="text-3xl font-bold">Create Purchase Order</h1>
         <Link to="/dashboard/suppliers/purchase-orders" className="ml-auto">
-          <Button variant="outline-neutral">
+          <Button variant="outline">
             <ArrowLeft className="w-4 h-4" /> Back to POs
           </Button>
         </Link>
