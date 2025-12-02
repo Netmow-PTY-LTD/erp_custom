@@ -106,6 +106,8 @@ import HRPayrollEmployeeMaster from "@/pages/HrAndPayroll";
 import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
 import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
 import Attendance from "@/pages/HrAndPayroll/Attendance";
+import LeaveTypes from "@/pages/HrAndPayroll/LeaveTypes";
+import LeaveRequests from "@/pages/HrAndPayroll/LeaveRequests";
 
 
 // This is sample data.
@@ -414,6 +416,18 @@ export const sidebarItemLink = [
         url: "/dashboard/payroll/attendance",
 
         element: <Attendance />,
+      },
+      {
+        title: "LeaveTypes",
+        url: "/dashboard/payroll/leave-ypes",
+
+        element: <LeaveTypes />,
+      },
+      {
+        title: "LeaveRequests",
+        url: "/dashboard/payroll/leave-requests",
+
+        element: <LeaveRequests />,
       },
 
 
