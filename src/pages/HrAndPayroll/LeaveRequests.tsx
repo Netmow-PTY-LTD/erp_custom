@@ -6,13 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { DataTable } from "@/components/dashboard/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
+
+type LeaveRequest = {
+  reqNo: string;
+  employee: string;
+  type: string;
+  from: string;
+  to: string;
+  days: number;
+  status: string;
+};
 
 export default function LeaveRequests() {
   const [searchEmployee, setSearchEmployee] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  //const [statusFilter, setStatusFilter] = useState("all");
 
   // --- Leave Requests Data ---
-  const leaveRequests = [
+  const leaveRequests: LeaveRequest[] = [
     {
       reqNo: "LR-2025-015",
       employee: "John Lim",
@@ -33,7 +44,7 @@ export default function LeaveRequests() {
     },
   ];
 
-  const leaveColumns = [
+  const leaveColumns: ColumnDef<LeaveRequest>[] = [
     { accessorKey: "reqNo", header: "Req No" },
     { accessorKey: "employee", header: "Employee" },
     { accessorKey: "type", header: "Type" },
@@ -43,8 +54,8 @@ export default function LeaveRequests() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }: { row: any }) => {
-        const value = row.getValue("status");
+      cell: ({ row }) => {
+        const value = row.getValue("status") as string;
         const color =
           value === "PENDING"
             ? "bg-yellow-100 text-yellow-700"
@@ -57,7 +68,7 @@ export default function LeaveRequests() {
     {
       accessorKey: "actions",
       header: "Actions",
-      cell: ({ row }: { row: any }) => (
+      cell: ({ row }) => (
         row.getValue("status") === "PENDING" ? (
           <div className="flex gap-2">
             <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">Approve</Button>
@@ -93,7 +104,7 @@ export default function LeaveRequests() {
             </div>
 
             <div>
-              <Select defaultValue="all" onValueChange={setStatusFilter}>
+              <Select defaultValue="all">
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
