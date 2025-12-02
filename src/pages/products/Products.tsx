@@ -27,7 +27,10 @@ export type Product = {
   sku: string;
   name: string;
   category: string;
-  price: string;
+  brand_name: string;
+  unit: string;
+  cost_price: number;
+  selling_price: number;
   stock: string;
   stockStatus: string;
   status: string;
@@ -39,7 +42,10 @@ const products: Product[] = [
     sku: "abc01",
     name: "Pran Chini Gura Chal",
     category: "Office Supplies",
-    price: "RM 100.00",
+    brand_name: "Pran Chini Gura Chal",
+    unit: "pcs",
+    cost_price: 10.0,
+    selling_price: 100.0,
     stock: "120 pcs",
     stockStatus: "High Stock",
     status: "Active",
@@ -49,7 +55,10 @@ const products: Product[] = [
     sku: "SKU001",
     name: "Wireless Mouse",
     category: "Electronics",
-    price: "RM 45.00",
+    brand_name: "Wireless Mouse",
+    unit: "pcs",
+    cost_price: 45.0,
+    selling_price: 45.0,
     stock: "347 pcs",
     stockStatus: "High Stock",
     status: "Active",
@@ -59,7 +68,10 @@ const products: Product[] = [
     sku: "SKU002",
     name: "Office Chair",
     category: "Furniture",
-    price: "RM 299.00",
+    brand_name: "Office Chair",
+    unit: "pcs",
+    cost_price: 299.0,
+    selling_price: 299.0,
     stock: "55 pcs",
     stockStatus: "Normal",
     status: "Active",
@@ -69,7 +81,10 @@ const products: Product[] = [
     sku: "SKU003",
     name: "Power Drill",
     category: "Industrial Tools",
-    price: "RM 125.00",
+    brand_name: "Power Drill",
+    unit: "pcs",
+    cost_price: 125.0,
+    selling_price: 125.0,
     stock: "30 pcs",
     stockStatus: "Normal",
     status: "Active",
@@ -79,8 +94,11 @@ const products: Product[] = [
     sku: "SKU004",
     name: "Laptop Computer",
     category: "Computer Hardware",
-    price: "RM 2850.00",
-    stock: "-16 pcs",
+    brand_name: "Laptop Computer",
+    unit: "pcs",
+    cost_price: 2850.0,
+    selling_price: 2850.0,
+    stock: "16 pcs",
     stockStatus: "Low Stock",
     status: "Active",
   },
@@ -89,7 +107,10 @@ const products: Product[] = [
     sku: "SKU005",
     name: "A4 Paper",
     category: "Office Supplies",
-    price: "RM 12.50",
+    brand_name: "A4 Paper",
+    unit: "ream",
+    cost_price: 12.5,
+    selling_price: 12.5,
     stock: "529 ream",
     stockStatus: "Normal",
     status: "Active",
@@ -99,7 +120,10 @@ const products: Product[] = [
     sku: "SKU006",
     name: "Network Switch",
     category: "Networking",
-    price: "RM 450.00",
+    brand_name: "Network Switch",
+    unit: "pcs",
+    cost_price: 450.0,
+    selling_price: 450.0,
     stock: "13 pcs",
     stockStatus: "Normal",
     status: "Active",
@@ -109,7 +133,10 @@ const products: Product[] = [
     sku: "SKU007",
     name: "Desk Lamp",
     category: "Electronics",
-    price: "RM 75.00",
+    brand_name: "Desk Lamp",
+    unit: "pcs",
+    cost_price: 75.0,
+    selling_price: 75.0,
     stock: "176 pcs",
     stockStatus: "High Stock",
     status: "Active",
@@ -119,7 +146,10 @@ const products: Product[] = [
     sku: "SKU008",
     name: "Printer Ink",
     category: "Office Supplies",
-    price: "RM 35.00",
+    brand_name: "Printer Ink",
+    unit: "pcs",
+    cost_price: 35.0,
+    selling_price: 35.0,
     stock: "194 pcs",
     stockStatus: "Normal",
     status: "Active",
@@ -129,7 +159,10 @@ const products: Product[] = [
     sku: "SKU009",
     name: "Whiteboard",
     category: "Office Supplies",
-    price: "RM 180.00",
+    brand_name: "Whiteboard",
+    unit: "pcs",
+    cost_price: 180.0,
+    selling_price: 180.0,
     stock: "28 pcs",
     stockStatus: "Normal",
     status: "Active",
@@ -139,7 +172,10 @@ const products: Product[] = [
     sku: "SKU010",
     name: "Cable Management",
     category: "Office Supplies",
-    price: "RM 25.00",
+    brand_name: "Cable Management",
+    unit: "pcs",
+    cost_price: 25.0,
+    selling_price: 25.0,
     stock: "0 pcs",
     stockStatus: "Low Stock",
     status: "Active",
@@ -149,12 +185,16 @@ const products: Product[] = [
     sku: "SKU011",
     name: "Cable Management",
     category: "Office Supplies",
-    price: "RM 25.00",
+    brand_name: "Cable Management",
+    unit: "pcs",
+    cost_price: 25.0,
+    selling_price: 25.0,
     stock: "0 pcs",
     stockStatus: "Low Stock",
     status: "Active",
   },
 ];
+
 
 const stats = [
   {
@@ -192,15 +232,27 @@ export default function Products() {
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: "Product Name",
     },
     {
       accessorKey: "category",
       header: "Category",
     },
     {
-      accessorKey: "price",
-      header: "Price",
+      accessorKey: "brand_name",
+      header: "Brand",
+    },
+    {
+      accessorKey: "unit",
+      header: "Base UoM",
+    },
+    {
+      accessorKey: "cost_price",
+      header: "Cost Price (RM)",
+    },
+    {
+      accessorKey: "selling_price",
+      header: "Selling Price (RM)",
     },
     {
       accessorKey: "stock",
@@ -230,6 +282,11 @@ export default function Products() {
     {
       accessorKey: "status",
       header: "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        const bgColor = status.toLowerCase() === "active" ? "bg-green-500" : "bg-red-500";
+        return <span className={`py-1 px-2 rounded-full text-xs text-white font-medium ${bgColor}`}>{status}</span>;
+      }
     },
     {
       id: "actions",
@@ -263,6 +320,12 @@ export default function Products() {
                <DropdownMenuSeparator />
               <DropdownMenuItem onClick={()=> alert(`Product with id ${product.id} has been deleted successfully.`)} className="cursor-pointer">
                 Delete
+              </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Link to={`/dashboard/products/${product.id}`} className="w-full">
+                  Stock
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
