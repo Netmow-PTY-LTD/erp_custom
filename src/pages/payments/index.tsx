@@ -70,7 +70,7 @@ export default function Payments() {
       return (
         <div className="flex items-center gap-2">
           <Link to={`/dashboard/payments/${payment.id}`}>
-            <Button size="sm" variant="outline-info">View</Button>
+            <Button size="sm" variant="outline">View</Button>
           </Link>
         </div>
       );
@@ -84,7 +84,7 @@ export default function Payments() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Payments</h1>
         <Link to="/dashboard/payments/create">
-          <Button variant="info">
+          <Button color="info">
             <PlusCircle className="h-4 w-4" />
             Record Payment
           </Button>
