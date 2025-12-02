@@ -296,7 +296,12 @@ export default function AddProductPage() {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Weight (kg)</FieldLabel>
-                  <Input type="number" step="0.01" {...field} />
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
