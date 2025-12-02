@@ -30,6 +30,7 @@ const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
   description: z.string().optional(),
   category: z.string().nullable(),
+  brand: z.string().nullable(),
   unit: z.string(),
   status: z.string(),
   unitPrice: z.number(),
@@ -116,7 +117,7 @@ export default function AddProductPage() {
                 <Field>
                   <FieldLabel>SKU</FieldLabel>
                   <Input placeholder="SKU123" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
+                  <FieldError>{fieldState?.error?.message}</FieldError>
                 </Field>
               )}
             />
@@ -129,7 +130,7 @@ export default function AddProductPage() {
                 <Field>
                   <FieldLabel>Name</FieldLabel>
                   <Input placeholder="Product name" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
+                  <FieldError>{fieldState?.error?.message}</FieldError>
                 </Field>
               )}
             />
@@ -147,7 +148,7 @@ export default function AddProductPage() {
                       placeholder="Write description..."
                       {...field}
                     />
-                    <FieldError>{fieldState.error?.message}</FieldError>
+                    <FieldError>{fieldState?.error?.message}</FieldError>
                   </Field>
                 )}
               />
@@ -163,7 +164,7 @@ export default function AddProductPage() {
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <FieldError>{fieldState.error?.message}</FieldError>
+                    <FieldError>{fieldState?.error?.message}</FieldError>
                   </Field>
                 )}
               />
@@ -199,7 +200,7 @@ export default function AddProductPage() {
                       <SelectItem value="home">Home</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
+                  <FieldError>{fieldState?.error?.message}</FieldError>
                 </Field>
               )}
             />
@@ -295,7 +296,12 @@ export default function AddProductPage() {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Weight (kg)</FieldLabel>
-                  <Input type="number" step="0.01" {...field} />
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}

@@ -1,46 +1,153 @@
-import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DataTable } from "@/components/dashboard/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
+import AddNewRoleForm from "@/components/roles/AddRoleForm";
+import { useState } from "react";
+import EditRoleForm from "@/components/roles/EditRoleForm";
 
 interface Role {
   id: number;
   name: string;
+  displayName: string;
   description: string;
+  status: string;
 }
 
+const roles: Role[] = [
+  {
+    id: 1,
+    name: "Admin",
+    displayName: "System Administrator",
+    description: "Full system access",
+    status: "Active",
+  },
+  {
+    id: 2,
+    name: "Sales",
+    displayName: "Sales Executive",
+    description: "Manage sales",
+    status: "Active",
+  },
+  {
+    id: 3,
+    name: "Store",
+    displayName: "Store keeper",
+    description: "Store access",
+    status: "Active",
+  },
+];
+
 export default function Roles() {
-  const [roles, setRoles] = useState<Role[]>([
-    { id: 1, name: "Admin", description: "Full system access" },
-    { id: 2, name: "Manager", description: "Manage staff and reports" },
-    { id: 3, name: "Staff", description: "Basic access" },
-  ]);
+  const [open, setOpen] = useState<boolean>(false);
+  const [openEditForm, setOpenEditForm] = useState<boolean>(false);
+  //const [newRole, setNewRole] = useState({ name: "", description: "" });
 
-  const [newRole, setNewRole] = useState({ name: "", description: "" });
+  // const addRole = () => {
+  //   if (!newRole.name.trim()) return;
+  //   setRoles([
+  //     ...roles,
+  //     {
+  //       id: roles.length + 1,
+  //       name: newRole.name,
+  //       description: newRole.description,
+  //     },
+  //   ]);
+  //   setNewRole({ name: "", description: "" });
+  // };
 
-  const addRole = () => {
-    if (!newRole.name.trim()) return;
-    setRoles([
-      ...roles,
-      {
-        id: roles.length + 1,
-        name: newRole.name,
-        description: newRole.description,
+  // const deleteRole = (id: number) => {
+  //   setRoles(roles.filter((role) => role.id !== id));
+  // };
+
+  const columns: ColumnDef<Role>[] = [
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => (
+        <span className="font-medium">{row.getValue("id")}</span>
+      ),
+    },
+    {
+      accessorKey: "name",
+      header: "Role",
+      cell: ({ row }) => (
+        <span className="font-medium">{row.getValue("name")}</span>
+      ),
+    },
+    {
+      accessorKey: "displayName",
+      header: "Display Name",
+      cell: ({ row }) => (
+        <div>
+          <div className="">{row.getValue("displayName")}</div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "description",
+      header: "Description",
+      cell: ({ row }) => <div className="">{row.getValue("description")}</div>,
+    },
+
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+
+        const color =
+          status.toLowerCase() === "active"
+            ? "bg-green-400"
+            : status.toLowerCase() === "inactive"
+            ? "bg-blue-500"
+            : "bg-gray-500";
+
+        return <Badge className={`${color} capitalize`}>{status}</Badge>;
       },
-    ]);
-    setNewRole({ name: "", description: "" });
-  };
+    },
 
-  const deleteRole = (id: number) => {
-    setRoles(roles.filter((role) => role.id !== id));
-  };
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const route = row.original;
+        return (
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setOpenEditForm(true);
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => {
+                alert(route.id);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Manage Roles</h1>
+    <div className="w-full">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+        <h1 className="text-3xl font-bold">Existing Roles</h1>
+        <AddNewRoleForm open={open} setOpen={setOpen} />
+      </div>
 
       {/* Add New Role */}
-      <Card className="mb-6">
+      {/* <Card className="mb-6">
         <CardHeader>
           <CardTitle>Add New Role</CardTitle>
         </CardHeader>
@@ -59,7 +166,7 @@ export default function Roles() {
           />
           <Button onClick={addRole}>Add Role</Button>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Roles List */}
       <Card>
@@ -67,27 +174,10 @@ export default function Roles() {
           <CardTitle>Available Roles</CardTitle>
         </CardHeader>
         <CardContent>
-          {roles.length === 0 ? (
-            <p className="text-gray-500">No roles created yet.</p>
-          ) : (
-            <ul className="space-y-4">
-              {roles.map((role) => (
-                <li
-                  key={role.id}
-                  className="border rounded-lg p-4 flex justify-between items-center"
-                >
-                  <div>
-                    <p className="font-semibold">{role.name}</p>
-                    <p className="text-sm text-gray-600">{role.description}</p>
-                  </div>
-                  <Button variant="destructive" onClick={() => deleteRole(role.id)}>Delete</Button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <DataTable columns={columns} data={roles} />
         </CardContent>
       </Card>
+      <EditRoleForm open={openEditForm} setOpen={setOpenEditForm} />
     </div>
   );
 }
-

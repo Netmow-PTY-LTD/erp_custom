@@ -56,8 +56,6 @@ import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import AccountSettings from "@/pages/Settings/pages/Account";
 import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
-import CustomerReports from "@/pages/reports/CustomerReports";
-import StaffReports from "@/pages/reports/StaffReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
 import Roles from "@/pages/roles";
@@ -71,10 +69,10 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
-import PayrollPage from "@/pages/payroll";
-// import SuppliersReports from "@/pages/reports/SuppliersReports";
-// import PurchaseReports from "@/pages/reports/PurchaseReports";
-// import PaymentsReport from "@/pages/reports/PaymentsReport";
+import StaffReports from "@/pages/reports/StaffReports";
+import CustomerReports from "@/pages/reports/CustomerReports";
+
+
 
 // This is sample data.
 export const sidebarItemLink = [
@@ -150,6 +148,21 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/customers/:customerId/edit",
         element: <EditCustomerPage />,
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId",
+        element: <RouteDetails />,
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId/assign",
+        element: <AssignRoutePage />,
+      },
+      {
+        title: "Sales Routes",
+        url: "/dashboard/customers/sales-routes",
+        element: <SalesRoutesPage />,
       },
       {
         title: "Customer Maps",
@@ -356,12 +369,6 @@ export const sidebarItemLink = [
     ],
   },
   {
-    title: "Payroll",
-    url: "/dashboard/payroll",
-    icon: HandCoins,
-    element: <PayrollPage />
-  },
-  {
     title: "Users",
     url: "#",
     icon: Users,
@@ -392,7 +399,7 @@ export const sidebarItemLink = [
 
     ],
   },
-   {
+  {
     title: "Roles & Permissions",
     url: "#",
     icon: List,
@@ -445,31 +452,19 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/inventory",
         element: <InventoryReports />
       },
+
       {
-        title: "Customers Reports",
+        title: "Customer Reports",
         url: "/dashboard/reports/customers",
         element: <CustomerReports />
       },
-      // {
-      //   title: "Suppliers Reports",
-      //   url: "/dashboard/reports/suppliers",
-      //   element:<SuppliersReports/>
-      // },
-      // {
-      //   title: "Purchase Reports",
-      //   url: "/dashboard/reports/purchases",
-      //   element:<PurchaseReports/>
-      // },
-      // {
-      //   title: "Payments",
-      //   url: "/dashboard/reports/payments",
-      //   element:<PaymentsReport/>
-      // },
-      {
+
+   {
         title: "Staff Reports",
-        url: "/dashboard/reports/staff",
+        url: "/dashboard/reports/staffs",
         element: <StaffReports />
       },
+
     ],
   },
 ];

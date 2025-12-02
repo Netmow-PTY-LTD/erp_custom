@@ -70,7 +70,7 @@ export default function Payments() {
       return (
         <div className="flex items-center gap-2">
           <Link to={`/dashboard/payments/${payment.id}`}>
-            <Button size="sm" variant="outline-info">View</Button>
+            <Button size="sm" variant="outline">View</Button>
           </Link>
         </div>
       );
