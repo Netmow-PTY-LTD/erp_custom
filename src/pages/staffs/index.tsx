@@ -110,7 +110,7 @@ export default function Staffs() {
               </Button>
             </Link>
             <Link to={`/dashboard/staffs/${item.id}/edit`}>
-              <Button size="sm" variant="outline-neutral">
+              <Button size="sm" variant="outline">
                 Edit
               </Button>
             </Link>

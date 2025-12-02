@@ -129,7 +129,7 @@ export default function Orders() {
               </Button>
             </Link>
             <Link to={`/dashboard/orders/${item.id}/edit`}>
-              <Button size="sm" variant="outline-neutral">
+              <Button size="sm" variant="outline">
                 Edit
               </Button>
             </Link>

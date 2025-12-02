@@ -89,7 +89,7 @@ export default function CreateOrderPage() {
       <div className="flex flex-wrap items-center">
         <h1 className="text-3xl font-bold">Create Order</h1>
         <Link to="/dashboard/orders" className="ml-auto">
-          <Button variant="outline-neutral">
+          <Button variant="outline">
             <ArrowLeft className="w-4 h-4" /> Back to Orders
           </Button>
         </Link>
