@@ -112,6 +112,7 @@ import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
 import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
 import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
 import Payslips from "@/pages/HrAndPayroll/Payslips";
+import StatutoryContributions from "@/pages/HrAndPayroll/StatutoryContributions";
 
 
 // This is sample data.
@@ -456,6 +457,12 @@ export const sidebarItemLink = [
         url: "/dashboard/payroll/payslips",
 
         element: <Payslips/>,
+      },
+      {
+        title: "Statutory Contributions",
+        url: "/dashboard/payroll/statutory-contributions",
+
+        element: <StatutoryContributions/>,
       },
 
 
