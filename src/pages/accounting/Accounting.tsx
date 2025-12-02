@@ -57,15 +57,15 @@ export default function AccountingOverview() {
 
         <div className="flex gap-2">
           <Link to={'/dashboard/accounting/add-income'} >
-            <Button variant="success">
-              <Plus className="h-4 w-4 mr-1" /> Add Income
+            <Button variant="outline-info">
+              <Plus className="h-4 w-4" /> Add Income
             </Button>
           </Link>
 
           <Link to={'/dashboard/accounting/add-expanse'}>
           
-          <Button variant="destructive">
-            <Plus className="h-4 w-4 mr-1" /> Add Expense
+          <Button variant="info">
+            <Plus className="h-4 w-4" /> Add Expense
           </Button>
           </Link>
 

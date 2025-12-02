@@ -84,7 +84,7 @@ export default function Payments() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Payments</h1>
         <Link to="/dashboard/payments/create">
-          <Button color="info">
+          <Button variant="info">
             <PlusCircle className="h-4 w-4" />
             Record Payment
           </Button>
