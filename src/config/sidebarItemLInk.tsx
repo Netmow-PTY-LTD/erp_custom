@@ -1,8 +1,6 @@
 import {
-  Briefcase,
   Car,
   HandCoins,
-  Layers,
   LayoutDashboard,
   LineChart,
   List,
@@ -10,7 +8,6 @@ import {
   Pencil,
   Settings,
   ShoppingCart,
-  UserCircle,
   UserPlus,
   Users,
   Wrench,
@@ -72,54 +69,9 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
-import CustomerGroups from "@/pages/customer/groups";
-import CustomerContacts from "@/pages/customer/contacts";
-// import SuppliersReports from "@/pages/reports/SuppliersReports";
-// import PurchaseReports from "@/pages/reports/PurchaseReports";
-// import PaymentsReport from "@/pages/reports/PaymentsReport";
-import AccountingReports from "@/pages/reports/AccountingReports";
-import AttendanceReport from "@/pages/reports/AttendanceReport";
-import ConversionReport from "@/pages/reports/ConversionReport";
-import SavedReports from "@/pages/reports/SavedReports";
-import ScheduledReports from "@/pages/reports/ScheduledReports";
-import ModuleManagement from "@/pages/modules/ModuleManagement";
-import CompanyProfilePage from "@/pages/modules/CompanyProfilePage";
-import EmailSmsSettingsPage from "@/pages/modules/EmailSmsSettingsPage";
-import LanguageRegionSettings from "@/pages/modules/LanguageRegionSettings";
-import BranchesPage from "@/pages/modules/BranchesPage";
-import NumberingSequencesPage from "@/pages/modules/NumberingSequencesPage";
-import TaxesPage from "@/pages/modules/TaxesPage";
-import CurrenciesPage from "@/pages/modules/CurrenciesPage";
-import DocumentTemplatesPage from "@/pages/modules/DocumentTemplatesPage";
-import BackupRestorePage from "@/pages/modules/BackupRestorePage";
-import IntegrationsPage from "@/pages/modules/IntegrationsPage";
-import ProjectsPage from "@/pages/projects/ProjectsPage";
-import ProjectPhasesPage from "@/pages/projects/ProjectPhasesPage";
-import TaskManagementPage from "@/pages/projects/TaskManagementPage";
-import TimesheetsPage from "@/pages/projects/TimesheetsPage";
-import ProjectCostingPage from "@/pages/projects/ProjectCostingPage";
-import ProjectProfitabilityPage from "@/pages/projects/ProjectProfitabilityPage";
-import CRMLeadsPage from "@/pages/crm/CRMLeadsPage";
-import OpportunitiesPage from "@/pages/crm/OpportunitiesPage";
-import PipelineStagesPage from "@/pages/crm/PipelineStagesPage";
-import ActivitiesPage from "@/pages/crm/ActivitiesPage";
-import FollowUpsPage from "@/pages/crm/FollowUpsPage";
-import LeadSourceAnalysis from "@/pages/crm/LeadSourceAnalysis";
-import LeadConversionTracking from "@/pages/crm/LeadConversionTracking";
-import Brands from "@/pages/products/brands";
-import Attributes from "@/pages/products/attributes";
-import HRPayrollEmployeeMaster from "@/pages/HrAndPayroll";
-import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
-import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
-import Attendance from "@/pages/HrAndPayroll/Attendance";
-import LeaveTypes from "@/pages/HrAndPayroll/LeaveTypes";
-import LeaveRequests from "@/pages/HrAndPayroll/LeaveRequests";
-import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
-import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
-import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
-import Payslips from "@/pages/HrAndPayroll/Payslips";
-import StatutoryContributions from "@/pages/HrAndPayroll/StatutoryContributions";
-import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
+import StaffReports from "@/pages/reports/StaffReports";
+import CustomerReports from "@/pages/reports/CustomerReports";
+
 
 
 // This is sample data.
@@ -166,16 +118,6 @@ export const sidebarItemLink = [
         element: <UnitsPage />,
       },
       {
-        title: "Brands",
-        url: "/dashboard/products/brands",
-        element: <Brands />,
-      },
-      {
-        title: "Attributes",
-        url: "/dashboard/products/attributes",
-        element: <Attributes />,
-      },
-      {
         title: "Stock Management",
         url: "/dashboard/products/stock",
         element: <StockManagement />,
@@ -206,21 +148,6 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/customers/:customerId/edit",
         element: <EditCustomerPage />,
-      },
-      {
-        title: "Customer Groups / Types",
-        url: "/dashboard/customers/groups",
-        element: <CustomerGroups />,
-      },
-      {
-        title: "Customer Contacts",
-        url: "/dashboard/customers/contacts",
-        element: <CustomerContacts />,
-      },
-      {
-        title: "Customer Payments",
-        url: "/dashboard/payments",
-        element: <Payments />,
       },
       {
         title: "",
@@ -442,86 +369,6 @@ export const sidebarItemLink = [
     ],
   },
   {
-    title: "Hr & Payroll",
-    url: "#",
-    icon: HandCoins,
-    items: [
-      {
-        title: "Employee Master",
-        url: "/dashboard/payroll",
-        element: <HRPayrollEmployeeMaster />,
-      },
-      {
-        title: "Departments Designations",
-        url: "/dashboard/payroll/departments-designations",
-
-        element: <DepartmentsDesignations />,
-      },
-      {
-        title: "Employment Details",
-        url: "/dashboard/payroll/employment-details",
-
-        element: <EmploymentDetails />,
-      },
-      {
-        title: "Attendance",
-        url: "/dashboard/payroll/attendance",
-
-        element: <Attendance />,
-      },
-      {
-        title: "LeaveTypes",
-        url: "/dashboard/payroll/leave-ypes",
-
-        element: <LeaveTypes />,
-      },
-      {
-        title: "LeaveRequests",
-        url: "/dashboard/payroll/leave-requests",
-
-        element: <LeaveRequests />,
-      },
-      {
-        title: "Payroll Components",
-        url: "/dashboard/payroll/payroll-components",
-
-        element: <PayrollComponents />,
-      },
-      {
-        title: "Salary Structures",
-        url: "/dashboard/payroll/salary-structures",
-
-        element: <SalaryStructures/>,
-      },
-      {
-        title: "Payroll Runs",
-        url: "/dashboard/payroll/payroll-runs",
-
-        element: <PayrollRuns/>,
-      },
-      {
-        title: "Payslips",
-        url: "/dashboard/payroll/payslips",
-
-        element: <Payslips/>,
-      },
-      {
-        title: "Statutory Contributions",
-        url: "/dashboard/payroll/statutory-contributions",
-
-        element: <StatutoryContributions/>,
-      },
-      {
-        title: "Payroll Reports",
-        url: "/dashboard/payroll/payroll-reports",
-
-        element: <PayrollReports/>,
-      },
-
-
-    ],
-  },
-  {
     title: "Users",
     url: "#",
     icon: Users,
@@ -607,179 +454,16 @@ export const sidebarItemLink = [
       },
 
       {
-        title: "Accounting Reports",
-        url: "/dashboard/reports/accounting",
-        element: <AccountingReports />
-      },
-      {
-        title: "Attendence Reports",
-        url: "/dashboard/reports/attendence",
-        element: <AttendanceReport />
-      },
-      {
-        title: "CRM & Projects Reports",
-        url: "/dashboard/reports/crm",
-        element: <ConversionReport />
-      },
-      {
-        title: "Save Reports",
-        url: "/dashboard/reports/saved-reports",
-        element: <SavedReports />
-      },
-      {
-        title: "Scheduled Reports",
-        url: "/dashboard/reports/schedule",
-        element: <ScheduledReports />
+        title: "Customer Reports",
+        url: "/dashboard/reports/customers",
+        element: <CustomerReports />
       },
 
-    ],
-  },
-  {
-    title: "Module Management",
-    url: "#",
-    icon: Layers,
-    items: [
-      {
-        title: "Module List",
-        url: "/dashboard/module/list",
-        element: <ModuleManagement />
+   {
+        title: "Staff Reports",
+        url: "/dashboard/reports/staffs",
+        element: <StaffReports />
       },
-      {
-        title: "Company Profile",
-        url: "/dashboard/module/company-profile",
-        element: <CompanyProfilePage />
-      },
-      {
-        title: "Email settings",
-        url: "/dashboard/module/email-settings",
-        element: <EmailSmsSettingsPage />
-      },
-      {
-        title: "Language & Region settings",
-        url: "/dashboard/module/lang-region",
-        element: < LanguageRegionSettings />
-      },
-      {
-        title: "Branches",
-        url: "/dashboard/module/branch",
-        element: < BranchesPage />
-      },
-      {
-        title: "Numbering Sequences ",
-        url: "/dashboard/module/numbering-sequences",
-        element: < NumberingSequencesPage />
-      },
-      {
-        title: "Taxes & Vat ",
-        url: "/dashboard/module/tax",
-        element: < TaxesPage />
-      },
-      {
-        title: "Currencies ",
-        url: "/dashboard/module/currencies",
-        element: < CurrenciesPage />
-      },
-      {
-        title: "Document Templates ",
-        url: "/dashboard/module/document-templates",
-        element: < DocumentTemplatesPage />
-      },
-      {
-        title: "Backup & Restore ",
-        url: "/dashboard/module/backup-restore",
-        element: < BackupRestorePage />
-      },
-      {
-        title: "Integrations ",
-        url: "/dashboard/module/integrations",
-        element: < IntegrationsPage />
-      },
-
-    ],
-  },
-  {
-    title: "Projects/Jobs",
-    url: "#",
-    icon: Briefcase,
-    items: [
-      {
-        title: "Projects",
-        url: "/dashboard/projects",
-        element: <ProjectsPage />
-      },
-
-      {
-        title: "Project Phases",
-        url: "/dashboard/project-phases",
-        element: <ProjectPhasesPage />
-      },
-      {
-        title: "Task Management",
-        url: "/dashboard/task-management",
-        element: <TaskManagementPage />
-      },
-      {
-        title: "Time Sheets",
-        url: "/dashboard/time-sheets",
-        element: <TimesheetsPage />
-      },
-      {
-        title: "Project Costing",
-        url: "/dashboard/project-costing",
-        element: <ProjectCostingPage />
-      },
-      {
-        title: "Project Profitability",
-        url: "/dashboard/project-profitability",
-        element: <ProjectProfitabilityPage />
-      },
-
-
-    ],
-  },
-  {
-    title: "CRM",
-    url: "#",
-    icon: UserCircle,
-    items: [
-      {
-        title: "Projects",
-        url: "/dashboard/crm/leads",
-        element: <CRMLeadsPage />
-      },
-      {
-        title: "Opportunities",
-        url: "/dashboard/crm/opportunities",
-        element: <OpportunitiesPage />
-      },
-      {
-        title: "PipelineStages",
-        url: "/dashboard/crm/pipeline-stages",
-        element: <PipelineStagesPage />
-      },
-      {
-        title: "Activities",
-        url: "/dashboard/crm/activities",
-        element: <ActivitiesPage />
-      },
-      {
-        title: "FollowUps",
-        url: "/dashboard/crm/followups",
-        element: <FollowUpsPage />
-      },
-      {
-        title: "Lead Source Analysis",
-        url: "/dashboard/crm/lead-source-analysis",
-        element: <LeadSourceAnalysis />
-      },
-      {
-        title: "Lead Conversion Tracking",
-        url: "/dashboard/crm/lead-conversion-tracking",
-        element: <LeadConversionTracking />
-      },
-
-
-
 
     ],
   },
