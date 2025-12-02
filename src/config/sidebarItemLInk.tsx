@@ -71,6 +71,7 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
+import PayrollPage from "@/pages/payroll";
 // import SuppliersReports from "@/pages/reports/SuppliersReports";
 // import PurchaseReports from "@/pages/reports/PurchaseReports";
 // import PaymentsReport from "@/pages/reports/PaymentsReport";
@@ -358,6 +359,7 @@ export const sidebarItemLink = [
     title: "Payroll",
     url: "/dashboard/payroll",
     icon: HandCoins,
+    element: <PayrollPage />
   },
   {
     title: "Users",
