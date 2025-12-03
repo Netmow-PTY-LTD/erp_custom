@@ -2,8 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "./store";
 
 const baseQuery = fetchBaseQuery({
-  //baseUrl: `${import.meta.env.VITE_BASE_URL}/api/v1` || "https://jsonplaceholder.typicode.com/",
-  baseUrl: `https://jsonplaceholder.typicode.com`,
+  baseUrl: `${import.meta.env.VITE_API_URL}/api`,
   credentials: "include",
   prepareHeaders: (headers, api) => {
     // Cast getState() to RootState
@@ -11,7 +10,7 @@ const baseQuery = fetchBaseQuery({
     const token = state.auth.token;
 
     if (token) {
-      headers.set("Authorization", token);
+      headers.set("Authorization", `Bearer ${token}`);
     }
 
     return headers;
@@ -19,8 +18,8 @@ const baseQuery = fetchBaseQuery({
 });
 
 export const baseApi = createApi({
-  reducerPath: "api",
+  reducerPath: "baseApi",
   baseQuery,
-  tagTypes: ["Auth", "Products", "Users", "Categories"],
+  tagTypes: ["Auth", "department"],
   endpoints: () => ({}),
 });

@@ -3,8 +3,8 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role?: string;
-  avatar?: string;
+  role_id?: number;
+  role_name?: string;
 }
 
 // Request payload for login
@@ -15,9 +15,16 @@ export interface LoginRequest {
 
 // Response returned by the login API
 export interface LoginResponse {
-  user: User;
-  token: string;
+  status: boolean;
+  message: string;
+  data: {
+    user: User;
+    token: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
 }
+
 
 // Auth slice state shape
 export interface AuthState {
