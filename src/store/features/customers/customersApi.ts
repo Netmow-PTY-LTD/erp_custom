@@ -1,6 +1,6 @@
 import { baseApi } from "../../baseApi";
 import type {
-    Customer,
+   
     CreateCustomerRequest,
     UpdateCustomerRequest,
     GetCustomersParams,

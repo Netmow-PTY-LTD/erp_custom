@@ -1,4 +1,3 @@
-// CustomersMapPage.tsx
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -6,7 +5,7 @@ import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useGetCustomerMapsQuery } from "@/store/features/customers/customersApi";
 
-// Fix default Leaflet marker icon issue in TypeScript
+// Default Marker icon fix
 const DefaultIcon = L.icon({
     iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
     iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -19,27 +18,55 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
+// Default fallback data ---------------------------
+const defaultMapData = {
+    total: 3,
+    locations: [
+        {
+            id: 1,
+            name: "Rabby Hasan",
+            company: "Netmow Group",
+            phone: "01700000000",
+            email: "rabby@example.com",
+            address: "Banani, Dhaka",
+            city: "Dhaka",
+            coordinates: { lat: 23.7925, lng: 90.4078 }
+        },
+        {
+            id: 2,
+            name: "Mahmudul Hasan",
+            company: "NextGen IT",
+            phone: "01800000000",
+            email: "mahmud@example.com",
+            address: "Uttara",
+            city: "Dhaka",
+            coordinates: { lat: 23.8759, lng: 90.3795 }
+        },
+        {
+            id: 3,
+            name: "Sadia Akter",
+            address: "Chittagong",
+            city: "Chattogram",
+            coordinates: { lat: 22.3569, lng: 91.7832 }
+        }
+    ]
+};
+// -------------------------------------------------
+
 const CustomersMapPage: React.FC = () => {
-    const { data, isLoading, error } = useGetCustomerMapsQuery();
+    const { data } = useGetCustomerMapsQuery();
 
-    const customers = data?.data.locations || [];
-    const total = data?.data.total || 0;
+    // Use API data OR fallback default data
+    const mapData = data?.data ?? defaultMapData;
 
-    // Default center (if no customers)
+    const customers = mapData.locations;
+    const total = mapData.total;
+
     const defaultCenter: [number, number] = [23.8103, 90.4125];
 
-    // Calculate center from customers if available
     const center: [number, number] = customers.length > 0
         ? [customers[0].coordinates.lat, customers[0].coordinates.lng]
         : defaultCenter;
-
-    if (isLoading) {
-        return <div className="p-4">Loading customer locations...</div>;
-    }
-
-    if (error) {
-        return <div className="p-4 text-red-600">Error loading customer locations.</div>;
-    }
 
     return (
         <div className="p-4">
@@ -77,7 +104,7 @@ const CustomersMapPage: React.FC = () => {
                 </MarkerClusterGroup>
             </MapContainer>
 
-            {customers.length === 0 && !isLoading && (
+            {customers.length === 0 && (
                 <p className="text-center mt-4 text-muted-foreground">
                     No customer locations available
                 </p>

@@ -1,4 +1,4 @@
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { Controller, useForm, type SubmitHandler, type Resolver } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -48,7 +48,7 @@ export default function AddCustomerPage() {
   const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
   const form = useForm<CustomerFormValues>({
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(customerSchema) as Resolver<CustomerFormValues>,
     defaultValues: {
       name: "",
       company: "",

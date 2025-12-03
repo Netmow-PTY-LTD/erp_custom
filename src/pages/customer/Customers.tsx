@@ -53,6 +53,7 @@ export default function Customers() {
       await deleteCustomer(deleteId).unwrap();
       toast.success("Customer deleted successfully");
       setDeleteId(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Failed to delete customer");
     }
@@ -246,7 +247,7 @@ export default function Customers() {
               data={customers}
               pageIndex={pageIndex}
               pageSize={pageSize}
-              pageCount={totalPages}
+              totalPages={totalPages}
               onPageChange={setPageIndex}
             />
           )}
