@@ -1,22 +1,26 @@
+import { useAppSelector } from "@/store/store";
 import { Navigate, Outlet } from "react-router";
 
 
-const dummyUser = {
-  id: "123",
-  name: "Rabby Hasan",
-  role: "hr", // ⬅ change role: "super-admin" | "tenant-admin" | "hr" | "sales" | etc
-};
+// const dummyUser = {
+//   id: "123",
+//   name: "Rabby Hasan",
+//   role: "hr", // ⬅ change role: "super-admin" | "tenant-admin" | "hr" | "sales" | etc
+// };
 
 
-export default function ProtectedRoute({ allowed }: { allowed: string[] }) {
+export default function ProtectedRoute() {
 //   const user = useSelector((s) => s.auth.user);
-const user=dummyUser;
+const user=useAppSelector((state) => state.auth.user);
+const token =useAppSelector((state) => state.auth.token);
 
-  if (!user) return <Navigate to="/login" replace />;
+console.log("ProtectedRoute User: ", user);
 
-  if (!allowed.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+  if (!user || !token) return <Navigate to="/login" replace />;
+
+  // if (!allowed.includes(user.role)) {
+  //   return <Navigate to="/unauthorized" replace />;
+  // }
 
   return <Outlet />;
 }

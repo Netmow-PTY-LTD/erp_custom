@@ -2,7 +2,7 @@
 
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenuButton } from "./ui/sidebar";
 import { NavMain } from "./nav-main";
-import { sidebarItemLink } from "../config/sidebarItemLink";
+import { sidebarItemLink } from "@/config/sidebarItemLink";
 
 
 
