@@ -3,7 +3,6 @@ export type Department = {
   id: number;
   name: string;
   description: string;
-  status: string;
 }
 export type Order = {
   id: number;

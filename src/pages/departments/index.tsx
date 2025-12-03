@@ -7,8 +7,9 @@ import { z } from "zod";
 //import { Link } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { useGetAllDepartmentsQuery } from "@/store/features/admin/departmentApiService";
+import { useDeleteDepartmentMutation, useGetAllDepartmentsQuery } from "@/store/features/admin/departmentApiService";
 import type { Department } from "@/types/types";
+import { toast } from "sonner";
 
 export const DepartmentSchema = z.object({
   name: z.string().min(1, "Department name is required"),
@@ -25,9 +26,48 @@ export default function DepartmentsPage() {
 
   const {data: fetchedDepartments} = useGetAllDepartmentsQuery();
 
-  console.log("Fetched Departments: ", fetchedDepartments);
+  //console.log("Fetched Departments: ", fetchedDepartments);
 
-  const departments = fetchedDepartments?.data || [];
+  const departments: Department[] = fetchedDepartments?.data || [];
+
+  const [deleteDepartment] = useDeleteDepartmentMutation();
+
+
+
+const handleDeleteDepartment = async (id: number) => {
+  // Ask for confirmation using a simple toast with prompt
+  const confirmed = await new Promise<boolean>((resolve) => {
+    toast(
+      "Are you sure you want to delete this department?",
+      {
+        action: {
+          label: "Delete",
+          onClick: () => resolve(true), // user confirmed
+        },
+        duration: 3000, // auto-dismiss after 5s
+      }
+    );
+
+    // resolve false if toast disappears automatically
+    setTimeout(() => resolve(false), 3000);
+  });
+
+  //console.log("User confirmed deletion: ", confirmed);
+
+  if (!confirmed) return; // stop if user didn’t confirm
+
+  try {
+    const res = await deleteDepartment(id).unwrap();
+    if (res.status) {
+      toast.success("Department deleted successfully");
+    } else {
+      toast.error("Failed to delete department");
+    }
+  } catch (error) {
+    console.error("Error deleting department:", error);
+    toast.error("Failed to delete department");
+  }
+};
 
   const columns: ColumnDef<Department>[] = [
     {
@@ -54,7 +94,7 @@ export default function DepartmentsPage() {
           </Button>
           <Button
             variant="destructive"
-            onClick={() => alert(row.original.id)}
+            onClick={() => handleDeleteDepartment(row.original.id)}
           >
             Delete
           </Button>
