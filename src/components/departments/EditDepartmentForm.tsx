@@ -5,20 +5,31 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import DepartmentForm from "./DepartmentForm";
-import type { Department } from "@/pages/departments";
+import { useGetDepartmentByIdQuery } from "@/store/features/admin/departmentApiService";
+import { type DepartmentFormValues } from "@/pages/departments";
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  department: Department | null;
-  onSave: (updated: Department) => void;
+  departmentId: number | null;
 }
 
 export default function EditDepartmentForm({
   open,
   onOpenChange,
-  department,
-  onSave,
+  departmentId,
 }: Props) {
+
+  const { data: department } = useGetDepartmentByIdQuery(departmentId!, {
+    skip: departmentId === null,
+  });
+
+  console.log("Editing Department: ", department);
+
+  const onSubmit = (values: DepartmentFormValues) => {
+    console.log("Edit Department: ", values);
+    onOpenChange(false);
+  }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent>
@@ -29,14 +40,8 @@ export default function EditDepartmentForm({
        <div className="px-4">
          {department && (
           <DepartmentForm
-            initialValues={{
-              name: department.name,
-              description: department.description,
-            }}
-            onSubmit={(values) => {
-              onSave({ ...department, ...values });
-              onOpenChange(false);
-            }}
+            initialValues={department.data[0]}
+            onSubmit={onSubmit}
           />
         )}
        </div>

@@ -2,19 +2,20 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
 
 import authReducer from "@/store/features/auth/authSlice";
-import { authApi } from "@/store/features/auth/authApiService";
+//import { authApi } from "@/store/features/auth/authApiService";
+import { baseApi } from "./baseApi";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
 
     // RTK Query reducers
-    [authApi.reducerPath]: authApi.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
-      .concat(authApi.middleware)
+      .concat(baseApi.middleware),
 });
 
 // TYPES
