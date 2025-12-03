@@ -15,21 +15,21 @@ export const departmentApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["department"],
+      invalidatesTags: ["Departments"],
     }),
     getAllDepartments: builder.query<DepartmentResponse, void>({
       query: () => ({
         url: "/departments",
         method: "GET",
       }),
-      providesTags: ["department"],
+      providesTags: ["Departments"],
     }),
     getDepartmentById: builder.query<DepartmentResponse, number>({
       query: (id) => ({
         url: `/departments/${id}`,
         method: "GET",
       }),
-      providesTags: ["department"],
+      providesTags: ["Departments"],
     }),
   }),
 });
