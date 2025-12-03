@@ -14,7 +14,7 @@ interface RefreshTokenResponse {
 
 // Basic baseQuery with auth header
 const baseQuery = fetchBaseQuery({
-  baseUrl: `${import.meta.env.VITE_API_URL}/api/v1`,
+  baseUrl: `${import.meta.env.VITE_API_URL}/api`,
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     const state = getState() as RootState;
