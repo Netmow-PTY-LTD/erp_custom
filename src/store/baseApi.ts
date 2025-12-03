@@ -69,7 +69,7 @@ const baseQueryWithRefreshToken: BaseQueryFn<
         api.dispatch(logout());
         // optional: trigger logout endpoint if needed
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       api.dispatch(logout());
     }
@@ -82,6 +82,6 @@ const baseQueryWithRefreshToken: BaseQueryFn<
 export const baseApi = createApi({
   reducerPath: 'baseApi',
   baseQuery: baseQueryWithRefreshToken,
-  tagTypes: ['Auth', 'Users', 'Departments'],
+  tagTypes: ['Auth', 'Users', 'Departments', 'Customers'],
   endpoints: () => ({}),
 });
