@@ -60,7 +60,7 @@ export default function Customers() {
   };
 
   const customers = data?.data || [];
-  const totalPages = data?.pagination.totalPage || 1;
+  // const totalPages = data?.pagination.totalPage || 1;
   const totalCustomers = data?.pagination.total || 0;
 
   // Calculate stats from customers
@@ -247,7 +247,7 @@ export default function Customers() {
               data={customers}
               pageIndex={pageIndex}
               pageSize={pageSize}
-              totalPages={totalPages}
+              // totalPages={totalPages}
               onPageChange={setPageIndex}
             />
           )}
