@@ -1,7 +1,10 @@
 import { Link } from "react-router";
+import { useAuthUserQuery } from "./store/features/auth/authApiService";
 
 
 const APP = () => {
+  const {data: user} = useAuthUserQuery();
+  console.log("Current User: ", user);
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Hero Section */}

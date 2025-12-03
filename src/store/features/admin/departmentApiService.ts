@@ -21,21 +21,21 @@ export const departmentApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["department"],
+      invalidatesTags: ["Departments"],
     }),
     getAllDepartments: builder.query<DepartmentResponse, void>({
       query: () => ({
         url: "/departments",
         method: "GET",
       }),
-      providesTags: ["department"],
+      providesTags: ["Departments"],
     }),
     getDepartmentById: builder.query<DepartmentByIdResponse, number>({
       query: (id) => ({
         url: `/departments/${id}`,
         method: "GET",
       }),
-      providesTags: ["department"],
+      providesTags: ["Departments"],
     }),
     updateDepartment: builder.mutation<
       DepartmentResponse,
@@ -46,14 +46,14 @@ export const departmentApiService = baseApi.injectEndpoints({
         method: "PUT",
         body: body.body,
       }),
-      invalidatesTags: ["department"],
+      invalidatesTags: ["Departments"],
     }),
     deleteDepartment: builder.mutation<DepartmentResponse, number>({
       query: (id) => ({
         url: `/departments/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["department"],
+      invalidatesTags: ["Departments"],
     }),
   }),
 });

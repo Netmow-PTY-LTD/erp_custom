@@ -7,47 +7,50 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 
 import AddProductCategoryForm from "@/components/products/AddProductCategoryForm";
 import EditProductCategoryForm from "@/components/products/EditProductCategoryForm";
+import type { Category } from "@/types/types";
+import { useGetAllCategoriesQuery } from "@/store/features/admin/productsApiService";
 
-type Category = {
-  name: string;
-  status: string;
-};
-
-// Sample initial categories
-const initialCategories: Category[] = [
-  { name: "Office Supplies", status: "Active" },
-  { name: "Electronics", status: "Active" },
-  { name: "Furniture", status: "Active" },
-  { name: "Clothing", status: "Active" },
-  { name: "Home Decor", status: "Active" },
-  { name: "Books", status: "Active" },
-  { name: "Toys", status: "Active" },
-  { name: "Sports Equipment", status: "Active" },
-  { name: "Health and Beauty", status: "Active" },
-  { name: "Jewelry", status: "Active" },
-];
 
 export default function CategoryPage() {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
   const [openEditForm, setOpenEditForm] = useState<boolean>(false);
+
+  const { data: fetchedCategories } = useGetAllCategoriesQuery();
+
+  console.log("Fetched Categories: ", fetchedCategories);
+
+  const categories: Category[] = fetchedCategories?.data || [];
 
   // Define columns for DataTable
   const categoryColumns = useMemo<ColumnDef<Category>[]>(
     () => [
       {
+        accessorKey: "id",
+        header: "ID",
+      },
+      {
         accessorKey: "name",
         header: "Category",
       },
       {
-        accessorKey: "status",
+        accessorKey: "description",
+        header: "Description",
+      },
+      {
+        accessorKey: "is_active",
         header: "Status",
+        cell: ({ row }) => {
+          const isActive = row.original.is_active;
+          const bgColor = isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700";
+          return <span className={bgColor+" px-2 py-1 text-xs rounded-full font-medium"}>{isActive ? "Active" : "Inactive"}</span>;
+        },
       },
       {
         id: "actions",
         header: "Action",
-        cell: ({ row }) => (
+        cell: ({ row }) => {
+          const categoryId = row.original.id;
+          return (
           <div className="flex items-center gap-2">
             <Button
               variant="success"
@@ -59,16 +62,13 @@ export default function CategoryPage() {
             <Button
               variant="destructive"
               size="sm"
-              onClick={() =>
-                setCategories((prev) =>
-                  prev.filter((c) => c.name !== row.original.name)
-                )
-              }
+              onClick={() => alert("Delete category with ID:" + categoryId)}
             >
               Delete
             </Button>
           </div>
-        ),
+        );
+        },
       },
     ],
     []
@@ -87,9 +87,6 @@ export default function CategoryPage() {
       <DataTable
         columns={categoryColumns}
         data={categories}
-        pageIndex={pageIndex}
-        pageSize={10}
-        onPageChange={setPageIndex}
       />
       {/* Edit category form */}
      <EditProductCategoryForm open={openEditForm} setOpen={setOpenEditForm} />
