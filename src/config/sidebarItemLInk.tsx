@@ -3,7 +3,6 @@ import {
   HandCoins,
   LayoutDashboard,
   LineChart,
-  List,
   Package,
   Pencil,
   Settings,
@@ -58,9 +57,9 @@ import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
-import Roles from "@/pages/roles";
+//import Roles from "@/pages/roles";
 import AttendancePage from "@/pages/staffs/attendance";
-import PermissionsPage from "@/pages/permissions";
+//import PermissionsPage from "@/pages/permissions";
 import UnitsPage from "@/pages/unit";
 import DepartmentsPage from "@/pages/departments";
 import ProductDetailsPage from "@/pages/products/ProductDetails";
@@ -399,23 +398,23 @@ export const sidebarItemLink = [
 
     ],
   },
-  {
-    title: "Roles & Permissions",
-    url: "#",
-    icon: List,
-    items: [
-      {
-        title: "Roles",
-        url: "/dashboard/roles",
-        element: <Roles />,
-      },
-      {
-        title: "Permissions",
-        url: "/dashboard/permissions",
-        element: <PermissionsPage />,
-      },
-    ]
-  },
+  // {
+  //   title: "Roles & Permissions",
+  //   url: "#",
+  //   icon: List,
+  //   items: [
+  //     {
+  //       title: "Roles",
+  //       url: "/dashboard/roles",
+  //       element: <Roles />,
+  //     },
+  //     {
+  //       title: "Permissions",
+  //       url: "/dashboard/permissions",
+  //       element: <PermissionsPage />,
+  //     },
+  //   ]
+  // },
   {
     title: "Settings",
     url: "/dashboard/settings",
