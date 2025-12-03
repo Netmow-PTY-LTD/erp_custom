@@ -4,9 +4,10 @@ import NotFound from "../pages/NotFound";
 import DashboardLayout from "../Layout/Dashboard";
 import Dashboard from "../pages/dashboard/Dashboard";
 import { generateRoutes } from "../utils/routesGenerators";
-import { sidebarItemLink } from "../config/sidebarItemLInk";
+import { sidebarItemLink } from "../config/sidebarItemLink";
 import Login from "@/pages/auth/Login";
 import RegisterPage from "@/pages/auth/Register";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
 
 // Generate dynamic dashboard routes (relative paths)
 const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
@@ -30,6 +31,10 @@ const rootRouter = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
   },
   {
     path: "/register",

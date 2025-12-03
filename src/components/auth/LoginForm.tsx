@@ -9,16 +9,18 @@ import {
 } from "@/components/ui/card";
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
-//   FieldSeparator,
+  //   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router";
+import { useAuthLoginMutation } from "@/store/features/auth/authApiService";
+import { useNavigate } from "react-router";
+import { useAppDispatch } from "@/store/store";
+import { setCredentials } from "@/store/features/auth/authSlice";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -29,6 +31,9 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,8 +42,28 @@ export function LoginForm({
     },
   });
 
-  const onSubmit = (data: z.infer<typeof loginSchema>) => {
+  const [authLogin] = useAuthLoginMutation();
+
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     console.log(data);
+    const payload = {
+      email: data.email,
+      password: data.password,
+    };
+    try {
+      const res = await authLogin(payload).unwrap();
+      console.log("Login successful:", res);
+      // Handle successful login (e.g., redirect, show message)
+      if (res) {
+        dispatch(
+          setCredentials({ user: res?.data?.user, token: res.data?.token })
+        );
+
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -46,7 +71,7 @@ export function LoginForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>
-            Login with your Apple or Google account
+            Enter your email and password to sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -102,8 +127,9 @@ export function LoginForm({
                     <div className="flex items-center">
                       <FieldLabel htmlFor="password">Password</FieldLabel>
                       <a
-                        href="#"
+                        href="/forgot-password"
                         className="ml-auto text-sm underline-offset-4 hover:underline"
+                        target="_blank"
                       >
                         Forgot your password?
                       </a>
@@ -119,18 +145,11 @@ export function LoginForm({
               />
               <Field>
                 <Button type="submit">Login</Button>
-                <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link to="/register">Sign up</Link>
-                </FieldDescription>
               </Field>
             </FieldGroup>
           </form>
         </CardContent>
       </Card>
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </FieldDescription>
     </div>
   );
 }
