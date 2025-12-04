@@ -3,7 +3,7 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetAllUsersQuery } from "@/store/features/users/usersApiService";
-import type { User } from "@/types/users";
+import type { User } from "@/types/users.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import {

@@ -15,7 +15,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router";
-import { useGetAllRolesQuery } from "@/store/features/role/role";
+import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import { useAddUserMutation } from "@/store/features/users/usersApiService";
 import { toast } from "sonner";
 

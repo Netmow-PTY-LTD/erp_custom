@@ -1,5 +1,5 @@
 import { baseApi } from "@/store/baseApi";
-import type { User } from "@/types/users";
+import type { User } from "@/types/users.types";
 
 
 export type UserResponse = {

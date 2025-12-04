@@ -1,5 +1,5 @@
 import { baseApi } from "@/store/baseApi";
-import type { Leave } from "@/types/leave";
+import type { Leave } from "@/types/leave.types";
 
 
 export type LeaveResponse = {
