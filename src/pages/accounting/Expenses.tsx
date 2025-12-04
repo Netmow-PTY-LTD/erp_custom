@@ -2,9 +2,12 @@
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useGetExpensesQuery } from "@/store/features/accounting/accoutntingApiService";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Plus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 
 export type Expense = {
     id: number;
@@ -53,8 +56,8 @@ export default function ExpensesPage() {
                     status === "Paid"
                         ? "success"
                         : status === "Pending"
-                        ? "secondary"
-                        : "destructive";
+                            ? "secondary"
+                            : "destructive";
 
                 return <Badge variant={variant}>{status}</Badge>;
             },
@@ -66,7 +69,16 @@ export default function ExpensesPage() {
 
     return (
         <div>
-            <h2 className="text-2xl font-semibold mb-4">All Expenses</h2>
+            <div className="flex justify-between">
+                <h2 className="text-2xl font-semibold mb-4">All Expenses</h2>
+                <div className="flex gap-2">
+                    <Link to={'/dashboard/accounting/add-expanse'}>
+                        <Button variant="info">
+                            <Plus className="h-4 w-4" /> Add Expense
+                        </Button>
+                    </Link>
+                </div>
+            </div>
             <DataTable
                 columns={expenseColumns}
                 data={expenses}

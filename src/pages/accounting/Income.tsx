@@ -3,9 +3,12 @@
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useGetIncomesQuery } from "@/store/features/accounting/accoutntingApiService";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Plus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 
 // Map API response to this type
 export type Income = {
@@ -68,7 +71,18 @@ export default function IncomePage() {
 
     return (
         <div>
-            <h2 className="text-2xl font-semibold mb-4">All Income</h2>
+
+            <div className="flex justify-between">
+                <h2 className="text-2xl font-semibold mb-4">All Income</h2>
+
+                <div className="flex gap-2">
+                    <Link to={'/dashboard/accounting/add-income'} >
+                        <Button variant="outline-info">
+                            <Plus className="h-4 w-4" /> Add Income
+                        </Button>
+                    </Link>
+                </div>
+            </div>
             <DataTable
                 columns={incomeColumns}
                 data={incomes}
