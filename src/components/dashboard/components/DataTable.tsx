@@ -19,20 +19,8 @@ import {
   TableHead,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectItem,
-  SelectContent,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Loader } from "lucide-react";
 
 /* ---------------------------
    Debounce Hook (Typed)
@@ -56,19 +44,21 @@ import { Button } from "@/components/ui/button";
    Component Types
 ---------------------------- */
 interface DataTableProps<TData> {
-  columns?: ColumnDef<TData>[];   // optional
-  data?: TData[];                 // optional
-  //totalCount?: number;            // optional
+  columns?: ColumnDef<TData>[];
+  data?: TData[];
 
-  pageIndex?: number;             // optional
-  pageSize?: number;              // optional
+  pageIndex?: number;
+  pageSize?: number;
+  totalCount?: number;
 
-  onPageChange?: (page: number) => void;   // optional
+  onPageChange?: (page: number) => void;
+  search?: string;
+  onSearch?: (value: string) => void;
+  isFetching?: boolean | null;
 
-  onGlobalFilterChange?: (value: string) => void; // optional
-  globalFilterValue?: string;     // optional
+  globalFilterValue?: string;
+  onGlobalFilterChange?: (value: string) => void;
 }
-
 
 /* ---------------------------
    DataTable Component
@@ -76,13 +66,14 @@ interface DataTableProps<TData> {
 export function DataTable<TData>({
   columns = [],
   data = [],
-  //totalCount = 0,
-  // pageIndex = 0,
-  //pageSize = 10,
-  // onPageChange = () => {},
+  totalCount = 0,
+  pageIndex = 0,
+  pageSize = 10,
+  onPageChange = () => {},
+  onSearch = () => {},
+  isFetching = null,
   // onGlobalFilterChange = () => {},
   globalFilterValue = "",
-
 }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = useState(globalFilterValue || "");
 
@@ -97,14 +88,14 @@ export function DataTable<TData>({
   const table = useReactTable({
     data,
     columns,
-    state: { globalFilter },
+    state: { globalFilter, pagination: { pageIndex, pageSize } },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     // onGlobalFilterChange: setGlobalFilter,
-    manualPagination: false,
-   // pageCount: Math.ceil(totalCount / pageSize),
+    manualPagination: true,
+    pageCount: Math.ceil(totalCount / pageSize),
   });
 
   // const totalPages = Math.ceil(totalCount / pageSize);
@@ -114,7 +105,10 @@ export function DataTable<TData>({
       <Input
         placeholder="Search..."
         value={globalFilter}
-        onChange={(e) => setGlobalFilter(e.target.value)}
+        onChange={(e) => {
+          setGlobalFilter(e.target.value);
+          onSearch?.(e.target.value); // 🔥 ask parent to fetch from API
+        }}
         className="max-w-sm"
       />
 
@@ -138,9 +132,24 @@ export function DataTable<TData>({
           </TableHeader>
 
           <TableBody>
-            {table.getRowModel().rows.length > 0 ? (
+            {isFetching ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns?.length}
+                  className="h-24 text-center"
+                >
+                  <div className="flex justify-center items-center space-x-2">
+                    <Loader className="w-4 h-4 animate-spin" />
+                    <span>Loading...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -153,8 +162,11 @@ export function DataTable<TData>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No results found.
+                <TableCell
+                  colSpan={columns?.length}
+                  className="h-24 text-center"
+                >
+                  No results.
                 </TableCell>
               </TableRow>
             )}
@@ -163,80 +175,55 @@ export function DataTable<TData>({
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-2">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+      <div className="flex items-center justify-between py-4">
+        {/* Showing X–Y of Z */}
+        <div className="text-sm">
+          Showing {pageIndex * pageSize + 1}–
+          {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
+          results
         </div>
-        <div className="flex flex-wrap items-center gap-6">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
-            <Select
-              value={`${table.getState().pagination.pageSize}`}
-              onValueChange={(value) => {
-                table.setPageSize(Number(value));
-              }}
+
+        {/* Pagination Controls */}
+        <div className="space-x-2 flex items-center">
+          {/* Previous */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(pageIndex - 1)}
+            disabled={pageIndex <= 0}
+          >
+            Previous
+          </Button>
+
+          {/* Page Selector */}
+          <div className="flex items-center gap-1 text-sm">
+            <span>Page</span>
+            <select
+              value={pageIndex + 1}
+              onChange={(e) => onPageChange?.(Number(e.target.value) - 1)}
+              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
             >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[10, 20, 25, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {Array.from(
+                { length: Math.ceil(totalCount / pageSize) },
+                (_, i) => i + 1
+              ).map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <span>of {Math.ceil(totalCount / pageSize)}</span>
           </div>
-          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </div>
-          <div className="flex flex-wrap items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="hidden size-8 lg:flex"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Go to first page</span>
-              <ChevronsLeft />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Go to previous page</span>
-              <ChevronLeft />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-8"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Go to next page</span>
-              <ChevronRight />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="hidden size-8 lg:flex"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Go to last page</span>
-              <ChevronsRight />
-            </Button>
-          </div>
+
+          {/* Next */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange?.(pageIndex + 1)}
+            disabled={pageIndex + 1 >= Math.ceil(totalCount / pageSize)}
+          >
+            Next
+          </Button>
         </div>
       </div>
     </div>

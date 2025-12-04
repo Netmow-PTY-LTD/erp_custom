@@ -21,180 +21,9 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
-
-export type Product = {
-  id: number;
-  sku: string;
-  name: string;
-  category: string;
-  brand_name: string;
-  unit: string;
-  cost_price: number;
-  selling_price: number;
-  stock: string;
-  stockStatus: string;
-  status: string;
-};
-
-const products: Product[] = [
-  {
-    id: 1,
-    sku: "abc01",
-    name: "Pran Chini Gura Chal",
-    category: "Office Supplies",
-    brand_name: "Pran Chini Gura Chal",
-    unit: "pcs",
-    cost_price: 10.0,
-    selling_price: 100.0,
-    stock: "120 pcs",
-    stockStatus: "High Stock",
-    status: "Active",
-  },
-  {
-    id: 2,
-    sku: "SKU001",
-    name: "Wireless Mouse",
-    category: "Electronics",
-    brand_name: "Wireless Mouse",
-    unit: "pcs",
-    cost_price: 45.0,
-    selling_price: 45.0,
-    stock: "347 pcs",
-    stockStatus: "High Stock",
-    status: "Active",
-  },
-  {
-    id: 3,
-    sku: "SKU002",
-    name: "Office Chair",
-    category: "Furniture",
-    brand_name: "Office Chair",
-    unit: "pcs",
-    cost_price: 299.0,
-    selling_price: 299.0,
-    stock: "55 pcs",
-    stockStatus: "Normal",
-    status: "Active",
-  },
-  {
-    id: 4,
-    sku: "SKU003",
-    name: "Power Drill",
-    category: "Industrial Tools",
-    brand_name: "Power Drill",
-    unit: "pcs",
-    cost_price: 125.0,
-    selling_price: 125.0,
-    stock: "30 pcs",
-    stockStatus: "Normal",
-    status: "Active",
-  },
-  {
-    id: 5,
-    sku: "SKU004",
-    name: "Laptop Computer",
-    category: "Computer Hardware",
-    brand_name: "Laptop Computer",
-    unit: "pcs",
-    cost_price: 2850.0,
-    selling_price: 2850.0,
-    stock: "16 pcs",
-    stockStatus: "Low Stock",
-    status: "Active",
-  },
-  {
-    id: 6,
-    sku: "SKU005",
-    name: "A4 Paper",
-    category: "Office Supplies",
-    brand_name: "A4 Paper",
-    unit: "ream",
-    cost_price: 12.5,
-    selling_price: 12.5,
-    stock: "529 ream",
-    stockStatus: "Normal",
-    status: "Active",
-  },
-  {
-    id: 7,
-    sku: "SKU006",
-    name: "Network Switch",
-    category: "Networking",
-    brand_name: "Network Switch",
-    unit: "pcs",
-    cost_price: 450.0,
-    selling_price: 450.0,
-    stock: "13 pcs",
-    stockStatus: "Normal",
-    status: "Active",
-  },
-  {
-    id: 8,
-    sku: "SKU007",
-    name: "Desk Lamp",
-    category: "Electronics",
-    brand_name: "Desk Lamp",
-    unit: "pcs",
-    cost_price: 75.0,
-    selling_price: 75.0,
-    stock: "176 pcs",
-    stockStatus: "High Stock",
-    status: "Active",
-  },
-  {
-    id: 9,
-    sku: "SKU008",
-    name: "Printer Ink",
-    category: "Office Supplies",
-    brand_name: "Printer Ink",
-    unit: "pcs",
-    cost_price: 35.0,
-    selling_price: 35.0,
-    stock: "194 pcs",
-    stockStatus: "Normal",
-    status: "Active",
-  },
-  {
-    id: 10,
-    sku: "SKU009",
-    name: "Whiteboard",
-    category: "Office Supplies",
-    brand_name: "Whiteboard",
-    unit: "pcs",
-    cost_price: 180.0,
-    selling_price: 180.0,
-    stock: "28 pcs",
-    stockStatus: "Normal",
-    status: "Active",
-  },
-  {
-    id: 11,
-    sku: "SKU010",
-    name: "Cable Management",
-    category: "Office Supplies",
-    brand_name: "Cable Management",
-    unit: "pcs",
-    cost_price: 25.0,
-    selling_price: 25.0,
-    stock: "0 pcs",
-    stockStatus: "Low Stock",
-    status: "Active",
-  },
-  {
-    id: 12,
-    sku: "SKU011",
-    name: "Cable Management",
-    category: "Office Supplies",
-    brand_name: "Cable Management",
-    unit: "pcs",
-    cost_price: 25.0,
-    selling_price: 25.0,
-    stock: "0 pcs",
-    stockStatus: "Low Stock",
-    status: "Active",
-  },
-];
-
+import type { Product } from "@/types/types";
+import { useState } from "react";
+import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 
 const stats = [
   {
@@ -224,6 +53,24 @@ const stats = [
 ];
 
 export default function Products() {
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
+
+  const {
+    data: fetchedProducts,
+    isFetching,
+    //refetch: refetchProducts,
+  } = useGetAllProductsQuery({ page, limit, search });
+
+  const products: Product[] = fetchedProducts?.data || [];
+  console.log("Fetched Products: ", fetchedProducts);
+  const pagination = fetchedProducts?.pagination ?? {
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPage: 1,
+  };
 
   const productColumns: ColumnDef<Product>[] = [
     {
@@ -237,32 +84,40 @@ export default function Products() {
     {
       accessorKey: "category",
       header: "Category",
-    },
-    {
-      accessorKey: "brand_name",
-      header: "Brand",
+      cell: ({ row }) => row.original.category.name,
     },
     {
       accessorKey: "unit",
       header: "Base UoM",
+      cell: ({ row }) =>
+        `${row.original.unit.name} (${row.original.unit.symbol})`,
     },
     {
-      accessorKey: "cost_price",
+      accessorKey: "cost",
       header: "Cost Price (RM)",
+      cell: ({ row }) => row.original.cost,
     },
     {
-      accessorKey: "selling_price",
+      accessorKey: "price",
       header: "Selling Price (RM)",
+      cell: ({ row }) => row.original.price,
     },
     {
-      accessorKey: "stock",
+      accessorKey: "stock_quantity",
       header: "Stock",
+      cell: ({ row }) => row.original.stock_quantity,
     },
     {
-      accessorKey: "stockStatus",
+      accessorKey: "stock_quantity",
       header: "Stock Status",
       cell: ({ row }) => {
-        const status = row.getValue("stockStatus") as string;
+        const stock = row.original.stock_quantity;
+        const min = row.original.min_stock_level;
+        const max = row.original.max_stock_level ?? Infinity;
+
+        let status = "Normal";
+        if (stock <= min) status = "Low Stock";
+        else if (stock >= max) status = "High Stock";
 
         return (
           <Badge
@@ -280,13 +135,19 @@ export default function Products() {
       },
     },
     {
-      accessorKey: "status",
+      accessorKey: "is_active",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const bgColor = status.toLowerCase() === "active" ? "bg-green-500" : "bg-red-500";
-        return <span className={`py-1 px-2 rounded-full text-xs text-white font-medium ${bgColor}`}>{status}</span>;
-      }
+        const status = row.original.is_active;
+        const bgColor = status ? "bg-green-500" : "bg-red-500";
+        return (
+          <span
+            className={`py-1 px-2 rounded-full text-xs text-white font-medium ${bgColor}`}
+          >
+            {status ? "Active" : "Inactive"}
+          </span>
+        );
+      },
     },
     {
       id: "actions",
@@ -305,25 +166,40 @@ export default function Products() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-              >
-                <Link to={`/dashboard/products/${product.id}/edit`} className="w-full">
+              <DropdownMenuItem>
+                <Link
+                  to={`/dashboard/products/${product.id}/edit`}
+                  className="w-full"
+                >
                   Edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Link to={`/dashboard/products/${product.id}`} className="w-full">
+                <Link
+                  to={`/dashboard/products/${product.id}`}
+                  className="w-full"
+                >
                   View
                 </Link>
               </DropdownMenuItem>
-               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={()=> alert(`Product with id ${product.id} has been deleted successfully.`)} className="cursor-pointer">
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() =>
+                  alert(
+                    `Product with id ${product.id} has been deleted successfully.`
+                  )
+                }
+                className="cursor-pointer"
+              >
                 Delete
               </DropdownMenuItem>
-                <DropdownMenuSeparator />
+              <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Link to={`/dashboard/products/${product.id}`} className="w-full">
+                <Link
+                  to={`/dashboard/products/${product.id}/stock`}
+                  className="w-full"
+                >
                   Stock
                 </Link>
               </DropdownMenuItem>
@@ -347,16 +223,16 @@ export default function Products() {
 
           <Link to="/dashboard/products/categories">
             <button className="flex items-center gap-2 bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-500">
-            <Tags size={18} />
-            Categories
-          </button>
+              <Tags size={18} />
+              Categories
+            </button>
           </Link>
 
           <Link to="/dashboard/products/create">
             <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
-            <PackagePlus size={18} />
-            Add Product
-          </button>
+              <PackagePlus size={18} />
+              Add Product
+            </button>
           </Link>
         </div>
       </div>
@@ -384,6 +260,15 @@ export default function Products() {
           <DataTable
             columns={productColumns}
             data={products}
+            pageIndex={page - 1}
+            pageSize={limit}
+            totalCount={pagination.total}
+            onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+            onSearch={(value) => {
+              setSearch(value);
+              setPage(1);
+            }}
+            isFetching={isFetching}
           />
         </CardContent>
       </Card>
