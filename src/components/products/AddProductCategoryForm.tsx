@@ -26,15 +26,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useAddProductCategoryMutation } from "@/store/features/admin/productsApiService";
+import { Loader } from "lucide-react";
+import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
 
 const statusOptions = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
+  { value: "true", label: "Active" },
+  { value: "false", label: "Inactive" },
 ];
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
-  status: z.string().min(1, "Status is required"),
+  description: z.string().optional(),
+  is_active: z.boolean().optional(),
 });
 export default function AddProductCategoryForm({
   open,
@@ -47,12 +52,38 @@ export default function AddProductCategoryForm({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
-      status: "Active",
+      description: "",
+      is_active: true,
     },
   });
 
-  const handleAddCategory = (values: z.infer<typeof categorySchema>) => {
+  const [addProductCategory, { isLoading }] = useAddProductCategoryMutation();
+
+  const handleAddCategory = async (values: z.infer<typeof categorySchema>) => {
     console.log(values);
+    const payload = {
+      name: values.name,
+      description: values.description,
+      is_active: values.is_active,
+    };
+
+    try {
+      const res = await addProductCategory(payload).unwrap();
+      console.log("Category added successfully:", res.data);
+
+      if (res.status) {
+        toast.success("Category added successfully");
+        setOpen(false);
+        form.reset();
+      } else {
+        toast.error("Failed to add category: " + res.message);
+      }
+    } catch (error) {
+      toast.error("Error adding category");
+      if (error instanceof Error) {
+        toast.error("Error adding category: " + error.message);
+      }
+    }
   };
 
   return (
@@ -84,15 +115,33 @@ export default function AddProductCategoryForm({
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="status"
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter category description"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="is_active"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={Boolean(field.value).toString()}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -111,7 +160,16 @@ export default function AddProductCategoryForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit">Add Category</Button>
+              <Button className="w-full" type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Adding...
+                  </div>
+                ) : (
+                  "Add Category"
+                )}
+              </Button>
             </form>
           </Form>
         </div>
