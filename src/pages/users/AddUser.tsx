@@ -19,7 +19,7 @@ import { Link } from "react-router";
 // -------------------- ZOD SCHEMA --------------------
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
+  email: z.email("Invalid email"),
   phone: z.string().optional(),
   password: z.string().min(4, "Password must be at least 4 characters"),
   role: z.string().min(1, "Role is required"),

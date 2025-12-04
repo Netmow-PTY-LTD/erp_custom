@@ -2,8 +2,10 @@
 export type Role = {
   id: number;
   name: string;
-
+  description: string;
+  created_at?: string;
 };
+
 
 export type User = {
   id: number;
