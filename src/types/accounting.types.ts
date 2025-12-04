@@ -11,6 +11,8 @@ export type Overview = {
 
 // -------------------- INCOME / EXPENSE --------------------
 export type IncomeExpense = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  status: any;
   id: number;
   title: string;
   amount: number;
