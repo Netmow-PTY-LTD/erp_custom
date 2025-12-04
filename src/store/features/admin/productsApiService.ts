@@ -150,6 +150,7 @@ export const productsApiService = baseApi.injectEndpoints({
       method: "POST",
       body,
     }),
+    invalidatesTags: ["Unit"],
   }),
   getAllUnits: builder.query<UnitResponse, { page: number; limit: number; search?: string }>({
     query: (params) => ({
@@ -157,12 +158,14 @@ export const productsApiService = baseApi.injectEndpoints({
       method: "GET",
       params,
     }),
+    providesTags: ["Unit"],
   }),
   getUnitById: builder.query<UnitByIdResponse, number>({
     query: (id) => ({
       url: `/products/units/${id}`,
       method: "GET",
     }),
+    providesTags: ["Unit"],
   }),
   updateUnit: builder.mutation<UnitResponse, { id: number; body: Partial<Unit> }>({
     query: (body) => ({
@@ -170,14 +173,15 @@ export const productsApiService = baseApi.injectEndpoints({
       method: "PUT",
       body: body.body,
     }),
+    invalidatesTags: ["Unit"],
   }),
   deleteUnit: builder.mutation<UnitResponse, number>({
     query: (id) => ({
       url: `/products/units/${id}`,
       method: "DELETE",
     }),
-  }),
-  }),
+    invalidatesTags: ["Unit"],
+  }),  }),
 });
 
 export const {
