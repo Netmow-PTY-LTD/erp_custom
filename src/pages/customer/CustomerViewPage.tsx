@@ -1,5 +1,4 @@
 
-import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,108 +11,34 @@ import {
     Phone,
     MapPin,
 } from "lucide-react";
-
-// ----------------------------
-// TypeScript Types
-// ----------------------------
-type TOrder = {
-    id: string;
-    code: string;
-    date: string;
-    status: string;
-    amount: number;
-};
-
-type TInvoice = {
-    id: string;
-    code: string;
-    date: string;
-    status: string;
-    amount: number;
-};
-
-type TPayment = {
-    id: string;
-    detail: string;
-};
-
-type TCustomer = {
-    id: string;
-    name: string;
-    code: string;
-    email?: string;
-    phone?: string;
-    addressLine?: string;
-    city?: string;
-    state?: string;
-    postalCode?: string;
-    country?: string;
-
-    creditLimit: number;
-    invoiceTotal: number;
-    paidAmount: number;
-    unpaidAmount: number;
-    status: "Active" | "Inactive";
-
-    orders: TOrder[];
-    invoices: TInvoice[];
-    payments: TPayment[];
-};
+import { useGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 
 export default function CustomerViewPage() {
-    const { id } = useParams();
+    const { customerId } = useParams();
 
-    const [customer, setCustomer] = useState<TCustomer | null>(null);
+    const { data, isLoading, error } = useGetCustomerByIdQuery(Number(customerId));
 
-    useEffect(() => {
-        // --------------------------------
-        // Dummy data for UI testing
-        // --------------------------------
-        const dummyCustomer: TCustomer = {
-            id: id || "1",
-            name: "Arif R.",
-            code: "CUST010",
-            email: "sdfds@gmail.com",
-            phone: "23423423423",
-            addressLine: "Menara Paragon",
-            city: "Cyberjaya",
-            state: "Selangor",
-            postalCode: "63000",
-            country: "Malaysia",
+    const customer = data?.data;
 
-            creditLimit: 0,
-            invoiceTotal: 487.5,
-            paidAmount: 0,
-            unpaidAmount: 487.5,
-            status: "Active",
+    if (isLoading) {
+        return <div className="p-6">Loading customer details...</div>;
+    }
 
-            orders: [
-                {
-                    id: "ord1",
-                    code: "ORD-20251121-2E44EB",
-                    date: "2025-11-21",
-                    status: "Confirmed",
-                    amount: 487.5,
-                },
-            ],
+    if (error || !customer) {
+        return (
+            <div className="p-6">
+                <div className="text-red-600">Error loading customer. Please try again.</div>
+            </div>
+        );
+    }
 
-            invoices: [
-                {
-                    id: "inv1",
-                    code: "INV-20251121-13BE5E",
-                    date: "2025-11-21",
-                    status: "Sent",
-                    amount: 487.5,
-                },
-            ],
-
-            payments: [],
-        };
-
-        setCustomer(dummyCustomer);
-    }, [id]);
-
-    if (!customer) return <div className="p-6">Loading...</div>;
+    const fullAddress = [
+        customer.address,
+        customer.city,
+        customer.state,
+        customer.postal_code,
+        customer.country
+    ].filter(Boolean).join(", ");
 
     return (
         <div className="w-full p-6 space-y-6">
@@ -126,7 +51,6 @@ export default function CustomerViewPage() {
                             <ShoppingCart size={18} /> Create Order
                         </Button>
                     </Link>
-
 
                     <Link to={`/dashboard/customers/${customer.id}/edit`}>
                         <Button variant="secondary" className="flex items-center gap-2">
@@ -150,11 +74,16 @@ export default function CustomerViewPage() {
                     </CardHeader>
                     <CardContent className="space-y-2">
                         <p className="font-semibold text-lg">{customer.name}</p>
-                        <p className="text-sm text-muted-foreground">Code: {customer.code}</p>
+                        {customer.company && (
+                            <p className="text-sm text-muted-foreground">Company: {customer.company}</p>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                            ID: {customer.id} | Type: {customer.customer_type === "business" ? "Business" : "Individual"}
+                        </p>
 
                         <div className="pt-2 space-y-1 text-sm">
                             <div className="flex items-center gap-2">
-                                <MapPin size={16} /> {customer.addressLine || "-"}
+                                <MapPin size={16} /> {fullAddress || "-"}
                             </div>
                             <div className="flex items-center gap-2">
                                 <Mail size={16} /> {customer.email || "-"}
@@ -166,96 +95,20 @@ export default function CustomerViewPage() {
                     </CardContent>
                 </Card>
 
-                {/* ORDERS */}
-                <Card className="md:col-span-2">
-                    <CardHeader>
-                        <CardTitle>Orders</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {customer.orders.length ? (
-                            <table className="w-full text-sm">
-                                <thead className="text-muted-foreground">
-                                    <tr>
-                                        <th className="text-left py-2">Order #</th>
-                                        <th className="text-left">Date</th>
-                                        <th className="text-left">Status</th>
-                                        <th className="text-right">Amount (RM)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {customer.orders.map((order) => (
-                                        <tr key={order.id} className="border-t">
-                                            <td className="py-2">
-                                                <Link
-                                                    className="text-blue-600 hover:underline"
-                                                    to={`/dashboard/orders/${order.id}`}
-                                                >
-                                                    {order.code}
-                                                </Link>
-                                            </td>
-                                            <td>{order.date}</td>
-                                            <td>
-                                                <Badge>{order.status}</Badge>
-                                            </td>
-                                            <td className="text-right">{order.amount}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">No orders found.</p>
-                        )}
-                    </CardContent>
-                </Card>
-
                 {/* ADDRESS */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Address</CardTitle>
                     </CardHeader>
                     <CardContent className="text-sm space-y-1">
-                        <p>{customer.addressLine}</p>
-                        <p>
-                            {customer.city}, {customer.state}, {customer.postalCode}
-                        </p>
-                        <p>{customer.country}</p>
-                    </CardContent>
-                </Card>
-
-                {/* INVOICES */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Invoices</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {customer.invoices.length ? (
-                            <table className="w-full text-sm">
-                                <thead className="text-muted-foreground">
-                                    <tr>
-                                        <th className="text-left py-2">Invoice #</th>
-                                        <th className="text-left">Date</th>
-                                        <th className="text-left">Status</th>
-                                        <th className="text-right">Amount (RM)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {customer.invoices.map((inv) => (
-                                        <tr key={inv.id} className="border-t">
-                                            <td className="py-2">{inv.code}</td>
-                                            <td>{inv.date}</td>
-                                            <td>
-                                                <Badge variant="outline">{inv.status}</Badge>
-                                            </td>
-                                            <td className="text-right">{inv.amount}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">
-                                No invoices available.
+                        {customer.address && <p>{customer.address}</p>}
+                        {(customer.city || customer.state || customer.postal_code) && (
+                            <p>
+                                {[customer.city, customer.state, customer.postal_code].filter(Boolean).join(", ")}
                             </p>
                         )}
+                        {customer.country && <p>{customer.country}</p>}
+                        {!fullAddress && <p className="text-muted-foreground">No address provided</p>}
                     </CardContent>
                 </Card>
 
@@ -266,49 +119,54 @@ export default function CustomerViewPage() {
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
                         <p>
-                            <strong>Credit Limit:</strong> RM {customer.creditLimit}
+                            <strong>Credit Limit:</strong> {customer.credit_limit ? `RM ${customer.credit_limit.toLocaleString()}` : "RM 0"}
                         </p>
                         <p>
-                            <strong>Invoices Total:</strong> RM {customer.invoiceTotal}
+                            <strong>Outstanding Balance:</strong> {customer.outstanding_balance ? `RM ${customer.outstanding_balance.toLocaleString()}` : "RM 0"}
                         </p>
-                        <p>
-                            <strong>Paid:</strong> RM {customer.paidAmount}
-                        </p>
-                        <p>
-                            <strong>Unpaid:</strong> RM {customer.unpaidAmount}
-                        </p>
+                        {customer.tax_id && (
+                            <p>
+                                <strong>Tax ID:</strong> {customer.tax_id}
+                            </p>
+                        )}
                         <p className="flex items-center gap-2">
                             <strong>Status:</strong>{" "}
                             <Badge
                                 variant={
-                                    customer.status === "Active" ? "success" : "destructive"
+                                    customer.is_active ? "success" : "destructive"
                                 }
                             >
-                                {customer.status}
+                                {customer.is_active ? "Active" : "Inactive"}
                             </Badge>
                         </p>
                     </CardContent>
                 </Card>
 
-                {/* RECENT PAYMENTS */}
-                <Card className="md:col-span-2">
-                    <CardHeader>
-                        <CardTitle>Recent Payments</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {customer.payments.length ? (
-                            <ul className="text-sm space-y-1">
-                                {customer.payments.map((p) => (
-                                    <li key={p.id}>{p.detail}</li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-sm text-muted-foreground">
-                                No recent payments.
+                {/* NOTES */}
+                {customer.notes && (
+                    <Card className="md:col-span-3">
+                        <CardHeader>
+                            <CardTitle>Notes</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm">{customer.notes}</p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* LOCATION */}
+                {(customer.latitude && customer.longitude) && (
+                    <Card className="md:col-span-3">
+                        <CardHeader>
+                            <CardTitle>Location</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm">
+                                <strong>Coordinates:</strong> {customer.latitude}, {customer.longitude}
                             </p>
-                        )}
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
         </div>
     );
