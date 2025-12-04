@@ -19,11 +19,15 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
+import { useAddExpenseMutation } from "@/store/features/accounting/accoutntingApiService";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const expenseSchema = z.object({
-  date: z.string().min(1, "Date is required"),
-  description: z.string().min(1, "Description is required"),
+  title: z.string().min(1, "Title is required"),
+  expense_date: z.string().min(1, "Date is required"),
+  description: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   paidVia: z.string().min(1, "Paid Via is required"),
@@ -34,10 +38,14 @@ type ExpenseFormValues = z.infer<typeof expenseSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function AddExpensePage() {
+  const navigate = useNavigate();
+  const [addExpense, { isLoading }] = useAddExpenseMutation();
+
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
-      date: "",
+      title: "",
+      expense_date: "",
       description: "",
       category: "",
       amount: 0,
@@ -46,10 +54,22 @@ export default function AddExpensePage() {
     },
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, reset } = form;
 
-  const onSubmit: SubmitHandler<ExpenseFormValues> = (values) => {
-    console.log("Expense Submitted:", values);
+  const onSubmit: SubmitHandler<ExpenseFormValues> = async (values) => {
+    try {
+      const res = await addExpense(values).unwrap();
+      if (res.status) {
+        toast.success("Expense added successfully");
+        reset(); // Clear form
+        navigate("/dashboard/accounting/expenses"); // Redirect
+      } else {
+        toast.error("Failed to add expense");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while adding expense");
+    }
   };
 
   return (
@@ -57,19 +77,18 @@ export default function AddExpensePage() {
       <h1 className="text-3xl font-bold">Add Expense</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        
+
         {/* BASIC INFO */}
         <Card>
           <CardHeader>
             <CardTitle>Basic Info</CardTitle>
           </CardHeader>
-
           <CardContent className="grid gap-4 md:grid-cols-2">
 
             {/* DATE */}
             <Controller
               control={control}
-              name="date"
+              name="expense_date"
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Date</FieldLabel>
@@ -105,6 +124,19 @@ export default function AddExpensePage() {
               )}
             />
 
+            {/* TITLE */}
+            <Controller
+              control={control}
+              name="title"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Title</FieldLabel>
+                  <Input placeholder="Expense Title" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
             {/* DESCRIPTION */}
             <div className="md:col-span-2">
               <Controller
@@ -113,11 +145,7 @@ export default function AddExpensePage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Description</FieldLabel>
-                    <Textarea
-                      rows={4}
-                      placeholder="Describe expense..."
-                      {...field}
-                    />
+                    <Textarea rows={4} placeholder="Describe expense..." {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -132,7 +160,6 @@ export default function AddExpensePage() {
           <CardHeader>
             <CardTitle>Payment Details</CardTitle>
           </CardHeader>
-
           <CardContent className="grid gap-4 md:grid-cols-2">
 
             {/* AMOUNT */}
@@ -197,9 +224,11 @@ export default function AddExpensePage() {
           </CardContent>
         </Card>
 
-        {/* SUBMIT */}
+        {/* SUBMIT BUTTON */}
         <div className="flex justify-end">
-          <Button type="submit">Save Expense</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Expense"}
+          </Button>
         </div>
 
       </form>
