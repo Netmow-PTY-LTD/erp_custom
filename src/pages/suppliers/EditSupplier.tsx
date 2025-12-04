@@ -1,9 +1,10 @@
+
 "use client";
 
+import { useEffect } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,13 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+
+import { toast } from "sonner";
+import { useNavigate, useParams } from "react-router";
+import {
+  useGetSupplierByIdQuery,
+  useUpdateSupplierMutation,
+} from "@/store/features/suppliers/supplierApiService";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
@@ -35,42 +43,86 @@ const supplierSchema = z.object({
 
 type SupplierFormValues = z.infer<typeof supplierSchema>;
 
-/* ------------------ DUMMY EXISTING DATA ------------------ */
-const existingSupplier: SupplierFormValues = {
-  name: "ABC Supplies",
-  code: "SUP001",
-  email: "abc@supplies.com",
-  phone: "+60 123-456-789",
-  contactPerson: "John Doe",
-  address: "123 Jalan ABC",
-  city: "Kuala Lumpur",
-  state: "KL",
-  postalCode: "50000",
-  country: "Malaysia",
-  paymentTerms: "Net 30",
-  status: "Active",
-};
-
 /* ------------------ PAGE ------------------ */
 export default function EditSupplierPage() {
+  const navigate = useNavigate();
+  const { supplierId } = useParams(); // supplier ID from route
+  const { data: supplierData, isLoading: isFetching } = useGetSupplierByIdQuery(supplierId as string);
+  const [updateSupplier, { isLoading: isUpdating }] = useUpdateSupplierMutation();
+
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
-    defaultValues: existingSupplier, // pre-fill form with existing data
+    defaultValues: {
+      name: "",
+      code: "",
+      email: "",
+      phone: "",
+      contactPerson: "",
+      address: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "Malaysia",
+      paymentTerms: "",
+      status: "Active",
+    },
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, reset } = form;
 
-  const onSubmit: SubmitHandler<SupplierFormValues> = (values) => {
-    console.log("Updated Supplier:", values);
-    // Call API to update supplier
+  // Prefill form when supplierData is fetched
+  useEffect(() => {
+    if (supplierData?.data && !Array.isArray(supplierData.data)) {
+      const s = supplierData.data;
+      reset({
+        name: s.name,
+        code: s.code,
+        email: s.email,
+        phone: s.phone,
+        contactPerson: s.contact_person,
+        address: s.address,
+        city: s.city,
+        state: s.state,
+        postalCode: s.postal_code,
+        country: s.country,
+        paymentTerms: s.payment_terms,
+        status: s.is_active ? "Active" : "Inactive",
+      });
+    }
+  }, [supplierData, reset]);
+
+  const onSubmit: SubmitHandler<SupplierFormValues> = async (values) => {
+    try {
+      const payload = {
+        name: values.name,
+        contact_person: values.contactPerson,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        city: values.city,
+        country: values.country,
+        payment_terms: values.paymentTerms,
+        is_active: values.status === "Active",
+      };
+
+      const res = await updateSupplier({ id: supplierId as string, body: payload }).unwrap();
+      if (res?.status) {
+        toast.success("Supplier updated successfully");
+        navigate("/dashboard/suppliers");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update supplier");
+    }
   };
+
+  if (isFetching) return <p>Loading supplier data...</p>;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <h1 className="text-3xl font-bold">Edit Supplier</h1>
+      <h1 className="text-3xl font-bold">Update Supplier</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
         {/* BASIC INFORMATION */}
         <Card>
           <CardHeader>
@@ -88,6 +140,7 @@ export default function EditSupplierPage() {
                 </Field>
               )}
             />
+
             <Controller
               control={control}
               name="code"
@@ -99,6 +152,7 @@ export default function EditSupplierPage() {
                 </Field>
               )}
             />
+
             <Controller
               control={control}
               name="email"
@@ -110,6 +164,7 @@ export default function EditSupplierPage() {
                 </Field>
               )}
             />
+
             <Controller
               control={control}
               name="phone"
@@ -121,6 +176,7 @@ export default function EditSupplierPage() {
                 </Field>
               )}
             />
+
             <Controller
               control={control}
               name="contactPerson"
@@ -132,6 +188,7 @@ export default function EditSupplierPage() {
                 </Field>
               )}
             />
+
             <Controller
               control={control}
               name="paymentTerms"
@@ -163,6 +220,7 @@ export default function EditSupplierPage() {
                 </Field>
               )}
             />
+
             <Controller
               control={control}
               name="city"
@@ -174,28 +232,7 @@ export default function EditSupplierPage() {
                 </Field>
               )}
             />
-            <Controller
-              control={control}
-              name="state"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>State</FieldLabel>
-                  <Input placeholder="State" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="postalCode"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Postal Code</FieldLabel>
-                  <Input placeholder="Postal Code" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
+
             <Controller
               control={control}
               name="country"
@@ -250,7 +287,9 @@ export default function EditSupplierPage() {
 
         {/* SUBMIT */}
         <div className="flex justify-end">
-          <Button type="submit">Update Supplier</Button>
+          <Button type="submit" disabled={isUpdating}>
+            {isUpdating ? "Updating..." : "Update Supplier"}
+          </Button>
         </div>
       </form>
     </div>
