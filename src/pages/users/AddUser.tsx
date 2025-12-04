@@ -14,37 +14,59 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useGetAllRolesQuery } from "@/store/features/role/role";
+import { useAddUserMutation } from "@/store/features/users/usersApiService";
+import { toast } from "sonner";
 
 // -------------------- ZOD SCHEMA --------------------
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.email("Invalid email"),
-  phone: z.string().optional(),
   password: z.string().min(4, "Password must be at least 4 characters"),
-  role: z.string().min(1, "Role is required"),
-  status: z.string().min(1, "Status is required"),
+  role_id: z.number().min(1, "Role is required"),
+  // status: z.string().min(1, "Status is required"),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
 
 export default function AddUserPage() {
+  const navigate = useNavigate();
+  const { data: rolesData, isLoading } = useGetAllRolesQuery();
+  const [addUser, { isLoading: isAdding }] = useAddUserMutation();
+
+
+
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: {
       name: "",
       email: "",
-      phone: "",
       password: "",
-      role: "User",
-      status: "Active",
+      role_id: 0,
+      // status: "Active",
     },
   });
 
   const { control, handleSubmit } = form;
 
-  const onSubmit: SubmitHandler<UserFormValues> = (values) => {
-    console.log(values);
+  const onSubmit: SubmitHandler<UserFormValues> = async (values) => {
+
+    try {
+      const result = await addUser(values).unwrap();
+      if (result.status) {
+
+        toast.success(result.message || "User added successfully");
+        form.reset();
+        navigate("/dashboard/users/list");
+      } else {
+        toast.error("Failed to add user");
+      }
+
+    } catch (error) {
+      console.error("Error adding user:", error);
+      toast.error("An error occurred while adding the user");
+    }
   };
 
   return (
@@ -89,18 +111,6 @@ export default function AddUserPage() {
               )}
             />
 
-            {/* PHONE */}
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Phone</FieldLabel>
-                  <Input placeholder="Phone Number" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
 
             <Controller
               control={control}
@@ -117,27 +127,38 @@ export default function AddUserPage() {
             {/* ROLE */}
             <Controller
               control={control}
-              name="role"
+              name="role_id"
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Role</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+
+                  <Select
+                    value={field.value ? String(field.value) : ""}
+                    onValueChange={(val) => field.onChange(Number(val))}
+                    disabled={isLoading}
+                  >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
+
                     <SelectContent>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="Manager">Manager</SelectItem>
-                      <SelectItem value="User">User</SelectItem>
+                      {Array.isArray(rolesData?.data) &&
+                        rolesData.data.map((role) => (
+                          <SelectItem key={role.id} value={String(role.id)}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
+
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
 
+
             {/* STATUS */}
-            <Controller
+            {/* <Controller
               control={control}
               name="status"
               render={({ field, fieldState }) => (
@@ -155,12 +176,12 @@ export default function AddUserPage() {
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
-            />
+            /> */}
           </CardContent>
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit">Create User</Button>
+          <Button type="submit" disabled={isAdding}> {isAdding ? "Creating..." : "Create User"}</Button>
         </div>
       </form>
     </div>
