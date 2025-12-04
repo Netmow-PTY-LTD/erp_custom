@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/store/baseApi";
-import type { Attendance } from "@/types/Attendence";
+import type { Attendance } from "@/types/Attendence.types";
 
 
 type AttendanceResponse = {

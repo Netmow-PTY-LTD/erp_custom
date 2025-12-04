@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
@@ -5,9 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -20,11 +19,15 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
+import { useAddIncomeMutation } from "@/store/features/accounting/accoutntingApiService";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const incomeSchema = z.object({
-  date: z.string().min(1, "Date is required"),
-  description: z.string().min(1, "Description is required"),
+  title: z.string().min(1, "Title is required"),
+  income_date: z.string().min(1, "Date is required"),
+  description: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   receivedVia: z.string().min(1, "Received Via is required"),
@@ -35,10 +38,14 @@ type IncomeFormValues = z.infer<typeof incomeSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function AddIncomePage() {
+  const navigate = useNavigate();
+    const [addIncome, { isLoading }] = useAddIncomeMutation();
+
   const form = useForm<IncomeFormValues>({
     resolver: zodResolver(incomeSchema),
     defaultValues: {
-      date: "",
+      title: "",
+      income_date: "",
       description: "",
       category: "",
       amount: 0,
@@ -47,10 +54,22 @@ export default function AddIncomePage() {
     },
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit ,reset} = form;
 
-  const onSubmit: SubmitHandler<IncomeFormValues> = (values) => {
-    console.log("Income Submitted:", values);
+   const onSubmit: SubmitHandler<IncomeFormValues> = async (values) => {
+    try {
+      const res = await addIncome(values).unwrap();
+      if (res.status) {
+        toast.success("Income added successfully");
+        reset(); // Clear the form
+        navigate('/dashboard/accounting/incomes'); // Go back to previous page
+      } else {
+        toast.error("Failed to add income");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while adding income");
+    }
   };
 
   return (
@@ -68,7 +87,7 @@ export default function AddIncomePage() {
             {/* DATE */}
             <Controller
               control={control}
-              name="date"
+              name="income_date"
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Date</FieldLabel>
@@ -101,6 +120,19 @@ export default function AddIncomePage() {
               )}
             />
 
+            {/* TITLE */}
+            <Controller
+              control={control}
+              name="title"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Title</FieldLabel>
+                  <Input placeholder="Income Title" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
             {/* DESCRIPTION */}
             <div className="md:col-span-2">
               <Controller
@@ -109,11 +141,7 @@ export default function AddIncomePage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Description</FieldLabel>
-                    <Textarea
-                      rows={4}
-                      placeholder="Describe income..."
-                      {...field}
-                    />
+                    <Textarea rows={4} placeholder="Describe income..." {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -181,10 +209,7 @@ export default function AddIncomePage() {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Reference</FieldLabel>
-                  <Input
-                    placeholder="Invoice #, Txn ID, etc."
-                    {...field}
-                  />
+                  <Input placeholder="Invoice #, Txn ID, etc." {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -194,7 +219,9 @@ export default function AddIncomePage() {
 
         {/* SUBMIT BUTTON */}
         <div className="flex justify-end">
-          <Button type="submit">Save Income</Button>
+            <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Income"}
+          </Button>
         </div>
       </form>
     </div>
