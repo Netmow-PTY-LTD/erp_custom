@@ -77,7 +77,7 @@ export default function AddStaffPage() {
       hire_date: "",
       salary: 0,
       // address: "",
-      status: "Active",
+      status: "active",
       image: null,
     },
   });
@@ -112,7 +112,7 @@ export default function AddStaffPage() {
       }
       console.log("API Response:", res);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.log("API Error:", err);
       toast.error(
@@ -120,7 +120,6 @@ export default function AddStaffPage() {
       );
     }
   };
-
 
   return (
     <div className="w-full">
@@ -328,7 +327,14 @@ export default function AddStaffPage() {
                       <FormItem>
                         <FormLabel>Salary (RM)</FormLabel>
                         <FormControl>
-                          <Input placeholder="salary i.e. 1000" {...field} />
+
+                          <Input
+                            type="number"
+                            placeholder="salary i.e. 1000"
+                            {...field}
+                             onChange={(e) => field.onChange(e.target.valueAsNumber)}
+
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -373,8 +379,9 @@ export default function AddStaffPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="terminated">Terminated</SelectItem>
+                          <SelectItem value="on_leave">On Leave</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
