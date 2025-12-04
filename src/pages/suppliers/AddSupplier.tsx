@@ -1,9 +1,9 @@
+
 "use client";
 
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,10 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+
+import { useAddSupplierMutation } from "@/store/features/suppliers/supplierApiService";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
@@ -37,6 +41,9 @@ type SupplierFormValues = z.infer<typeof supplierSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function AddSupplierPage() {
+  const navigate = useNavigate();
+  const [addSupplier, { isLoading }] = useAddSupplierMutation();
+
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
     defaultValues: {
@@ -55,11 +62,33 @@ export default function AddSupplierPage() {
     },
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, reset } = form;
 
-  const onSubmit: SubmitHandler<SupplierFormValues> = (values) => {
-    console.log("Supplier Submitted:", values);
-    // Call API to save supplier
+  const onSubmit: SubmitHandler<SupplierFormValues> = async (values) => {
+    try {
+      // Map form values to API payload
+      const payload = {
+        name: values.name,
+        contact_person: values.contactPerson,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        city: values.city,
+        country: values.country,
+        payment_terms: values.paymentTerms,
+        is_active: values.status === "Active",
+      };
+
+     const res= await addSupplier(payload).unwrap();
+     if(res?.status){
+      toast.success("Supplier added successfully");
+      reset(); // reset form after successful submission
+      navigate("/dashboard/suppliers");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add supplier");
+    }
   };
 
   return (
@@ -67,15 +96,12 @@ export default function AddSupplierPage() {
       <h1 className="text-3xl font-bold">Add Supplier</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
         {/* BASIC INFORMATION */}
         <Card>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
-
-            {/* Name */}
             <Controller
               control={control}
               name="name"
@@ -88,7 +114,6 @@ export default function AddSupplierPage() {
               )}
             />
 
-            {/* Supplier Code */}
             <Controller
               control={control}
               name="code"
@@ -101,7 +126,6 @@ export default function AddSupplierPage() {
               )}
             />
 
-            {/* Email */}
             <Controller
               control={control}
               name="email"
@@ -114,7 +138,6 @@ export default function AddSupplierPage() {
               )}
             />
 
-            {/* Phone */}
             <Controller
               control={control}
               name="phone"
@@ -127,7 +150,6 @@ export default function AddSupplierPage() {
               )}
             />
 
-            {/* Contact Person */}
             <Controller
               control={control}
               name="contactPerson"
@@ -140,7 +162,6 @@ export default function AddSupplierPage() {
               )}
             />
 
-            {/* Payment Terms */}
             <Controller
               control={control}
               name="paymentTerms"
@@ -161,8 +182,6 @@ export default function AddSupplierPage() {
             <CardTitle>Address</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
-
-            {/* Address */}
             <Controller
               control={control}
               name="address"
@@ -175,7 +194,6 @@ export default function AddSupplierPage() {
               )}
             />
 
-            {/* City */}
             <Controller
               control={control}
               name="city"
@@ -188,33 +206,6 @@ export default function AddSupplierPage() {
               )}
             />
 
-            {/* State */}
-            <Controller
-              control={control}
-              name="state"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>State</FieldLabel>
-                  <Input placeholder="State" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            {/* Postal Code */}
-            <Controller
-              control={control}
-              name="postalCode"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Postal Code</FieldLabel>
-                  <Input placeholder="Postal Code" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            {/* Country */}
             <Controller
               control={control}
               name="country"
@@ -269,7 +260,9 @@ export default function AddSupplierPage() {
 
         {/* SUBMIT */}
         <div className="flex justify-end">
-          <Button type="submit">Save Supplier</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Supplier"}
+          </Button>
         </div>
       </form>
     </div>
