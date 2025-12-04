@@ -10,7 +10,7 @@ import {
   FormControl,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+// import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -32,23 +32,25 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUploader } from "@/components/form/ImageUploader";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAddStaffMutation } from "@/store/features/staffs/staffApiService";
+import { toast } from "sonner";
 
 // =====================================================
 //  FORM SCHEMA (PAYLOAD READY)
 // =====================================================
 const StaffSchema = z.object({
-  firstName: z.string().min(1, "Required"),
-  lastName: z.string().min(1, "Required"),
+  first_name: z.string().min(1, "Required"),
+  last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
   department: z.string().optional(),
   position: z.string().min(1, "Required"),
-  hireDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+  hire_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid date",
   }),
-  salary: z.string().optional(),
-  address: z.string().optional(),
+  salary: z.number().optional(),
+  // address: z.string().optional(),
   status: z.string(),
   image: z.instanceof(File).optional().nullable(),
 });
@@ -59,26 +61,64 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 //  PAGE COMPONENT
 // =====================================================
 export default function AddStaffPage() {
+  const navigate = useNavigate();
+  const [addStaff, { isLoading }] = useAddStaffMutation();
+
+
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(StaffSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      first_name: "",
+      last_name: "",
       email: "",
       phone: "",
       department: "",
       position: "",
-      hireDate: "",
-      salary: "",
-      address: "",
-      status: "Active",
+      hire_date: "",
+      salary: 0,
+      // address: "",
+      status: "active",
       image: null,
     },
   });
 
-  const onSubmit = (data: StaffFormValues) => {
-    console.log("Staff Payload:", data);
-    alert("Staff Created! Check console payload.");
+  // =====================================================
+  // API PAYLOAD + SUBMIT HANDLER
+  // =====================================================
+  const onSubmit = async (values: StaffFormValues) => {
+    try {
+      // const fd = new FormData();
+
+      // fd.append("first_name", values.first_name);
+      // fd.append("last_name", values.last_name);
+      // fd.append("email", values.email);
+      // fd.append("phone", values.phone ?? "");
+      // fd.append("department", values.department ?? "");
+      // fd.append("position", values.position);
+      // fd.append("hire_date", values.hire_date);
+      // fd.append("salary", values.salary ?? "");
+      // fd.append("status", values.status);
+
+      // if (values.image) {
+      //   fd.append("image", values.image);
+      // }
+
+      // const res = await addStaff(fd).unwrap();
+      const res = await addStaff(values).unwrap();
+
+      if (res.status) {
+        navigate("/dashboard/staffs");
+        toast.success("Staff member added successfully!");
+      }
+      console.log("API Response:", res);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.log("API Error:", err);
+      toast.error(
+        err?.data?.message || "Failed to add staff member. Please try again."
+      );
+    }
   };
 
   return (
@@ -87,7 +127,7 @@ export default function AddStaffPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-semibold">Add New Staff Member</h1>
 
-       <Link to="/dashboard/staffs">
+        <Link to="/dashboard/staffs">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4" />
             Back to Staffs
@@ -128,7 +168,7 @@ export default function AddStaffPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="firstName"
+                    name="first_name"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -144,7 +184,7 @@ export default function AddStaffPage() {
 
                   <FormField
                     control={form.control}
-                    name="lastName"
+                    name="last_name"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -238,7 +278,7 @@ export default function AddStaffPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="hireDate"
+                    name="hire_date"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Hire Date</FormLabel>
@@ -287,7 +327,14 @@ export default function AddStaffPage() {
                       <FormItem>
                         <FormLabel>Salary (RM)</FormLabel>
                         <FormControl>
-                          <Input placeholder="salary i.e. 1000" {...field} />
+
+                          <Input
+                            type="number"
+                            placeholder="salary i.e. 1000"
+                            {...field}
+                             onChange={(e) => field.onChange(e.target.valueAsNumber)}
+
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -296,7 +343,7 @@ export default function AddStaffPage() {
                 </div>
 
                 {/* ADDRESS */}
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="address"
                   render={({ field }) => (
@@ -311,7 +358,7 @@ export default function AddStaffPage() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
 
                 {/* STATUS */}
                 <FormField
@@ -332,8 +379,9 @@ export default function AddStaffPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="terminated">Terminated</SelectItem>
+                          <SelectItem value="on_leave">On Leave</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -347,8 +395,9 @@ export default function AddStaffPage() {
                   <Button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isLoading}
                   >
-                    Save Staff Member
+                    {isLoading ? "Saving..." : "Save Staff Member"}
                   </Button>
                 </div>
               </form>
@@ -372,3 +421,6 @@ export default function AddStaffPage() {
     </div>
   );
 }
+
+
+

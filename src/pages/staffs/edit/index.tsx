@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -10,7 +11,6 @@ import {
   FormControl,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -32,24 +32,28 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUploader } from "@/components/form/ImageUploader";
-import { Separator } from "@/components/ui/separator";
-import { Link } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
+import {
+  useGetStaffByIdQuery,
+  useUpdateStaffMutation,
+} from "@/store/features/staffs/staffApiService";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 // =====================================================
-//  FORM SCHEMA (PAYLOAD READY)
+//  FORM SCHEMA
 // =====================================================
 const StaffSchema = z.object({
-  firstName: z.string().min(1, "Required"),
-  lastName: z.string().min(1, "Required"),
+  first_name: z.string().min(1, "Required"),
+  last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
   department: z.string().optional(),
   position: z.string().min(1, "Required"),
-  hireDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+  hire_date: z.string().refine((v) => !isNaN(Date.parse(v)), {
     message: "Invalid date",
   }),
-  salary: z.string().optional(),
-  address: z.string().optional(),
+  salary: z.number().optional(),
   status: z.string(),
   image: z.instanceof(File).optional().nullable(),
 });
@@ -57,47 +61,97 @@ const StaffSchema = z.object({
 type StaffFormValues = z.infer<typeof StaffSchema>;
 
 // =====================================================
-//  PAGE COMPONENT
+//  EDIT PAGE
 // =====================================================
-export default function AddStaffPage() {
+export default function EditStaffPage() {
+  const navigate = useNavigate();
+  const { staffId } = useParams<{ staffId: string }>();
+  const { data, isLoading: isFetching } = useGetStaffByIdQuery(staffId!);
+  const [updateStaff, { isLoading: isUpdating }] = useUpdateStaffMutation();
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(StaffSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      first_name: "",
+      last_name: "",
       email: "",
       phone: "",
       department: "",
       position: "",
-      hireDate: "",
-      salary: "",
-      address: "",
-      status: "Active",
+      hire_date: "",
+      salary: 0,
+      status: "active",
       image: null,
     },
   });
 
-  const onSubmit = (data: StaffFormValues) => {
-    console.log("Staff Payload:", data);
-    alert("Staff Created! Check console payload.");
+  // Auto-fill form when data loads
+  useEffect(() => {
+    if (data?.data) {
+      const s = Array.isArray(data.data) ? data.data[0] : data.data;
+
+      if (s) {
+        form.reset({
+          first_name: s.first_name,
+          last_name: s.last_name,
+          email: s.email,
+          phone: s.phone || "",
+          department: s.department || "",
+          position: s.position,
+          hire_date: s.hire_date,
+          salary: s.salary || 0,
+          status: s.status,
+          image: null,
+        });
+      }
+    }
+  }, [data, form]);
+
+  // =====================================================
+  //  SUBMIT HANDLER
+  // =====================================================
+  const onSubmit = async (values: StaffFormValues) => {
+    try {
+      // const fd = new FormData();
+
+      // Object.entries(values).forEach(([key, val]) => {
+      //   if (val !== null && val !== undefined) {
+      //     if (key === "image") {
+      //       if (val) fd.append("image", val);
+      //     } else fd.append(key, String(val));
+      //   }
+      // });
+
+      // const res = await updateStaff({ id, data: fd }).unwrap();
+      const res = await updateStaff({ id: staffId!, body: values }).unwrap();
+
+      if (res.status) {
+        toast.success("Staff updated successfully!");
+        navigate("/dashboard/staffs");
+      }
+    } catch (err) {
+      toast.error("Failed to update staff.");
+      console.log(err);
+    }
   };
+
+  if (isFetching) return <p>Loading...</p>;
 
   return (
     <div className="w-full">
       {/* PAGE TITLE */}
-      <div className="flex flex-wrap justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-semibold">Edit Staff Member</h1>
 
-       <Link to="/dashboard/staffs">
-        <Button variant="outline" className="flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Staff
-        </Button>
-       </Link>
+        <Link to="/dashboard/staffs">
+          <Button variant="outline">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Staffs
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT SIDE FORM */}
+        {/* LEFT FORM */}
         <Card className="col-span-2 shadow-sm border rounded-xl">
           <CardHeader>
             <CardTitle>Staff Information</CardTitle>
@@ -109,6 +163,7 @@ export default function AddStaffPage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
               >
+                {/* PROFILE IMAGE */}
                 <FormField
                   control={form.control}
                   name="image"
@@ -125,18 +180,17 @@ export default function AddStaffPage() {
                     </FormItem>
                   )}
                 />
-                {/* ROW 1 — FIRST + LAST NAME */}
+
+                {/* FIRST + LAST NAME */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="firstName"
+                    name="first_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          First Name <span className="text-red-600">*</span>
-                        </FormLabel>
+                        <FormLabel>First Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter first name" {...field} />
+                          <Input {...field} placeholder="First name" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -145,14 +199,12 @@ export default function AddStaffPage() {
 
                   <FormField
                     control={form.control}
-                    name="lastName"
+                    name="last_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Last Name <span className="text-red-600">*</span>
-                        </FormLabel>
+                        <FormLabel>Last Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter last name" {...field} />
+                          <Input {...field} placeholder="Last name" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -160,18 +212,16 @@ export default function AddStaffPage() {
                   />
                 </div>
 
-                {/* ROW 2 — EMAIL + PHONE */}
+                {/* EMAIL + PHONE */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Email <span className="text-red-600">*</span>
-                        </FormLabel>
+                        <FormLabel>Email *</FormLabel>
                         <FormControl>
-                          <Input placeholder="example@email.com" {...field} />
+                          <Input {...field} placeholder="email@example.com" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -185,7 +235,7 @@ export default function AddStaffPage() {
                       <FormItem>
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
-                          <Input placeholder="+60123456789" {...field} />
+                          <Input {...field} placeholder="+60123456789" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -193,7 +243,7 @@ export default function AddStaffPage() {
                   />
                 </div>
 
-                {/* ROW 3 — DEPT + POSITION */}
+                {/* DEPARTMENT + POSITION */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -201,10 +251,13 @@ export default function AddStaffPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Department</FormLabel>
-                        <Select onValueChange={field.onChange}>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
                           <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select Department" />
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select department" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -223,11 +276,9 @@ export default function AddStaffPage() {
                     name="position"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Position <span className="text-red-600">*</span>
-                        </FormLabel>
+                        <FormLabel>Position *</FormLabel>
                         <FormControl>
-                          <Input placeholder="position" {...field} />
+                          <Input {...field} placeholder="Position" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -235,11 +286,11 @@ export default function AddStaffPage() {
                   />
                 </div>
 
-                {/* ROW 4 — HIRE DATE + SALARY */}
+                {/* HIRE DATE + SALARY */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="hireDate"
+                    name="hire_date"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Hire Date</FormLabel>
@@ -263,16 +314,11 @@ export default function AddStaffPage() {
                           <PopoverContent className="p-0">
                             <Calendar
                               mode="single"
-                              selected={
-                                field.value ? new Date(field.value) : undefined
+                              selected={new Date(field.value)}
+                              onSelect={(date) =>
+                                date &&
+                                field.onChange(date.toISOString())
                               }
-                              onSelect={(date: Date | undefined) => {
-                                if (date) {
-                                  field.onChange(date.toISOString());
-                                }
-                              }}
-                              initialFocus
-                              required={false}
                             />
                           </PopoverContent>
                         </Popover>
@@ -288,7 +334,14 @@ export default function AddStaffPage() {
                       <FormItem>
                         <FormLabel>Salary (RM)</FormLabel>
                         <FormControl>
-                          <Input placeholder="salary i.e. 1000" {...field} />
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(e.target.valueAsNumber)
+                            }
+                            placeholder="1000"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -296,45 +349,26 @@ export default function AddStaffPage() {
                   />
                 </div>
 
-                {/* ADDRESS */}
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Street, City, State, Postal Code"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* STATUS */}
                 <FormField
                   control={form.control}
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Status <span className="text-red-600">*</span>
-                      </FormLabel>
+                      <FormLabel>Status *</FormLabel>
                       <Select
+                        value={field.value}
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="w-full">
+                          <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="terminated">Terminated</SelectItem>
+                          <SelectItem value="on_leave">On Leave</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -342,14 +376,14 @@ export default function AddStaffPage() {
                   )}
                 />
 
-                {/* BUTTONS */}
+                {/* SAVE BUTTON */}
                 <div className="flex justify-end gap-3 pt-4">
-                  <Button variant="outline">Cancel</Button>
                   <Button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isUpdating}
                   >
-                    Update Staff Member
+                    {isUpdating ? "Updating..." : "Save Changes"}
                   </Button>
                 </div>
               </form>
@@ -357,22 +391,19 @@ export default function AddStaffPage() {
           </CardContent>
         </Card>
 
-        {/* RIGHT SIDE INFO BOX */}
+        {/* RIGHT INFO BOX */}
         <Card className="shadow-sm border rounded-xl h-fit">
           <CardHeader>
-            <CardTitle>Staff Information</CardTitle>
+            <CardTitle>Information</CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-4 text-sm">
-            <p>🆔 <b>Employee ID:</b> EMP-SALES-001</p>
-            <p>ℹ️ <b>Created At:</b> Nov 21, 2025</p>
-            <Separator />
-            <p>❗ Fields marked with * are required.</p>
-            <p>🛡️ Email addresses must be unique.</p>
+          <CardContent className="text-sm space-y-4">
+            <p>ℹ️ You can update any field of this staff member.</p>
+            <p>❗ Email must remain unique.</p>
+            <p>🖼️ Uploading a new image will replace the old one.</p>
           </CardContent>
         </Card>
       </div>
     </div>
   );
 }
-

@@ -113,7 +113,8 @@ export interface SalesRoute {
 export interface Staff {
   id: number;
   employeeId: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   department: string | null; // "-" values can be treated as null
   position: string;

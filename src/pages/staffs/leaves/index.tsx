@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+"use client";
+
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,134 +18,90 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type LeaveRequest = {
-  id: number;
-  employeeName: string;
-  employeeId: string;
-  type: "vacation" | "sick" | "personal";
-  startDate: string; // ISO string or YYYY-MM-DD
-  endDate: string; // ISO string or YYYY-MM-DD
-  status: "Approved" | "Pending";
-  approvedBy: string | null;
-  reason: string;
-};
-
-const leaveRequests: LeaveRequest[] = [
-  {
-    id: 1,
-    employeeName: "Aisha Rahman",
-    employeeId: "EMP009",
-    type: "vacation",
-    startDate: "2025-10-05",
-    endDate: "2025-10-12",
-    status: "Approved",
-    approvedBy: "Siti Nurhaliza",
-    reason: "Family vacation to Langkawi",
-  },
-  {
-    id: 2,
-    employeeName: "Raj Kumar",
-    employeeId: "EMP003",
-    type: "sick",
-    startDate: "2025-10-01",
-    endDate: "2025-10-03",
-    status: "Approved",
-    approvedBy: "Siti Nurhaliza",
-    reason: "Fever and flu symptoms",
-  },
-  {
-    id: 3,
-    employeeName: "Fatimah Ali",
-    employeeId: "EMP005",
-    type: "personal",
-    startDate: "2025-10-15",
-    endDate: "2025-10-15",
-    status: "Pending",
-    approvedBy: null,
-    reason: "Personal appointment",
-  },
-  {
-    id: 4,
-    employeeName: "Priya Nair",
-    employeeId: "EMP007",
-    type: "vacation",
-    startDate: "2025-10-20",
-    endDate: "2025-10-25",
-    status: "Pending",
-    approvedBy: null,
-    reason: "Hari Raya holidays",
-  },
-];
+import { toast } from "sonner";
+import { useGetAllLeavesQuery, useUpdateLeaveStatusMutation } from "@/store/features/leave/leaveApiService";
 
 export default function LeavesManagement() {
-  const leaveRequestsColumns: ColumnDef<LeaveRequest>[] = [
+  const { data: leavesData, isLoading, refetch } = useGetAllLeavesQuery();
+  const [updateLeaveStatus] = useUpdateLeaveStatusMutation();
+
+
+  const leaves = (leavesData?.data as any[]) || [];
+
+  const handleStatusChange = async (id: number, status: "approved" | "rejected") => {
+    try {
+      await updateLeaveStatus({ id, status }).unwrap();
+      toast.success(`Leave ${status} successfully`);
+      refetch();
+    } catch (err) {
+      toast.error("Failed to update leave status");
+      console.error(err);
+    }
+  };
+
+  const leaveColumns: ColumnDef<any>[] = [
     {
-      accessorKey: "employeeName",
+      accessorKey: "staff",
       header: "Employee #",
       cell: ({ row }) => (
         <div>
-          <div className="font-semibold">{row.getValue("employeeName")}</div>
-          <div className="text-xs text-muted-foreground">
-            {row.original.employeeId}
+          <div className="font-semibold">
+            {row.original.staff.first_name} {row.original.staff.last_name}
           </div>
+          <div className="text-xs text-muted-foreground">{row.original.staff.email}</div>
         </div>
       ),
     },
-
     {
-      accessorKey: "type",
+      accessorKey: "leave_type",
       header: "Type",
-      cell: ({ row }) => (
-        <div className="font-semibold">{row.getValue("type")}</div>
-      ),
+      cell: ({ row }) => <div className="font-semibold">{row.getValue("leave_type")}</div>,
     },
-
     {
-      accessorKey: "startDate",
+      accessorKey: "start_date",
       header: "Start Date",
-      cell: ({ row }) => <div className="">{row.getValue("startDate")}</div>,
+      cell: ({ row }) => <div>{row.getValue("start_date")}</div>,
     },
-
     {
-      accessorKey: "endDate",
+      accessorKey: "end_date",
       header: "End Date",
+      cell: ({ row }) => <div>{row.getValue("end_date")}</div>,
     },
-
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-
         const color =
           status.toLowerCase() === "approved"
             ? "bg-green-600"
             : status.toLowerCase() === "pending"
             ? "bg-yellow-600"
             : status.toLowerCase() === "rejected"
-            ? "bg-purple-600"
+            ? "bg-red-600"
             : "bg-gray-500";
 
         return <Badge className={`${color} text-white`}>{status}</Badge>;
       },
     },
-
     {
-      accessorKey: "approvedBy",
+      accessorKey: "approver",
       header: "Approved By",
-      cell: ({ row }) => <div className="">{row.getValue("approvedBy")}</div>,
+      cell: ({ row }) => (
+        <div>{row.original.approver ? `${row.original.approver.first_name} ${row.original.approver.last_name}` : "-"}</div>
+      ),
     },
     {
       accessorKey: "reason",
       header: "Reason",
-      cell: ({ row }) => <div className="">{row.getValue("reason")}</div>,
+      cell: ({ row }) => <div>{row.getValue("reason")}</div>,
     },
-
-     {
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const item = row.original;
+        if (item.status.toLowerCase() !== "pending") return null;
 
         return (
           <DropdownMenu>
@@ -156,13 +116,16 @@ export default function LeavesManagement() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="flex items-center gap-1 cursor-pointer"
-                onClick={() => alert(`Approved with id ${item.id}`)}
+                onClick={() => handleStatusChange(item.id, "approved")}
               >
                 <Check className="h-4 w-4" />
                 Approve
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center gap-1 cursor-pointer" onClick={() => alert(`Rejected with id ${item.id}`)}>
+              <DropdownMenuItem
+                className="flex items-center gap-1 cursor-pointer"
+                onClick={() => handleStatusChange(item.id, "rejected")}
+              >
                 <X className="h-4 w-4" />
                 Reject
               </DropdownMenuItem>
@@ -172,6 +135,7 @@ export default function LeavesManagement() {
       },
     },
   ];
+
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
@@ -187,7 +151,11 @@ export default function LeavesManagement() {
       </div>
       <Card>
         <CardContent>
-          <DataTable columns={leaveRequestsColumns} data={leaveRequests} />
+          {isLoading ? (
+            <p className="text-gray-500">Loading leaves...</p>
+          ) : (
+            <DataTable columns={leaveColumns} data={leaves} />
+          )}
         </CardContent>
       </Card>
     </div>

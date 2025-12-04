@@ -158,11 +158,7 @@ export const sidebarItemLink = [
         url: "/dashboard/customers/sales-routes/:routeId/assign",
         element: <AssignRoutePage />,
       },
-      {
-        title: "Sales Routes",
-        url: "/dashboard/customers/sales-routes",
-        element: <SalesRoutesPage />,
-      },
+     
       {
         title: "Customer Maps",
         url: "/dashboard/customers/map",
@@ -223,7 +219,7 @@ export const sidebarItemLink = [
         element: <StaffDetails />,
       },
       {
-        title: "Add Staff",
+        title: "",
         url: "/dashboard/staffs/add",
         element: <AddStaffPage />,
       },
