@@ -4,66 +4,94 @@ import AddUnitForm from "@/components/products/AddUnitForm";
 import EditUnitForm from "@/components/products/EditUnitForm";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-
-export interface Unit {
-  id: number;
-  name: string;
-  abbreviation: string;
-  base_unit: string; // e.g., PCS, BOX
-  conversion_factor: number;
-  base: "Yes" | "No"; // whether this is a base unit
-}
+import {
+  useDeleteUnitMutation,
+  useGetAllUnitsQuery,
+} from "@/store/features/admin/productsApiService";
+import type { Unit } from "@/types/types";
+import { toast } from "sonner";
 
 export default function UnitsPage() {
-  const [units, setUnits] = useState<Unit[]>([
-    {
-      id: 1,
-      name: "Pieces",
-      abbreviation: "pcs",
-      base_unit: "PCS",
-      conversion_factor: 1.0,
-      base: "Yes",
-    },
-    {
-      id: 2,
-      name: "Box",
-      abbreviation: "box",
-      base_unit: "BOX",
-      conversion_factor: 1.0,
-      base: "No",
-    },
-    {
-      id: 3,
-      name: "Carton",
-      abbreviation: "ctn",
-      base_unit: "CTN",
-      conversion_factor: 10.0,
-      base: "No",
-    },
-    {
-      id: 4,
-      name: "Kilogram",
-      abbreviation: "kg",
-      base_unit: "KGM",
-      conversion_factor: 12.0,
-      base: "Yes",
-    },
-  ]);
-
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [editSheetOpen, setEditSheetOpen] = useState(false);
+  const [unitId, setUnitId] = useState<number>(0);
+  const [page, setPage] = useState<number>(0);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
 
-  const deleteUnit = (id: number) => {
-    setUnits((prev) => prev.filter((u) => u.id !== id));
+  const {
+    data: fetchedUnits,
+    isFetching,
+    refetch: refetchUnits,
+  } = useGetAllUnitsQuery({ page, limit, search });
+
+  const units: Unit[] = fetchedUnits?.data || [];
+  const pagination = fetchedUnits?.pagination ?? {
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPage: 1,
+  };
+
+  const [deleteUnit] = useDeleteUnitMutation();
+  const handleDeleteUnit = async (id: number) => {
+    // Ask for confirmation using a simple toast with prompt
+    const confirmed = await new Promise<boolean>((resolve) => {
+      toast("Are you sure you want to delete this unit?", {
+        action: {
+          label: "Delete",
+          onClick: () => resolve(true), // user confirmed
+        },
+        duration: 10000, // auto-dismiss after 5s
+      });
+
+      // resolve false if toast disappears automatically
+      setTimeout(() => resolve(false), 10000);
+    });
+
+    console.log("User confirmed deletion: ", confirmed);
+
+    if (!confirmed) return; // stop if user didn’t confirm
+
+    try {
+      const res = await deleteUnit(id).unwrap();
+      if (res.status) {
+        toast.success("Unit deleted successfully");
+        refetchUnits();
+      } else {
+        toast.error("Failed to delete unit");
+      }
+    } catch (error) {
+      console.error("Error deleting unit:", error);
+      toast.error(
+        "Failed to delete unit" +
+          (error instanceof Error ? ": " + error.message : "")
+      );
+    }
   };
 
   const columns: ColumnDef<Unit>[] = [
     { accessorKey: "name", header: "Unit Name" },
-    { accessorKey: "abbreviation", header: "Short Code" },
-    { accessorKey: "base_unit", header: "Base Unit" },
-    { accessorKey: "conversion_factor", header: "Factor" },
-    { accessorKey: "base", header: "Base" },
+    { accessorKey: "symbol", header: "Short Code" },
+    {
+      accessorKey: "is_active",
+      header: "Status",
+      cell: ({ row }) => {
+        const isActive = row.original.is_active;
 
+        return (
+          <span
+            className={`px-2 py-1 text-xs rounded-full font-medium ${
+              isActive
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {isActive ? "Active" : "Inactive"}
+          </span>
+        );
+      },
+    },
     {
       header: "Actions",
       cell: ({ row }) => {
@@ -74,12 +102,16 @@ export default function UnitsPage() {
               variant="outline"
               onClick={() => {
                 setEditSheetOpen(true);
+                setUnitId(unit.id);
               }}
             >
               Edit
             </Button>
 
-            <Button variant="destructive" onClick={() => deleteUnit(unit.id)}>
+            <Button
+              variant="destructive"
+              onClick={() => handleDeleteUnit(unit.id)}
+            >
               Delete
             </Button>
           </div>
@@ -92,25 +124,35 @@ export default function UnitsPage() {
     <div className="p-6">
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Units Management</h1>
+        <h1 className="text-3xl font-bold">Unit Management</h1>
 
         <Button onClick={() => setAddSheetOpen(true)}>+ Add Unit</Button>
       </div>
 
       {/* Table */}
-      <DataTable columns={columns} data={units} />
+      <DataTable
+        columns={columns}
+        data={units}
+        pageIndex={page - 1}
+        pageSize={limit}
+        totalCount={pagination?.total}
+        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+        onSearch={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        isFetching={isFetching}
+      />
 
       {/* Add Form */}
       <AddUnitForm
         open={addSheetOpen}
         onOpenChange={setAddSheetOpen}
+        refetchUnits={refetchUnits}
       />
 
       {/* Edit Form */}
-      <EditUnitForm
-        open={editSheetOpen}
-        onOpenChange={setEditSheetOpen}
-      />
+      <EditUnitForm open={editSheetOpen} onOpenChange={setEditSheetOpen} unitId={unitId} refetchUnits={refetchUnits} />
     </div>
   );
 }

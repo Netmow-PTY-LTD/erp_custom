@@ -1,10 +1,16 @@
 import { baseApi } from "@/store/baseApi";
-import type { Category } from "@/types/types";
+import type { Category, Product, Unit } from "@/types/types";
 
 type CategoryResponse = {
   status: boolean;
   message: string;
   data: Category[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
 };
 
 type CategoryByIdResponse = {
@@ -13,8 +19,88 @@ type CategoryByIdResponse = {
   data: Category;
 };
 
+type UnitResponse = {
+  status: boolean;
+  message: string;
+  data: Unit[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
+};
+
+type UnitByIdResponse = {
+  status: boolean;
+  message: string;
+  data: Unit;
+};
+
+type ProductResponse = {
+  status: boolean;
+  message: string;
+  data: Product[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
+};
+
+type ProductByIdResponse = {
+  status: boolean;
+  message: string;
+  data: Product;
+};
+
 export const productsApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    //products apis
+
+    addProduct: builder.mutation({
+      query: (body) => ({
+        url: "/products",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Product"],
+    }),
+    getAllProducts: builder.query<ProductResponse, { page: number; limit: number; search?: string }>({
+      query: (params) => ({
+        url: "/products",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Product"],
+    }),
+    getProductById: builder.query<ProductByIdResponse, number>({
+      query: (id) => ({
+        url: `/products/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["Product"],    
+    }),
+    updateProduct: builder.mutation<
+      ProductResponse,
+      { id: number; body: Partial<Product> }
+    >({
+      query: (body) => ({
+        url: `/products/${body.id}`,
+        method: "PUT",
+        body: body.body,
+      }),
+      invalidatesTags: ["Product"],
+    }),
+    deleteProduct: builder.mutation<ProductResponse, number>({
+      query: (id) => ({
+        url: `/products/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Product"],
+    }),
+    //Product Category APIs
     addProductCategory: builder.mutation({
       query: (body) => ({
         url: "/products/categories",
@@ -23,10 +109,11 @@ export const productsApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Category"],
     }),
-    getAllCategories: builder.query<CategoryResponse, void>({
-      query: () => ({
+    getAllCategories: builder.query<CategoryResponse, { page: number; limit: number; search?: string }>({
+      query: (params) => ({
         url: "/products/categories",
         method: "GET",
+        params,
       }),
       providesTags: ["Category"],
     }),
@@ -55,13 +142,58 @@ export const productsApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Category"],
     }),
+
+    //units APIs can be added here in future
+  addUnit: builder.mutation<UnitResponse, Partial<Unit>>({
+    query: (body) => ({
+      url: "/products/units",
+      method: "POST",
+      body,
+    }),
+  }),
+  getAllUnits: builder.query<UnitResponse, { page: number; limit: number; search?: string }>({
+    query: (params) => ({
+      url: "/products/units",
+      method: "GET",
+      params,
+    }),
+  }),
+  getUnitById: builder.query<UnitByIdResponse, number>({
+    query: (id) => ({
+      url: `/products/units/${id}`,
+      method: "GET",
+    }),
+  }),
+  updateUnit: builder.mutation<UnitResponse, { id: number; body: Partial<Unit> }>({
+    query: (body) => ({
+      url: `/products/units/${body.id}`,
+      method: "PUT",
+      body: body.body,
+    }),
+  }),
+  deleteUnit: builder.mutation<UnitResponse, number>({
+    query: (id) => ({
+      url: `/products/units/${id}`,
+      method: "DELETE",
+    }),
+  }),
   }),
 });
 
 export const {
+    useAddProductMutation,
+    useGetAllProductsQuery,
+    useGetProductByIdQuery,
+    useUpdateProductMutation,
+    useDeleteProductMutation,
     useAddProductCategoryMutation,
     useGetAllCategoriesQuery,
     useGetCategoryByIdQuery,
     useUpdateCategoryMutation,
-    useDeleteCategoryMutation
+    useDeleteCategoryMutation,
+    useAddUnitMutation,
+    useGetAllUnitsQuery,
+    useGetUnitByIdQuery,
+    useUpdateUnitMutation,
+    useDeleteUnitMutation
 } = productsApiService;

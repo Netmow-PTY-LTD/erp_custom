@@ -12,6 +12,34 @@ export type Category = {
   parent_id?: number | null;
   is_active: boolean;
 }
+
+export type Unit = {
+  id: number;
+  name: string;
+  symbol: string;
+  is_active: boolean;
+}
+
+export type Product = {
+  id: number;
+  name: string;
+  sku: string;
+  description: string | null;
+  category_id: number;
+  unit_id: number;
+  price: string;            // API returns "1500.00" → string
+  cost: string;             // API returns "1000.00" → string
+  stock_quantity: number;
+  min_stock_level: number;
+  max_stock_level: number | null;
+  barcode: string | null;
+  image_url: string | null;
+  is_active: boolean;
+  // Nested relationship
+  category: Category; 
+  unit: Unit; // In case category is missing
+};
+
 export type Order = {
   id: number;
   orderNumber: string;
