@@ -8,6 +8,8 @@ export type Role = {
 
 
 export type User = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  status: any;
   id: number;
   name: string;
   email: string;

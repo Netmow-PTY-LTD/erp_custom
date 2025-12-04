@@ -18,33 +18,41 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 
-// -------------------- STATS --------------------
-const stats = [
-  {
-    label: "Active Users",
-    value: 45,
-    color: "bg-green-600",
-    icon: <UserCheck className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Total Users",
-    value: 89,
-    color: "bg-blue-600",
-    icon: <Users className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Admins",
-    value: 12,
-    color: "bg-purple-600",
-    icon: <UserPlus className="w-10 h-10 opacity-80" />,
-  },
-];
-
 export default function UsersList() {
   const [pageIndex, setPageIndex] = useState(0);
-  const {data: usersData} = useGetAllUsersQuery(); 
+  const { data: usersData } = useGetAllUsersQuery();
 
   const users = usersData?.data as User[] || [];
+
+
+  // -------------------- DYNAMIC STATS --------------------
+  const totalUsers = users.length;
+  const activeUsers = users.filter(u => u.status?.toLowerCase() === "active").length;
+  const adminUsers = users.filter(u => u.role?.name === "Admin").length;
+
+  const stats = [
+    {
+      label: "Active Users",
+      value: activeUsers,
+      color: "bg-green-600",
+      icon: <UserCheck className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Total Users",
+      value: totalUsers,
+      color: "bg-blue-600",
+      icon: <Users className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Admins",
+      value: adminUsers,
+      color: "bg-purple-600",
+      icon: <UserPlus className="w-10 h-10 opacity-80" />,
+    },
+  ];
+
+
+
 
   // -------------------- TABLE COLUMNS --------------------
   const userColumns: ColumnDef<User>[] = [
