@@ -11,10 +11,10 @@ import { Navigate, Outlet } from "react-router";
 
 export default function ProtectedRoute() {
 //   const user = useSelector((s) => s.auth.user);
-const user=useAppSelector((state) => state.auth.user);
-const token =useAppSelector((state) => state.auth.token);
+const user = useAppSelector((state) => state.auth.user);
+const token = useAppSelector((state) => state.auth.token);
 
-console.log("ProtectedRoute User: ", user);
+//console.log("ProtectedRoute User: ", user);
 
   if (!user || !token) return <Navigate to="/login" replace />;
 

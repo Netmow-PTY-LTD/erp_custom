@@ -1,3 +1,5 @@
+
+
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,43 +16,82 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
+import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
+import { useGetUserByIdQuery, useUpdateUserMutation } from "@/store/features/users/usersApiService";
+
+import { toast } from "sonner";
+import React from "react";
 
 // -------------------- ZOD SCHEMA --------------------
-const userSchema = z.object({
+const editUserSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
-  phone: z.string().optional(),
-  password: z.string().min(4, "Password must be at least 4 characters"),
-  role: z.string().min(1, "Role is required"),
-  status: z.string().min(1, "Status is required"),
+  email: z.email("Invalid email"),
+  role_id: z.number().min(1, "Role is required"),
 });
 
-type UserFormValues = z.infer<typeof userSchema>;
+type EditUserFormValues = z.infer<typeof editUserSchema>;
 
 export default function EditUserPage() {
-  const form = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+  const navigate = useNavigate();
+  const { userId } = useParams();
+  console.log("Editing User ID:", userId);
+
+  const { data: rolesData } = useGetAllRolesQuery();
+  const { data: userData, isLoading: isUserLoading } = useGetUserByIdQuery(userId as string);
+  const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+
+  const form = useForm<EditUserFormValues>({
+    resolver: zodResolver(editUserSchema),
     defaultValues: {
       name: "",
       email: "",
-      phone: "",
-      password: "",
-      role: "Admin",
-      status: "Active",
+      role_id: undefined,
     },
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, reset } = form;
 
-  const onSubmit: SubmitHandler<UserFormValues> = (values) => {
-    console.log("Updated User:", values);
+  // ⬇ Load user data into form when API loads
+  React.useEffect(() => {
+    const user =
+      Array.isArray(userData?.data) ? userData.data[0] : userData?.data;
+    if (user) {
+      reset({
+        name: user.name,
+        email: user.email,
+        role_id: user.role_id,
+      });
+    }
+  }, [userData, reset]);
+
+  const onSubmit: SubmitHandler<EditUserFormValues> = async (values) => {
+    try {
+      if (!userId) {
+        toast.error("User ID not found");
+        return;
+      }
+      const res = await updateUser({ id: userId as string, body: values }).unwrap();
+
+      if (res.status) {
+        toast.success("User updated successfully");
+        navigate("/dashboard/users/list");
+      } else {
+        toast.error("Failed to update user");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error while updating user");
+    }
   };
+
+  if (isUserLoading) return <p>Loading user...</p>;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">Edit User</h1>
+
         <Link to="/dashboard/users/list">
           <Button variant="outline">← Back to Users</Button>
         </Link>
@@ -59,10 +100,11 @@ export default function EditUserPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Update User Details</CardTitle>
+            <CardTitle>User Details</CardTitle>
           </CardHeader>
 
           <CardContent className="grid gap-4 md:grid-cols-2">
+
             {/* NAME */}
             <Controller
               control={control}
@@ -89,76 +131,46 @@ export default function EditUserPage() {
               )}
             />
 
-            {/* PHONE */}
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Phone</FieldLabel>
-                  <Input placeholder="Phone Number" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="password"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Password</FieldLabel>
-                  <Input placeholder="******" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
             {/* ROLE */}
             <Controller
               control={control}
-              name="role"
+              name="role_id"
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Role</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+
+                  <Select
+                    value={field.value ? String(field.value) : undefined}
+                    onValueChange={(val) => field.onChange(Number(val))}
+                    disabled={!rolesData}
+                  >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select Role" />
                     </SelectTrigger>
+
                     <SelectContent>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                      <SelectItem value="Manager">Manager</SelectItem>
-                      <SelectItem value="User">User</SelectItem>
+                      {Array.isArray(rolesData?.data) &&
+                        rolesData.data.map((role) => (
+                          <SelectItem key={role.id} value={String(role.id)}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
+
+
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
 
-            {/* STATUS */}
-            <Controller
-              control={control}
-              name="status"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Status</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
           </CardContent>
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit">Update User</Button>
+          <Button type="submit" disabled={isUpdating}>
+            {isUpdating ? "Updating..." : "Update User"}
+          </Button>
         </div>
       </form>
     </div>

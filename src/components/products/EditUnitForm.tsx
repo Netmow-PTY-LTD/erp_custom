@@ -1,4 +1,9 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import z from "zod";
@@ -6,35 +11,85 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "../ui/form";
 import { Field, FieldError, FieldLabel } from "../ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { useGetUnitByIdQuery, useUpdateUnitMutation } from "@/store/features/admin/productsApiService";
+import { toast } from "sonner";
+import { Loader } from "lucide-react";
+import type { Unit } from "@/types/types";
+import { useEffect } from "react";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Unit name is required"),
-  abbreviation: z.string(),
-  base_unit: z.string(),
-  conversion_factor: z.string().optional(),
-  base: z.enum(["Yes", "No"]),
+  symbol: z.string(),
+  is_active: z.boolean().optional(),
 });
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  unitId: number;
+  refetchUnits: () => void;
 }
 
-export default function EditUnitForm({ open, onOpenChange }: Props) {
+export default function EditUnitForm({
+  open,
+  onOpenChange,
+  unitId,
+  refetchUnits,
+}: Props) {
   const form = useForm({
     resolver: zodResolver(unitSchema),
     defaultValues: {
       name: "",
-      abbreviation: "",
-      base_unit: "pcs",
-      conversion_factor: "1.0",
-      base: "Yes",
+      symbol: "",
+      is_active: true,
     },
   });
 
-  const onSubmit = (data: z.infer<typeof unitSchema>) => {
+  const {data: fetchedUnit} = useGetUnitByIdQuery(unitId, { skip: !unitId });
+
+  const unit: Unit | undefined = fetchedUnit?.data;
+
+  useEffect(() => {
+    if (unit) {
+      form.reset({  
+        name: unit.name,
+        symbol: unit.symbol,
+        is_active: unit.is_active,
+      });
+    }
+  }, [unit, form]);
+
+  const [updateUnit, { isLoading: isUpdating }] = useUpdateUnitMutation();
+
+  const onSubmit = async (data: z.infer<typeof unitSchema>) => {
     console.log("Form data", data);
+    const payload = {
+      id: unitId, // Replace with actual unit ID to be updated
+      body: data,
+    };
+
+    try {
+      const res = await updateUnit(payload).unwrap();
+      console.log("Unit updated successfully:", res);
+      if (res.status) {
+        toast.success("Unit updated successfully");
+        onOpenChange(false);
+        refetchUnits();
+      }
+    } catch (error) {
+      console.error("Error updating unit:", error);
+      toast.error(
+        "Error updating unit" +
+          (error instanceof Error ? ": " + error.message : "")
+      );
+    }
   };
 
   return (
@@ -48,6 +103,7 @@ export default function EditUnitForm({ open, onOpenChange }: Props) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="space-y-4">
+                {/* Unit Name */}
                 <Controller
                   name="name"
                   control={form.control}
@@ -55,6 +111,7 @@ export default function EditUnitForm({ open, onOpenChange }: Props) {
                     <Field>
                       <FieldLabel htmlFor="name">Unit Name</FieldLabel>
                       <Input
+                        id="name"
                         placeholder="Unit name (e.g., Pieces)"
                         {...field}
                       />
@@ -62,13 +119,16 @@ export default function EditUnitForm({ open, onOpenChange }: Props) {
                     </Field>
                   )}
                 />
+
+                {/* Symbol */}
                 <Controller
-                  name="abbreviation"
+                  name="symbol"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel htmlFor="abbreviation">Unit Code</FieldLabel>
+                      <FieldLabel htmlFor="symbol">Unit Code</FieldLabel>
                       <Input
+                        id="symbol"
                         placeholder="Abbreviation (e.g., pcs)"
                         {...field}
                       />
@@ -76,65 +136,45 @@ export default function EditUnitForm({ open, onOpenChange }: Props) {
                     </Field>
                   )}
                 />
+
+                {/* Is Active */}
                 <Controller
-                  name="base_unit"
+                  name="is_active"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel htmlFor="abbreviation">Base Unit</FieldLabel>
+                      <FieldLabel htmlFor="is_active">Active</FieldLabel>
+
                       <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
+                        value={field.value ? "true" : "false"}
+                        onValueChange={(val) => field.onChange(val === "true")}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a base unit" />
+                          <SelectValue placeholder="Select status" />
                         </SelectTrigger>
+
                         <SelectContent>
-                          <SelectItem value="pcs">Pieces</SelectItem>
-                          <SelectItem value="kg">Kilograms</SelectItem>
-                          <SelectItem value="l">Liters</SelectItem>
+                          <SelectItem value="true">Active</SelectItem>
+                          <SelectItem value="false">Inactive</SelectItem>
                         </SelectContent>
                       </Select>
+
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
                 />
-                <Controller
-                  name="conversion_factor"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel htmlFor="conversion_factor">
-                        Conversion Factor
-                      </FieldLabel>
-                      <Input placeholder="e.g., 1 Box = 12 Pieces" {...field} />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
+
+                {/* Submit Button */}
+                <Button className="w-full" type="submit" disabled={isUpdating}>
+                  {isUpdating ? (
+                    <div className="flex items-center gap-2">
+                      <Loader className="w-4 h-4 animate-spin" />
+                      Updating...
+                    </div>
+                  ) : (
+                    "Update Unit"
                   )}
-                />
-                <Controller
-                  name="base"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel htmlFor="base">Base</FieldLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select any.." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
-                <Button className="w-full">Update Unit</Button>
+                </Button>
               </div>
             </form>
           </Form>

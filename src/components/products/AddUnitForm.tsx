@@ -18,33 +18,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useAddUnitMutation } from "@/store/features/admin/productsApiService";
+import { toast } from "sonner";
+import { Loader } from "lucide-react";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Unit name is required"),
-  abbreviation: z.string(),
-  base_unit: z.string(),
-  conversion_factor: z.string().optional(),
-  base: z.enum(["Yes", "No"]),
+  symbol: z.string(),
+  is_active: z.boolean().optional(),
 });
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  refetchUnits: () => void;
 }
 
-export default function AddUnitForm({ open, onOpenChange }: Props) {
+
+export default function AddUnitForm({ open, onOpenChange, refetchUnits }: Props) {
   const form = useForm({
     resolver: zodResolver(unitSchema),
     defaultValues: {
       name: "",
-      abbreviation: "",
-      base_unit: "pcs",
-      conversion_factor: "1.0",
-      base: "Yes",
+      symbol: "",
+      is_active: true,
     },
   });
 
-  const onSubmit = (data: z.infer<typeof unitSchema>) => {
-    console.log("Form data", data);
+  const [addUnit, { isLoading }] = useAddUnitMutation();
+
+  const onSubmit = async (data: z.infer<typeof unitSchema>) => {
+    console.log("Form data:", data);
+
+    const payload = {
+      name: data.name,
+      symbol: data.symbol,
+      is_active: data.is_active,
+    };
+
+    try {
+      const res = await addUnit(payload).unwrap();
+      console.log("Unit added successfully:", res);
+      if (res.status) {
+        toast.success("Unit added successfully");
+        onOpenChange(false);
+        form.reset();
+        refetchUnits();
+      }
+    } catch (error) {
+      console.error("Error adding unit:", error);
+      toast.error("Failed to add unit" + (error instanceof Error ? ": " + error.message : ""));
+    }
   };
 
   return (
@@ -58,6 +81,7 @@ export default function AddUnitForm({ open, onOpenChange }: Props) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="space-y-4">
+                {/* Unit Name */}
                 <Controller
                   name="name"
                   control={form.control}
@@ -65,6 +89,7 @@ export default function AddUnitForm({ open, onOpenChange }: Props) {
                     <Field>
                       <FieldLabel htmlFor="name">Unit Name</FieldLabel>
                       <Input
+                        id="name"
                         placeholder="Unit name (e.g., Pieces)"
                         {...field}
                       />
@@ -72,13 +97,16 @@ export default function AddUnitForm({ open, onOpenChange }: Props) {
                     </Field>
                   )}
                 />
+
+                {/* Symbol */}
                 <Controller
-                  name="abbreviation"
+                  name="symbol"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel htmlFor="abbreviation">Unit Code</FieldLabel>
+                      <FieldLabel htmlFor="symbol">Unit Code</FieldLabel>
                       <Input
+                        id="symbol"
                         placeholder="Abbreviation (e.g., pcs)"
                         {...field}
                       />
@@ -86,65 +114,45 @@ export default function AddUnitForm({ open, onOpenChange }: Props) {
                     </Field>
                   )}
                 />
+
+                {/* Is Active */}
                 <Controller
-                  name="base_unit"
+                  name="is_active"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel htmlFor="abbreviation">Base Unit</FieldLabel>
+                      <FieldLabel htmlFor="is_active">Active</FieldLabel>
+
                       <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
+                        value={field.value ? "true" : "false"}
+                        onValueChange={(val) => field.onChange(val === "true")}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a base unit" />
+                          <SelectValue placeholder="Select status" />
                         </SelectTrigger>
+
                         <SelectContent>
-                          <SelectItem value="pcs">Pieces</SelectItem>
-                          <SelectItem value="kg">Kilograms</SelectItem>
-                          <SelectItem value="l">Liters</SelectItem>
+                          <SelectItem value="true">Active</SelectItem>
+                          <SelectItem value="false">Inactive</SelectItem>
                         </SelectContent>
                       </Select>
+
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
                 />
-                <Controller
-                  name="conversion_factor"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel htmlFor="conversion_factor">
-                        Conversion Factor
-                      </FieldLabel>
-                      <Input placeholder="e.g., 1 Box = 12 Pieces" {...field} />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="base"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel htmlFor="base">Base</FieldLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select any.." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
-                <Button className="w-full">Add Unit</Button>
+
+                {/* Submit Button */}
+                <Button className="w-full" type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Adding...
+                  </div>
+                ) : (
+                  "Add Unit"
+                )}
+              </Button>
               </div>
             </form>
           </Form>
