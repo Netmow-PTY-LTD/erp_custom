@@ -1,13 +1,9 @@
 
-
-
-
-
-// app/dashboard/users/page.tsx (or Users.tsx)
-
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetAllUsersQuery } from "@/store/features/users/usersApiService";
+import type { User } from "@/types/users";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -21,35 +17,6 @@ import {
 import { useState } from "react";
 import { Link } from "react-router";
 
-// -------------------- USER TYPE --------------------
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  status: "Active" | "Inactive";
-};
-
-// -------------------- DUMMY DATA --------------------
-const users: User[] = [
-  {
-    id: "1",
-    name: "Rabby Hasan",
-    email: "rabby@example.com",
-    phone: "+8801712345678",
-    role: "Admin",
-    status: "Active",
-  },
-  {
-    id: "2",
-    name: "John Walker",
-    email: "john@example.com",
-    phone: "+60123456789",
-    role: "Manager",
-    status: "Inactive",
-  },
-];
 
 // -------------------- STATS --------------------
 const stats = [
@@ -75,30 +42,33 @@ const stats = [
 
 export default function UsersList() {
   const [pageIndex, setPageIndex] = useState(0);
+  const {data: usersData} = useGetAllUsersQuery(); 
+
+  const users = usersData?.data as User[] || [];
 
   // -------------------- TABLE COLUMNS --------------------
   const userColumns: ColumnDef<User>[] = [
     { accessorKey: "id", header: "User ID" },
     { accessorKey: "name", header: "Name" },
     { accessorKey: "email", header: "Email" },
-    { accessorKey: "phone", header: "Phone" },
-    { accessorKey: "role", header: "Role" },
+    { accessorKey: "role.name", header: "Role" },
 
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const bgColor = status.toLowerCase() === "active" ? "bg-green-500" : "bg-red-500";
-        return <span className={`py-1 px-2 rounded-full text-xs text-white font-medium ${bgColor}`}>{status}</span>;
-      },
-    },
+    // {
+    //   accessorKey: "status",
+    //   header: "Status",
+    //   cell: ({ row }) => {
+    //     const status = row.getValue("status") as string;
+    //     const bgColor = status.toLowerCase() === "active" ? "bg-green-500" : "bg-red-500";
+    //     return <span className={`py-1 px-2 rounded-full text-xs text-white font-medium ${bgColor}`}>{status}</span>;
+    //   },
+    // },
 
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const id = row.original.id;
+        console.log("User ID:", id);
 
         return (
           <div className="flex items-center gap-2">
