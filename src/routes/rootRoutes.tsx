@@ -8,7 +8,7 @@ import Login from "@/pages/auth/Login";
 import RegisterPage from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ProtectedRoute from "@/routes/ProtectedRoute";
-import { sidebarItemLink } from "@/config/sidebarItemLink";
+import { sidebarItemLink } from "@/config/sidebarItemLInk";
 
 // Generate dynamic dashboard routes (relative paths)
 const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
