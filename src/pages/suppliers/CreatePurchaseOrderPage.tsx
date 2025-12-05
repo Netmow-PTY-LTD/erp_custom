@@ -317,7 +317,7 @@ export default function CreatePurchaseOrderPage() {
               {fields.map((item, index) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-6 gap-3 items-center bg-gray-50 p-3 rounded"
+                  className="grid grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded"
                 >
                   {/* Product */}
                   <FormField
@@ -325,10 +325,10 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Product required" }}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-6">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
-                              <ProductSelectField field={field} />
+                          <ProductSelectField field={field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -343,7 +343,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Price required" }}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-2">
                         <FormLabel>Unit Price</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
@@ -359,7 +359,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Quantity required" }}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-2">
                         <FormLabel>Quantity</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
@@ -370,7 +370,7 @@ export default function CreatePurchaseOrderPage() {
                   />
 
                   {/* Line Total */}
-                  <div>
+                  <div className="col-span-1">
                     <FormLabel>Total</FormLabel>
                     <div className="font-semibold">
                       RM {(items[index].quantity * items[index].unit_cost).toFixed(2)}
@@ -378,14 +378,16 @@ export default function CreatePurchaseOrderPage() {
                   </div>
 
                   {/* Remove */}
-                  <Button
-                    type="button"
-                    variant="outline-destructive"
-                    size="sm"
-                    onClick={() => remove(index)}
-                  >
-                    X
-                  </Button>
+                  <div className="col-span-1 flex justify-end">
+                    <Button
+                      type="button"
+                      variant="outline-destructive"
+                      size="sm"
+                      onClick={() => remove(index)}
+                    >
+                      X
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
