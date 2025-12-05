@@ -24,14 +24,18 @@ export type Product = {
   id: number;
   name: string;
   sku: string;
-  description: string | null;
+  description: string;
   category_id: number;
   unit_id: number;
-  price: string;            // API returns "1500.00" → string
-  cost: string;             // API returns "1000.00" → string
+  price: number;            // API returns "1500.00" → string
+  cost: number;             // API returns "1000.00" → string
   stock_quantity: number;
   min_stock_level: number;
-  max_stock_level: number | null;
+  max_stock_level: number;
+  weight: number;
+  width: number;
+  height: number;
+  length: number;
   barcode: string | null;
   image_url: string | null;
   is_active: boolean;

@@ -5,6 +5,12 @@ type DepartmentResponse = {
   status: boolean;
   message: string;
   data: Department[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
 };
 
 type DepartmentByIdResponse = {
@@ -15,7 +21,7 @@ type DepartmentByIdResponse = {
 
 export const departmentApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    addDepartment: builder.mutation({
+    addDepartment: builder.mutation<DepartmentResponse, Partial<Department>>({
       query: (body) => ({
         url: "/departments",
         method: "POST",
@@ -23,13 +29,17 @@ export const departmentApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Departments"],
     }),
-    getAllDepartments: builder.query<DepartmentResponse, void>({
-      query: () => ({
-        url: "/departments",
+    getAllDepartments: builder.query<
+      DepartmentResponse,
+      { page: number; limit: number; search: string }
+    >({
+      query: ({ page, limit, search }) => ({
+        url: `/departments?page=${page}&limit=${limit}&search=${search}`,
         method: "GET",
       }),
       providesTags: ["Departments"],
     }),
+
     getDepartmentById: builder.query<DepartmentByIdResponse, number>({
       query: (id) => ({
         url: `/departments/${id}`,

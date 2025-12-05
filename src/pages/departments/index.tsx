@@ -7,7 +7,10 @@ import { z } from "zod";
 //import { Link } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { useDeleteDepartmentMutation, useGetAllDepartmentsQuery } from "@/store/features/admin/departmentApiService";
+import {
+  useDeleteDepartmentMutation,
+  useGetAllDepartmentsQuery,
+} from "@/store/features/admin/departmentApiService";
 import type { Department } from "@/types/types";
 import { toast } from "sonner";
 
@@ -19,12 +22,18 @@ export const DepartmentSchema = z.object({
 export type DepartmentFormValues = z.infer<typeof DepartmentSchema>;
 
 export default function DepartmentsPage() {
-
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [departmentId, setDepartmentId] = useState<number | null>(null);
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
 
-  const {data: fetchedDepartments} = useGetAllDepartmentsQuery();
+  const { data: fetchedDepartments, isFetching } = useGetAllDepartmentsQuery({
+    page,
+    limit,
+    search,
+  });
 
   //console.log("Fetched Departments: ", fetchedDepartments);
 
@@ -32,42 +41,37 @@ export default function DepartmentsPage() {
 
   const [deleteDepartment] = useDeleteDepartmentMutation();
 
-
-
-const handleDeleteDepartment = async (id: number) => {
-  // Ask for confirmation using a simple toast with prompt
-  const confirmed = await new Promise<boolean>((resolve) => {
-    toast(
-      "Are you sure you want to delete this department?",
-      {
+  const handleDeleteDepartment = async (id: number) => {
+    // Ask for confirmation using a simple toast with prompt
+    const confirmed = await new Promise<boolean>((resolve) => {
+      toast("Are you sure you want to delete this department?", {
         action: {
           label: "Delete",
           onClick: () => resolve(true), // user confirmed
         },
         duration: 3000, // auto-dismiss after 5s
+      });
+
+      // resolve false if toast disappears automatically
+      setTimeout(() => resolve(false), 3000);
+    });
+
+    //console.log("User confirmed deletion: ", confirmed);
+
+    if (!confirmed) return; // stop if user didn’t confirm
+
+    try {
+      const res = await deleteDepartment(id).unwrap();
+      if (res.status) {
+        toast.success("Department deleted successfully");
+      } else {
+        toast.error("Failed to delete department");
       }
-    );
-
-    // resolve false if toast disappears automatically
-    setTimeout(() => resolve(false), 3000);
-  });
-
-  //console.log("User confirmed deletion: ", confirmed);
-
-  if (!confirmed) return; // stop if user didn’t confirm
-
-  try {
-    const res = await deleteDepartment(id).unwrap();
-    if (res.status) {
-      toast.success("Department deleted successfully");
-    } else {
+    } catch (error) {
+      console.error("Error deleting department:", error);
       toast.error("Failed to delete department");
     }
-  } catch (error) {
-    console.error("Error deleting department:", error);
-    toast.error("Failed to delete department");
-  }
-};
+  };
 
   const columns: ColumnDef<Department>[] = [
     {
@@ -116,13 +120,22 @@ const handleDeleteDepartment = async (id: number) => {
         </div>
       </div>
 
-      <DataTable columns={columns} data={departments} />
+      <DataTable
+        columns={columns}
+        data={departments}
+        pageIndex={page - 1}
+        pageSize={limit}
+        totalCount={fetchedDepartments?.pagination?.total || 0}
+        onPageChange={setPage}
+        onSearch={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        isFetching={isFetching}
+      />
 
       {/* Add Sheet */}
-      <AddDepartmentForm
-        open={addOpen}
-        onOpenChange={setAddOpen}
-      />
+      <AddDepartmentForm open={addOpen} onOpenChange={setAddOpen} />
 
       {/* Edit Sheet */}
       <EditDepartmentForm

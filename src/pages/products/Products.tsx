@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+//import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -23,7 +23,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
 import type { Product } from "@/types/types";
 import { useState } from "react";
-import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import {
+  useDeleteProductMutation,
+  useGetAllProductsQuery,
+} from "@/store/features/admin/productsApiService";
+import { toast } from "sonner";
 
 const stats = [
   {
@@ -60,7 +64,7 @@ export default function Products() {
   const {
     data: fetchedProducts,
     isFetching,
-    //refetch: refetchProducts,
+    refetch: refetchProducts,
   } = useGetAllProductsQuery({ page, limit, search });
 
   const products: Product[] = fetchedProducts?.data || [];
@@ -70,6 +74,43 @@ export default function Products() {
     page: 1,
     limit: 10,
     totalPage: 1,
+  };
+
+  const [deleteProduct] = useDeleteProductMutation();
+  const handleDeleteProduct = async (id: number) => {
+    // Ask for confirmation using a simple toast with prompt
+    const confirmed = await new Promise<boolean>((resolve) => {
+      toast("Are you sure you want to delete this product?", {
+        action: {
+          label: "Delete",
+          onClick: () => resolve(true), // user confirmed
+        },
+        duration: 10000, // auto-dismiss after 5s
+      });
+
+      // resolve false if toast disappears automatically
+      setTimeout(() => resolve(false), 10000);
+    });
+
+    console.log("User confirmed deletion: ", confirmed);
+
+    if (!confirmed) return; // stop if user didn’t confirm
+
+    try {
+      const res = await deleteProduct(id).unwrap();
+      if (res.status) {
+        toast.success("Product deleted successfully");
+        refetchProducts();
+      } else {
+        toast.error("Failed to delete unit");
+      }
+    } catch (error) {
+      console.error("Error deleting unit:", error);
+      toast.error(
+        "Failed to delete unit" +
+          (error instanceof Error ? ": " + error.message : "")
+      );
+    }
   };
 
   const productColumns: ColumnDef<Product>[] = [
@@ -84,13 +125,7 @@ export default function Products() {
     {
       accessorKey: "category",
       header: "Category",
-      cell: ({ row }) => row.original.category.name,
-    },
-    {
-      accessorKey: "unit",
-      header: "Base UoM",
-      cell: ({ row }) =>
-        `${row.original.unit.name} (${row.original.unit.symbol})`,
+      cell: ({ row }) => row?.original?.category?.name
     },
     {
       accessorKey: "cost",
@@ -102,37 +137,16 @@ export default function Products() {
       header: "Selling Price (RM)",
       cell: ({ row }) => row.original.price,
     },
+    // {
+    //   accessorKey: "unit",
+    //   header: "Unit",
+    //   cell: ({ row }) =>
+    //     `${row.original.unit.name} (${row.original.unit.symbol})`,
+    // },
     {
       accessorKey: "stock_quantity",
       header: "Stock",
       cell: ({ row }) => row.original.stock_quantity,
-    },
-    {
-      accessorKey: "stock_quantity",
-      header: "Stock Status",
-      cell: ({ row }) => {
-        const stock = row.original.stock_quantity;
-        const min = row.original.min_stock_level;
-        const max = row.original.max_stock_level ?? Infinity;
-
-        let status = "Normal";
-        if (stock <= min) status = "Low Stock";
-        else if (stock >= max) status = "High Stock";
-
-        return (
-          <Badge
-            variant={
-              status === "High Stock"
-                ? "success"
-                : status === "Low Stock"
-                ? "destructive"
-                : "secondary"
-            }
-          >
-            {status}
-          </Badge>
-        );
-      },
     },
     {
       accessorKey: "is_active",
@@ -185,11 +199,7 @@ export default function Products() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() =>
-                  alert(
-                    `Product with id ${product.id} has been deleted successfully.`
-                  )
-                }
+                onClick={() => handleDeleteProduct(product.id)}
                 className="cursor-pointer"
               >
                 Delete
