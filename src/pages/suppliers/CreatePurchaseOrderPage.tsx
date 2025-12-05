@@ -28,6 +28,7 @@ import { useAddPurchaseOrderMutation } from "@/store/features/purchaseOrder/purc
 import { Link, useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
+import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -51,8 +52,10 @@ export default function CreatePurchaseOrderPage() {
 
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
   const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
+  const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
 
   console.log("Suppliers Data:", suppliersData?.data);
+  console.log("Products Data:", productsData?.data);
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -247,14 +250,24 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem>
                         <FormLabel>Product</FormLabel>
                         <FormControl>
-                          <Select onValueChange={field.onChange}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select Product..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {/* Later: Map from API */}
-                              <SelectItem value="1">Product A</SelectItem>
-                              <SelectItem value="2">Product B</SelectItem>
+                              {productsLoading && (
+                                <div className="py-2 px-3 text-sm text-gray-500">Loading products...</div>
+                              )}
+
+                              {!productsLoading && Array.isArray(productsData?.data) && productsData.data.length === 0 && (
+                                <div className="py-2 px-3 text-sm text-gray-500">No products found</div>
+                              )}
+
+                              {Array.isArray(productsData?.data) && productsData.data.map((product) => (
+                                <SelectItem key={product.id} value={String(product.id)}>
+                                  {product.name} (SKU: {product.sku})
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </FormControl>
