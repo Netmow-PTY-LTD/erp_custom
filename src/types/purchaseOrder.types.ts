@@ -1,5 +1,7 @@
 
 export interface PurchaseOrder {
+  notes: string | undefined;
+  order_date: string | undefined;
   expected_delivery_date: string | undefined;
   id: number;
   po_number: string;
