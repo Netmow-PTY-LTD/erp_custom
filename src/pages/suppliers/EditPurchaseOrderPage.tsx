@@ -1,5 +1,6 @@
-
 "use client";
+
+import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,17 +20,16 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-
 import { ArrowLeft } from "lucide-react";
-
 import { toast } from "sonner";
+import { Link, useNavigate, useParams } from "react-router";
 
-import { useAddPurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
-import { Link, useNavigate } from "react-router";
+
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
+import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import type { Supplier } from "@/types/supplier.types";
+import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 
-/* ---------------- TYPES ---------------- */
 interface POItem {
   productId: string;
   quantity: number;
@@ -44,15 +44,16 @@ interface PurchaseOrderFormValues {
   items: POItem[];
 }
 
-/* ---------------------------------------- */
-
-export default function CreatePurchaseOrderPage() {
+export default function EditPurchaseOrderPage() {
   const navigate = useNavigate();
+  const { purchaseId } = useParams(); // Purchase Order ID
 
-  const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
   const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
+  const { data: productsData } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
 
-  console.log("Suppliers Data:", suppliersData?.data);
+  const { data: poData, isFetching: poLoading } = useGetPurchaseOrderByIdQuery(Number(purchaseId));
+
+  const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -70,7 +71,7 @@ export default function CreatePurchaseOrderPage() {
     },
   });
 
-  const { control, watch } = form;
+  const { control, reset, watch } = form;
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
@@ -78,12 +79,31 @@ export default function CreatePurchaseOrderPage() {
 
   const items = watch("items");
 
+  // Update form with fetched PO data
+  useEffect(() => {
+    if (poData?.data) {
+      const po = Array.isArray(poData.data) ? poData.data[0] : poData.data;
+      reset({
+        supplierId: String(po.supplier_id),
+        orderDate: po.order_date,
+        expectedDate: po.expected_delivery_date,
+        notes: po.notes,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: (po.items ?? []).map((item: any) => ({
+          productId: String(item.product_id),
+         
+          quantity: item.quantity,
+          unit_cost: item.unit_cost,
+        })),
+      });
+    }
+  }, [poData, reset]);
+
   const subtotal = items.reduce(
     (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
     0
   );
 
-  /* ---------------- ON SUBMIT ---------------- */
   const onSubmit = async (values: PurchaseOrderFormValues) => {
     try {
       const payload = {
@@ -98,26 +118,28 @@ export default function CreatePurchaseOrderPage() {
         })),
       };
 
-      const response = await addPurchaseOrder(payload).unwrap();
+      await updatePurchaseOrder({
+          id: Number(purchaseId),
+          body: payload,
+      }).unwrap();
 
-      console.log("Purchase Order Created:", response);
-
-      toast.success("Purchase Order Created Successfully");
-
+      toast.success("Purchase Order Updated Successfully");
       navigate("/dashboard/suppliers/purchase-orders");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to create purchase order");
+      toast.error(error?.data?.message || "Failed to update purchase order");
       console.error(error);
     }
   };
 
-  /* ---------------------------------------- */
+  if (poLoading) {
+    return <div>Loading Purchase Order...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center">
-        <h1 className="text-3xl font-bold">Create Purchase Order</h1>
-
+        <h1 className="text-3xl font-bold">Edit Purchase Order</h1>
         <Link to="/dashboard/suppliers/purchase-orders" className="ml-auto">
           <Button variant="outline">
             <ArrowLeft className="w-4 h-4" /> Back to POs
@@ -127,10 +149,9 @@ export default function CreatePurchaseOrderPage() {
 
       <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-          {/* ---------------- SUPPLIER & DETAILS ---------------- */}
+          {/* Supplier & Details */}
           <div className="border rounded-md p-4">
             <h2 className="font-semibold mb-4">Supplier & Details</h2>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Supplier */}
               <FormField
@@ -145,23 +166,26 @@ export default function CreatePurchaseOrderPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select Supplier..." />
                         </SelectTrigger>
-                  
                         <SelectContent>
                           {suppliersLoading && (
-                            <div className="py-2 px-3 text-sm text-gray-500">Loading suppliers...</div>
+                            <div className="py-2 px-3 text-sm text-gray-500">
+                              Loading suppliers...
+                            </div>
                           )}
-
-                          {!suppliersLoading && Array.isArray(suppliersData?.data) && suppliersData.data.length === 0 && (
-                            <div className="py-2 px-3 text-sm text-gray-500">No suppliers found</div>
-                          )}
-
-                          {Array.isArray(suppliersData?.data) && suppliersData.data.map((supplier: Supplier) => (
-                            <SelectItem key={supplier.id} value={String(supplier.id)}>
-                              {supplier.name}
-                            </SelectItem>
-                          ))}
+                          {!suppliersLoading &&
+                            Array.isArray(suppliersData?.data) &&
+                            suppliersData.data.length === 0 && (
+                              <div className="py-2 px-3 text-sm text-gray-500">
+                                No suppliers found
+                              </div>
+                            )}
+                          {Array.isArray(suppliersData?.data) &&
+                            suppliersData.data.map((supplier: Supplier) => (
+                              <SelectItem key={supplier.id} value={String(supplier.id)}>
+                                {supplier.name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
-
                       </Select>
                     </FormControl>
                     <FormMessage />
@@ -213,7 +237,7 @@ export default function CreatePurchaseOrderPage() {
             />
           </div>
 
-          {/* ---------------- ITEMS ---------------- */}
+          {/* Order Items */}
           <div className="border rounded-md p-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold">Order Items</h2>
@@ -252,9 +276,11 @@ export default function CreatePurchaseOrderPage() {
                               <SelectValue placeholder="Select Product..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {/* Later: Map from API */}
-                              <SelectItem value="1">Product A</SelectItem>
-                              <SelectItem value="2">Product B</SelectItem>
+                              {productsData?.data?.map((product) => (
+                                <SelectItem key={product.id} value={String(product.id)}>
+                                  {product.name}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -263,7 +289,7 @@ export default function CreatePurchaseOrderPage() {
                     )}
                   />
 
-                  
+               
 
                   {/* Unit Price */}
                   <FormField
@@ -321,16 +347,14 @@ export default function CreatePurchaseOrderPage() {
             {/* Summary */}
             <div className="mt-4 text-right pr-2">
               <div>Subtotal: RM {subtotal.toFixed(2)}</div>
-              <div className="font-bold text-lg">
-                Total: RM {subtotal.toFixed(2)}
-              </div>
+              <div className="font-bold text-lg">Total: RM {subtotal.toFixed(2)}</div>
             </div>
           </div>
 
           {/* Submit */}
           <div className="flex justify-end">
-            <Button className="px-6" type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Purchase Order"}
+            <Button className="px-6" type="submit" disabled={isUpdating}>
+              {isUpdating ? "Updating..." : "Update Purchase Order"}
             </Button>
           </div>
         </form>
@@ -338,4 +362,3 @@ export default function CreatePurchaseOrderPage() {
     </div>
   );
 }
-
