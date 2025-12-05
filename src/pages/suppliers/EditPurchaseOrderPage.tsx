@@ -168,9 +168,14 @@ export default function EditPurchaseOrderPage() {
         })),
       };
 
-      await updatePurchaseOrder({ id: Number(purchaseId), body: payload }).unwrap();
-      toast.success("Purchase Order Updated Successfully");
-      navigate("/dashboard/suppliers/purchase-orders");
+
+      const res = await updatePurchaseOrder({ id: Number(purchaseId), body: payload }).unwrap();
+      if (res.success) {
+        toast.success(res.message || "Purchase Order Updated Successfully");
+        navigate("/dashboard/suppliers/purchase-orders");
+      } else {
+        toast.success(res.message || "Somthing wrong");
+      }
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update purchase order");
       console.error(error);
