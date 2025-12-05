@@ -45,8 +45,6 @@ export default function EditPurchaseOrderPage() {
   const navigate = useNavigate();
   const { purchaseId } = useParams(); // Purchase Order ID
 
-  const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
-  const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
 
   const { data: poData, isFetching: poLoading } = useGetPurchaseOrderByIdQuery(Number(purchaseId));
   const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
@@ -66,9 +64,28 @@ export default function EditPurchaseOrderPage() {
   const items = watch("items");
 
   /* ---------------- Searchable selects ---------------- */
-  function SupplierSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
+
+
+ function SupplierSelectField({
+    field,
+  }: {
+    field: { value?: string; onChange: (v: string) => void };
+  }) {
     const [open, setOpen] = useState(false);
-    const selected = Array.isArray(suppliersData?.data) ? suppliersData.data.find(s => String(s.id) === String(field.value)) : undefined;
+    const [query, setQuery] = useState("");
+
+    // Call API with search query
+    const { data, isLoading } = useGetAllSuppliersQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+    });
+
+    const list = Array.isArray(data?.data) ? data.data : [];
+
+    const selected = list.find(
+      (s: Supplier) => String(s.id) === String(field.value)
+    );
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -77,21 +94,36 @@ export default function EditPurchaseOrderPage() {
             {selected ? selected.name : "Select Supplier..."}
           </Button>
         </PopoverTrigger>
+
         <PopoverContent className="w-[320px] p-0">
           <Command>
-            <CommandInput placeholder="Search suppliers..." />
+            <CommandInput
+              placeholder="Search suppliers..."
+              onValueChange={(value) => setQuery(value)}
+            />
+
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>No suppliers found.</CommandEmpty>
+
               <CommandGroup>
-                {suppliersLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading suppliers...</div>}
-                {!suppliersLoading && Array.isArray(suppliersData?.data) && suppliersData.data.length === 0 && (
-                  <div className="py-2 px-3 text-sm text-gray-500">No suppliers found</div>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
                 )}
-                {Array.isArray(suppliersData?.data) && suppliersData.data.map((supplier: Supplier) => (
-                  <CommandItem key={supplier.id} onSelect={() => { field.onChange(String(supplier.id)); setOpen(false); }}>
-                    {supplier.name}
-                  </CommandItem>
-                ))}
+
+                {!isLoading &&
+                  list.map((supplier) => (
+                    <CommandItem
+                      key={supplier.id}
+                      onSelect={() => {
+                        field.onChange(String(supplier.id));
+                        setOpen(false);
+                      }}
+                    >
+                      {supplier.name}
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -100,41 +132,88 @@ export default function EditPurchaseOrderPage() {
     );
   }
 
-  function ProductSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
-    const [open, setOpen] = useState(false);
-    const selected = productsData?.data?.find(p => String(p.id) === String(field.value));
 
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-between">
-            {selected ? `${selected.name} (SKU: ${selected.sku})` : "Select Product..."}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[320px] p-0">
-          <Command>
-            <CommandInput placeholder="Search products..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                {productsLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading products...</div>}
-                {!productsLoading && Array.isArray(productsData?.data) && productsData.data.length === 0 && (
-                  <div className="py-2 px-3 text-sm text-gray-500">No products found</div>
-                )}
-                {Array.isArray(productsData?.data) && productsData.data.map(product => (
-                  <CommandItem key={product.id} onSelect={() => { field.onChange(String(product.id)); setOpen(false); }}>
-                    {product.name} (SKU: {product.sku})
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    );
-  }
 
-  // Populate form with fetched PO data
+
+
+
+  
+  function ProductSelectField({
+      field,
+    }: {
+      field: { value?: string; onChange: (v: string) => void };
+    }) {
+      const [open, setOpen] = useState(false);
+      const [query, setQuery] = useState("");
+  
+      const { data, isLoading } = useGetAllProductsQuery({
+        page: 1,
+        limit: 50,
+        search: query,
+      });
+  
+      const list = Array.isArray(data?.data) ? data.data : [];
+  
+      const selected = list.find(
+        (p) => String(p.id) === String(field.value)
+      );
+  
+      return (
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              {selected
+                ? `${selected.name} (SKU: ${selected.sku})`
+                : "Select Product..."}
+            </Button>
+          </PopoverTrigger>
+  
+          <PopoverContent className="w-[320px] p-0">
+            <Command>
+              <CommandInput
+                placeholder="Search products..."
+                onValueChange={(value) => setQuery(value)}
+              />
+  
+              <CommandList>
+                <CommandEmpty>No products found.</CommandEmpty>
+  
+                <CommandGroup>
+                  {isLoading && (
+                    <div className="py-2 px-3 text-sm text-gray-500">
+                      Loading...
+                    </div>
+                  )}
+  
+                  {!isLoading &&
+                    list.map((product) => (
+                      <CommandItem
+                        key={product.id}
+                        onSelect={() => {
+                          field.onChange(String(product.id));
+                          setOpen(false);
+                        }}
+                      >
+                        {product.name} (SKU: {product.sku})
+                      </CommandItem>
+                    ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      );
+    }
+  
+  
+
+
+
+
+
+
+
+
   useEffect(() => {
     if (poData?.data) {
       const po = Array.isArray(poData.data) ? poData.data[0] : poData.data;

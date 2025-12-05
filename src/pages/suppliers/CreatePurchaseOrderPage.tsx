@@ -87,50 +87,6 @@ export default function CreatePurchaseOrderPage() {
   const items = watch("items");
 
   /* ---------------- Searchable select components ---------------- */
-  // function SupplierSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
-  //   const [open, setOpen] = React.useState(false);
-  //   const selected = Array.isArray(suppliersData?.data) ? suppliersData.data.find((s: Supplier) => String(s.id) === String(field.value)) : undefined;
-
-  //   return (
-  //     <Popover open={open} onOpenChange={setOpen}>
-  //       <PopoverTrigger asChild>
-  //         <Button variant="outline" className="w-full justify-between">
-  //           {selected ? selected.name : "Select Supplier..."}
-  //         </Button>
-  //       </PopoverTrigger>
-
-  //       <PopoverContent className="w-[320px] p-0">
-  //         <Command>
-  //           <CommandInput placeholder="Search suppliers..." />
-  //           <CommandList>
-  //             <CommandEmpty>No results found.</CommandEmpty>
-  //             <CommandGroup>
-  //               {suppliersLoading && (
-  //                 <div className="py-2 px-3 text-sm text-gray-500">Loading suppliers...</div>
-  //               )}
-
-  //               {!suppliersLoading && Array.isArray(suppliersData?.data) && suppliersData.data.length === 0 && (
-  //                 <div className="py-2 px-3 text-sm text-gray-500">No suppliers found</div>
-  //               )}
-
-  //               {Array.isArray(suppliersData?.data) && suppliersData.data.map((supplier: Supplier) => (
-  //                 <CommandItem
-  //                   key={supplier.id}
-  //                   onSelect={() => {
-  //                     field.onChange(String(supplier.id));
-  //                     setOpen(false);
-  //                   }}
-  //                 >
-  //                   <span>{supplier.name}</span>
-  //                 </CommandItem>
-  //               ))}
-  //             </CommandGroup>
-  //           </CommandList>
-  //         </Command>
-  //       </PopoverContent>
-  //     </Popover>
-  //   );
-  // }
 
 
 
@@ -202,51 +158,7 @@ export default function CreatePurchaseOrderPage() {
 
 
 
-  // function ProductSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
-  //   const [open, setOpen] = React.useState(false);
-  //   const selected = productsData?.data?.find((p: { id: number | string } ) => String(p.id) === String(field.value));
-
-  //   return (
-  //     <Popover open={open} onOpenChange={setOpen}>
-  //       <PopoverTrigger asChild>
-  //         <Button variant="outline" className="w-full justify-between">
-  //           {selected ? `${selected.name} (SKU: ${selected.sku})` : "Select Product..."}
-  //         </Button>
-  //       </PopoverTrigger>
-
-  //       <PopoverContent className="w-[320px] p-0">
-  //         <Command>
-  //           <CommandInput placeholder="Search products..." />
-  //           <CommandList>
-  //             <CommandEmpty>No results found.</CommandEmpty>
-  //             <CommandGroup>
-  //               {productsLoading && (
-  //                 <div className="py-2 px-3 text-sm text-gray-500">Loading products...</div>
-  //               )}
-
-  //               {!productsLoading && Array.isArray(productsData?.data) && productsData.data.length === 0 && (
-  //                 <div className="py-2 px-3 text-sm text-gray-500">No products found</div>
-  //               )}
-
-  //               {Array.isArray(productsData?.data) && productsData.data.map((product: { id: number | string; name: string; sku?: string }) => (
-  //                 <CommandItem
-  //                   key={product.id}
-  //                   onSelect={() => {
-  //                     field.onChange(String(product.id));
-  //                     setOpen(false);
-  //                   }}
-  //                 >
-  //                   <span>{product.name} (SKU: {product.sku})</span>
-  //                 </CommandItem>
-  //               ))}
-  //             </CommandGroup>
-  //           </CommandList>
-  //         </Command>
-  //       </PopoverContent>
-  //     </Popover>
-  //   );
-  // }
-
+  
 
 
   function ProductSelectField({
