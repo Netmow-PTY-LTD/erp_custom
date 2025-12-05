@@ -64,7 +64,11 @@ function ConfirmModal({
 }
 
 export default function SuppliersList() {
-  const { data: suppliersData, isLoading } = useGetAllSuppliersQuery();
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
+
+  const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({ search, page, limit });
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -167,16 +171,19 @@ export default function SuppliersList() {
           {isLoading ? (
             <p>Loading...</p>
           ) : (
+
             <DataTable
               columns={supplierColumns}
-              data={
-                Array.isArray(suppliersData?.data)
-                  ? suppliersData.data.map((supplier) => ({
-                      ...supplier,
-                      id: supplier.id !== undefined ? String(supplier.id) : "",
-                    }))
-                  : []
-              }
+              data={suppliersData?.data}
+              pageIndex={page - 1}
+              pageSize={limit}
+              totalCount={suppliersData?.pagination.total}
+              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onSearch={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+              isFetching={isLoading}
             />
           )}
         </CardContent>
