@@ -1,9 +1,18 @@
 import { LoginForm } from "@/components/auth/LoginForm";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 export default function Login() {
- return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+  const navigate = useNavigate();
+  return (
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 relative">
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back
+      </button>
       <div className="flex w-full max-w-sm flex-col gap-6">
         <Link to="/" className="flex items-center gap-2 self-center font-medium text-xl">
           <div className="flex size-6 items-center justify-center rounded-md">
