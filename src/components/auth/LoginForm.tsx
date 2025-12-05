@@ -21,6 +21,8 @@ import { useAuthLoginMutation } from "@/store/features/auth/authApiService";
 import { useNavigate } from "react-router";
 import { useAppDispatch } from "@/store/store";
 import { setCredentials } from "@/store/features/auth/authSlice";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -33,6 +35,7 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -119,24 +122,43 @@ export function LoginForm({
                   </Field>
                 )}
               />
+              {/* input password design make perfectly */}
               <Controller
                 control={form.control}
                 name="password"
                 render={({ field }) => (
                   <Field>
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-between mb-2">
                       <FieldLabel htmlFor="password">Password</FieldLabel>
                       <a
                         href="/forgot-password"
-                        className="ml-auto text-sm underline-offset-4 hover:underline"
-                        target="_blank"
+                        className="text-xs text-blue-600 hover:text-blue-700 underline-offset-2 hover:underline transition-colors"
                       >
-                        Forgot your password?
+                        Forgot password?
                       </a>
                     </div>
-                    <Input type="password" {...field} />
+                    <div className="relative">
+                      <Input 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="Enter your password"
+                        className="pr-10"
+                        {...field} 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors focus:outline-none"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                     {form.formState.errors.password?.message && (
-                      <p className="text-red-500 text-sm">
+                      <p className="text-red-500 text-sm mt-1.5">
                         {form.formState.errors.password.message}
                       </p>
                     )}
