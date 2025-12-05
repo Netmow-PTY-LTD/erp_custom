@@ -1,3 +1,4 @@
+
 // "use client";
 
 // import { useFieldArray, useForm } from "react-hook-form";
@@ -308,6 +309,8 @@ import { toast } from "sonner";
 
 import { useAddPurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { Link, useNavigate } from "react-router";
+import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
+import type { Supplier } from "@/types/supplier.types";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -331,6 +334,9 @@ export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
 
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
+  const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
+
+  console.log("Suppliers Data:", suppliersData?.data);
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -342,8 +348,9 @@ export default function CreatePurchaseOrderPage() {
         {
           productId: "",
           stock: 0,
-          quantity: 1,  
-          unit_cost: 0,},
+          quantity: 1,
+          unit_cost: 0,
+        },
       ],
     },
   });
@@ -383,7 +390,7 @@ export default function CreatePurchaseOrderPage() {
       toast.success("Purchase Order Created Successfully");
 
       navigate("/dashboard/suppliers/purchase-orders");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create purchase order");
       console.error(error);
@@ -423,11 +430,23 @@ export default function CreatePurchaseOrderPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select Supplier..." />
                         </SelectTrigger>
+                  
                         <SelectContent>
-                          {/* Later: Map from API */}
-                          <SelectItem value="1">ABC Supplier</SelectItem>
-                          <SelectItem value="2">XYZ Supplier</SelectItem>
+                          {suppliersLoading && (
+                            <div className="py-2 px-3 text-sm text-gray-500">Loading suppliers...</div>
+                          )}
+
+                          {!suppliersLoading && Array.isArray(suppliersData?.data) && suppliersData.data.length === 0 && (
+                            <div className="py-2 px-3 text-sm text-gray-500">No suppliers found</div>
+                          )}
+
+                          {Array.isArray(suppliersData?.data) && suppliersData.data.map((supplier: Supplier) => (
+                            <SelectItem key={supplier.id} value={String(supplier.id)}>
+                              {supplier.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
+
                       </Select>
                     </FormControl>
                     <FormMessage />

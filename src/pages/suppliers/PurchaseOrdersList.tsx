@@ -230,6 +230,7 @@ const poColumns: ColumnDef<PurchaseOrder>[] = [
 /* COMPONENT */
 export default function PurchaseOrdersList() {
   const { data } = useGetAllPurchasesQuery();
+  
 
   const purchaseOrdersData: PurchaseOrder[] = Array.isArray(data?.data)
     ? data.data
