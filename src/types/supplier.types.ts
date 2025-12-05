@@ -1,6 +1,7 @@
 
 
 export type Supplier = {
+
   postal_code: string | undefined;
   state: string | undefined;
   code: string | undefined;

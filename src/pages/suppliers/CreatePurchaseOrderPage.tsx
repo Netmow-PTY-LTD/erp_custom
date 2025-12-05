@@ -12,13 +12,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+// select import removed; using Popover+Command for searchable selects
 import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+  CommandEmpty,
+  CommandGroup,
+} from "@/components/ui/command";
 
 import { ArrowLeft } from "lucide-react";
 
@@ -28,6 +35,8 @@ import { useAddPurchaseOrderMutation } from "@/store/features/purchaseOrder/purc
 import { Link, useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
+import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import  { useState } from "react";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -38,8 +47,8 @@ interface POItem {
 
 interface PurchaseOrderFormValues {
   supplierId: string;
-  orderDate: string;
-  expectedDate: string;
+  order_date: string;
+  expected_delivery_date: string;
   notes: string;
   items: POItem[];
 }
@@ -50,15 +59,14 @@ export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
 
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
-  const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
-
-  console.log("Suppliers Data:", suppliersData?.data);
+  // const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
+  // const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
       supplierId: "",
-      orderDate: new Date().toISOString().split("T")[0],
-      expectedDate: "",
+      order_date: new Date().toISOString().split("T")[0],
+      expected_delivery_date: "",
       notes: "",
       items: [
         {
@@ -78,6 +86,153 @@ export default function CreatePurchaseOrderPage() {
 
   const items = watch("items");
 
+  /* ---------------- Searchable select components ---------------- */
+
+
+
+  function SupplierSelectField({
+    field,
+  }: {
+    field: { value?: string; onChange: (v: string) => void };
+  }) {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+
+    // Call API with search query
+    const { data, isLoading } = useGetAllSuppliersQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+    });
+
+    const list = Array.isArray(data?.data) ? data.data : [];
+
+    const selected = list.find(
+      (s: Supplier) => String(s.id) === String(field.value)
+    );
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-full justify-between">
+            {selected ? selected.name : "Select Supplier..."}
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-[320px] p-0">
+          <Command>
+            <CommandInput
+              placeholder="Search suppliers..."
+              onValueChange={(value) => setQuery(value)}
+            />
+
+            <CommandList>
+              <CommandEmpty>No suppliers found.</CommandEmpty>
+
+              <CommandGroup>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+
+                {!isLoading &&
+                  list.map((supplier) => (
+                    <CommandItem
+                      key={supplier.id}
+                      onSelect={() => {
+                        field.onChange(String(supplier.id));
+                        setOpen(false);
+                      }}
+                    >
+                      {supplier.name}
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+
+
+  
+
+
+  function ProductSelectField({
+    field,
+  }: {
+    field: { value?: string; onChange: (v: string) => void };
+  }) {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+
+    const { data, isLoading } = useGetAllProductsQuery({
+      page: 1,
+      limit: 50,
+      search: query,
+    });
+
+    const list = Array.isArray(data?.data) ? data.data : [];
+
+    const selected = list.find(
+      (p) => String(p.id) === String(field.value)
+    );
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-full justify-between">
+            {selected
+              ? `${selected.name} (SKU: ${selected.sku})`
+              : "Select Product..."}
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-[320px] p-0">
+          <Command>
+            <CommandInput
+              placeholder="Search products..."
+              onValueChange={(value) => setQuery(value)}
+            />
+
+            <CommandList>
+              <CommandEmpty>No products found.</CommandEmpty>
+
+              <CommandGroup>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+
+                {!isLoading &&
+                  list.map((product) => (
+                    <CommandItem
+                      key={product.id}
+                      onSelect={() => {
+                        field.onChange(String(product.id));
+                        setOpen(false);
+                      }}
+                    >
+                      {product.name} (SKU: {product.sku})
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+
+
+
+
+
   const subtotal = items.reduce(
     (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
     0
@@ -88,8 +243,8 @@ export default function CreatePurchaseOrderPage() {
     try {
       const payload = {
         supplier_id: Number(values.supplierId),
-        order_date: values.orderDate,
-        expected_date: values.expectedDate,
+        order_date: values.order_date,
+        expected_delivery_date: values.expected_delivery_date,
         notes: values.notes,
         items: values.items.map((item) => ({
           product_id: Number(item.productId),
@@ -141,28 +296,7 @@ export default function CreatePurchaseOrderPage() {
                   <FormItem>
                     <FormLabel>Supplier</FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Supplier..." />
-                        </SelectTrigger>
-                  
-                        <SelectContent>
-                          {suppliersLoading && (
-                            <div className="py-2 px-3 text-sm text-gray-500">Loading suppliers...</div>
-                          )}
-
-                          {!suppliersLoading && Array.isArray(suppliersData?.data) && suppliersData.data.length === 0 && (
-                            <div className="py-2 px-3 text-sm text-gray-500">No suppliers found</div>
-                          )}
-
-                          {Array.isArray(suppliersData?.data) && suppliersData.data.map((supplier: Supplier) => (
-                            <SelectItem key={supplier.id} value={String(supplier.id)}>
-                              {supplier.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-
-                      </Select>
+                      <SupplierSelectField field={field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -171,7 +305,7 @@ export default function CreatePurchaseOrderPage() {
 
               {/* Order Date */}
               <FormField
-                name="orderDate"
+                name="order_date"
                 control={control}
                 render={({ field }) => (
                   <FormItem>
@@ -185,7 +319,7 @@ export default function CreatePurchaseOrderPage() {
 
               {/* Expected Date */}
               <FormField
-                name="expectedDate"
+                name="expected_delivery_date"
                 control={control}
                 render={({ field }) => (
                   <FormItem>
@@ -222,7 +356,7 @@ export default function CreatePurchaseOrderPage() {
                 onClick={() =>
                   append({
                     productId: "",
-                 
+
                     quantity: 1,
                     unit_cost: 0,
                   })
@@ -236,7 +370,7 @@ export default function CreatePurchaseOrderPage() {
               {fields.map((item, index) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-6 gap-3 items-center bg-gray-50 p-3 rounded"
+                  className="grid grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded"
                 >
                   {/* Product */}
                   <FormField
@@ -244,26 +378,17 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Product required" }}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-6">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
-                          <Select onValueChange={field.onChange}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Product..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {/* Later: Map from API */}
-                              <SelectItem value="1">Product A</SelectItem>
-                              <SelectItem value="2">Product B</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <ProductSelectField field={field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  
+
 
                   {/* Unit Price */}
                   <FormField
@@ -271,7 +396,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Price required" }}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-2">
                         <FormLabel>Unit Price</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
@@ -287,7 +412,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Quantity required" }}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="col-span-2">
                         <FormLabel>Quantity</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
@@ -298,7 +423,7 @@ export default function CreatePurchaseOrderPage() {
                   />
 
                   {/* Line Total */}
-                  <div>
+                  <div className="col-span-1">
                     <FormLabel>Total</FormLabel>
                     <div className="font-semibold">
                       RM {(items[index].quantity * items[index].unit_cost).toFixed(2)}
@@ -306,14 +431,16 @@ export default function CreatePurchaseOrderPage() {
                   </div>
 
                   {/* Remove */}
-                  <Button
-                    type="button"
-                    variant="outline-destructive"
-                    size="sm"
-                    onClick={() => remove(index)}
-                  >
-                    X
-                  </Button>
+                  <div className="col-span-1 flex justify-end">
+                    <Button
+                      type="button"
+                      variant="outline-destructive"
+                      size="sm"
+                      onClick={() => remove(index)}
+                    >
+                      X
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

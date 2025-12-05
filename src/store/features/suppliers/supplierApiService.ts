@@ -6,16 +6,23 @@ export type SupplierResponse = {
   status: boolean;
   message: string;
   data: Supplier | Supplier[];
+  pagination:{
+    total:number;
+    page:number,
+    limit:number,
+    totalPage:number
+  }
 };
 
 export const supplierApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL SUPPLIERS
-    getAllSuppliers: builder.query<SupplierResponse, void>({
-      query: () => ({
+    getAllSuppliers: builder.query<SupplierResponse, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({
         url: "/suppliers",
         method: "GET",
+        params
       }),
       providesTags: ["Suppliers"],
     }),
