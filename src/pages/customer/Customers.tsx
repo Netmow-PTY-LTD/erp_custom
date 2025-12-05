@@ -2,7 +2,6 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Users,
@@ -53,7 +52,7 @@ export default function Customers() {
       await deleteCustomer(deleteId).unwrap();
       toast.success("Customer deleted successfully");
       setDeleteId(null);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       toast.error("Failed to delete customer");
     }
@@ -221,18 +220,8 @@ export default function Customers() {
         ))}
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-4">
-        <Input
-          placeholder="Search customers by name, email, phone, or company..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPageIndex(0); // Reset to first page on search
-          }}
-          className="max-w-md"
-        />
-      </div>
+
+
 
       <Card>
         <CardHeader>
@@ -247,8 +236,12 @@ export default function Customers() {
               data={customers}
               pageIndex={pageIndex}
               pageSize={pageSize}
-              // totalPages={totalPages}
+              totalCount={totalCustomers}
               onPageChange={setPageIndex}
+              onSearch={(value) => {
+                setSearchTerm(value);
+               
+              }}
             />
           )}
         </CardContent>
