@@ -537,7 +537,7 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem>
                         <FormLabel>Stock</FormLabel>
                         <FormControl>
-                          <Input type="number" readOnly {...field} />
+                          <Input type="number"  {...field} />
                         </FormControl>
                       </FormItem>
                     )}
