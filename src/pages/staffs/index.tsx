@@ -50,11 +50,11 @@ function ConfirmModal({
 
 
 
-
-
-
 export default function Staffs() {
-  const { data: staffsData, isLoading } = useGetAllStaffsQuery();
+  const [page, setPage] = useState(0)
+  const [search, setSearch] = useState('')
+  const [limit] = useState(10);
+  const { data: staffsData, isLoading } = useGetAllStaffsQuery({ page, limit, search });
   const staffsList = staffsData?.data as Staff[] | [];
   const [deleteStaff] = useDeleteStaffMutation();
 
@@ -278,7 +278,26 @@ export default function Staffs() {
           {isLoading ? (
             <p>Loading...</p>
           ) : (
-            <DataTable columns={staffColumns} data={staffsList ?? []} />
+
+
+
+
+            <DataTable
+              columns={staffColumns} data={staffsList ?? []}
+              pageIndex={page - 1}
+              pageSize={limit}
+              totalCount={staffsData?.pagination?.total}
+              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onSearch={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+              isFetching={isLoading}
+            />
+
+
+
+
           )}
         </CardContent>
       </Card>
