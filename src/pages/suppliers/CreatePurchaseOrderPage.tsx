@@ -36,7 +36,7 @@ import { Link, useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
-import React from "react";
+import  { useState } from "react";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -59,11 +59,8 @@ export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
 
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
-  const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
-  const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
-
-  console.log("Suppliers Data:", suppliersData?.data);
-  console.log("Products Data:", productsData?.data);
+  // const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
+  // const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -90,9 +87,73 @@ export default function CreatePurchaseOrderPage() {
   const items = watch("items");
 
   /* ---------------- Searchable select components ---------------- */
-  function SupplierSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
-    const [open, setOpen] = React.useState(false);
-    const selected = Array.isArray(suppliersData?.data) ? suppliersData.data.find((s: Supplier) => String(s.id) === String(field.value)) : undefined;
+  // function SupplierSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
+  //   const [open, setOpen] = React.useState(false);
+  //   const selected = Array.isArray(suppliersData?.data) ? suppliersData.data.find((s: Supplier) => String(s.id) === String(field.value)) : undefined;
+
+  //   return (
+  //     <Popover open={open} onOpenChange={setOpen}>
+  //       <PopoverTrigger asChild>
+  //         <Button variant="outline" className="w-full justify-between">
+  //           {selected ? selected.name : "Select Supplier..."}
+  //         </Button>
+  //       </PopoverTrigger>
+
+  //       <PopoverContent className="w-[320px] p-0">
+  //         <Command>
+  //           <CommandInput placeholder="Search suppliers..." />
+  //           <CommandList>
+  //             <CommandEmpty>No results found.</CommandEmpty>
+  //             <CommandGroup>
+  //               {suppliersLoading && (
+  //                 <div className="py-2 px-3 text-sm text-gray-500">Loading suppliers...</div>
+  //               )}
+
+  //               {!suppliersLoading && Array.isArray(suppliersData?.data) && suppliersData.data.length === 0 && (
+  //                 <div className="py-2 px-3 text-sm text-gray-500">No suppliers found</div>
+  //               )}
+
+  //               {Array.isArray(suppliersData?.data) && suppliersData.data.map((supplier: Supplier) => (
+  //                 <CommandItem
+  //                   key={supplier.id}
+  //                   onSelect={() => {
+  //                     field.onChange(String(supplier.id));
+  //                     setOpen(false);
+  //                   }}
+  //                 >
+  //                   <span>{supplier.name}</span>
+  //                 </CommandItem>
+  //               ))}
+  //             </CommandGroup>
+  //           </CommandList>
+  //         </Command>
+  //       </PopoverContent>
+  //     </Popover>
+  //   );
+  // }
+
+
+
+  function SupplierSelectField({
+    field,
+  }: {
+    field: { value?: string; onChange: (v: string) => void };
+  }) {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+
+    // Call API with search query
+    const { data, isLoading } = useGetAllSuppliersQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+    });
+
+    const list = Array.isArray(data?.data) ? data.data : [];
+
+    const selected = list.find(
+      (s: Supplier) => String(s.id) === String(field.value)
+    );
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -104,29 +165,33 @@ export default function CreatePurchaseOrderPage() {
 
         <PopoverContent className="w-[320px] p-0">
           <Command>
-            <CommandInput placeholder="Search suppliers..." />
+            <CommandInput
+              placeholder="Search suppliers..."
+              onValueChange={(value) => setQuery(value)}
+            />
+
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>No suppliers found.</CommandEmpty>
+
               <CommandGroup>
-                {suppliersLoading && (
-                  <div className="py-2 px-3 text-sm text-gray-500">Loading suppliers...</div>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
                 )}
 
-                {!suppliersLoading && Array.isArray(suppliersData?.data) && suppliersData.data.length === 0 && (
-                  <div className="py-2 px-3 text-sm text-gray-500">No suppliers found</div>
-                )}
-
-                {Array.isArray(suppliersData?.data) && suppliersData.data.map((supplier: Supplier) => (
-                  <CommandItem
-                    key={supplier.id}
-                    onSelect={() => {
-                      field.onChange(String(supplier.id));
-                      setOpen(false);
-                    }}
-                  >
-                    <span>{supplier.name}</span>
-                  </CommandItem>
-                ))}
+                {!isLoading &&
+                  list.map((supplier) => (
+                    <CommandItem
+                      key={supplier.id}
+                      onSelect={() => {
+                        field.onChange(String(supplier.id));
+                        setOpen(false);
+                      }}
+                    >
+                      {supplier.name}
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -135,43 +200,114 @@ export default function CreatePurchaseOrderPage() {
     );
   }
 
-  function ProductSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
-    const [open, setOpen] = React.useState(false);
-    const selected = productsData?.data?.find((p: { id: number | string } ) => String(p.id) === String(field.value));
+
+
+  // function ProductSelectField({ field }: { field: { value?: string; onChange: (v: string) => void } }) {
+  //   const [open, setOpen] = React.useState(false);
+  //   const selected = productsData?.data?.find((p: { id: number | string } ) => String(p.id) === String(field.value));
+
+  //   return (
+  //     <Popover open={open} onOpenChange={setOpen}>
+  //       <PopoverTrigger asChild>
+  //         <Button variant="outline" className="w-full justify-between">
+  //           {selected ? `${selected.name} (SKU: ${selected.sku})` : "Select Product..."}
+  //         </Button>
+  //       </PopoverTrigger>
+
+  //       <PopoverContent className="w-[320px] p-0">
+  //         <Command>
+  //           <CommandInput placeholder="Search products..." />
+  //           <CommandList>
+  //             <CommandEmpty>No results found.</CommandEmpty>
+  //             <CommandGroup>
+  //               {productsLoading && (
+  //                 <div className="py-2 px-3 text-sm text-gray-500">Loading products...</div>
+  //               )}
+
+  //               {!productsLoading && Array.isArray(productsData?.data) && productsData.data.length === 0 && (
+  //                 <div className="py-2 px-3 text-sm text-gray-500">No products found</div>
+  //               )}
+
+  //               {Array.isArray(productsData?.data) && productsData.data.map((product: { id: number | string; name: string; sku?: string }) => (
+  //                 <CommandItem
+  //                   key={product.id}
+  //                   onSelect={() => {
+  //                     field.onChange(String(product.id));
+  //                     setOpen(false);
+  //                   }}
+  //                 >
+  //                   <span>{product.name} (SKU: {product.sku})</span>
+  //                 </CommandItem>
+  //               ))}
+  //             </CommandGroup>
+  //           </CommandList>
+  //         </Command>
+  //       </PopoverContent>
+  //     </Popover>
+  //   );
+  // }
+
+
+
+  function ProductSelectField({
+    field,
+  }: {
+    field: { value?: string; onChange: (v: string) => void };
+  }) {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+
+    const { data, isLoading } = useGetAllProductsQuery({
+      page: 1,
+      limit: 50,
+      search: query,
+    });
+
+    const list = Array.isArray(data?.data) ? data.data : [];
+
+    const selected = list.find(
+      (p) => String(p.id) === String(field.value)
+    );
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
-            {selected ? `${selected.name} (SKU: ${selected.sku})` : "Select Product..."}
+            {selected
+              ? `${selected.name} (SKU: ${selected.sku})`
+              : "Select Product..."}
           </Button>
         </PopoverTrigger>
 
         <PopoverContent className="w-[320px] p-0">
           <Command>
-            <CommandInput placeholder="Search products..." />
+            <CommandInput
+              placeholder="Search products..."
+              onValueChange={(value) => setQuery(value)}
+            />
+
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>No products found.</CommandEmpty>
+
               <CommandGroup>
-                {productsLoading && (
-                  <div className="py-2 px-3 text-sm text-gray-500">Loading products...</div>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
                 )}
 
-                {!productsLoading && Array.isArray(productsData?.data) && productsData.data.length === 0 && (
-                  <div className="py-2 px-3 text-sm text-gray-500">No products found</div>
-                )}
-
-                {Array.isArray(productsData?.data) && productsData.data.map((product: { id: number | string; name: string; sku?: string }) => (
-                  <CommandItem
-                    key={product.id}
-                    onSelect={() => {
-                      field.onChange(String(product.id));
-                      setOpen(false);
-                    }}
-                  >
-                    <span>{product.name} (SKU: {product.sku})</span>
-                  </CommandItem>
-                ))}
+                {!isLoading &&
+                  list.map((product) => (
+                    <CommandItem
+                      key={product.id}
+                      onSelect={() => {
+                        field.onChange(String(product.id));
+                        setOpen(false);
+                      }}
+                    >
+                      {product.name} (SKU: {product.sku})
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -179,6 +315,11 @@ export default function CreatePurchaseOrderPage() {
       </Popover>
     );
   }
+
+
+
+
+
 
   const subtotal = items.reduce(
     (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
@@ -303,7 +444,7 @@ export default function CreatePurchaseOrderPage() {
                 onClick={() =>
                   append({
                     productId: "",
-                 
+
                     quantity: 1,
                     unit_cost: 0,
                   })
@@ -335,7 +476,7 @@ export default function CreatePurchaseOrderPage() {
                     )}
                   />
 
-                  
+
 
                   {/* Unit Price */}
                   <FormField
