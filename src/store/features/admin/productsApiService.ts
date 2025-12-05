@@ -67,7 +67,10 @@ export const productsApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Product"],
     }),
-    getAllProducts: builder.query<ProductResponse, { page: number; limit: number; search?: string }>({
+    getAllProducts: builder.query<
+      ProductResponse,
+      { page: number; limit: number; search?: string }
+    >({
       query: (params) => ({
         url: "/products",
         method: "GET",
@@ -80,7 +83,7 @@ export const productsApiService = baseApi.injectEndpoints({
         url: `/products/${id}`,
         method: "GET",
       }),
-      providesTags: ["Product"],    
+      providesTags: ["Product"],
     }),
     updateProduct: builder.mutation<
       ProductResponse,
@@ -109,14 +112,22 @@ export const productsApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Category"],
     }),
-    getAllCategories: builder.query<CategoryResponse, { page: number; limit: number; search?: string }>({
-      query: (params) => ({
-        url: "/products/categories",
-        method: "GET",
-        params,
-      }),
+    getAllCategories: builder.query<
+      CategoryResponse,
+      void | { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => {
+        const safeParams = params ?? {}; // ensure params is always an object
+
+        return {
+          url: "/products/categories",
+          method: "GET",
+          params: safeParams,
+        };
+      },
       providesTags: ["Category"],
     }),
+
     getCategoryById: builder.query<CategoryByIdResponse, number>({
       query: (id) => ({
         url: `/products/categories/${id}`,
@@ -144,60 +155,67 @@ export const productsApiService = baseApi.injectEndpoints({
     }),
 
     //units APIs can be added here in future
-  addUnit: builder.mutation<UnitResponse, Partial<Unit>>({
-    query: (body) => ({
-      url: "/products/units",
-      method: "POST",
-      body,
+    addUnit: builder.mutation<UnitResponse, Partial<Unit>>({
+      query: (body) => ({
+        url: "/products/units",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Unit"],
     }),
-    invalidatesTags: ["Unit"],
+    getAllUnits: builder.query<
+      UnitResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/products/units",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Unit"],
+    }),
+    getUnitById: builder.query<UnitByIdResponse, number>({
+      query: (id) => ({
+        url: `/products/units/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["Unit"],
+    }),
+    updateUnit: builder.mutation<
+      UnitResponse,
+      { id: number; body: Partial<Unit> }
+    >({
+      query: (body) => ({
+        url: `/products/units/${body.id}`,
+        method: "PUT",
+        body: body.body,
+      }),
+      invalidatesTags: ["Unit"],
+    }),
+    deleteUnit: builder.mutation<UnitResponse, number>({
+      query: (id) => ({
+        url: `/products/units/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Unit"],
+    }),
   }),
-  getAllUnits: builder.query<UnitResponse, { page: number; limit: number; search?: string }>({
-    query: (params) => ({
-      url: "/products/units",
-      method: "GET",
-      params,
-    }),
-    providesTags: ["Unit"],
-  }),
-  getUnitById: builder.query<UnitByIdResponse, number>({
-    query: (id) => ({
-      url: `/products/units/${id}`,
-      method: "GET",
-    }),
-    providesTags: ["Unit"],
-  }),
-  updateUnit: builder.mutation<UnitResponse, { id: number; body: Partial<Unit> }>({
-    query: (body) => ({
-      url: `/products/units/${body.id}`,
-      method: "PUT",
-      body: body.body,
-    }),
-    invalidatesTags: ["Unit"],
-  }),
-  deleteUnit: builder.mutation<UnitResponse, number>({
-    query: (id) => ({
-      url: `/products/units/${id}`,
-      method: "DELETE",
-    }),
-    invalidatesTags: ["Unit"],
-  }),  }),
 });
 
 export const {
-    useAddProductMutation,
-    useGetAllProductsQuery,
-    useGetProductByIdQuery,
-    useUpdateProductMutation,
-    useDeleteProductMutation,
-    useAddProductCategoryMutation,
-    useGetAllCategoriesQuery,
-    useGetCategoryByIdQuery,
-    useUpdateCategoryMutation,
-    useDeleteCategoryMutation,
-    useAddUnitMutation,
-    useGetAllUnitsQuery,
-    useGetUnitByIdQuery,
-    useUpdateUnitMutation,
-    useDeleteUnitMutation
+  useAddProductMutation,
+  useGetAllProductsQuery,
+  useGetProductByIdQuery,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+  useAddProductCategoryMutation,
+  useGetAllCategoriesQuery,
+  useGetCategoryByIdQuery,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+  useAddUnitMutation,
+  useGetAllUnitsQuery,
+  useGetUnitByIdQuery,
+  useUpdateUnitMutation,
+  useDeleteUnitMutation,
 } = productsApiService;
