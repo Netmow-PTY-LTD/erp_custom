@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -34,8 +35,8 @@ interface POItem {
 
 interface PurchaseOrderFormValues {
   supplierId: string;
-  orderDate: string;
-  expectedDate: string;
+  order_date: string;
+  expected_delivery_date: string;
   notes: string;
   items: POItem[];
 }
@@ -53,8 +54,8 @@ export default function EditPurchaseOrderPage() {
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
       supplierId: "",
-      orderDate: new Date().toISOString().split("T")[0],
-      expectedDate: "",
+      order_date: new Date().toISOString().split("T")[0],
+      expected_delivery_date: "",
       notes: "",
       items: [{ productId: "", quantity: 1, unit_cost: 0 }],
     },
@@ -139,8 +140,8 @@ export default function EditPurchaseOrderPage() {
       const po = Array.isArray(poData.data) ? poData.data[0] : poData.data;
       reset({
         supplierId: String(po.supplier_id),
-        orderDate: po.order_date,
-        expectedDate: po.expected_delivery_date,
+        order_date: po.order_date ? new Date(po.order_date).toISOString().split("T")[0] : "",
+        expected_delivery_date: po.expected_delivery_date ? new Date(po.expected_delivery_date).toISOString().split("T")[0] : "",
         notes: po.notes,
         items: (po.items ?? []).map((item: any) => ({
           productId: String(item.product_id),
@@ -157,8 +158,8 @@ export default function EditPurchaseOrderPage() {
     try {
       const payload = {
         supplier_id: Number(values.supplierId),
-        order_date: values.orderDate,
-        expected_date: values.expectedDate,
+        order_date: values.order_date,
+        expected_date: values.expected_delivery_date,
         notes: values.notes,
         items: values.items.map(item => ({
           product_id: Number(item.productId),
@@ -204,7 +205,7 @@ export default function EditPurchaseOrderPage() {
                 )}
               />
               {/* Order Date */}
-              <FormField name="orderDate" control={control}
+              <FormField name="order_date" control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Order Date</FormLabel>
@@ -213,7 +214,7 @@ export default function EditPurchaseOrderPage() {
                 )}
               />
               {/* Expected Date */}
-              <FormField name="expectedDate" control={control}
+              <FormField name="expected_delivery_date" control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Expected Date</FormLabel>

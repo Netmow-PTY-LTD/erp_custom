@@ -47,8 +47,8 @@ interface POItem {
 
 interface PurchaseOrderFormValues {
   supplierId: string;
-  orderDate: string;
-  expectedDate: string;
+  order_date: string;
+  expected_delivery_date: string;
   notes: string;
   items: POItem[];
 }
@@ -68,8 +68,8 @@ export default function CreatePurchaseOrderPage() {
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
       supplierId: "",
-      orderDate: new Date().toISOString().split("T")[0],
-      expectedDate: "",
+      order_date: new Date().toISOString().split("T")[0],
+      expected_delivery_date: "",
       notes: "",
       items: [
         {
@@ -190,8 +190,8 @@ export default function CreatePurchaseOrderPage() {
     try {
       const payload = {
         supplier_id: Number(values.supplierId),
-        order_date: values.orderDate,
-        expected_date: values.expectedDate,
+        order_date: values.order_date,
+        expected_delivery_date: values.expected_delivery_date,
         notes: values.notes,
         items: values.items.map((item) => ({
           product_id: Number(item.productId),
@@ -252,7 +252,7 @@ export default function CreatePurchaseOrderPage() {
 
               {/* Order Date */}
               <FormField
-                name="orderDate"
+                name="order_date"
                 control={control}
                 render={({ field }) => (
                   <FormItem>
@@ -266,7 +266,7 @@ export default function CreatePurchaseOrderPage() {
 
               {/* Expected Date */}
               <FormField
-                name="expectedDate"
+                name="expected_delivery_date"
                 control={control}
                 render={({ field }) => (
                   <FormItem>
