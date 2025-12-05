@@ -3,8 +3,9 @@ import { useAuthUserQuery } from "./store/features/auth/authApiService";
 
 
 const APP = () => {
-  const {data: user} = useAuthUserQuery();
-  console.log("Current User: ", user);
+  const { data: user, isLoading } = useAuthUserQuery();
+  const isLoggedIn = user?.data?.email;
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Hero Section */}
@@ -16,26 +17,33 @@ const APP = () => {
           My ERP helps you streamline Products, Customers, Orders, Accounting, and HR, all in one unified platform.
         </p>
         <div className="flex gap-4">
-          <Link
-            to="/login"
-            className="px-8 py-3 bg-white text-blue-600 font-semibold rounded shadow hover:bg-gray-100 transition"
-          >
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="px-8 py-3 bg-blue-500 bg-opacity-20 text-white font-semibold rounded shadow hover:bg-opacity-30 transition"
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/dashboard"
-            className="px-8 py-3 bg-red-600 bg-opacity-20 text-white font-semibold rounded shadow hover:bg-opacity-30 transition"
-          >
-            Dashboard
-          </Link>
+          {isLoading ? (
+            <div className="px-8 py-3 text-white">Loading...</div>
+          ) : isLoggedIn ? (
+            <Link
+              to="/dashboard"
+              className="px-8 py-3 bg-green-600 text-white font-semibold rounded shadow hover:bg-green-700 transition"
+            >
+              Go to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-8 py-3 bg-white text-blue-600 font-semibold rounded shadow hover:bg-gray-100 transition"
+              >
+                Login
+              </Link>
+              {/* <Link
+                to="/register"
+                className="px-8 py-3 bg-blue-500 bg-opacity-20 text-white font-semibold rounded shadow hover:bg-opacity-30 transition"
+              >
+                Sign Up
+              </Link> */}
+            </>
+          )}
         </div>
-       
+
       </section>
 
       {/* Features Section */}

@@ -24,6 +24,11 @@ export interface LoginResponse {
     expiresIn: number;
   };
 }
+export interface AuthUserResponse {
+  status: boolean;
+  message: string;
+  data: User
+}
 
 
 // Auth slice state shape
