@@ -141,7 +141,7 @@ export default function AddProductCategoryForm({
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={Boolean(field.value).toString()}
+                      value={String(field.value)}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">

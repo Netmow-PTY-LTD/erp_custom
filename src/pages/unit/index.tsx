@@ -152,7 +152,12 @@ export default function UnitsPage() {
       />
 
       {/* Edit Form */}
-      <EditUnitForm open={editSheetOpen} onOpenChange={setEditSheetOpen} unitId={unitId} refetchUnits={refetchUnits} />
+      <EditUnitForm
+        open={editSheetOpen}
+        onOpenChange={setEditSheetOpen}
+        unitId={unitId}
+        refetchUnits={refetchUnits}
+      />
     </div>
   );
 }
