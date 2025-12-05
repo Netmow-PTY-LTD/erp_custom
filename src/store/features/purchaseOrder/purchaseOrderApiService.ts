@@ -4,20 +4,28 @@ import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
 
 export type PurchaseResponse = {
-  status: boolean;
+  success: boolean;
   message: string;
   data: PurchaseOrder | PurchaseOrder[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
 };
 
 export const purchaseApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL PURCHASES
-    getAllPurchases: builder.query<PurchaseResponse, void>({
-      query: () => ({
+    getAllPurchases: builder.query<PurchaseResponse, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({
         url: "/purchase",
         method: "GET",
+        params,
       }),
+      
       providesTags: ["Purchases"],
     }),
 

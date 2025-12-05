@@ -1,11 +1,16 @@
-export type PurchaseOrder = {
-  id: string;
-  supplierId: string;
-  orderNumber: string;
+
+export interface PurchaseOrder {
+  created_by: number;
+  updated_at: string;
+  notes: string | undefined;
+  order_date: string | undefined;
+  expected_delivery_date: string | undefined;
+  id: number;
+  po_number: string;
+  supplier_id: number;
+  total_amount: string;
+  status: "pending" | "approved" | "rejected" | "delivered";
+  created_at: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  items: any[]; // you can type items properly if you have a structure
-  totalAmount: number;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-};
+  items?: any[]; 
+}

@@ -1,4 +1,4 @@
-import type { LoginRequest, LoginResponse } from "./types";
+import type { AuthUserResponse, LoginRequest, LoginResponse } from "./types";
 import { baseApi } from "@/store/baseApi";
 
 export const authApi = baseApi.injectEndpoints({
@@ -11,7 +11,7 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Auth"],
     }),
-    authUser: builder.query<LoginResponse, void>({
+    authUser: builder.query<AuthUserResponse, void>({
       query: () => ({
         url: "/auth/me",
         method: "GET",

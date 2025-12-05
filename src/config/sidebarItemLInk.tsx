@@ -70,6 +70,7 @@ import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
 import StaffReports from "@/pages/reports/StaffReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
+import EditPurchaseOrderPage from "@/pages/suppliers/EditPurchaseOrderPage";
 
 
 
@@ -195,6 +196,11 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId",
         element: <ViewPurchaseOrderPage />
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/:purchaseId/edit",
+        element: <EditPurchaseOrderPage />
       },
       {
         title: "",
