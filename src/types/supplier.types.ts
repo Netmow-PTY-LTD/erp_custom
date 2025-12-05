@@ -1,11 +1,10 @@
 
 
 export type Supplier = {
-
   postal_code: string | undefined;
   state: string | undefined;
   code: string | undefined;
-  id?: number; // optional for creation
+  id: string| number ; // optional for creation
   name: string;
   contact_person: string;
   email: string;

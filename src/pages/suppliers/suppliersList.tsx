@@ -20,17 +20,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Edit, PlusCircle, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import type { Supplier } from "@/types/supplier.types";
 
 
-interface Supplier {
-  id: string;
-  name: string;
-  contact_person: string;
-  email: string;
-  phone: string;
-  city: string;
-  is_active: boolean;
-}
 
 // Simple confirmation modal
 function ConfirmModal({
@@ -72,9 +64,9 @@ export default function SuppliersList() {
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string |number | null>(null);
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = (id: string|number) => {
     setSelectedSupplierId(id);
     setModalOpen(true);
   };
