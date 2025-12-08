@@ -40,14 +40,19 @@ export default function Invoices() {
       cell: ({ row }) => <span className="font-medium">{row.getValue("invoice_number")}</span>,
     },
     {
-      accessorKey: "Order.customer_id",
-      header: "Customer ID",
-      cell: ({ row }) => row.original?.Order?.customer_id,
+      accessorKey: "order.customer.name",
+      header: "Customer",
+      cell: ({ row }) => row.original?.order?.customer.name,
     },
     {
-      accessorKey: "Order.order_number",
+      accessorKey: "order.customer_id",
+      header: "Customer ID",
+      cell: ({ row }) => row.original?.order?.customer_id,
+    },
+    {
+      accessorKey: "order.order_number",
       header: "Order #",
-      cell: ({ row }) => row.original?.Order?.order_number,
+      cell: ({ row }) => row.original?.order?.order_number,
     },
     {
       accessorKey: "invoice_date",

@@ -13,7 +13,7 @@ export interface SalesInvoice {
   created_by: number;
   created_at: string;
   updated_at: string;
-  Order: SalesOrder;
+  order: SalesOrder;
 }
 
 
