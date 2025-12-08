@@ -123,6 +123,17 @@ export default function Products() {
       header: "Product Name",
     },
     {
+      accessorKey: "thumb_url",
+      header: "Image",
+      cell: ({ row }) => (
+        <img
+          src={row.original.thumb_url}
+          alt={row.original.name}
+          className="w-10 h-10 rounded-full"
+        />
+      ),
+    },
+    {
       accessorKey: "category",
       header: "Category",
       cell: ({ row }) => row?.original?.category?.name

@@ -14,6 +14,9 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import AddStockForm from "@/components/products/AddStockForm";
 import EditStockForm from "@/components/products/EditStockForm";
+import type { Product } from "@/types/types";
+import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import { Link } from "react-router";
 
 type Stock = {
   sku: string;
@@ -139,63 +142,98 @@ const stocks: Stock[] = [
 export default function StockManagement() {
   const [openEditStockForm, setOpenEditStockForm] = useState<boolean>(false);
   const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
+    const [page, setPage] = useState<number>(1);
+    const [search, setSearch] = useState<string>("");
+    const limit = 10;
+  
+    const {
+      data: fetchedProducts,
+      isFetching,
+      refetch: refetchProducts,
+    } = useGetAllProductsQuery({ page, limit, search });
+  
+    const products: Product[] = fetchedProducts?.data || [];
+    console.log("Fetched Products: ", fetchedProducts);
+    console.log("Fetched Products Length: ", fetchedProducts?.data?.length);
+
+    const pagination = fetchedProducts?.pagination ?? {
+      total: 0,
+      page: 1,
+      limit: 10,
+      totalPage: 1,
+    };
 
   const handleDeleteStock = (sku: string) => {
     // Handle stock deletion logic here
     console.log(`Deleting stock with SKU: ${sku}`);
   };
 
-  const columns: ColumnDef<Stock>[] = [
+  const productColumns: ColumnDef<Product>[] = [
     {
       accessorKey: "sku",
       header: "SKU",
     },
     {
       accessorKey: "name",
-      header: "Name",
+      header: "Product Name",
+    },
+    {
+      accessorKey: "thumb_url",
+      header: "Image",
+      cell: ({ row }) => (
+        <img
+          src={row.original.thumb_url}
+          alt={row.original.name}
+          className="w-10 h-10 rounded-full"
+        />
+      ),
     },
     {
       accessorKey: "category",
       header: "Category",
+      cell: ({ row }) => row?.original?.category?.name
+    },
+    {
+      accessorKey: "cost",
+      header: "Cost Price (RM)",
+      cell: ({ row }) => row.original.cost,
     },
     {
       accessorKey: "price",
-      header: "Price",
+      header: "Selling Price (RM)",
+      cell: ({ row }) => row.original.price,
     },
+    // {
+    //   accessorKey: "unit",
+    //   header: "Unit",
+    //   cell: ({ row }) =>
+    //     `${row.original.unit.name} (${row.original.unit.symbol})`,
+    // },
     {
-      accessorKey: "stock",
+      accessorKey: "stock_quantity",
       header: "Stock",
+      cell: ({ row }) => row.original.stock_quantity,
     },
     {
-      accessorKey: "stockStatus",
-      header: "Stock Status",
+      accessorKey: "is_active",
+      header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("stockStatus") as string;
-
+        const status = row.original.is_active;
+        const bgColor = status ? "bg-green-500" : "bg-red-500";
         return (
-          <Badge
-            variant={
-              status === "High Stock"
-                ? "success"
-                : status === "Low Stock"
-                ? "destructive"
-                : "secondary"
-            }
+          <span
+            className={`py-1 px-2 rounded-full text-xs text-white font-medium ${bgColor}`}
           >
-            {status}
-          </Badge>
+            {status ? "Active" : "Inactive"}
+          </span>
         );
       },
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
     },
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const item = row.original;
+        const product = row.original;
 
         return (
           <DropdownMenu>
@@ -208,17 +246,38 @@ export default function StockManagement() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => setOpenEditStockForm(true)}
-              >
-                Edit
+              <DropdownMenuItem>
+                <Link
+                  to={`/dashboard/products/${product.id}/edit`}
+                  className="w-full"
+                >
+                  Edit
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">View</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link
+                  to={`/dashboard/products/${product.id}`}
+                  className="w-full"
+                >
+                  View
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer" onClick={() => handleDeleteStock(item?.sku)}>
+              <DropdownMenuItem
+                onClick={() => alert(product.id)}
+                className="cursor-pointer"
+              >
                 Delete
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Link
+                  to={`/dashboard/products/${product.id}/stock`}
+                  className="w-full"
+                >
+                  Stock
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -237,8 +296,17 @@ export default function StockManagement() {
       </div>
 
       <DataTable
-        columns={columns}
-        data={stocks}
+        columns={productColumns}
+        data={products}
+         pageIndex={page - 1}
+            pageSize={limit}
+            totalCount={pagination.total}
+            onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+            onSearch={(value) => {
+              setSearch(value);
+              setPage(1);
+            }}
+            isFetching={isFetching}
       />
       <EditStockForm open={openEditStockForm} setOpen={setOpenEditStockForm} />
     </div>

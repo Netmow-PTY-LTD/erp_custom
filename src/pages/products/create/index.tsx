@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { ImageUploader } from "@/components/form/ImageUploader";
+//import { ImageUploader } from "@/components/form/ImageUploader";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft, Check, ChevronDown, Loader } from "lucide-react";
 import {
@@ -43,7 +43,7 @@ import {
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-//import { ImageUploaderPro } from "@/components/form/ImageUploaderPro";
+import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const productSchema = z.object({
@@ -62,7 +62,8 @@ const productSchema = z.object({
   height: z.number(),
   length: z.number(),
   is_active: z.boolean().optional(),
-  image: z.instanceof(File).optional(),
+  image: z.string().optional(),
+  gallery_items: z.array(z.string()).optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -114,6 +115,8 @@ export default function AddProductPage() {
       sku: "",
       name: "",
       description: "",
+      image: "",
+      gallery_items: [],
       category: 0,
       unit: 0,
       price: 0,
@@ -140,14 +143,15 @@ export default function AddProductPage() {
       sku: values.sku,
       name: values.name,
       description: values.description,
-      image_url: "",
+      thumb_url: values.image,
+      gallery_items: values.gallery_items,
       category_id: Number(values.category),
       unit_id: Number(values.unit),
       price: Number(values.costPrice),
       cost: Number(values.costPrice),
       stock_quantity: Number(values.initialStock),
-      min_stock: Number(values.minStock),
-      max_stock: Number(values.maxStock),
+      min_stock_level: Number(values.minStock),
+      max_stock_level: Number(values.maxStock),
       weight: Number(values.weight),
       width: Number(values.width),
       height: Number(values.height),
@@ -156,7 +160,6 @@ export default function AddProductPage() {
       is_active: values.is_active,
     };
 
-   
     try {
       const res = await addProduct(payload).unwrap();
       console.log("Product added successfully:", res);
@@ -247,7 +250,7 @@ export default function AddProductPage() {
                   render={({ field, fieldState }) => (
                     <Field>
                       <FieldLabel>Image</FieldLabel>
-                      <ImageUploader
+                      <ImageUploaderPro
                         value={field.value}
                         onChange={field.onChange}
                       />
@@ -256,6 +259,26 @@ export default function AddProductPage() {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent>
+              <Controller
+                control={control}
+                name="gallery_items"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Product Gallery</FieldLabel>
+                    <ImageUploaderPro
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      multiple
+                    />
+                    <FieldError>{fieldState?.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
             </CardContent>
           </Card>
 
@@ -309,14 +332,13 @@ export default function AddProductPage() {
                                 {fetchedCategories?.data?.map((cat) => (
                                   <CommandItem
                                     key={cat.id}
-                                    value={String(cat.id)} // required for filtering
+                                    value={`${cat.name}-${cat.id}`} // unique, string
                                     onSelect={() => {
-                                      field.onChange(cat.id);
+                                      field.onChange(cat.id); // convert back to number
                                       setOpen(false);
                                     }}
                                   >
                                     {cat.name}
-
                                     <Check
                                       className={cn(
                                         "ml-auto h-4 w-4",
@@ -387,7 +409,10 @@ export default function AddProductPage() {
                                   <CommandItem
                                     key={unit.id}
                                     value={unit.name} // for built-in filtering
-                                    onSelect={() => field.onChange(unit.id)}
+                                    onSelect={() => {
+                                      field.onChange(unit.id);
+                                      setOpen(false);
+                                    }}
                                   >
                                     <span>{unit.name}</span>
 
@@ -502,7 +527,12 @@ export default function AddProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Width(cm)</FieldLabel>
-                    <Input placeholder="e.g. 2 cm" {...field} />
+                    <Input
+                      type="number"
+                      placeholder="e.g. 2 cm"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -515,7 +545,12 @@ export default function AddProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Height(cm)</FieldLabel>
-                    <Input placeholder="e.g. 2 cm" {...field} />
+                    <Input
+                      type="number"
+                      placeholder="e.g. 2 cm"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -527,7 +562,12 @@ export default function AddProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Length(cm)</FieldLabel>
-                    <Input placeholder="e.g. 2 cm" {...field} />
+                    <Input
+                      type="number"
+                      placeholder="e.g. 2 cm"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}

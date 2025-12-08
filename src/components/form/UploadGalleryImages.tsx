@@ -7,17 +7,15 @@ import {
   DialogContent,
   DialogTrigger,
   DialogClose,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 
-interface ImageUploadProProps {
-  value?: string | string[];
-  onChange: (value: string | string[]) => void;
-  multiple?: boolean;
+interface ImageGalleryUploaderProProps {
+  value?: string[]; // selected image URLs
+  onChange: (urls: string[]) => void;
 }
 
 interface MediaItem {
@@ -25,46 +23,38 @@ interface MediaItem {
   url: string;
 }
 
-export default function ImageUploaderPro({
-  value = "",
+export default function ImageGalleryUploaderPro({
+  value = [],
   onChange,
-  multiple = false,
-}: ImageUploadProProps) {
+}: ImageGalleryUploaderProProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const token = Cookies.get("token");
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"upload" | "library">("upload");
   const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>([]);
   const [uploading, setUploading] = useState(false);
+
+  // pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const limit = 12;
 
-  const selectedValues = multiple
-    ? Array.isArray(value)
-      ? value
-      : []
-    : value
-    ? [value as string]
-    : [];
+  const token = Cookies.get("token");
 
-  // ---------------- FETCH MEDIA LIBRARY ----------------
+  /* ---------------- FETCH MEDIA LIBRARY ---------------- */
   const fetchLibrary = async (pageNum = 1) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/upload/images?page=${pageNum}&limit=12`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${import.meta.env.VITE_API_URL}/api/upload/images?page=${pageNum}&limit=${limit}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
       const data = await res.json();
 
       setMediaLibrary(data?.data || []);
-
-      const totalPage = parseInt(data?.pagination?.totalPage || "1", 10);
-      setTotalPages(totalPage);
-
-      const currentPage = parseInt(data?.pagination?.page || "1", 10);
-      setPage(currentPage);
+      setTotalPages(Math.ceil(data.total / limit));
     } catch (err) {
       console.error("Library fetch error:", err);
     }
@@ -74,42 +64,37 @@ export default function ImageUploaderPro({
     if (open) fetchLibrary(page);
   }, [open, page]);
 
-  // ---------------- HANDLE FILE SELECTION AND UPLOAD ----------------
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* ---------------- MULTI UPLOAD ---------------- */
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
 
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append("files", file); // backend must accept multiple files
+    }
+
     try {
-      const uploadedUrls: string[] = [];
-
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const res = await fetch(`${API_URL}/api/upload/image`, {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/upload/images`,
+        {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
           body: formData,
-        });
-        const data = await res.json();
-        if (data?.data?.url) {
-          uploadedUrls.push(`${API_URL}${data.data.url}`);
-        } else {
-          toast.error(`Failed to upload ${file.name}`);
+          headers: { Authorization: `Bearer ${token}` },
         }
-      }
+      );
 
-      if (uploadedUrls.length) {
-        if (multiple) {
-          onChange([...(Array.isArray(value) ? value : []), ...uploadedUrls]);
-        } else {
-          onChange(uploadedUrls[0]);
-          setOpen(false);
-        }
+      const data = await res.json(); // { urls: [] }
+
+      if (data?.urls?.length) {
+        toast.success("Images uploaded successfully");
+
+        onChange([...value, ...data.urls]);
         fetchLibrary(page);
-        toast.success("Image(s) uploaded successfully");
+      } else {
+        toast.error("Upload failed");
       }
     } catch (err) {
       console.error(err);
@@ -119,66 +104,59 @@ export default function ImageUploaderPro({
     }
   };
 
-  // ---------------- SELECT / UNSELECT ----------------
+  /* ---------------- SELECT / UNSELECT IMAGE ---------------- */
   const toggleSelect = (url: string) => {
-    if (multiple) {
-      if (selectedValues.includes(url)) {
-        onChange(selectedValues.filter((v) => v !== url));
-      } else {
-        onChange([...selectedValues, url]);
-      }
+    if (value.includes(url)) {
+      onChange(value.filter((u) => u !== url));
     } else {
-      onChange(url);
-      setOpen(false);
+      onChange([...value, url]);
     }
   };
 
-  // ---------------- REMOVE ----------------
+  /* ---------------- REMOVE SELECTED IMAGE ---------------- */
   const removeSelected = (url: string) => {
-    if (multiple) {
-      onChange(selectedValues.filter((v) => v !== url));
-    } else {
-      onChange("");
-    }
+    onChange(value.filter((u) => u !== url));
   };
 
-  // ---------------- DELETE ----------------
+  /* ---------------- DELETE FROM LIBRARY ---------------- */
   const deleteImage = async (url: string) => {
     const filename = url.split("/").pop();
     if (!filename) return;
+
     if (!confirm("Delete this image permanently?")) return;
 
     try {
-      await fetch(`${API_URL}/api/upload/images/${filename}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await fetch(
+        `${import.meta.env.VITE_API_URL}/api/upload/images/${filename}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       toast.success("Image deleted");
-      setMediaLibrary((prev) => prev.filter((i) => `${API_URL}${i.url}` !== url));
 
-      if (multiple) {
-        onChange(selectedValues.filter((v) => v !== url));
-      } else if (value === url) {
-        onChange("");
-      }
+      // remove from library + selected
+      setMediaLibrary((prev) => prev.filter((i) => i.url !== url));
+      onChange(value.filter((u) => u !== url));
     } catch (err) {
-      console.error(err);
       toast.error("Delete failed");
+      console.error(err);
     }
   };
 
   return (
     <div>
-      {/* Selected Images */}
+      {/* Selected Images Preview */}
       <div className="flex flex-wrap gap-3 mb-3">
-        {selectedValues.map((url) => (
+        {value.map((url) => (
           <div key={url} className="relative w-28 h-28">
             <img
-              src={url}
+              src={`${import.meta.env.VITE_API_URL}${url}`}
               className="w-full h-full object-cover rounded-xl border"
             />
             <button
+              type="button"
               onClick={() => removeSelected(url)}
               className="absolute -top-2 -right-2 bg-white p-1 rounded-full border shadow"
             >
@@ -194,9 +172,11 @@ export default function ImageUploaderPro({
               +
             </div>
           </DialogTrigger>
-          <DialogTitle className="hidden sr-only">Select Images</DialogTitle>
-          <DialogContent className="w-[800px]">
-            <h2 className="text-lg font-semibold mb-4">Select Images</h2>
+
+          <DialogContent className="max-w-2xl">
+            <h2 className="text-lg font-semibold mb-4">
+              Select Images for Gallery
+            </h2>
 
             <Tabs
               value={activeTab}
@@ -207,32 +187,32 @@ export default function ImageUploaderPro({
                 <TabsTrigger value="library">Media Library</TabsTrigger>
               </TabsList>
 
-              {/* UPLOAD */}
+              {/* UPLOAD TAB */}
               <TabsContent value="upload">
                 <div
                   onClick={() => inputRef.current?.click()}
                   className="w-full h-40 border border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
                 >
-                  {uploading
-                    ? "Uploading..."
-                    : `Click to select ${multiple ? "images" : "image"}`}
+                  {uploading ? "Uploading..." : "Click to upload multiple files"}
+
                   <input
-                    type="file"
                     ref={inputRef}
-                    multiple={multiple}
+                    type="file"
+                    multiple
                     accept="image/*"
                     className="hidden"
-                    onChange={handleFileSelect}
+                    onChange={handleUpload}
                   />
                 </div>
               </TabsContent>
 
-              {/* MEDIA LIBRARY */}
+              {/* MEDIA LIBRARY TAB */}
               <TabsContent value="library">
                 <div className="grid grid-cols-4 gap-3 max-h-80 overflow-y-auto">
                   {mediaLibrary.map((item) => {
-                    const fullUrl = `${API_URL}${item.url}`;
-                    const isSelected = selectedValues.includes(fullUrl);
+                    const fullUrl = `${import.meta.env.VITE_API_URL}${item.url}`;
+                    const isSelected = value.includes(item.url);
+
                     return (
                       <div
                         key={item.id}
@@ -243,15 +223,17 @@ export default function ImageUploaderPro({
                         <img
                           src={fullUrl}
                           className="w-full h-24 object-cover"
-                          onClick={() => toggleSelect(fullUrl)}
+                          onClick={() => toggleSelect(item.url)}
                         />
+
                         {isSelected && (
                           <div className="absolute top-1 right-1 bg-blue-500 text-white p-1 rounded-full">
                             <Check size={12} />
                           </div>
                         )}
+
                         <button
-                          onClick={() => deleteImage(fullUrl)}
+                          onClick={() => deleteImage(item.url)}
                           className="absolute bottom-1 right-1 bg-red-600 p-1 text-white rounded-full"
                         >
                           <Trash2 size={12} />
@@ -271,9 +253,11 @@ export default function ImageUploaderPro({
                   >
                     Previous
                   </Button>
+
                   <span>
                     Page {page} / {totalPages}
                   </span>
+
                   <Button
                     variant="outline"
                     size="sm"
@@ -297,4 +281,3 @@ export default function ImageUploaderPro({
     </div>
   );
 }
-
