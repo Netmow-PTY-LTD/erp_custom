@@ -91,6 +91,18 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesInvoices"],
     }),
 
+
+        // GET SINGLE SALES INVOICE BY ID
+    getInvoiceById: builder.query< SalesResponse<SalesInvoice>, string | number>(
+      {
+        query: (id) => ({
+          url: `/sales/orders/invoices/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["SalesInvoice"],
+      }
+    ),
+
     // ============================
     // PAYMENTS
     // ============================
@@ -158,6 +170,7 @@ export const {
 
   useGetSalesInvoicesQuery,
   useAddSalesInvoiceMutation,
+  useLazyGetInvoiceByIdQuery,
 
   useAddSalesPaymentMutation,
 
