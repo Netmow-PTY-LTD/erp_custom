@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/command";
 
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
-import { useAddSalesOrderMutation } from "@/store/features/salesOrder/salesOrder";
+import { useAddSalesInvoiceMutation, useAddSalesOrderMutation } from "@/store/features/salesOrder/salesOrder";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
 import { Link, useNavigate } from "react-router";
@@ -38,6 +38,7 @@ import { Link, useNavigate } from "react-router";
 export default function CreateSalesOrderPage() {
   const navigate = useNavigate();
   const [addSalesOrder, { isLoading }] = useAddSalesOrderMutation();
+  const [createInvoice] = useAddSalesInvoiceMutation();
 
   const form = useForm<SalesOrderFormValues>({
     defaultValues: {
@@ -81,12 +82,40 @@ export default function CreateSalesOrderPage() {
         })),
       };
 
-      const res = await addSalesOrder(payload).unwrap();
-      if (res.status) {
-        toast.success("Sales Order Created Successfully!");
+
+
+      // ➤ STEP 1: Create Sales Order
+      const orderRes = await addSalesOrder(payload).unwrap();
+
+      if (orderRes.status && orderRes?.data?.id) {
+        toast.success("Sales Order Created! Creating Invoice...");
+
+        // ➤ STEP 2: Create Invoice Automatically
+        const invoicePayload = {
+          order_id: orderRes.data.id,
+          due_date: values.due_date, // same due date as order
+        };
+
+        const invoiceRes = await createInvoice(invoicePayload).unwrap();
+
+        if (invoiceRes.status) {
+          toast.success("Invoice Created Successfully!");
+        } else {
+          toast.error("Order created but invoice failed to generate.");
+        }
+
+        // ➤ Redirect
         navigate("/dashboard/orders");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+
+
+
+
+
+
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create sales order");
       console.error(error);

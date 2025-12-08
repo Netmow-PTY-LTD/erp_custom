@@ -1,3 +1,5 @@
+import type { Customer } from "@/store/features/customers/types";
+import type { Product } from "./types";
 
 
 
@@ -5,6 +7,7 @@ export interface SalesOrderItem {
   id: number;
   order_id: number;
   product_id: number;
+  product: Product;
   quantity: number;
   unit_price: string;      // decimal return as string
   total_price: string;     // decimal return as string
@@ -19,6 +22,7 @@ export interface SalesOrder {
   id: number;
   order_number: string;
   customer_id: number;
+  customer:Customer 
   order_date: string;          // ISO date
   status: "pending" | "confirmed" | "shipped" | "completed" | "cancelled" | string;
   total_amount: string;        // decimal

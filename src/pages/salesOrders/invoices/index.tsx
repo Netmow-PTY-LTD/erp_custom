@@ -42,12 +42,12 @@ export default function Invoices() {
     {
       accessorKey: "Order.customer_id",
       header: "Customer ID",
-      cell: ({ row }) => row.original.Order.customer_id,
+      cell: ({ row }) => row.original?.Order?.customer_id,
     },
     {
       accessorKey: "Order.order_number",
       header: "Order #",
-      cell: ({ row }) => row.original.Order.order_number,
+      cell: ({ row }) => row.original?.Order?.order_number,
     },
     {
       accessorKey: "invoice_date",
