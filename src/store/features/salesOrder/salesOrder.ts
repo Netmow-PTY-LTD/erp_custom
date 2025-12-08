@@ -170,6 +170,7 @@ export const {
 
   useGetSalesInvoicesQuery,
   useAddSalesInvoiceMutation,
+  useGetInvoiceByIdQuery,
   useLazyGetInvoiceByIdQuery,
 
   useAddSalesPaymentMutation,

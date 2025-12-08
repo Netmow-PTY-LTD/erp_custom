@@ -63,6 +63,7 @@ export type Order = {
 };
 
 export type Invoice = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Order: any;
   id: number;
   invoiceNumber: string;
