@@ -1,27 +1,32 @@
+
+
+
 export interface SalesOrderItem {
-  productId: string;
-  productName: string;
-  sku?: string;
+  id: number;
+  order_id: number;
+  product_id: number;
   quantity: number;
-  price: number;
-  discount?: number;
-  total: number;
+  unit_price: string;      // decimal return as string
+  total_price: string;     // decimal return as string
+  created_at: string;      // ISO date
+  updated_at: string;      // ISO date
 }
 
 export interface SalesOrder {
-  _id?: string;
-  orderNo: string;
-  customerId: string;
-  customerName: string;
-  orderDate: string;          // ISO date string
-  dueDate?: string;
-  status: "pending" | "confirmed" | "shipped" | "completed" | "cancelled";
+  id: number;
+  order_number: string;
+  customer_id: number;
+  order_date: string;          // ISO date
+  status: "pending" | "confirmed" | "shipped" | "completed" | "cancelled" | string;
+  total_amount: string;        // decimal
+  tax_amount: string;          // decimal
+  discount_amount: string;     // decimal
+  shipping_address: string;
+  billing_address: string | null;
+  payment_status: "unpaid" | "partial" | "paid" | string;
+  notes: string | null;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
   items: SalesOrderItem[];
-  subTotal: number;
-  discount?: number;
-  tax?: number;
-  grandTotal: number;
-  notes?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
