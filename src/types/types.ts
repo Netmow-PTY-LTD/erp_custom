@@ -37,11 +37,19 @@ export type Product = {
   height: number;
   length: number;
   barcode: string | null;
-  image_url: string | null;
+  thumb_url: string;
+  gallery_items: string[];
   is_active: boolean;
   // Nested relationship
   category: Category; 
   unit: Unit; // In case category is missing
+};
+
+export type Stock = {
+  total_products: number;
+  low_stock_count: number;
+  total_stock_value: number | string;
+  low_stock_products: number;
 };
 
 export type Order = {
