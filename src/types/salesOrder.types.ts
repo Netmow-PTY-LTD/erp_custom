@@ -31,3 +31,20 @@ export interface SalesOrder {
   updated_at: string;
   items: SalesOrderItem[];
 }
+
+
+
+
+
+
+export interface SalesOrderFormValues {
+  customer_id: number;
+  shipping_address: string;
+  items: {
+    product_id: number;
+    quantity: number;
+    unit_price: number;
+  }[];
+}
+
+
