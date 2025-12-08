@@ -1,98 +1,83 @@
-import { DataTable } from "@/components/dashboard/components/DataTable";
-import { Badge } from "@/components/ui/badge";
+
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { invoiceData } from "@/data/data";
-import type { Invoice } from "@/types/types";
-import type { ColumnDef } from "@tanstack/react-table";
+import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/dashboard/components/DataTable";
 import { PlusCircle } from "lucide-react";
 import { Link } from "react-router";
+import type { ColumnDef } from "@tanstack/react-table";
 
+
+import { useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
+import type { SalesInvoice } from "@/types/salesInvoice.types";
 
 export default function Invoices() {
-  const invoiceColumns: ColumnDef<Invoice>[] = [
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
+
+  // Fetch invoices with pagination & search
+  const { data: fetchedInvoices, isFetching } = useGetSalesInvoicesQuery({
+    page,
+    limit,
+    search,
+  });
+
+  const invoices: SalesInvoice[] = fetchedInvoices?.data || [];
+  const pagination = fetchedInvoices?.pagination ?? {
+    total: 0,
+    page: 1,
+    limit,
+    totalPage: 1,
+  };
+
+  const invoiceColumns: ColumnDef<SalesInvoice>[] = [
     {
-      accessorKey: "invoiceNumber",
+      accessorKey: "invoice_number",
       header: "Invoice #",
-      cell: ({ row }) => (
-        <span className="font-medium">{row.getValue("invoiceNumber")}</span>
-      ),
+      cell: ({ row }) => <span className="font-medium">{row.getValue("invoice_number")}</span>,
     },
-
     {
-      accessorKey: "customer",
-      header: "Customer",
-      cell: ({ row }) => (
-        <div>
-          <div className="font-semibold">{row.getValue("customer")}</div>
-          <div className="text-xs text-muted-foreground">
-            {row.original.customerId}
-          </div>
-        </div>
-      ),
+      accessorKey: "Order.customer_id",
+      header: "Customer ID",
+      cell: ({ row }) => row.original.Order.customer_id,
     },
-
     {
-      accessorKey: "orderNumber",
+      accessorKey: "Order.order_number",
       header: "Order #",
-      cell: ({ row }) => row.getValue("orderNumber"),
+      cell: ({ row }) => row.original.Order.order_number,
     },
-
     {
-      accessorKey: "invoiceDate",
+      accessorKey: "invoice_date",
       header: "Invoice Date",
-      cell: ({ row }) => row.getValue("invoiceDate"),
+      cell: ({ row }) => new Date(row.getValue("invoice_date")).toLocaleDateString(),
     },
-
     {
-      accessorKey: "dueDate",
+      accessorKey: "due_date",
       header: "Due Date",
-      cell: ({ row }) => row.getValue("dueDate"),
+      cell: ({ row }) => new Date(row.getValue("due_date")).toLocaleDateString(),
     },
-
     {
-      accessorKey: "totalAmount",
+      accessorKey: "total_amount",
       header: "Total Amount",
-      cell: ({ row }) => {
-        const value = row.getValue("totalAmount") as number;
-        return <span>RM {value.toFixed(2)}</span>;
-      },
+      cell: ({ row }) => <span>RM {parseFloat(row.getValue("total_amount")).toFixed(2)}</span>,
     },
-
-    {
-      accessorKey: "paidAmount",
-      header: "Paid Amount",
-      cell: ({ row }) => {
-        const value = row.getValue("paidAmount") as number;
-        return <span>RM {value.toFixed(2)}</span>;
-      },
-    },
-
-    {
-      accessorKey: "balance",
-      header: "Balance",
-      cell: ({ row }) => {
-        const value = row.getValue("balance") as number;
-        return <span>RM {value.toFixed(2)}</span>;
-      },
-    },
-
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-
         const color =
-          status === "Paid"
+          status === "paid"
             ? "bg-green-500"
-            : status === "Sent"
-            ? "bg-blue-500"
+            : status === "draft"
+            ? "bg-yellow-500"
             : "bg-gray-500";
-
         return <Badge className={color}>{status}</Badge>;
       },
     },
-
     {
       id: "actions",
       header: "Actions",
@@ -110,20 +95,31 @@ export default function Invoices() {
   ];
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
+    <div className="p-8 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Invoices</h1>
         <Link to="/dashboard/orders/create">
           <Button variant="info">
-            <PlusCircle className="h-4 w-4" />
-            Create Order
+            <PlusCircle className="h-4 w-4" /> Create Order
           </Button>
         </Link>
       </div>
+
+      {/* DataTable */}
       <DataTable
         columns={invoiceColumns}
-        data={invoiceData}
-        />
+        data={invoices}
+        pageIndex={page - 1}
+        pageSize={limit}
+        totalCount={pagination.total}
+        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+        onSearch={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        isFetching={isFetching}
+      />
     </div>
   );
 }
