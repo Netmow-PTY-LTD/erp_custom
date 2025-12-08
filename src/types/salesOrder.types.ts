@@ -40,12 +40,15 @@ export interface SalesOrder {
 
 
 export interface SalesOrderFormValues {
+  order_date: string;       // e.g., "2025-12-08T04:52:37.000Z"
+  due_date: string;         // e.g., "2025-12-15T00:00:00.000Z"
   customer_id: number;
   shipping_address: string;
   items: {
     product_id: number;
     quantity: number;
     unit_price: number;
+    discount: number;
   }[];
 }
 
