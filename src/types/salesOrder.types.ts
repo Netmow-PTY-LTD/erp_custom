@@ -13,6 +13,8 @@ export interface SalesOrderItem {
 }
 
 export interface SalesOrder {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  invoice: any;
   due_date: string | number | Date;
   id: number;
   order_number: string;
