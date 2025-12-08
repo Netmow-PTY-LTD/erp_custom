@@ -120,6 +120,20 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesPayments"],
     }),
 
+
+       // GET ALL Payments
+    getSalesPayment: builder.query<
+       SalesResponse<SalesPayment>,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/sales/orders/payments",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["SalesPayments"],
+    }),
+
     // ============================
     // WAREHOUSES
     // ============================
@@ -167,16 +181,13 @@ export const {
   useGetAllSalesOrdersQuery,
   useAddSalesOrderMutation,
   useGetSalesOrderByIdQuery,
-
   useGetSalesInvoicesQuery,
   useAddSalesInvoiceMutation,
   useGetInvoiceByIdQuery,
   useLazyGetInvoiceByIdQuery,
-
   useAddSalesPaymentMutation,
-
+  useGetSalesPaymentQuery,
   useGetSalesWarehousesQuery,
   useAddSalesWarehouseMutation,
-
   useGetSalesRoutesQuery,
 } = salesApiService;
