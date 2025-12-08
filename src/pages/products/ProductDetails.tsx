@@ -13,10 +13,17 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
+import { useGetProductByIdQuery } from "@/store/features/admin/productsApiService";
 
 export default function ProductDetailsPage() {
-  // Dummy Product Data
+  const productId = useParams().productId;
+  //console.log("Product ID from URL:", productId);
+  const {data:fetchedProducts} = useGetProductByIdQuery(Number(productId), {
+    skip: !productId,
+  }); // Replace with actual data fetching logic
+
+  console.log("Fetched Product Details: ", fetchedProducts);
   const [product] = useState({
     id: 1,
     name: "Pran Chini Gura Chal",
