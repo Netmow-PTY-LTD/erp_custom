@@ -38,7 +38,7 @@ import { Link, useNavigate } from "react-router";
 export default function CreateSalesOrderPage() {
   const navigate = useNavigate();
   const [addSalesOrder, { isLoading }] = useAddSalesOrderMutation();
-  const [createInvoice, { isLoading: invoiceIsLoading }] = useAddSalesInvoiceMutation();
+  const [createInvoice] = useAddSalesInvoiceMutation();
 
   const form = useForm<SalesOrderFormValues>({
     defaultValues: {
