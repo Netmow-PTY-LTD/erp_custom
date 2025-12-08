@@ -91,6 +91,18 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesInvoices"],
     }),
 
+
+        // GET SINGLE SALES INVOICE BY ID
+    getInvoiceById: builder.query< SalesResponse<SalesInvoice>, string | number>(
+      {
+        query: (id) => ({
+          url: `/sales/orders/invoices/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["SalesInvoice"],
+      }
+    ),
+
     // ============================
     // PAYMENTS
     // ============================
@@ -106,6 +118,20 @@ export const salesApiService = baseApi.injectEndpoints({
         body,
       }),
       invalidatesTags: ["SalesPayments"],
+    }),
+
+
+       // GET ALL Payments
+    getSalesPayment: builder.query<
+       SalesResponse<SalesPayment>,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/sales/orders/payments",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["SalesPayments"],
     }),
 
     // ============================
@@ -155,14 +181,13 @@ export const {
   useGetAllSalesOrdersQuery,
   useAddSalesOrderMutation,
   useGetSalesOrderByIdQuery,
-
   useGetSalesInvoicesQuery,
   useAddSalesInvoiceMutation,
-
+  useGetInvoiceByIdQuery,
+  useLazyGetInvoiceByIdQuery,
   useAddSalesPaymentMutation,
-
+  useGetSalesPaymentQuery,
   useGetSalesWarehousesQuery,
   useAddSalesWarehouseMutation,
-
   useGetSalesRoutesQuery,
 } = salesApiService;
