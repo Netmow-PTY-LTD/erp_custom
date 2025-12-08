@@ -353,11 +353,11 @@ export default function Orders() {
                 View
               </Button>
             </Link>
-            <Link to={`/dashboard/orders/${item.id}/edit`}>
+            {/* <Link to={`/dashboard/orders/${item.id}/edit`}>
               <Button size="sm" variant="outline">
                 Edit
               </Button>
-            </Link>
+            </Link> */}
           </div>
         );
       },
