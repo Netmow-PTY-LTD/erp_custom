@@ -1,5 +1,5 @@
 import { baseApi } from "@/store/baseApi";
-import type { Category, Product, Unit } from "@/types/types";
+import type { Category, Product, Stock, Unit } from "@/types/types";
 
 type CategoryResponse = {
   status: boolean;
@@ -53,6 +53,13 @@ type ProductByIdResponse = {
   status: boolean;
   message: string;
   data: Product;
+};
+
+type StockResponse = {
+  total_products: number;
+  low_stock_count: number;
+  total_stock_value: number;
+  low_stock_products: number;
 };
 
 export const productsApiService = baseApi.injectEndpoints({
@@ -199,6 +206,32 @@ export const productsApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Unit"],
     }),
+    //stock apis
+    getAllStocks: builder.query<StockResponse, void>({
+      query: () => ({
+        url: "/products/stocks",
+        method: "GET",
+      }),
+      providesTags: ["Stock"],  
+    }),
+    updateStock: builder.mutation<
+      StockResponse,
+      { id: number; body: Partial<Stock> }
+    >({
+      query: (body) => ({
+        url: `/products/${body.id}/stocks`,
+        method: "PUT",
+        body: body.body,
+      }),
+      invalidatesTags: ["Stock"],
+    }),
+    // getStockMovements: builder.query<StockMovementResponse, void>({
+    //   query: (body) => ({
+    //     url: `/products/${body.id}/stocks/movements`,
+    //     method: "GET",
+    //   }),
+    //   providesTags: ["Stock"],
+    // })
   }),
 });
 
