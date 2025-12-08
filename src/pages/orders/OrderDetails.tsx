@@ -12,6 +12,8 @@ export default function OrderDetails() {
   const { orderId } = useParams();
   const { data, isLoading } = useGetSalesOrderByIdQuery(orderId as string);
 
+  console.log('check dta ==>', data)
+
   if (isLoading) return <div>Loading...</div>;
 
   const order = data?.data;
@@ -23,8 +25,8 @@ export default function OrderDetails() {
     order.status === "confirmed"
       ? "bg-blue-600 text-white"
       : order.status === "pending"
-      ? "bg-yellow-500 text-black"
-      : "bg-gray-500 text-white";
+        ? "bg-yellow-500 text-black"
+        : "bg-gray-500 text-white";
 
   // Calculate subtotal if needed
   const subtotal = order.items.reduce(
@@ -60,7 +62,8 @@ export default function OrderDetails() {
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b bg-gray-50">
-                <th className="p-3 text-left">Product ID</th>
+                <th className="p-3 text-left">Product</th>
+                <th className="p-3 text-left">SKU</th>
                 <th className="p-3 text-center">Quantity</th>
                 <th className="p-3 text-center">Unit Price (RM)</th>
                 <th className="p-3 text-center">Total Price (RM)</th>
@@ -70,7 +73,8 @@ export default function OrderDetails() {
             <tbody>
               {order.items.map((item) => (
                 <tr key={item.id} className="border-b">
-                  <td className="p-3">{item.product_id}</td>
+                  <td className="p-3">{item.product.name}</td>
+                  <td className="p-3">{item.product.sku}</td>
                   <td className="p-3 text-center">{item.quantity}</td>
                   <td className="p-3 text-center">{Number(item.unit_price).toFixed(2)}</td>
                   <td className="p-3 text-center font-medium">
@@ -134,13 +138,32 @@ export default function OrderDetails() {
         </Card>
 
         {/* CUSTOMER INFO */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Customer</h3>
-          <div className="space-y-2 text-sm">
-            <p className="font-semibold">Customer ID: {order.customer_id}</p>
-            <p className="text-muted-foreground">Created By: {order.created_by}</p>
+        <Card className="p-6 shadow-sm rounded-xl">
+          <h3 className="text-xl font-semibold mb-4">Customer Details</h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm">
+            <div>
+              <p className="text-muted-foreground text-xs">Customer ID</p>
+              <p className="font-medium">{order.customer_id}</p>
+            </div>
+
+            <div>
+              <p className="text-muted-foreground text-xs">Name</p>
+              <p className="font-medium">{order.customer.name}</p>
+            </div>
+
+            <div>
+              <p className="text-muted-foreground text-xs">Email</p>
+              <p className="font-medium">{order.customer.email}</p>
+            </div>
+
+            <div>
+              <p className="text-muted-foreground text-xs">Company</p>
+              <p className="font-medium">{order.customer.company}</p>
+            </div>
           </div>
         </Card>
+
       </div>
     </div>
   );
