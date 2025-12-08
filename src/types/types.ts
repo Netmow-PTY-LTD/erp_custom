@@ -71,6 +71,7 @@ export type Order = {
 };
 
 export type Invoice = {
+  Order: any;
   id: number;
   invoiceNumber: string;
   customer: string;
