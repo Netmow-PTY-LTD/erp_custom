@@ -13,6 +13,7 @@ export interface SalesOrderItem {
 }
 
 export interface SalesOrder {
+  due_date: string | number | Date;
   id: number;
   order_number: string;
   customer_id: number;
