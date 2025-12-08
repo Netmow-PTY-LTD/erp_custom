@@ -34,7 +34,7 @@ import CreatePaymentPage from "@/pages/payments/create";
 import PaymentDetails from "@/pages/payments/PaymentDetails";
 import SuppliersList from "@/pages/suppliers/suppliersList";
 import AddSupplierPage from "@/pages/suppliers/AddSupplier";
-import WarehousesPage from "@/pages/warehouse";
+// import WarehousesPage from "@/pages/warehouse";
 import DeliveryPage from "@/pages/delivery";
 import SalesRoutesPage from "@/pages/sales-routes";
 import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
@@ -271,7 +271,7 @@ export const sidebarItemLink = [
         element: <OrderDetails />,
       },
       {
-        title: "Create Order",
+        title: "",
         url: "/dashboard/orders/create",
         element: <CreateOrderPage />,
       },
@@ -305,11 +305,11 @@ export const sidebarItemLink = [
         url: "/dashboard/payments/create",
         element: <CreatePaymentPage />,
       },
-      {
-        title: "Warehouses",
-        url: "/dashboard/warehouses",
-        element: <WarehousesPage />,
-      },
+      // {
+      //   title: "Warehouses",
+      //   url: "/dashboard/warehouses",
+      //   element: <WarehousesPage />,
+      // },
       {
         title: "Delivery",
         url: "/dashboard/delivery",

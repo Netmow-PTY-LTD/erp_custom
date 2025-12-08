@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/store/baseApi";
-import type { SalesInvoice } from "@/types/salesInvoice.types";
+import type { InvoiceCreatePayload, SalesInvoice } from "@/types/salesInvoice.types";
 import type { SalesOrder, SalesOrderFormValues } from "@/types/salesOrder.types";
 import type { SalesPayment } from "@/types/salesPayment.types";
 import type { Warehouse } from "@/types/warehouse.types";
@@ -81,7 +81,7 @@ export const salesApiService = baseApi.injectEndpoints({
     // CREATE SALES INVOICE
     addSalesInvoice: builder.mutation<
       SalesResponse<SalesInvoice>,
-      Partial<SalesInvoice>
+     InvoiceCreatePayload
     >({
       query: (body) => ({
         url: "/sales/orders/invoices",

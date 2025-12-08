@@ -1,25 +1,24 @@
-export interface SalesInvoiceItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  price: number;
-  total: number;
-}
+import type { SalesOrder } from "./salesOrder.types";
+
+
 
 export interface SalesInvoice {
-  _id?: string;
-  invoiceNo: string;
-  orderId: string;
-  customerId: string;
-  invoiceDate: string;         // ISO date string
-  dueDate?: string;
-  items: SalesInvoiceItem[];
-  subTotal: number;
-  tax?: number;
-  discount?: number;
-  grandTotal: number;
-  paymentStatus: "unpaid" | "partial" | "paid";
-  notes?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  id: number;
+  invoice_number: string;
+  order_id: number;
+  invoice_date: string; // ISO date string
+  due_date: string; // ISO date string
+  total_amount: string; // numeric string
+  status: string;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+  Order: SalesOrder;
+}
+
+
+// -------------------- Invoice Create Payload --------------------
+export interface InvoiceCreatePayload {
+  order_id: number;
+  due_date: string; // "YYYY-MM-DD" format
 }
