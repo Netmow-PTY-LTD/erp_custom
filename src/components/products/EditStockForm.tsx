@@ -1,217 +1,286 @@
 import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import z from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { Button } from "../ui/button";
+import {
+  useGetProductByIdQuery,
+  useUpdateStockMutation,
+} from "@/store/features/admin/productsApiService";
+import { toast } from "sonner";
+import { Field, FieldError, FieldLabel } from "../ui/field";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { Button } from "../ui/button";
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
 // 1️⃣ Define form schema using Zod
 const stockFormSchema = z.object({
-  sku: z.string().nonempty("SKU is required"),
-  name: z.string().nonempty("Product name is required"),
-  category: z.string().nonempty("Category is required"),
-  price: z.any().refine((val) => Number(val)),
-  stock: z.any().refine((val) => Number(val)),
-  stockStatus: z.enum(["High Stock", "Normal", "Low Stock"]),
-  status: z.enum(["Active", "Inactive"]),
+  product_id: z.number().min(1, "Product is required"),
+  current_stock: z.number().min(0, "Current stock must be 0 or more"),
+  quantity: z.number().min(0, "Stock must be 0 or more"),
+  operation: z.string().min(1, "Operation is required"),
+  date: z.string().min(1, "Date is required"),
+  movement_type: z.string().min(1, "Movement type is required"),
+  notes: z.string().optional(),
 });
 
 type StockFormValues = z.infer<typeof stockFormSchema>;
 
-export default function EditStockForm({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
-  const [submittedData, setSubmittedData] = useState<StockFormValues | null>(
-    null
-  );
-
+export default function EditStockForm({
+  open,
+  setOpen,
+  productId,
+  refetchStockMovements,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  productId: number;
+  refetchStockMovements: () => void;
+}) {
   const form = useForm<StockFormValues>({
     resolver: zodResolver(stockFormSchema),
     defaultValues: {
-      sku: "",
-      name: "",
-      category: "",
-      price: 0,
-      stock: 0,
-      stockStatus: "Normal",
-      status: "Active",
+      product_id: 0,
+      current_stock: 0,
+      quantity: 0,
+      operation: "add",
+      date: new Date().toISOString().split("T")[0],
+      movement_type: "Adjustment",
+      notes: "",
     },
   });
 
-  const onSubmit = (values: StockFormValues) => {
-    setSubmittedData(values);
-    form.reset();
+  const { control, setValue } = form;
+
+  const { data: fetchedProduct, refetch: refetchProduct } =
+    useGetProductByIdQuery(Number(productId), {
+      skip: !Number(productId),
+    });
+
+  const selectedProduct = fetchedProduct?.data;
+
+  console.log("Selected Product:", selectedProduct);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      form.reset({
+        product_id: selectedProduct?.id,
+        current_stock: selectedProduct?.stock_quantity,
+      });
+    }
+  }, [selectedProduct, form]);
+
+  const [updateStock] = useUpdateStockMutation();
+  const onSubmit = async (values: z.infer<typeof stockFormSchema>) => {
+    if (!selectedProduct) return;
+    const payload = {
+      id: selectedProduct.id,
+      body: {
+        quantity: Number(values.quantity),
+        operation: values.operation,
+        movement_type: values.movement_type,
+        date: values.date,
+        notes: values.notes,
+      },
+    };
+    console.log("Payload:", payload);
+    try {
+      const res = await updateStock(payload).unwrap();
+      console.log("Stock updated successfully:", res);
+      if (res.status) {
+        toast.success("Stock updated successfully");
+        refetchProduct?.();
+        refetchStockMovements();
+        setOpen(false);
+      } else {
+        toast.error("Failed to update stock: " + res.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update stock");
+    }
   };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button>Adjust Stock</Button>
+      </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Edit Stock</SheetTitle>
+          <SheetTitle>Adjust Stock</SheetTitle>
         </SheetHeader>
         <div className="p-4">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-5"
-            >
-              <FormField
-                control={form.control}
-                name="sku"
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              {/* PRODUCT DROPDOWN */}
+              {/* <Controller
+                control={control}
+                name="product_id"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>SKU</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter SKU" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <Field>
+                    <FieldLabel>Product Name</FieldLabel>
+                    <Input
+                      type="text"
+                      placeholder="Enter product name"
+                      value={selectedProduct?.name || ""}
+                      disabled
+                    />
+                  </Field>
+                )}
+              /> */}
+
+              <Field>
+                <FieldLabel>Product Name</FieldLabel>
+                <Input
+                  type="text"
+                  value={selectedProduct?.name ?? ""}
+                  disabled
+                />
+              </Field>
+
+              {/* STOCK INPUT */}
+              <Controller
+                control={control}
+                name="current_stock"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Current Stock</FieldLabel>
+                    <Input
+                      type="number"
+                      placeholder="Enter stock"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      disabled
+                    />
+
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter product name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <Controller
+                control={control}
+                name="quantity"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Quantity</FieldLabel>
+                    <Input
+                      type="number"
+                      placeholder="Enter stock"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter category" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price (RM)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="Enter price"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="stock"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stock Quantity</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Enter stock"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="stockStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stock Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select stock status" />
-                        </SelectTrigger>
-                      </FormControl>
+              <Controller
+                control={control}
+                name="operation"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Operation</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select operation" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="High Stock">High Stock</SelectItem>
-                        <SelectItem value="Normal">Normal</SelectItem>
-                        <SelectItem value="Low Stock">Low Stock</SelectItem>
+                        <SelectItem value="add">Add</SelectItem>
+                        <SelectItem value="subtract">Subtract</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                      </FormControl>
+              <Controller
+                control={control}
+                name="movement_type"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Movement Type</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select operation" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
+                        <SelectItem value="purchase">Purchase</SelectItem>
+                        <SelectItem value="sale">Sale</SelectItem>
+                        <SelectItem value="return">Return</SelectItem>
+                        <SelectItem value="adjustment">Adjustment</SelectItem>
+                        <SelectItem value="transfer">Transfer</SelectItem>
+                        <SelectItem value="production">Production</SelectItem>
+                        <SelectItem value="waste">Waste</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="date"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Notes</FieldLabel>
+                    <Input type="date" {...field} className="block" />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
                 )}
               />
 
-              <div className="md:col-span-2">
-                <Button type="submit">Update Stock</Button>
+              <Controller
+                control={control}
+                name="notes"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Notes</FieldLabel>
+                    <Textarea placeholder="Write notes..." {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              <div className="flex justify-center items-center gap-2">
+                <Button
+                  type="submit"
+                  onClick={() => setValue("operation", "add")}
+                >
+                  Add Stock
+                </Button>
+
+                <Button
+                  type="submit"
+                  onClick={() => setValue("operation", "subtract")}
+                >
+                  Subtract Stock
+                </Button>
               </div>
             </form>
           </Form>
-
-          {submittedData && (
-            <div className="mt-8 p-4 border rounded-md bg-gray-50">
-              <h2 className="text-lg font-semibold mb-2">Form Submitted:</h2>
-              <pre className="whitespace-pre-wrap">
-                {JSON.stringify(submittedData, null, 2)}
-              </pre>
-            </div>
-          )}
         </div>
       </SheetContent>
     </Sheet>

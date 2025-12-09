@@ -1,5 +1,11 @@
 import { baseApi } from "@/store/baseApi";
-import type { Category, Product, Stock, Unit } from "@/types/types";
+import type {
+  Category,
+  Product,
+  Stock,
+  StockMovement,
+  Unit,
+} from "@/types/types";
 
 type CategoryResponse = {
   status: boolean;
@@ -56,11 +62,28 @@ type ProductByIdResponse = {
 };
 
 type StockResponse = {
-  total_products: number;
-  low_stock_count: number;
-  total_stock_value: number;
-  low_stock_products: number;
+  status: boolean;
+  message: string;
+  data: Stock[];
 };
+
+type StockMovementResponse = {
+  status: boolean;
+  message: string;
+  data: StockMovement[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
+};
+
+// type StockMovementByIdResponse = {
+//   status: boolean;
+//   message: string;
+//   data: StockMovement;
+// };
 
 export const productsApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -209,29 +232,37 @@ export const productsApiService = baseApi.injectEndpoints({
     //stock apis
     getAllStocks: builder.query<StockResponse, void>({
       query: () => ({
-        url: "/products/stocks",
+        url: "/products/stock",
         method: "GET",
       }),
-      providesTags: ["Stock"],  
+      providesTags: ["Stock"],
     }),
     updateStock: builder.mutation<
       StockResponse,
       { id: number; body: Partial<Stock> }
     >({
       query: (body) => ({
-        url: `/products/${body.id}/stocks`,
+        url: `/products/${body.id}/stock`,
         method: "PUT",
         body: body.body,
       }),
       invalidatesTags: ["Stock"],
     }),
-    // getStockMovements: builder.query<StockMovementResponse, void>({
-    //   query: (body) => ({
-    //     url: `/products/${body.id}/stocks/movements`,
-    //     method: "GET",
-    //   }),
-    //   providesTags: ["Stock"],
-    // })
+    getAllStockMovements: builder.query<
+      StockMovementResponse,
+      {
+        id: number;
+        page?: number;
+        limit?: number;
+        search?: string;
+      }
+    >({
+      query: ({ id, page, limit, search }) => ({
+        url: `/products/${id}/stock/movements`,
+        method: "GET",
+        params: { page, limit, search },
+      }),
+    }),
   }),
 });
 
@@ -251,4 +282,7 @@ export const {
   useGetUnitByIdQuery,
   useUpdateUnitMutation,
   useDeleteUnitMutation,
+  useGetAllStocksQuery,
+  useUpdateStockMutation,
+  useGetAllStockMovementsQuery,
 } = productsApiService;
