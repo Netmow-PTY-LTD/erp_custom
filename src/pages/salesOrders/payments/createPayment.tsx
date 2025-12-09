@@ -165,19 +165,6 @@ export default function CreatePaymentPage() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   function onSubmit(values: PaymentFormValues) {
     const payload = {
       paymentId: `PAY-1`, // auto ID
@@ -185,9 +172,27 @@ export default function CreatePaymentPage() {
     };
 
     console.log("Final Payload:", payload);
-    
+
   }
 
+
+
+  /* --------------------------------------------------- */
+  /* DYNAMIC SUMMARY WATCH VALUES */
+  /* --------------------------------------------------- */
+  const watchCustomer = form.watch("customer_id");
+  const watchInvoice = form.watch("invoice_id");
+  const watchAmount = form.watch("amount");
+  const watchMethod = form.watch("payment_method");
+  const watchDate = form.watch("date");
+
+  const { data: customerData } = useGetCustomersQuery({ page: 1, limit: 999, search: "" });
+  const allCustomers = Array.isArray(customerData?.data) ? customerData.data : [];
+  const customer = allCustomers.find((c) => c.id === watchCustomer);
+
+  const { data: invoiceData } = useGetSalesInvoicesQuery({ page: 1, limit: 999, search: "" });
+  const allInvoices = Array.isArray(invoiceData?.data) ? invoiceData.data : [];
+  const invoice = allInvoices.find((inv) => inv.id === watchInvoice);
 
 
 
@@ -375,29 +380,66 @@ export default function CreatePaymentPage() {
         </div>
 
         {/* RIGHT SIDE INFO */}
+
+
         <div>
           <div className="rounded-lg border p-6 bg-white">
-            <h2 className="text-lg font-semibold mb-4">Payment Methods</h2>
+            <h2 className="text-lg font-semibold mb-4">Payment Summary</h2>
 
-            <div className="text-sm leading-relaxed">
+            <div className="text-sm space-y-3 leading-relaxed">
               <p>
-                <strong>Cash:</strong> Physical cash payment
+                <strong>Customer:</strong>{" "}
+                {customer ? customer.name : <span className="text-gray-400">Not Selected</span>}
               </p>
+
               <p>
-                <strong>Bank Transfer:</strong> Direct bank transfer
+                <strong>Invoice:</strong>{" "}
+                {invoice ? `INV-${invoice.id}` : <span className="text-gray-400">None Selected</span>}
               </p>
+
+              {invoice && (
+                <p>
+                  <strong>Invoice Total:</strong> RM{" "}
+                  {Number(invoice.total_amount).toFixed(2)}
+                </p>
+              )}
+
               <p>
-                <strong>Credit Card:</strong> Credit/debit card payment
+                <strong>Payment Amount:</strong>{" "}
+                {watchAmount ? (
+                  <span>RM {Number(watchAmount).toFixed(2)}</span>
+                ) : (
+                  <span className="text-gray-400">Not Entered</span>
+                )}
               </p>
+
               <p>
-                <strong>Cheque:</strong> Bank cheque payment
+                <strong>Method:</strong>{" "}
+                {watchMethod
+                  ? watchMethod.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase())
+                  : <span className="text-gray-400">Not Selected</span>}
               </p>
+
               <p>
-                <strong>Online:</strong> Online payment gateway
+                <strong>Date:</strong> {watchDate}
               </p>
+
+              {invoice && watchAmount && (
+                <p className="font-semibold text-blue-600">
+                  Remaining Balance: RM{" "}
+                  {(Number(invoice.total_amount) - Number(watchAmount)).toFixed(2)}
+                </p>
+              )}
             </div>
           </div>
         </div>
+
+
+
+
+
+
+
       </div>
     </div>
   );
