@@ -53,6 +53,7 @@ export type Stock = {
 };
 
 export type Order = {
+  order_number: string;
   id: number;
   orderNumber: string;
   customer: string;
