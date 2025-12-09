@@ -102,6 +102,18 @@ export const salesApiService = baseApi.injectEndpoints({
         providesTags: ["SalesInvoice"],
       }
     ),
+        // GET SINGLE SALES INVOICE BY ID
+    getInvoicesByCustomer: builder.query< SalesResponse<SalesInvoice>, { page?: number; limit?: number; search?: string ,customerId:number|string}>(
+      {
+        query: (params) => ({
+          url: `/sales/orders/invoices/customer/${params.customerId}`,
+          method: "GET",
+          params
+        }),
+        providesTags: ["SalesInvoiceByCustomers"],
+        
+      }
+    ),
 
     // ============================
     // PAYMENTS
@@ -123,7 +135,7 @@ export const salesApiService = baseApi.injectEndpoints({
 
        // GET ALL Payments
     getSalesPayment: builder.query<
-       SalesResponse<SalesPayment>,
+       SalesResponse<SalesPayment[]>,
       { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({
@@ -133,6 +145,18 @@ export const salesApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["SalesPayments"],
     }),
+
+
+      getSalesPaymentById: builder.query< SalesResponse<SalesPayment>, string | number>(
+      {
+        query: (id) => ({
+          url: `/sales/orders/payments/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["SalesPayment"],
+      }
+    ),
+
 
     // ============================
     // WAREHOUSES
@@ -190,4 +214,7 @@ export const {
   useGetSalesWarehousesQuery,
   useAddSalesWarehouseMutation,
   useGetSalesRoutesQuery,
+  useGetInvoicesByCustomerQuery,
+  useGetSalesPaymentByIdQuery
+  
 } = salesApiService;

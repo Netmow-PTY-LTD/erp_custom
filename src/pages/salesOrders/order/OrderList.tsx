@@ -335,11 +335,11 @@ export default function Orders() {
       cell: ({ row }) => `RM ${parseFloat(row.original.total_amount).toFixed(2)}`,
     },
 
-    {
-      accessorKey: "created_by",
-      header: "Staff",
-      cell: ({ row }) => `User #${row.original.created_by}`,
-    },
+    // {
+    //   accessorKey: "created_by",
+    //   header: "Staff",
+    //   cell: ({ row }) => `User #${row.original.created_by}`,
+    // },
 
     {
       id: "actions",
