@@ -103,13 +103,15 @@ export const salesApiService = baseApi.injectEndpoints({
       }
     ),
         // GET SINGLE SALES INVOICE BY ID
-    getInvoicesByCustomer: builder.query< SalesResponse<SalesInvoice>, string | number>(
+    getInvoicesByCustomer: builder.query< SalesResponse<SalesInvoice>, { page?: number; limit?: number; search?: string ,customerId:number|string}>(
       {
-        query: (id) => ({
-          url: `/sales/orders/invoices/customer/${id}`,
+        query: (params) => ({
+          url: `/sales/orders/invoices/customer/${params.customerId}`,
           method: "GET",
+          params
         }),
         providesTags: ["SalesInvoiceByCustomers"],
+        
       }
     ),
 

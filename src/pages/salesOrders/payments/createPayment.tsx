@@ -28,7 +28,7 @@ import { useState } from "react";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { useAddSalesPaymentMutation, useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAddSalesPaymentMutation, useGetInvoicesByCustomerQuery, useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
 import { toast } from "sonner";
 
 const paymentSchema = z.object({
@@ -106,19 +106,82 @@ export default function CreatePaymentPage() {
 
 
   /* -------------------- Invoice Select Field -------------------- */
+  // const InvoiceSelectField = ({
+  //   field,
+  // }: {
+  //   field: { value: number | undefined | null; onChange: (v: number | null) => void };
+  // }) => {
+  //   const [open, setOpen] = useState(false);
+  //   const [query, setQuery] = useState("");
+
+  //   const { data, isLoading } = useGetSalesInvoicesQuery({
+  //     page: 1,
+  //     limit: 20,
+  //     search: query,
+  //   });
+
+  //   const list = Array.isArray(data?.data) ? data.data : [];
+  //   const selected = list.find((inv) => inv.id === field.value);
+
+  //   return (
+  //     <Popover open={open} onOpenChange={setOpen}>
+  //       <PopoverTrigger asChild>
+  //         <Button className="w-full justify-between" variant="outline">
+  //           {selected ? `INV-${selected.id}` : "Select Invoice..."}
+  //         </Button>
+  //       </PopoverTrigger>
+
+  //       <PopoverContent className="w-[300px] p-0">
+  //         <Command>
+  //           <CommandInput placeholder="Search invoices..." onValueChange={setQuery} />
+
+  //           <CommandList>
+  //             <CommandEmpty>No invoices found</CommandEmpty>
+
+  //             <CommandGroup>
+  //               {isLoading && (
+  //                 <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>
+  //               )}
+
+  //               {!isLoading &&
+  //                 list.map((invoice) => (
+  //                   <CommandItem
+  //                     key={invoice.id}
+  //                     onSelect={() => {
+  //                       field.onChange(invoice.id);
+  //                       setOpen(false);
+  //                     }}
+  //                   >
+  //                     <div className="flex flex-col">
+  //                       <span className="font-medium">INV-{invoice.id}</span>
+  //                       <span className="text-xs text-gray-500">
+  //                         Amount: ৳ {Number(invoice.total_amount).toFixed(2)}
+  //                       </span>
+  //                     </div>
+  //                   </CommandItem>
+  //                 ))}
+  //             </CommandGroup>
+  //           </CommandList>
+  //         </Command>
+  //       </PopoverContent>
+  //     </Popover>
+  //   );
+  // };
+
+  /* -------------------- Invoice Select Field -------------------- */
   const InvoiceSelectField = ({
     field,
+    customerId, // pass selected customer_id as prop
   }: {
     field: { value: number | undefined | null; onChange: (v: number | null) => void };
+    customerId: number;
   }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
 
-    const { data, isLoading } = useGetSalesInvoicesQuery({
-      page: 1,
-      limit: 20,
-      search: query,
-    });
+    const { data, isLoading } = useGetInvoicesByCustomerQuery(
+      { page: 1, limit: 20, search: query, customerId }, { skip: !customerId }
+    );
 
     const list = Array.isArray(data?.data) ? data.data : [];
     const selected = list.find((inv) => inv.id === field.value);
@@ -126,23 +189,18 @@ export default function CreatePaymentPage() {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button className="w-full justify-between" variant="outline">
-            {selected ? `INV-${selected.id}` : "Select Invoice..."}
+          <Button className="w-full justify-between" variant="outline" disabled={!customerId}>
+            {selected ? `INV-${selected.id}` : customerId ? "Select Invoice..." : "Select Customer first"}
           </Button>
         </PopoverTrigger>
 
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder="Search invoices..." onValueChange={setQuery} />
-
             <CommandList>
               <CommandEmpty>No invoices found</CommandEmpty>
-
               <CommandGroup>
-                {isLoading && (
-                  <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>
-                )}
-
+                {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
                 {!isLoading &&
                   list.map((invoice) => (
                     <CommandItem
@@ -167,6 +225,7 @@ export default function CreatePaymentPage() {
       </Popover>
     );
   };
+
 
 
 
@@ -278,7 +337,7 @@ export default function CreatePaymentPage() {
                     <FormItem>
                       <FormLabel>Invoice </FormLabel>
                       <FormControl>
-                        <InvoiceSelectField field={field} />
+                        <InvoiceSelectField field={field} customerId={watchCustomer} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -467,11 +526,6 @@ export default function CreatePaymentPage() {
             </div>
           </div>
         </div>
-
-
-
-
-
 
 
       </div>
