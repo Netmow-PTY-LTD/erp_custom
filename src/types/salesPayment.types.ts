@@ -1,4 +1,6 @@
-import type { Invoice, Order } from "./types";
+
+import type { SalesInvoice } from "./salesInvoice.types";
+import type { SalesOrder } from "./salesOrder.types";
 
 
 
@@ -15,6 +17,6 @@ export interface SalesPayment {
   created_by: number;
   created_at: string;
   updated_at: string;
-  order: Order;
-  invoice: Invoice | null;
+  order: SalesOrder;
+  invoice: SalesInvoice | null;
 }

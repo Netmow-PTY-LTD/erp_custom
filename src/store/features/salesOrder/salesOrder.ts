@@ -123,7 +123,7 @@ export const salesApiService = baseApi.injectEndpoints({
 
        // GET ALL Payments
     getSalesPayment: builder.query<
-       SalesResponse<SalesPayment>,
+       SalesResponse<SalesPayment[]>,
       { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({

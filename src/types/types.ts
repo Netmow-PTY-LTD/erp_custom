@@ -52,53 +52,59 @@ export type Stock = {
   low_stock_products: number;
 };
 
-export type Order = {
-  order_number: string;
-  id: number;
-  orderNumber: string;
-  customer: string;
-  customerId: string;
-  date: string;
-  dueDate: string | "-";
-  status:
-    | "Pending"
-    | "Delivered"
-    | "Confirmed"
-    | "Processing"
-    | "Draft"
-    | "Shipped";
-  amount: number;
-  staff: string | "-";
-};
+// export type Order = {
+//   customer_id: ReactNode;
+//   order_number: string;
+//   id: number;
+//   orderNumber: string;
+//   customer: string;
+//   customerId: string;
+//   date: string;
+//   dueDate: string | "-";
+//   status:
+//     | "Pending"
+//     | "Delivered"
+//     | "Confirmed"
+//     | "Processing"
+//     | "Draft"
+//     | "Shipped";
+//   amount: number;
+//   staff: string | "-";
+// };
 
-export type Invoice = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Order: any;
-  id: number;
-  invoiceNumber: string;
-  customer: string;
-  customerId: string;
-  orderNumber: string;
-  invoiceDate: string;
-  dueDate: string;
-  totalAmount: number;
-  paidAmount: number;
-  balance: number;
-  status: "Paid" | "Sent" | "Draft";
-};
+// export type Invoice = {
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   Order: any;
+//   id: number;
+//   invoiceNumber: string;
+//   customer: string;
+//   customerId: string;
+//   orderNumber: string;
+//   invoiceDate: string;
+//   dueDate: string;
+//   totalAmount: number;
+//   paidAmount: number;
+//   balance: number;
+//   status: "Paid" | "Sent" | "Draft";
+// };
 
-// Payment type
-export type Payment = {
-  id: number;
-  paymentNumber: string;
-  customer: string;
-  customerId: string;
-  invoiceNumber: string;
-  paymentDate: string;
-  method: "Cash" | "Bank Transfer" | "Credit Card";
-  amount: number;
-  reference: string;
-};
+
+// // Payment type
+// export type Payment = {
+//   id: number;
+//   paymentNumber: string;
+//   customer: string;
+//   customerId: string;
+//   invoiceNumber: string;
+//   paymentDate: string;
+//   method: "Cash" | "Bank Transfer" | "Credit Card";
+//   amount: number;
+//   reference: string;
+// };
+
+
+
+
 
 export type WarehouseOrder = {
   orderId: string;
