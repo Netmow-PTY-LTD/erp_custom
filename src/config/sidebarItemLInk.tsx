@@ -41,7 +41,6 @@ import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
-import CreateRoutePage from "@/pages/salesOrders/salesRoutes/create/CreateRoute";
 import RouteDetails from "@/pages/salesOrders/salesRoutes/RouteDetails";
 import AssignRoutePage from "@/pages/salesOrders/salesRoutes/AssignRoute";
 import Staffs from "@/pages/staffs";
@@ -71,7 +70,7 @@ import EditUserPage from "@/pages/users/EditUser";
 import StaffReports from "@/pages/reports/StaffReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
 import EditPurchaseOrderPage from "@/pages/suppliers/EditPurchaseOrderPage";
-
+import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 
 
 // This is sample data.
