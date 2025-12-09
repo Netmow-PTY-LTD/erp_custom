@@ -16,10 +16,10 @@ export interface SalesOrderItem {
 }
 
 export interface SalesOrder {
-  delivery_date: any;
+  delivery_date: string | number | Date;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   invoice: any;
-  due_date: string | number | Date;
+  due_date: string | Date;
   id: number;
   order_number: string;
   customer_id: number;
@@ -56,5 +56,14 @@ export interface SalesOrderFormValues {
     discount: number;
   }[];
 }
+
+
+// TypeScript type for update payload
+export type UpdateDeliveryPayload = {
+  status: "pending" | "in_transit" | "delivered" | "failed" | "returned"|"confirmed";
+  delivery_date: string; // ISO date string
+  notes: string;
+};
+
 
 
