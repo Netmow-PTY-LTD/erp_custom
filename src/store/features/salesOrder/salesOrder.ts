@@ -144,6 +144,18 @@ export const salesApiService = baseApi.injectEndpoints({
       providesTags: ["SalesPayments"],
     }),
 
+
+      getSalesPaymentById: builder.query< SalesResponse<SalesPayment[]>, string | number>(
+      {
+        query: (id) => ({
+          url: `/sales/payments/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["SalesPayment"],
+      }
+    ),
+
+
     // ============================
     // WAREHOUSES
     // ============================
@@ -200,5 +212,7 @@ export const {
   useGetSalesWarehousesQuery,
   useAddSalesWarehouseMutation,
   useGetSalesRoutesQuery,
-  useGetInvoicesByCustomerQuery
+  useGetInvoicesByCustomerQuery,
+  useGetSalesPaymentByIdQuery
+  
 } = salesApiService;
