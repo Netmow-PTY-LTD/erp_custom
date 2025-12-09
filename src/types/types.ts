@@ -114,22 +114,8 @@ export type WarehouseOrder = {
   status: "confirmed";
 };
 
-export interface DeliveryOrder {
-  id: number;
-  orderNumber: string;
-  customer: string;
-  total: number;
-  date: string;
-  status: string;
-}
 
-export interface SalesRoute {
-  id: number;
-  name: string;
-  description: string;
-  staff: number;
-  customers: number;
-}
+
 
 export interface Staff {
   id: number;

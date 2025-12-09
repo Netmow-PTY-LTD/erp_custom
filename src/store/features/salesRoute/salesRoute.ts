@@ -1,17 +1,41 @@
 import { baseApi } from "@/store/baseApi";
-import type { User } from "@/types/users.types";
+import type { SalesRoute } from "@/types/salesRoute.types";
 
-export type SalesRouteResponse = {
-  status: boolean;
+// ----------------------
+// Types
+// ----------------------
+
+
+
+export interface SalesRoutePagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPage: number;
+}
+
+export interface SalesRouteListResponse {
+  success: boolean;
   message: string;
-  data: User | User[];
-};
+  pagination: SalesRoutePagination;
+  data: SalesRoute[];
+}
+
+export interface SalesRouteSingleResponse {
+  success: boolean;
+  message: string;
+  data: SalesRoute;
+}
+
+// ----------------------
+// RTK Query Service
+// ----------------------
 
 export const salesRouteApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
-    // GET ALL
-    getAllSalesRoute: builder.query<SalesRouteResponse, void>({
+    // GET ALL SALES ROUTES
+    getAllSalesRoute: builder.query<SalesRouteListResponse, void>({
       query: () => ({
         url: "/sales",
         method: "GET",
@@ -19,29 +43,29 @@ export const salesRouteApiService = baseApi.injectEndpoints({
       providesTags: ["SalesRoute"],
     }),
 
-    // ADD
-    addSalesRoute: builder.mutation<SalesRouteResponse, Partial<User>>({
+    // ADD SALES ROUTE
+    addSalesRoute: builder.mutation<SalesRouteSingleResponse, Partial<SalesRoute>>({
       query: (body) => ({
-        url: "/sales/add",
+        url: "/sales",
         method: "POST",
         body,
       }),
       invalidatesTags: ["SalesRoute"],
     }),
 
-    // GET SINGLE
-    getSalesRouteById: builder.query<SalesRouteResponse, string | number>({
+    // GET SINGLE SALES ROUTE
+    getSalesRouteById: builder.query<SalesRouteSingleResponse, string | number>({
       query: (id) => ({
-        url: `/sales/get/${id}`,
+        url: `/sales/${id}`,
         method: "GET",
       }),
       providesTags: ["SalesRoute"],
     }),
 
-    // UPDATE
+    // UPDATE SALES ROUTE
     updateSalesRoute: builder.mutation<
-      SalesRouteResponse,
-      { id: string | number; body: Partial<User> }
+      SalesRouteSingleResponse,
+      { id: string | number; body: Partial<SalesRoute> }
     >({
       query: ({ id, body }) => ({
         url: `/sales/${id}`,
@@ -51,8 +75,8 @@ export const salesRouteApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesRoute"],
     }),
 
-    // DELETE
-    deleteSalesRoute: builder.mutation<SalesRouteResponse, string | number>({
+    // DELETE SALES ROUTE
+    deleteSalesRoute: builder.mutation<SalesRouteSingleResponse, string | number>({
       query: (id) => ({
         url: `/sales/${id}`,
         method: "DELETE",
@@ -63,6 +87,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
   }),
 });
 
+// Hooks
 export const {
   useGetAllSalesRouteQuery,
   useAddSalesRouteMutation,
