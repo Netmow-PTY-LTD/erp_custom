@@ -1,5 +1,4 @@
 
-
 import { Button } from "@/components/ui/button";
 import { useGetSalesPaymentByIdQuery } from "@/store/features/salesOrder/salesOrder";
 import { Link, useParams } from "react-router";
@@ -37,12 +36,12 @@ export default function PaymentDetails() {
     : null;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Payment {payment.number}</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+        <h1 className="text-2xl sm:text-3xl font-bold">Payment {payment.number}</h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <Link to="/dashboard/payments">
             <Button variant="outline">← Back to Payments</Button>
           </Link>
@@ -59,10 +58,10 @@ export default function PaymentDetails() {
       {/* Main Layout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Payment Details Section */}
-        <div className="col-span-2 border rounded-md p-5">
+        <div className="col-span-1 lg:col-span-2 border rounded-md p-5">
           <h2 className="font-semibold text-lg mb-4">Payment Details</h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-4">
             {/* Left Column */}
             <div className="space-y-4">
               <div>
