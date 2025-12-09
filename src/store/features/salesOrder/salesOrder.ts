@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/store/baseApi";
 import type { InvoiceCreatePayload, SalesInvoice } from "@/types/salesInvoice.types";
-import type { SalesOrder, SalesOrderFormValues } from "@/types/salesOrder.types";
+import type { SalesOrder, SalesOrderFormValues, UpdateDeliveryPayload } from "@/types/salesOrder.types";
 import type { SalesPayment } from "@/types/salesPayment.types";
 import type { Warehouse } from "@/types/warehouse.types";
 
@@ -46,6 +46,21 @@ export const salesApiService = baseApi.injectEndpoints({
         url: "/sales/orders",
         method: "POST",
         body,
+      }),
+      invalidatesTags: ["SalesOrders"],
+    }),
+    // CREATE SALES ORDER
+    updateSalesOrderStatus: builder.mutation<
+      SalesResponse<SalesOrder>,
+     {
+      orderId:string|number,
+      orderData:UpdateDeliveryPayload
+     }
+    >({
+      query: ({orderId,orderData}) => ({
+        url: `/sales/orders/${orderId}/deliver`,
+        method: "POST",
+        body:orderData,
       }),
       invalidatesTags: ["SalesOrders"],
     }),
@@ -215,6 +230,7 @@ export const {
   useAddSalesWarehouseMutation,
   useGetSalesRoutesQuery,
   useGetInvoicesByCustomerQuery,
-  useGetSalesPaymentByIdQuery
+  useGetSalesPaymentByIdQuery,
+  useUpdateSalesOrderStatusMutation
   
 } = salesApiService;

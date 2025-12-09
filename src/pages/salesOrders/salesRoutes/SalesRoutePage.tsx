@@ -3,11 +3,32 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
-import type { SalesRoute } from "@/types/types";
 import { PlusCircle } from "lucide-react";
-import { SalesRoutes } from "@/data/data";
+import type { SalesRoute } from "@/types/salesRoute.types";
+import { useGetAllSalesRouteQuery } from "@/store/features/salesRoute/salesRoute";
+import { useState } from "react";
 
 export default function SalesRoutesPage() {
+
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
+
+  const {
+    data: salesRouteData,
+    isFetching,
+  } = useGetAllSalesRouteQuery({ page, limit, search });
+
+  const salesRoute: SalesRoute[] = salesRouteData?.data || [];
+
+  console.log('salesRoute',salesRoute)
+
+
+
+
+
+
+
   const RoutesColumns: ColumnDef<SalesRoute>[] = [
     {
       accessorKey: "name",
@@ -43,23 +64,6 @@ export default function SalesRoutesPage() {
       header: "Customers",
       cell: ({ row }) => row.getValue("customers"),
     },
-
-    // {
-    //   accessorKey: "status",
-    //   header: "Status",
-    //   cell: ({ row }) => {
-    //     const status = row.getValue("status") as string;
-
-    //     const color =
-    //       status === "confirmed"
-    //         ? "bg-green-500"
-    //         : status === "Sent"
-    //         ? "bg-blue-500"
-    //         : "bg-gray-500";
-
-    //     return <Badge className={`${color} capitalize`}>{status}</Badge>;
-    //   },
-    // },
 
     {
       id: "actions",
@@ -97,7 +101,24 @@ export default function SalesRoutesPage() {
       </div>
       <Card className="shadow-sm">
         <CardContent>
-          <DataTable columns={RoutesColumns} data={SalesRoutes} />
+         
+
+          <DataTable
+            columns={RoutesColumns}
+            data={salesRoute}
+            pageIndex={page - 1}
+            pageSize={limit}
+            totalCount={salesRouteData?.pagination.total}
+            onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+            onSearch={(value) => {
+              setSearch(value);
+              setPage(1);
+            }}
+            isFetching={isFetching}
+          />
+
+
+
         </CardContent>
       </Card>
     </div>

@@ -1,8 +1,11 @@
 export interface SalesRoute {
-  _id?: string;
-  routeName: string;
-  routeCode?: string;
-  description?: string;
-  areas?: string[];
-  status?: "active" | "inactive";
+  id: number;
+  route_name: string;
+  description: string;
+  assigned_sales_rep_id: number;
+  start_location: string;
+  end_location: string;
+  is_active: boolean;
+  created_at: string; 
+  updated_at: string;
 }
