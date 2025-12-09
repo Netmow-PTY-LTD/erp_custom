@@ -35,7 +35,7 @@ import PaymentDetails from "@/pages/salesOrders/payments/PaymentDetails";
 import SuppliersList from "@/pages/suppliers/suppliersList";
 import AddSupplierPage from "@/pages/suppliers/AddSupplier";
 // import WarehousesPage from "@/pages/warehouse";
-import DeliveryPage from "@/pages/delivery";
+import DeliveryPage from "@/pages/salesOrders/delivery/DeliveryPage";
 import SalesRoutesPage from "@/pages/sales-routes";
 import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/EditSupplier";
