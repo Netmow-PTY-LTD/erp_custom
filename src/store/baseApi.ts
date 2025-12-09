@@ -91,6 +91,7 @@ export const baseApi = createApi({
     'Customers',
     'Product',
     'Stock',
+    'StockMovement',
     'Attendance',
     'Leaves', 
     'Roles', 

@@ -1,77 +1,88 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router";
-import { useGetProductByIdQuery } from "@/store/features/admin/productsApiService";
+import {
+  useGetAllStockMovementsQuery,
+  useGetProductByIdQuery,
+} from "@/store/features/admin/productsApiService";
+import type { Product, StockMovement } from "@/types/types";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/dashboard/components/DataTable";
+import { useState } from "react";
+import EditStockForm from "@/components/products/EditStockForm";
 
 export default function ProductDetailsPage() {
+  const [open, setOpen] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
   const productId = useParams().productId;
-  //console.log("Product ID from URL:", productId);
-  const {data:fetchedProducts} = useGetProductByIdQuery(Number(productId), {
-    skip: !productId,
-  }); // Replace with actual data fetching logic
 
-  console.log("Fetched Product Details: ", fetchedProducts);
-  const [product] = useState({
-    id: 1,
-    name: "Pran Chini Gura Chal",
-    sku: "abc01",
-    category: "Office Supplies",
-    status: "Inactive",
-    unitPrice: 100,
-    costPrice: 80,
-    stock: 120,
-    min: 10,
-    max: 100,
+  const { data: fetchedProduct } = useGetProductByIdQuery(Number(productId), {
+    skip: !productId,
   });
 
-  const [movements] = useState([
+  const product: Product | undefined = fetchedProduct?.data;
+
+  const {
+    data: fetchedStockMovements,
+    refetch: refetchStockMovements,
+    isFetching,
+  } = useGetAllStockMovementsQuery(
+    { id: Number(productId), page, limit, search },
     {
-      id: 1,
-      date: "2025-11-10 09:27",
-      type: "Adjustment",
-      qty: 10,
-      reference: "adjustment",
-      notes: "-",
+      skip: !productId,
+    }
+  );
+
+  console.log("Fetched Stock Movements: ", fetchedStockMovements);
+
+  const columns: ColumnDef<StockMovement>[] = [
+    {
+      accessorKey: "date",
+      header: "Date",
+      cell: ({ getValue }) => {
+        const dateStr = getValue<string>();
+        const date = new Date(dateStr);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}-${String(date.getDate()).padStart(2, "0")} ${String(
+          date.getHours()
+        ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+      },
     },
     {
-      id: 2,
-      date: "2025-11-10 09:26",
-      type: "Adjustment",
-      qty: 10,
-      reference: "adjustment",
-      notes: "-",
+      accessorKey: "movement_type",
+      header: "Movement Type",
     },
     {
-      id: 3,
-      date: "2025-10-11 19:59",
-      type: "Adjustment",
-      qty: 100,
-      reference: "adjustment",
-      notes: "Initial stock on product creation",
+      accessorKey: "quantity",
+      header: "Quantity",
+      cell: ({ row }) => row?.original?.quantity,
     },
-  ]);
+    {
+      accessorKey: "reference_type",
+      header: "Reference Number",
+      cell: ({ row }) => row.original.reference_type,
+    },
+    {
+      accessorKey: "notes",
+      header: "Notes",
+      cell: ({ row }) => row.original.notes,
+    },
+  ];
 
   return (
     <div className="w-full">
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Product: {product.name}</h1>
+        <h1 className="text-3xl font-bold">Product: {product?.name}</h1>
 
         <div className="flex gap-3">
-          <Link to={`/dashboard/products/${product.id}/edit`}>
+          <Link to={`/dashboard/products/${product?.id}/edit`}>
             <Button variant="outline-info">✏️ Edit</Button>
           </Link>
           <Link to="/dashboard/products">
@@ -91,17 +102,21 @@ export default function ProductDetailsPage() {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p>
-                <strong>SKU:</strong> {product.sku}
+                <strong>SKU:</strong> {product?.sku}
               </p>
               <p>
-                <strong>Category:</strong> {product.category}
+                <strong>Category:</strong> {product?.category?.name}
               </p>
               <p className="flex items-center gap-2">
                 <strong>Status:</strong>
                 <Badge variant="outline" className="bg-gray-200 text-gray-700">
-                  {product.status}
+                  {product?.is_active ? "Active" : "Inactive"}
                 </Badge>
               </p>
+              <div className="flex flex-col gap-4">
+                <strong>Product Image:</strong> 
+                <img src={product?.thumb_url} alt={product?.name} className="w-20 h-20 rounded-full" />
+              </div>
             </CardContent>
           </Card>
 
@@ -112,10 +127,10 @@ export default function ProductDetailsPage() {
             </CardHeader>
             <CardContent className="text-sm space-y-1">
               <p>
-                <strong>Unit Price:</strong> RM {product.unitPrice.toFixed(2)}
+                <strong>Unit Price:</strong> RM {product?.price?.toFixed(2)}
               </p>
               <p>
-                <strong>Cost Price:</strong> RM {product.costPrice.toFixed(2)}
+                <strong>Cost Price:</strong> RM {product?.cost?.toFixed(2)}
               </p>
             </CardContent>
           </Card>
@@ -127,52 +142,28 @@ export default function ProductDetailsPage() {
             </CardHeader>
             <CardContent className="text-sm space-y-4">
               <p>
-                <strong>Stock:</strong> {product.stock} pcs
+                <strong>InitialStock:</strong> {product?.initial_stock}{" "}
+                {product?.unit?.name}
               </p>
               <p>
-                <strong>Min:</strong> {product.min} &nbsp; | &nbsp;
-                <strong>Max:</strong> {product.max}
+                <strong>Stock:</strong> {product?.stock_quantity}{" "}
+                {product?.unit?.name}
+              </p>
+              <p>
+                <strong>Min:</strong> {product?.min_stock_level} &nbsp; | &nbsp;
+                <strong>Max:</strong> {product?.max_stock_level}
               </p>
 
               <Separator />
 
-              <div>
-                <h4 className="font-semibold mb-2">Adjust Stock</h4>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label>Quantity (+/-)</Label>
-                    <Input placeholder="e.g. 10 or -5" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Reason</Label>
-                    <Input placeholder="e.g. stock count correction" />
-                  </div>
-
-                  <Button className="w-full">Apply</Button>
-                </div>
+              <div className="flex justify-center">
+                <EditStockForm
+                  productId={Number(productId)}
+                  open={open}
+                  setOpen={setOpen}
+                  refetchStockMovements={refetchStockMovements}
+                />
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Product Image */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Product Image</CardTitle>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Upload Image (JPG/PNG/WEBP)</Label>
-                <div className="flex items-center gap-3">
-                  <Input type="file" className="mt-2" />
-                  <Button variant="secondary">Upload</Button>
-                </div>
-              </div>
-
-              <Button variant="outline" className="w-full border-green-600 text-green-700">
-                🔄 Unarchive Product
-              </Button>
             </CardContent>
           </Card>
         </div>
@@ -185,29 +176,19 @@ export default function ProductDetailsPage() {
               <CardTitle>Recent Stock Movements</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Qty</TableHead>
-                    <TableHead>Reference</TableHead>
-                    <TableHead>Notes</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {movements.map((m) => (
-                    <TableRow key={m.id}>
-                      <TableCell>{m.date}</TableCell>
-                      <TableCell>{m.type}</TableCell>
-                      <TableCell>{m.qty}</TableCell>
-                      <TableCell>{m.reference}</TableCell>
-                      <TableCell>{m.notes}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                columns={columns}
+                data={fetchedStockMovements?.data}
+                pageIndex={page - 1}
+                pageSize={limit}
+                totalCount={fetchedStockMovements?.pagination?.total ?? 0}
+                search={search}
+                onSearch={(val) => {
+                  setSearch(val);
+                  setPage(1);
+                }}
+                isFetching={isFetching}
+              />
             </CardContent>
           </Card>
 
