@@ -6,6 +6,7 @@ import type { SalesOrder } from "./salesOrder.types";
 
 
 export interface SalesPayment {
+  notes: string;
   id: number;
   invoice_id: number | null;
   order_id: number;

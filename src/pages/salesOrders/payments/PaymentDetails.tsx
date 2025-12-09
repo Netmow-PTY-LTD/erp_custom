@@ -1,45 +1,58 @@
 
+
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { useGetSalesPaymentByIdQuery } from "@/store/features/salesOrder/salesOrder";
+import { Link, useParams } from "react-router";
 
 export default function PaymentDetails() {
-  // Temporary mock data — replace with real API response
+  const { paymentId } = useParams();
+  const { data, isLoading, error } = useGetSalesPaymentByIdQuery(paymentId as string);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error || !data?.data) return <p>Payment not found.</p>;
+
+  const paymentData = data.data;
+
   const payment = {
-    number: "PAY-20251012-09E0E3",
-    date: "2025-10-12",
-    method: "Cash",
-    reference: "-",
-    notes: "-",
-    amount: 59800.0,
-    recordedBy: "Admin User",
-    invoice: {
-      number: "INV-20251012-FBB652",
-      total: 59800.0,
-    },
+    number: `PAY-${paymentData.id.toString().padStart(6, "0")}`,
+    date: new Date(paymentData.payment_date).toLocaleDateString(),
+    method: paymentData.payment_method.replaceAll("_", " ").replace(/^\w/, c => c.toUpperCase()),
+    reference: paymentData.reference_number || "-",
+    notes: paymentData.notes || "-",
+    amount: Number(paymentData.amount),
+    recordedBy: paymentData.created_by || "-",
+    invoice: paymentData.order
+      ? {
+          number: paymentData.order.order_number,
+          total: Number(paymentData.order.total_amount),
+        }
+      : null,
   };
 
-  const customer = {
-    name: "Digital Works Sdn Bhd",
-    code: "CUST006",
-  };
+  const customer = paymentData.order?.customer
+    ? {
+        name: paymentData.order.customer.name,
+        code: `CUST-${paymentData.order.customer.id.toString().padStart(3, "0")}`,
+      }
+    : null;
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">
-          Payment {payment.number}
-        </h1>
+        <h1 className="text-3xl font-bold">Payment {payment.number}</h1>
 
         <div className="flex items-center gap-2">
           <Link to="/dashboard/payments">
             <Button variant="outline">← Back to Payments</Button>
           </Link>
-          <Link to={`/dashboard/invoices/${payment.invoice.number}`}>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-            View Invoice {payment.invoice.number}
-          </Button>
-          </Link>
+          {payment.invoice && (
+            <Link to={`/dashboard/invoices/${payment.invoice.number}`}>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                View Invoice {payment.invoice.number}
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -87,19 +100,21 @@ export default function PaymentDetails() {
 
               <div>
                 <p className="font-semibold">Linked Invoice</p>
-                <a
-                  href="#"
-                  className="text-blue-600 underline hover:text-blue-800"
-                >
-                  {payment.invoice.number}
-                </a>
+                {payment.invoice ? (
+                  <Link
+                    to={`/dashboard/invoices/${payment.invoice.number}`}
+                    className="text-blue-600 underline hover:text-blue-800"
+                  >
+                    {payment.invoice.number}
+                  </Link>
+                ) : (
+                  <p className="text-gray-400">No Invoice</p>
+                )}
               </div>
 
               <div className="mt-8">
                 <p className="font-semibold">Amount</p>
-                <p className="text-xl font-bold">
-                  RM {payment.amount.toFixed(2)}
-                </p>
+                <p className="text-xl font-bold">RM {payment.amount.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -109,29 +124,36 @@ export default function PaymentDetails() {
         <div className="space-y-4">
           <div className="border rounded-md p-5">
             <h3 className="font-semibold text-lg">Customer</h3>
-            <p className="mt-2 font-semibold">{customer.name}</p>
-            <p className="text-sm">{customer.code}</p>
+            {customer ? (
+              <>
+                <p className="mt-2 font-semibold">{customer.name}</p>
+                <p className="text-sm">{customer.code}</p>
+              </>
+            ) : (
+              <p className="text-gray-400">No Customer Info</p>
+            )}
           </div>
 
           {/* Invoice Summary */}
-          <div className="border rounded-md p-5 space-y-3">
-            <h3 className="font-semibold text-lg">Invoice Summary</h3>
+          {payment.invoice && (
+            <div className="border rounded-md p-5 space-y-3">
+              <h3 className="font-semibold text-lg">Invoice Summary</h3>
 
-            <div className="flex justify-between text-sm">
-              <span>Invoice #</span>
-              <span className="font-semibold">{payment.invoice.number}</span>
-            </div>
+              <div className="flex justify-between text-sm">
+                <span>Invoice #</span>
+                <span className="font-semibold">{payment.invoice.number}</span>
+              </div>
 
-            <div className="flex justify-between text-sm">
-              <span>Invoice Total</span>
-              <span className="font-semibold">
-                RM {payment.invoice.total.toFixed(2)}
-              </span>
+              <div className="flex justify-between text-sm">
+                <span>Invoice Total</span>
+                <span className="font-semibold">
+                  RM {payment.invoice.total.toFixed(2)}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
