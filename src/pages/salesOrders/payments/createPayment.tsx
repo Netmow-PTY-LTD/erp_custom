@@ -28,7 +28,8 @@ import { useState } from "react";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAddSalesPaymentMutation, useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
+import { toast } from "sonner";
 
 const paymentSchema = z.object({
   customer_id: z.number().min(1, "Customer is required"),
@@ -42,7 +43,13 @@ const paymentSchema = z.object({
 
 type PaymentFormValues = z.infer<typeof paymentSchema>;
 
+
 export default function CreatePaymentPage() {
+
+
+  const [addPayment] = useAddSalesPaymentMutation()
+
+
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
@@ -165,15 +172,42 @@ export default function CreatePaymentPage() {
 
 
 
-  function onSubmit(values: PaymentFormValues) {
-    const payload = {
-      paymentId: `PAY-1`, // auto ID
-      ...values,
+  async function onSubmit(values: PaymentFormValues) {
+
+    // Construct payload dynamically
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: Record<string, any> = {
+      order_id: values.invoice_id,                     // invoice_id → order_id
+      amount: Number(values.amount),                   // ensure numeric
+      payment_method: values.payment_method.toLowerCase(), // lowercase
     };
 
-    console.log("Final Payload:", payload);
 
+
+    // Optional fields: add only if they have values
+    if (values.customer_id) payload.customer_id = values.customer_id;
+    if (values.date) payload.date = values.date;
+    if (values.reference) payload.reference = values.reference;
+    if (values.notes) payload.notes = values.notes;
+
+
+
+
+    console.log("FINAL API PAYLOAD:", payload);
+
+
+    try {
+      const res = await addPayment(payload).unwrap();
+
+      if (res.status) {
+        toast.success(res.message || "Payment Added Successfully!")
+      }
+
+    } catch (error) {
+      console.error("Payment Error:", error);
+    }
   }
+
 
 
 
@@ -242,7 +276,7 @@ export default function CreatePaymentPage() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Invoice (optional) </FormLabel>
+                      <FormLabel>Invoice </FormLabel>
                       <FormControl>
                         <InvoiceSelectField field={field} />
                       </FormControl>
