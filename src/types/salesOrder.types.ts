@@ -1,3 +1,5 @@
+import type { Customer } from "@/store/features/customers/types";
+import type { Product } from "./types";
 
 
 
@@ -5,6 +7,7 @@ export interface SalesOrderItem {
   id: number;
   order_id: number;
   product_id: number;
+  product: Product;
   quantity: number;
   unit_price: string;      // decimal return as string
   total_price: string;     // decimal return as string
@@ -13,12 +16,14 @@ export interface SalesOrderItem {
 }
 
 export interface SalesOrder {
+  delivery_date: string | number | Date;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   invoice: any;
-  due_date: string | number | Date;
+  due_date: string | Date;
   id: number;
   order_number: string;
   customer_id: number;
+  customer:Customer 
   order_date: string;          // ISO date
   status: "pending" | "confirmed" | "shipped" | "completed" | "cancelled" | string;
   total_amount: string;        // decimal
@@ -51,5 +56,14 @@ export interface SalesOrderFormValues {
     discount: number;
   }[];
 }
+
+
+// TypeScript type for update payload
+export type UpdateDeliveryPayload = {
+  status: "pending" | "in_transit" | "delivered" | "failed" | "returned"|"confirmed";
+  delivery_date: string; // ISO date string
+  notes: string;
+};
+
 
 

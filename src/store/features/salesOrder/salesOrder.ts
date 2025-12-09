@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/store/baseApi";
 import type { InvoiceCreatePayload, SalesInvoice } from "@/types/salesInvoice.types";
-import type { SalesOrder, SalesOrderFormValues } from "@/types/salesOrder.types";
+import type { SalesOrder, SalesOrderFormValues, UpdateDeliveryPayload } from "@/types/salesOrder.types";
 import type { SalesPayment } from "@/types/salesPayment.types";
 import type { Warehouse } from "@/types/warehouse.types";
 
@@ -49,6 +49,21 @@ export const salesApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["SalesOrders"],
     }),
+    // CREATE SALES ORDER
+    updateSalesOrderStatus: builder.mutation<
+      SalesResponse<SalesOrder>,
+     {
+      orderId:string|number,
+      orderData:UpdateDeliveryPayload
+     }
+    >({
+      query: ({orderId,orderData}) => ({
+        url: `/sales/orders/${orderId}/deliver`,
+        method: "POST",
+        body:orderData,
+      }),
+      invalidatesTags: ["SalesOrders"],
+    }),
 
     // GET SINGLE SALES ORDER BY ID
     getSalesOrderById: builder.query<SalesResponse<SalesOrder>, string | number>(
@@ -91,6 +106,30 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesInvoices"],
     }),
 
+
+        // GET SINGLE SALES INVOICE BY ID
+    getInvoiceById: builder.query< SalesResponse<SalesInvoice>, string | number>(
+      {
+        query: (id) => ({
+          url: `/sales/orders/invoices/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["SalesInvoice"],
+      }
+    ),
+        // GET SINGLE SALES INVOICE BY ID
+    getInvoicesByCustomer: builder.query< SalesResponse<SalesInvoice>, { page?: number; limit?: number; search?: string ,customerId:number|string}>(
+      {
+        query: (params) => ({
+          url: `/sales/orders/invoices/customer/${params.customerId}`,
+          method: "GET",
+          params
+        }),
+        providesTags: ["SalesInvoiceByCustomers"],
+        
+      }
+    ),
+
     // ============================
     // PAYMENTS
     // ============================
@@ -107,6 +146,32 @@ export const salesApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["SalesPayments"],
     }),
+
+
+       // GET ALL Payments
+    getSalesPayment: builder.query<
+       SalesResponse<SalesPayment[]>,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/sales/orders/payments",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["SalesPayments"],
+    }),
+
+
+      getSalesPaymentById: builder.query< SalesResponse<SalesPayment>, string | number>(
+      {
+        query: (id) => ({
+          url: `/sales/orders/payments/${id}`,
+          method: "GET",
+        }),
+        providesTags: ["SalesPayment"],
+      }
+    ),
+
 
     // ============================
     // WAREHOUSES
@@ -155,14 +220,17 @@ export const {
   useGetAllSalesOrdersQuery,
   useAddSalesOrderMutation,
   useGetSalesOrderByIdQuery,
-
   useGetSalesInvoicesQuery,
   useAddSalesInvoiceMutation,
-
+  useGetInvoiceByIdQuery,
+  useLazyGetInvoiceByIdQuery,
   useAddSalesPaymentMutation,
-
+  useGetSalesPaymentQuery,
   useGetSalesWarehousesQuery,
   useAddSalesWarehouseMutation,
-
   useGetSalesRoutesQuery,
+  useGetInvoicesByCustomerQuery,
+  useGetSalesPaymentByIdQuery,
+  useUpdateSalesOrderStatusMutation
+  
 } = salesApiService;

@@ -105,7 +105,11 @@ export const baseApi = createApi({
     'Warehouses',
     'SalesInvoices',
     'SalesPayments',
-    'SalesOrders'
+    'SalesOrders',
+    'SalesInvoice',
+    'SalesInvoiceByCustomers',
+    'SalesPayment',
+    'SalesRoute'
   ],
   endpoints: () => ({}),
 });

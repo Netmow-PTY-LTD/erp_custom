@@ -1,15 +1,23 @@
 
+import type { SalesInvoice } from "./salesInvoice.types";
+import type { SalesOrder } from "./salesOrder.types";
+
+
+
+
 export interface SalesPayment {
-  _id?: string;
-  paymentNo?: string;
-  orderId?: string;
-  invoiceId?: string;
-  customerId: string;
-  amount: number;
-  paymentMethod: "cash" | "card" | "bank" | "mobile" | "cheque";
-  transactionId?: string;
-  paymentDate: string;      // ISO date
-  notes?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  notes: string;
+  id: number;
+  invoice_id: number | null;
+  order_id: number;
+  amount: string;
+  payment_date: string;
+  payment_method: string;
+  reference_number: string;
+  status: string;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+  order: SalesOrder;
+  invoice: SalesInvoice | null;
 }
