@@ -3,9 +3,10 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
-import type { SalesRoute } from "@/types/types";
+
 import { PlusCircle } from "lucide-react";
 import { SalesRoutes } from "@/data/data";
+import type { SalesRoute } from "@/types/salesRoute.types";
 
 export default function SalesRoutesPage() {
   const RoutesColumns: ColumnDef<SalesRoute>[] = [
