@@ -35,10 +35,11 @@ export const salesRouteApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL SALES ROUTES
-    getAllSalesRoute: builder.query<SalesRouteListResponse, void>({
-      query: () => ({
+    getAllSalesRoute: builder.query<SalesRouteListResponse, { page:number, limit:number, search:string }>({
+      query: (params) => ({
         url: "/sales",
         method: "GET",
+        params
       }),
       providesTags: ["SalesRoute"],
     }),
