@@ -1,3 +1,4 @@
+
 import {
   Form,
   FormControl,
@@ -23,32 +24,159 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router";
+import { useState } from "react";
+import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
 
 const paymentSchema = z.object({
-  customerId: z.string().min(1, "Customer is required"),
-  invoiceId: z.string().optional(),
+  customer_id: z.number().min(1, "Customer is required"),
+  invoice_id: z.number().optional(),
   amount: z.any().refine((value) => Number(value)),
-  method: z.string().min(1, "Payment method is required"),
+  payment_method: z.string().min(1, "Payment method is required"),
   date: z.string().min(1, "Payment date is required"),
   reference: z.string().optional(),
   notes: z.string().optional(),
 });
 
- type PaymentFormValues = z.infer<typeof paymentSchema>;
+type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 export default function CreatePaymentPage() {
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      customerId: "",
-      invoiceId: "",
+      customer_id: 0,
+      invoice_id: 0,
       amount: undefined,
-      method: "",
+      payment_method: "",
       date: new Date().toISOString().split("T")[0],
       reference: "",
       notes: "",
     },
   });
+
+
+
+
+  /* -------------------- Customer  Select Fields -------------------- */
+  const CustomerSelectField = ({ field }: { field: { value: number; onChange: (v: number) => void } }) => {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const { data, isLoading } = useGetCustomersQuery({ page: 1, limit: 20, search: query });
+    const list = Array.isArray(data?.data) ? data.data : [];
+    const selected = list.find((c) => c.id === field.value);
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button className="w-full justify-between" variant="outline">
+            {selected ? selected.name : "Select Customer..."}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0">
+          <Command>
+            <CommandInput placeholder="Search customers..." onValueChange={setQuery} />
+            <CommandList>
+              <CommandEmpty>No customers found</CommandEmpty>
+              <CommandGroup>
+                {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
+                {!isLoading && list.map((customer) => (
+                  <CommandItem key={customer.id} onSelect={() => { field.onChange(customer.id); setOpen(false); }}>
+                    {customer.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
+
+
+
+
+  /* -------------------- Invoice Select Field -------------------- */
+  const InvoiceSelectField = ({
+    field,
+  }: {
+    field: { value: number | undefined | null; onChange: (v: number | null) => void };
+  }) => {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+
+    const { data, isLoading } = useGetSalesInvoicesQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+    });
+
+    const list = Array.isArray(data?.data) ? data.data : [];
+    const selected = list.find((inv) => inv.id === field.value);
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button className="w-full justify-between" variant="outline">
+            {selected ? `INV-${selected.id}` : "Select Invoice..."}
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-[300px] p-0">
+          <Command>
+            <CommandInput placeholder="Search invoices..." onValueChange={setQuery} />
+
+            <CommandList>
+              <CommandEmpty>No invoices found</CommandEmpty>
+
+              <CommandGroup>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>
+                )}
+
+                {!isLoading &&
+                  list.map((invoice) => (
+                    <CommandItem
+                      key={invoice.id}
+                      onSelect={() => {
+                        field.onChange(invoice.id);
+                        setOpen(false);
+                      }}
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-medium">INV-{invoice.id}</span>
+                        <span className="text-xs text-gray-500">
+                          Amount: ৳ {Number(invoice.total_amount).toFixed(2)}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   function onSubmit(values: PaymentFormValues) {
     const payload = {
@@ -57,8 +185,12 @@ export default function CreatePaymentPage() {
     };
 
     console.log("Final Payload:", payload);
-    alert("Payment Ready to Send:\n" + JSON.stringify(payload, null, 2));
+    
   }
+
+
+
+
 
   return (
     <div className="w-full">
@@ -84,35 +216,14 @@ export default function CreatePaymentPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 {/* CUSTOMER */}
                 <FormField
+                  name="customer_id"
                   control={form.control}
-                  name="customerId"
+                  rules={{ required: "Customer required" }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Customer <span className="text-red-500">*</span>
-                      </FormLabel>
+                      <FormLabel>Customer</FormLabel>
                       <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select Customer" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="CUST001">
-                              Tech Solutions
-                            </SelectItem>
-                            <SelectItem value="CUST002">
-                              Global Trading
-                            </SelectItem>
-                            <SelectItem value="CUST005">
-                              Modern Enterprises
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <CustomerSelectField field={field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -120,37 +231,21 @@ export default function CreatePaymentPage() {
                 />
 
                 {/* INVOICE OPTIONAL */}
+
                 <FormField
+                  name="invoice_id"
                   control={form.control}
-                  name="invoiceId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Invoice (Optional)</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Invoice" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="INV-20251012-FBB652">
-                            INV-20251012-FBB652
-                          </SelectItem>
-                          <SelectItem value="INV2025001">INV2025001</SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      <p className="text-xs text-muted-foreground">
-                        Link this payment to a specific invoice
-                      </p>
-
+                      <FormLabel>Invoice (optional) </FormLabel>
+                      <FormControl>
+                        <InvoiceSelectField field={field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
 
                 {/* AMOUNT */}
                 <FormField
@@ -177,7 +272,7 @@ export default function CreatePaymentPage() {
                 {/* METHOD */}
                 <FormField
                   control={form.control}
-                  name="method"
+                  name="payment_method"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -193,15 +288,15 @@ export default function CreatePaymentPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Cash">Cash</SelectItem>
-                          <SelectItem value="Bank Transfer">
+                          <SelectItem value="cash">Cash</SelectItem>
+                          <SelectItem value="bank_transfer">
                             Bank Transfer
                           </SelectItem>
-                          <SelectItem value="Credit Card">
+                          <SelectItem value="credit_card">
                             Credit Card
                           </SelectItem>
-                          <SelectItem value="Cheque">Cheque</SelectItem>
-                          <SelectItem value="Online">Online</SelectItem>
+                          <SelectItem value="cheque">Cheque</SelectItem>
+                          <SelectItem value="online">Online</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
