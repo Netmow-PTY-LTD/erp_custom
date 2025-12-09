@@ -137,18 +137,18 @@ export default function Payments() {
       header: "Customer",
       cell: ({ row }) => (
         <div>
-          <div className="font-semibold">Customer #{row.original.order?.customer_id}</div>
+          <div className="font-semibold">{row.original.order?.customer.name}</div>
           <div className="text-xs text-muted-foreground">
             ID: {row.original.order?.customer_id}
           </div>
         </div>
       ),
     },
-    {
-      accessorKey: "invoice_id",
-      header: "Invoice #",
-      cell: ({ row }) => row.original.invoice_id ?? "-",
-    },
+    // {
+    //   accessorKey: "invoice_id",
+    //   header: "Invoice #",
+    //   cell: ({ row }) => row.original.invoice_id ?? "-",
+    // },
     {
       accessorKey: "payment_date",
       header: "Payment Date",

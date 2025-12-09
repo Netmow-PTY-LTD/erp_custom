@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronLeft } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
@@ -45,7 +45,7 @@ type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 
 export default function CreatePaymentPage() {
-
+const navigate=useNavigate()
 
   const [addPayment] = useAddSalesPaymentMutation()
 
@@ -260,6 +260,7 @@ export default function CreatePaymentPage() {
 
       if (res.status) {
         toast.success(res.message || "Payment Added Successfully!")
+        navigate('/dashboard/payments')
       }
 
     } catch (error) {
