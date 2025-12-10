@@ -19,7 +19,7 @@ export interface Staff {
   last_name: string;
   email: string;
   phone?: string;
-  department: string | null;
+  department_id: number;
   position: string;
   status: "active" | "terminated" | "on_leave"; 
   hire_date: string; 

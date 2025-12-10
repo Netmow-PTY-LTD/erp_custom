@@ -48,7 +48,7 @@ const StaffSchema = z.object({
   last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
-  department: z.string().optional(),
+  department: z.number(),
   position: z.string().min(1, "Required"),
   hire_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid date",
@@ -87,7 +87,7 @@ export default function AddStaffPage() {
       last_name: "",
       email: "",
       phone: "",
-      department: "",
+      department: 0,
       position: "",
       hire_date: "",
       salary: 0,
@@ -104,6 +104,7 @@ export default function AddStaffPage() {
     console.log("API Payload:", values);
     const payload = {
       ...values,
+      department_id: values.department,
       thumb_url: values.image,
     };
     try {
