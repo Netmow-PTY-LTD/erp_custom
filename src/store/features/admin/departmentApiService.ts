@@ -31,7 +31,7 @@ export const departmentApiService = baseApi.injectEndpoints({
     }),
     getAllDepartments: builder.query<
       DepartmentResponse,
-      { page: number; limit: number; search: string }
+      { page?: number; limit?: number; search?: string }
     >({
       query: ({ page, limit, search }) => ({
         url: `/departments?page=${page}&limit=${limit}&search=${search}`,

@@ -159,17 +159,19 @@ export type WarehouseOrder = {
   status: "confirmed";
 };
 
-
-
-
 export interface Staff {
   id: number;
   employeeId: string;
   first_name: string;
   last_name: string;
   email: string;
-  department: string | null; // "-" values can be treated as null
+  phone?: string;
+  department: string | null;
   position: string;
-  status: "Active" | "On Leave" | "Inactive"; // restrict to known statuses
-  hireDate: string; // could use Date if you want to parse it
+  status: "active" | "inactive" | "on_leave"; 
+  hire_date: string; 
+  salary: number;
+  thumb_url?: string;
+  gallery_items?: string[];
 }
+
