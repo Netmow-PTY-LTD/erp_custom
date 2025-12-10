@@ -1,5 +1,6 @@
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +11,6 @@ import { CalendarX2, Clock, PlusCircle, Trash, Users, XCircle } from "lucide-rea
 import { useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
-
-
 
 
 // Simple modal
@@ -66,11 +65,11 @@ export default function Staffs() {
   // -----------------------------------------
   const totalStaff = staffsList?.length;
 
-  const activeStaff = staffsList?.filter((s: Staff) => s.status === "Active").length;
+  const activeStaff = staffsList?.filter((s: Staff) => s.status.toLowerCase() === "Active").length;
 
-  const inactiveStaff = staffsList?.filter((s: Staff) => s.status === "Inactive").length;
+  const inactiveStaff = staffsList?.filter((s: Staff) => s.status.toLowerCase() === "Inactive").length;
 
-  const onLeaveStaff = staffsList?.filter((s) => s.status === "On Leave").length;
+  const onLeaveStaff = staffsList?.filter((s) => s.status.toLowerCase() === "On Leave").length;
   // If your DB uses "leave" or "onLeave", update the string.
 
 
@@ -162,7 +161,20 @@ export default function Staffs() {
         </div>
       ),
     },
-
+ {
+      accessorKey: "thumb_url",
+      header: "Image",
+      cell: ({ row }) => {
+        const image = row.getValue("thumb_url") as string;
+        return (
+          <div className="flex items-center gap-4">
+            <Avatar>
+              <AvatarImage src={image} />
+            </Avatar>
+          </div>
+        );
+      },
+    },
     {
       accessorKey: "email",
       header: "Email",
