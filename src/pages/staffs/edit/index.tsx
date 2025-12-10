@@ -50,7 +50,7 @@ const StaffSchema = z.object({
   last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
-  department: z.string().optional(),
+  department: z.number().optional(),
   position: z.string().min(1, "Required"),
   hire_date: z.string().refine((v) => !isNaN(Date.parse(v)), {
     message: "Invalid date",
@@ -90,7 +90,7 @@ export default function EditStaffPage() {
       last_name: "",
       email: "",
       phone: "",
-      department: "",
+      department: 0,
       position: "",
       hire_date: "",
       salary: 0,
@@ -106,22 +106,20 @@ export default function EditStaffPage() {
 
   useEffect(() => {
     if (staff) {
-      const matchedDept = fetchedDepartments?.data?.find(
-      dept => dept?.name?.toLowerCase() === staff?.department?.toLowerCase()
-    );
+      
 
       form.reset({
-        first_name: staff.first_name,
-        last_name: staff.last_name,
-        email: staff.email,
-        phone: staff.phone || "",
-        department: matchedDept?.name || "",
-        position: staff.position,
-        hire_date: staff.hire_date,
-        salary: staff.salary || 0,
-        status: staff.status,
-        image: staff.thumb_url,
-        gallery_items: staff.gallery_items,
+        first_name: staff?.first_name,
+        last_name: staff?.last_name,
+        email: staff?.email,
+        phone: staff?.phone || "",
+        department: staff?.department_id,
+        position: staff?.position,
+        hire_date: staff?.hire_date,
+        salary: staff?.salary || 0,
+        status: staff?.status,
+        image: staff?.thumb_url,
+        gallery_items: staff?.gallery_items,
       });
     }
   }, [staff, fetchedDepartments?.data, form]);
@@ -276,7 +274,7 @@ export default function EditStaffPage() {
                       const selected = fetchedDepartments?.data?.find(
                         (dept) => Number(dept.id) === Number(field.value)
                       );
-
+                      
                       return (
                         <FormItem>
                           <FormLabel>Department</FormLabel>
@@ -289,7 +287,7 @@ export default function EditStaffPage() {
                                 className="w-full justify-between font-medium"
                               >
                                 {selected
-                                  ? selected.name
+                                  ? selected?.name
                                   : "Select department..."}
                                 <ChevronDown className="opacity-50 h-4 w-4" />
                               </Button>
