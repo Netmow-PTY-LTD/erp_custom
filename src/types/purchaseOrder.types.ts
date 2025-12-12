@@ -1,3 +1,4 @@
+import type { Supplier } from "./supplier.types";
 
 
 
@@ -30,3 +31,27 @@ export interface PurchaseOrder {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: POItem |any ; 
 }
+
+
+
+
+
+
+
+export interface Coordinates {
+  lat: number | null;
+  lng: number | null;
+}
+
+export interface PurchaseOrderLocation {
+  id: number;
+  po_number: string;
+  status: "pending" | "approved" | "received" | "delivered" | "rejected";
+  total_amount: number;
+  order_date: string; // ISO string
+  expected_delivery_date: string; // ISO string
+  supplier: Supplier;
+  coordinates: Coordinates;
+}
+
+

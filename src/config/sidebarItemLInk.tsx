@@ -77,6 +77,7 @@ import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/Pur
 import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayments";
 import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
 import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
+import PurchaseOrdersMapPage from "@/pages/suppliers/PurchaseOrdersMap";
 
 
 // This is sample data.
@@ -238,6 +239,11 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/purchase-payments/:id",
         element: <PurchasePaymentsDetails />,
+      },
+      {
+        title: "Purchase Orders Map",
+        url: "/dashboard/purchase-orders-map",
+        element: <PurchaseOrdersMapPage />,
       },
 
 
