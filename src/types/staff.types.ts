@@ -12,6 +12,8 @@
 //   created_at: string; // ISO date string
 // };
 
+import type { Department } from "./types";
+
 export interface Staff {
   id: number;
   employeeId: string;
@@ -20,6 +22,7 @@ export interface Staff {
   email: string;
   phone?: string;
   department_id: number;
+  department: Department | null;
   position: string;
   status: "active" | "terminated" | "on_leave"; 
   hire_date: string; 

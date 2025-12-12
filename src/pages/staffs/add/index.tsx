@@ -38,7 +38,15 @@ import { toast } from "sonner";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import { useState } from "react";
 import { useGetAllDepartmentsQuery } from "@/store/features/admin/departmentApiService";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { useAppSelector } from "@/store/store";
 
 // =====================================================
 //  FORM SCHEMA (PAYLOAD READY)
@@ -80,6 +88,8 @@ export default function AddStaffPage() {
     search,
   });
 
+  const currency = useAppSelector((state) => state.currency.value);
+
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(StaffSchema),
     defaultValues: {
@@ -103,10 +113,19 @@ export default function AddStaffPage() {
   const onSubmit = async (values: StaffFormValues) => {
     console.log("API Payload:", values);
     const payload = {
-      ...values,
+      first_name: values.first_name,
+      last_name: values.last_name,
+      email: values.email,
+      phone: values.phone,
       department_id: values.department,
+      position: values.position,
+      hire_date: values.hire_date,
+      salary: values.salary,
+      status: values.status,
       thumb_url: values.image,
+      gallery_items: values.gallery_items,
     };
+
     try {
       // const fd = new FormData();
 
@@ -260,69 +279,73 @@ export default function AddStaffPage() {
                     name="department"
                     render={({ field }) => {
                       const selected = fetchedDepartments?.data?.find(
-                    (dept) => Number(dept.id) === Number(field.value)
-                  );
+                        (dept) => Number(dept.id) === Number(field.value)
+                      );
 
                       return (
-                      (
-                      <FormItem>
-                        <FormLabel>Department</FormLabel>
-                        <Popover open={open} onOpenChange={setOpen}>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              role="combobox"
-                              aria-expanded={open}
-                              className="w-full justify-between"
-                            >
-                              {selected ? selected.name : "Select department..."}
-                              <ChevronDown className="opacity-50 h-4 w-4" />
-                            </Button>
-                          </PopoverTrigger>
+                        <FormItem>
+                          <FormLabel>Department</FormLabel>
+                          <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={open}
+                                className="w-full justify-between"
+                              >
+                                {selected
+                                  ? selected.name
+                                  : "Select department..."}
+                                <ChevronDown className="opacity-50 h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
 
-                          <PopoverContent className="w-full p-0">
-                            <Command>
-                              {/* Search input */}
-                              <CommandInput
-                                placeholder="Search category..."
-                                className="h-9"
-                                value={search}
-                                onValueChange={setSearch}
-                              />
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                {/* Search input */}
+                                <CommandInput
+                                  placeholder="Search category..."
+                                  className="h-9"
+                                  value={search}
+                                  onValueChange={setSearch}
+                                />
 
-                              <CommandList>
-                                <CommandEmpty>No department found.</CommandEmpty>
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No department found.
+                                  </CommandEmpty>
 
-                                <CommandGroup>
-                                  {fetchedDepartments?.data?.map((dept) => (
-                                    <CommandItem
-                                      key={dept?.id}
-                                      value={`${dept?.name}-${dept?.id}`} // unique, string
-                                      onSelect={() => {
-                                        field.onChange(dept?.id); // convert back to number
-                                        setOpen(false);
-                                      }}
-                                    >
-                                      {dept?.name}
-                                      <Check
-                                        className={cn(
-                                          "ml-auto h-4 w-4",
-                                          Number(field.value) === Number(dept?.id)
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                      />
-                                    </CommandItem>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )
-                    )}}
+                                  <CommandGroup>
+                                    {fetchedDepartments?.data?.map((dept) => (
+                                      <CommandItem
+                                        key={dept?.id}
+                                        value={`${dept?.name}-${dept?.id}`} // unique, string
+                                        onSelect={() => {
+                                          field.onChange(dept?.id); // convert back to number
+                                          setOpen(false);
+                                        }}
+                                      >
+                                        {dept?.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto h-4 w-4",
+                                            Number(field.value) ===
+                                              Number(dept?.id)
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField
@@ -393,7 +416,9 @@ export default function AddStaffPage() {
                     name="salary"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Salary (RM)</FormLabel>
+                        <FormLabel>
+                          Salary {`${currency ? `(${currency})` : ""}`}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"

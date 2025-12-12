@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -30,15 +29,21 @@ import {
 } from "@/components/ui/command";
 
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
-import { useAddSalesInvoiceMutation, useAddSalesOrderMutation } from "@/store/features/salesOrder/salesOrder";
+import {
+  useAddSalesInvoiceMutation,
+  useAddSalesOrderMutation,
+} from "@/store/features/salesOrder/salesOrder";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
 import { Link, useNavigate } from "react-router";
+import { useAppSelector } from "@/store/store";
 
 export default function CreateSalesOrderPage() {
   const navigate = useNavigate();
   const [addSalesOrder, { isLoading }] = useAddSalesOrderMutation();
   const [createInvoice] = useAddSalesInvoiceMutation();
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const form = useForm<SalesOrderFormValues>({
     defaultValues: {
@@ -46,9 +51,7 @@ export default function CreateSalesOrderPage() {
       shipping_address: "",
       order_date: "",
       due_date: "",
-      items: [
-        { product_id: 0, quantity: 1, unit_price: 0, discount: 0 },
-      ],
+      items: [{ product_id: 0, quantity: 1, unit_price: 0, discount: 0 }],
     },
   });
 
@@ -60,13 +63,21 @@ export default function CreateSalesOrderPage() {
 
   const items = watch("items");
 
-  const subtotal = items.reduce((sum, it) => sum + it.unit_price * it.quantity, 0);
-  const totalDiscount = items.reduce((sum, it) => sum + (it.unit_price * it.quantity * it.discount) / 100, 0);
+  const subtotal = items.reduce(
+    (sum, it) => sum + it.unit_price * it.quantity,
+    0
+  );
+  const totalDiscount = items.reduce(
+    (sum, it) => sum + (it.unit_price * it.quantity * it.discount) / 100,
+    0
+  );
   const total = subtotal - totalDiscount;
 
   const onSubmit = async (values: SalesOrderFormValues) => {
-    if (values.customer_id === 0) return toast.error("Please select a customer");
-    if (values.items.some((i) => i.product_id === 0)) return toast.error("Please select all products");
+    if (values.customer_id === 0)
+      return toast.error("Please select a customer");
+    if (values.items.some((i) => i.product_id === 0))
+      return toast.error("Please select all products");
 
     try {
       const payload = {
@@ -81,8 +92,6 @@ export default function CreateSalesOrderPage() {
           discount: Number(i.discount),
         })),
       };
-
-
 
       // ➤ STEP 1: Create Sales Order
       const orderRes = await addSalesOrder(payload).unwrap();
@@ -108,13 +117,6 @@ export default function CreateSalesOrderPage() {
         navigate("/dashboard/orders");
       }
 
-
-
-
-
-
-
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create sales order");
@@ -123,10 +125,18 @@ export default function CreateSalesOrderPage() {
   };
 
   /* -------------------- Customer & Product Select Fields -------------------- */
-  const CustomerSelectField = ({ field }: { field: { value: number; onChange: (v: number) => void } }) => {
+  const CustomerSelectField = ({
+    field,
+  }: {
+    field: { value: number; onChange: (v: number) => void };
+  }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const { data, isLoading } = useGetCustomersQuery({ page: 1, limit: 20, search: query });
+    const { data, isLoading } = useGetCustomersQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+    });
     const list = Array.isArray(data?.data) ? data.data : [];
     const selected = list.find((c) => c.id === field.value);
 
@@ -139,16 +149,30 @@ export default function CreateSalesOrderPage() {
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder="Search customers..." onValueChange={setQuery} />
+            <CommandInput
+              placeholder="Search customers..."
+              onValueChange={setQuery}
+            />
             <CommandList>
               <CommandEmpty>No customers found</CommandEmpty>
               <CommandGroup>
-                {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
-                {!isLoading && list.map((customer) => (
-                  <CommandItem key={customer.id} onSelect={() => { field.onChange(customer.id); setOpen(false); }}>
-                    {customer.name}
-                  </CommandItem>
-                ))}
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+                {!isLoading &&
+                  list.map((customer) => (
+                    <CommandItem
+                      key={customer.id}
+                      onSelect={() => {
+                        field.onChange(customer.id);
+                        setOpen(false);
+                      }}
+                    >
+                      {customer.name}
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -157,10 +181,18 @@ export default function CreateSalesOrderPage() {
     );
   };
 
-  const ProductSelectField = ({ field }: { field: { value: number; onChange: (v: number) => void } }) => {
+  const ProductSelectField = ({
+    field,
+  }: {
+    field: { value: number; onChange: (v: number) => void };
+  }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const { data, isLoading } = useGetAllProductsQuery({ page: 1, limit: 50, search: query });
+    const { data, isLoading } = useGetAllProductsQuery({
+      page: 1,
+      limit: 50,
+      search: query,
+    });
     const list = Array.isArray(data?.data) ? data.data : [];
     const selected = list.find((p) => p.id === field.value);
 
@@ -168,21 +200,37 @@ export default function CreateSalesOrderPage() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button className="w-full justify-between" variant="outline">
-            {selected ? `${selected.name} (SKU: ${selected.sku})` : "Select product..."}
+            {selected
+              ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit.name})`
+              : "Select product..."}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder="Search products..." onValueChange={setQuery} />
+            <CommandInput
+              placeholder="Search products..."
+              onValueChange={setQuery}
+            />
             <CommandList>
               <CommandEmpty>No products found</CommandEmpty>
               <CommandGroup>
-                {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
-                {!isLoading && list.map((product) => (
-                  <CommandItem key={product.id} onSelect={() => { field.onChange(product.id); setOpen(false); }}>
-                    {product.name} (SKU: {product.sku})
-                  </CommandItem>
-                ))}
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+                {!isLoading &&
+                  list.map((product) => (
+                    <CommandItem
+                      key={product.id}
+                      onSelect={() => {
+                        field.onChange(product.id);
+                        setOpen(false);
+                      }}
+                    >
+                      {product.name} (SKU: {product.sku}) (Unit: {product.unit.name})
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -206,7 +254,7 @@ export default function CreateSalesOrderPage() {
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
           {/* Customer & Shipping */}
           <div className="border rounded-md p-4 space-y-4">
-            <h2 className="font-semibold mb-2">Customer & Shipping</h2>
+            <h2 className="font-semibold mb-4">Customer & Shipping</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 name="customer_id"
@@ -229,7 +277,7 @@ export default function CreateSalesOrderPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Order Date</FormLabel>
-                    <Input type="date" {...field} />
+                    <Input type="date" {...field} className="block" />
                   </FormItem>
                 )}
               />
@@ -240,7 +288,7 @@ export default function CreateSalesOrderPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Due Date</FormLabel>
-                    <Input type="date" {...field} />
+                    <Input type="date" {...field} className="block" />
                   </FormItem>
                 )}
               />
@@ -269,7 +317,12 @@ export default function CreateSalesOrderPage() {
               <Button
                 type="button"
                 onClick={() =>
-                  append({ product_id: 0, quantity: 1, unit_price: 0, discount: 0 })
+                  append({
+                    product_id: 0,
+                    quantity: 1,
+                    unit_price: 0,
+                    discount: 0,
+                  })
                 }
               >
                 + Add Item
@@ -287,7 +340,7 @@ export default function CreateSalesOrderPage() {
                     control={control}
                     rules={{ required: "Product required" }}
                     render={({ field }) => (
-                      <FormItem className="sm:col-span-6">
+                      <FormItem className="sm:col-span-4">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
                           <ProductSelectField field={field} />
@@ -303,7 +356,7 @@ export default function CreateSalesOrderPage() {
                     rules={{ required: "Price required" }}
                     render={({ field }) => (
                       <FormItem className="sm:col-span-2">
-                        <FormLabel>Unit Price</FormLabel>
+                        <FormLabel>Unit Price ({currency})</FormLabel>
                         <FormControl>
                           <Input type="number" min={0} {...field} />
                         </FormControl>
@@ -337,10 +390,15 @@ export default function CreateSalesOrderPage() {
                   />
 
                   <div className="sm:col-span-1 font-semibold text-right">
-                    RM {(items[index].quantity * items[index].unit_price * (1 - items[index].discount / 100)).toFixed(2)}
+                    {currency}{" "}
+                    {(
+                      items[index].quantity *
+                      items[index].unit_price *
+                      (1 - items[index].discount / 100)
+                    ).toFixed(2)}
                   </div>
 
-                  <div className="sm:col-span-12 sm:flex sm:justify-end mt-2 sm:mt-0">
+                  <div className="sm:flex sm:justify-end mt-2 sm:mt-0">
                     <Button
                       type="button"
                       variant="outline-destructive"
@@ -358,15 +416,15 @@ export default function CreateSalesOrderPage() {
             <div className="border-t mt-4 pt-4 space-y-2 text-right">
               <div className="flex justify-end gap-4">
                 <div className="font-semibold">Subtotal:</div>
-                <div>RM {subtotal.toFixed(2)}</div>
+                <div>{currency} {subtotal.toFixed(2)}</div>
               </div>
               <div className="flex justify-end gap-4">
                 <div className="font-semibold">Total Discount:</div>
-                <div>RM {totalDiscount.toFixed(2)}</div>
+                <div>{currency} {totalDiscount.toFixed(2)}</div>
               </div>
               <div className="flex justify-end gap-4 text-lg font-bold">
                 <div>Total:</div>
-                <div>RM {total.toFixed(2)}</div>
+                <div>{currency} {total.toFixed(2)}</div>
               </div>
             </div>
           </div>

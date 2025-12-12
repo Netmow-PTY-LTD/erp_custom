@@ -28,6 +28,8 @@ import {
   useGetAllProductsQuery,
 } from "@/store/features/admin/productsApiService";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { selectCurrency } from "@/store/currencySlice";
 
 const stats = [
   {
@@ -113,6 +115,8 @@ export default function Products() {
     }
   };
 
+  const currency = useAppSelector(selectCurrency);
+
   const productColumns: ColumnDef<Product>[] = [
     {
       accessorKey: "sku",
@@ -140,12 +144,12 @@ export default function Products() {
     },
     {
       accessorKey: "cost",
-      header: "Cost Price (RM)",
+      header: `Cost Price ${currency ? `(${currency})` : ""}`,
       cell: ({ row }) => row.original.cost,
     },
     {
       accessorKey: "price",
-      header: "Selling Price (RM)",
+      header: `Selling Price ${currency ? `(${currency})` : ""}`,
       cell: ({ row }) => row.original.price,
     },
     // {

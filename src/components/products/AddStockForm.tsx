@@ -312,19 +312,7 @@ export default function AddStockForm({
               />
 
               <div className="flex justify-center items-center gap-2">
-                <Button
-                  type="submit"
-                  onClick={() => setValue("operation", "add")}
-                >
-                  Add Stock
-                </Button>
-
-                <Button
-                  type="submit"
-                  onClick={() => setValue("operation", "subtract")}
-                >
-                  Subtract Stock
-                </Button>
+                <Button type="submit">Adjust Stock</Button>
               </div>
             </form>
           </Form>

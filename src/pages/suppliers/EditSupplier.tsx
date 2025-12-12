@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect } from "react";
@@ -34,11 +33,9 @@ const supplierSchema = z.object({
   contactPerson: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
   country: z.string().min(1, "Country is required"),
   paymentTerms: z.string().optional(),
-  status: z.enum(["Active", "Inactive"], "Status is required"),
+  status: z.enum(["Active", "Inactive"]),
 });
 
 type SupplierFormValues = z.infer<typeof supplierSchema>;
@@ -47,8 +44,11 @@ type SupplierFormValues = z.infer<typeof supplierSchema>;
 export default function EditSupplierPage() {
   const navigate = useNavigate();
   const { supplierId } = useParams(); // supplier ID from route
-  const { data: supplierData, isLoading: isFetching } = useGetSupplierByIdQuery(supplierId as string);
-  const [updateSupplier, { isLoading: isUpdating }] = useUpdateSupplierMutation();
+  const { data: supplierData, isLoading: isFetching } = useGetSupplierByIdQuery(
+    supplierId as string
+  );
+  const [updateSupplier, { isLoading: isUpdating }] =
+    useUpdateSupplierMutation();
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
@@ -60,8 +60,6 @@ export default function EditSupplierPage() {
       contactPerson: "",
       address: "",
       city: "",
-      state: "",
-      postalCode: "",
       country: "Malaysia",
       paymentTerms: "",
       status: "Active",
@@ -82,8 +80,6 @@ export default function EditSupplierPage() {
         contactPerson: s.contact_person,
         address: s.address,
         city: s.city,
-        state: s.state,
-        postalCode: s.postal_code,
         country: s.country,
         paymentTerms: s.payment_terms,
         status: s.is_active ? "Active" : "Inactive",
@@ -95,6 +91,7 @@ export default function EditSupplierPage() {
     try {
       const payload = {
         name: values.name,
+        code: values.code,
         contact_person: values.contactPerson,
         email: values.email,
         phone: values.phone,
@@ -105,7 +102,10 @@ export default function EditSupplierPage() {
         is_active: values.status === "Active",
       };
 
-      const res = await updateSupplier({ id: supplierId as string, body: payload }).unwrap();
+      const res = await updateSupplier({
+        id: supplierId as string,
+        body: payload,
+      }).unwrap();
       if (res?.status) {
         toast.success("Supplier updated successfully");
         navigate("/dashboard/suppliers");
@@ -159,7 +159,11 @@ export default function EditSupplierPage() {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Email</FieldLabel>
-                  <Input type="email" placeholder="supplier@example.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="supplier@example.com"
+                    {...field}
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -215,7 +219,11 @@ export default function EditSupplierPage() {
               render={({ field, fieldState }) => (
                 <Field className="md:col-span-2">
                   <FieldLabel>Address</FieldLabel>
-                  <Textarea rows={3} placeholder="Street, Building, etc." {...field} />
+                  <Textarea
+                    rows={3}
+                    placeholder="Street, Building, etc."
+                    {...field}
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}

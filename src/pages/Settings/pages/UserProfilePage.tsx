@@ -1,5 +1,3 @@
-
-
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,79 +5,113 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import React from "react";
+import { useGetSettingsInfoQuery, useUpdateSettingsInfoMutation } from "@/store/features/admin/settingsApiService";
+import { toast } from "sonner";
+import { useEffect } from "react";
+import { selectCurrency, setCurrency } from "@/store/currencySlice";
+import { useAppDispatch, useAppSelector } from "@/store/store";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const profileSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  company_name: z.string().min(1, "Username is required"),
   email: z.string().optional(),
-  bio: z.string().optional(),
-  urls: z.array(z.string().url("Invalid URL")).optional(),
+  phone: z.string().optional(),
+  description: z.string().optional(),
+  address: z.string().optional(),
+  currency: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function EditProfilePage() {
+  const dispatch = useAppDispatch();
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      username: "",
+      company_name: "",
       email: "",
-      bio: "",
-      urls: [""],
+      phone: "",
+      description: "",
+      address: "",
+      currency: "",
     },
   });
 
-  const { control, handleSubmit, watch, setValue } = form;
+  const { control, handleSubmit } = form;
 
-  // Populate dummy data
-  React.useEffect(() => {
-    const dummyUser: ProfileFormValues = {
-      username: "shadcn",
-      email: "shadcn@example.com",
-      bio: "I own a computer.",
-      urls: ["https://shadcn.com", "http://twitter.com/shadcn"],
-    };
-    form.reset(dummyUser);
-  }, []);
+  // const urls = watch("urls") || [];
 
-  const urls = watch("urls") || [];
+  // const addUrl = () => setValue("urls", [...urls, ""]);
+  // const removeUrl = (index: number) =>
+  //   setValue(
+  //     "urls",
+  //     urls.filter((_, i) => i !== index)
+  //   );
 
-  const addUrl = () => setValue("urls", [...urls, ""]);
-  const removeUrl = (index: number) =>
-    setValue(
-      "urls",
-      urls.filter((_, i) => i !== index)
-    );
+  const {data: companyProfileSettings} = useGetSettingsInfoQuery();
 
-  const onSubmit: SubmitHandler<ProfileFormValues> = (values) => {
+  console.log("companyProfileSettings", companyProfileSettings);
+
+  const settings = companyProfileSettings?.data;
+
+  useEffect(() => {
+    if(settings){
+      form.reset({
+        company_name: settings.company_name,
+        email: settings.email,
+        phone: settings.phone,
+        description: settings.description,
+        address: settings.address,
+        currency: settings.currency
+      })
+    }
+  }, [settings, form]);
+
+  const currency = useAppSelector(selectCurrency);
+
+  console.log("currency", currency);
+
+  const [updateCompanyProfile] = useUpdateSettingsInfoMutation();
+
+  const onSubmit: SubmitHandler<ProfileFormValues> = async (values) => {
     console.log("Updated profile:", values);
-    alert("Profile updated! (Check console for data)");
+    try {
+      const res = await updateCompanyProfile(values).unwrap();
+      console.log("Profile updated successfully:", res);
+      if (res.status) {
+        toast.success(res.message || "Profile updated successfully");
+        dispatch(setCurrency(res.data.currency));
+      }
+    }catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Error updating profile" + (error instanceof Error ? ": " + error.message : ""));
+    }
   };
 
   return (
-    <div className=" py-6 px-4 space-y-6">
+    <div className=" py-6 px-4 space-y-6 max-w-[700px] w-full">
       {/* HEADER */}
       <div>
-        <h1 className="text-2xl font-semibold">Profile</h1>
+        <h1 className="text-2xl font-semibold">Company Profile</h1>
         <p className="text-sm text-gray-500 mt-1">
-          This is how others will see you on the site.
+          This is how your company will be presented to others on the site. You can change this at any time.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* USERNAME */}
         <Controller
           control={control}
-          name="username"
+          name="company_name"
           render={({ field, fieldState }) => (
             <Field>
-              <FieldLabel>Username</FieldLabel>
-              <Input {...field} placeholder="Username" />
-              <p className="text-gray-500 text-sm mt-1">
-                This is your public display name. It can be your real name or a pseudonym. You can only change this once every 30 days.
-              </p>
+              <FieldLabel>Company Name</FieldLabel>
+              <Input
+                {...field}
+                placeholder="Enter your company name"
+                className="w-full"
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
@@ -92,33 +124,66 @@ export default function EditProfilePage() {
           render={({ field, fieldState }) => (
             <Field>
               <FieldLabel>Email</FieldLabel>
-              <Input {...field} placeholder="Select a verified email to display" />
-              <p className="text-gray-500 text-sm mt-1">
-                You can manage verified email addresses in your email settings.
-              </p>
+              <Input
+                {...field}
+                placeholder="Select a verified email to display"
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
         />
 
-        {/* BIO */}
+        {/* Phone */}
         <Controller
           control={control}
-          name="bio"
+          name="phone"
           render={({ field, fieldState }) => (
             <Field>
-              <FieldLabel>Bio</FieldLabel>
-              <Textarea {...field} placeholder="Tell us about yourself" />
-              <p className="text-gray-500 text-sm mt-1">
-                You can @mention other users and organizations to link to them.
-              </p>
-              <FieldError>{fieldState.error?.message}</FieldError>
+              <FieldLabel>Phone</FieldLabel>
+              <Input {...field} placeholder="i.e. +1 (555) 555-5555" />
+              <FieldError>{fieldState?.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+        {/* Address */}
+       
+        <Controller
+          control={control}
+          name="address"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Address</FieldLabel>
+              <Textarea {...field} placeholder="Enter company address" />
+              <FieldError>{fieldState?.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+        <Controller
+          control={control}
+          name="description"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Description</FieldLabel>
+              <Textarea {...field} placeholder="Describe your company" />
+              <FieldError>{fieldState?.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+
+         <Controller
+          control={control}
+          name="currency"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Currency</FieldLabel>
+              <Input {...field} placeholder="i.e. USD" />
+              <FieldError>{fieldState?.error?.message}</FieldError>
             </Field>
           )}
         />
 
         {/* URLs */}
-        <div>
+        {/* <div>
           <h2 className="text-sm font-medium text-gray-700 mb-1">URLs</h2>
           <p className="text-xs text-gray-500 mb-2">
             Add links to your website, blog, or social media profiles.
@@ -142,7 +207,7 @@ export default function EditProfilePage() {
           <Button type="button" onClick={addUrl}>
             Add URL
           </Button>
-        </div>
+        </div> */}
 
         {/* SUBMIT */}
         <div className="pt-4">

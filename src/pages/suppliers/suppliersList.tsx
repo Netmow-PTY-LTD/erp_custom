@@ -145,7 +145,7 @@ export default function SuppliersList() {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Suppliers Management</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
         <Link to="/dashboard/suppliers/create">
           <Button className="flex items-center gap-2" size="sm">
             <PlusCircle className="w-5 h-5" />

@@ -12,6 +12,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { useState } from "react";
 import EditStockForm from "@/components/products/EditStockForm";
+import { useAppSelector } from "@/store/store";
 
 export default function ProductDetailsPage() {
   const [open, setOpen] = useState<boolean>(false);
@@ -26,6 +27,8 @@ export default function ProductDetailsPage() {
 
   const product: Product | undefined = fetchedProduct?.data;
 
+  const currency = useAppSelector((state) => state.currency.value);
+
   const {
     data: fetchedStockMovements,
     refetch: refetchStockMovements,
@@ -37,7 +40,7 @@ export default function ProductDetailsPage() {
     }
   );
 
-  console.log("Fetched Stock Movements: ", fetchedStockMovements);
+  // console.log("Fetched Stock Movements: ", fetchedStockMovements);
 
   const columns: ColumnDef<StockMovement>[] = [
     {
@@ -114,8 +117,12 @@ export default function ProductDetailsPage() {
                 </Badge>
               </p>
               <div className="flex flex-col gap-4">
-                <strong>Product Image:</strong> 
-                <img src={product?.thumb_url} alt={product?.name} className="w-20 h-20 rounded-full" />
+                <strong>Product Image:</strong>
+                <img
+                  src={product?.thumb_url}
+                  alt={product?.name}
+                  className="w-20 h-20 rounded-full"
+                />
               </div>
             </CardContent>
           </Card>
@@ -127,10 +134,10 @@ export default function ProductDetailsPage() {
             </CardHeader>
             <CardContent className="text-sm space-y-1">
               <p>
-                <strong>Unit Price:</strong> RM {product?.price?.toFixed(2)}
+                <strong>Unit Price:</strong> {currency} {product?.price?.toFixed(2)}
               </p>
               <p>
-                <strong>Cost Price:</strong> RM {product?.cost?.toFixed(2)}
+                <strong>Cost Price:</strong> {currency} {product?.cost?.toFixed(2)}
               </p>
             </CardContent>
           </Card>

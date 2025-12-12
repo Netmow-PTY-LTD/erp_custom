@@ -12,6 +12,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
+import { useAppSelector } from "@/store/store";
 
 export default function Invoices() {
   const [page, setPage] = useState<number>(1);
@@ -32,6 +33,8 @@ export default function Invoices() {
     limit,
     totalPage: 1,
   };
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const invoiceColumns: ColumnDef<SalesInvoice>[] = [
     {
@@ -66,8 +69,8 @@ export default function Invoices() {
     },
     {
       accessorKey: "total_amount",
-      header: "Total Amount",
-      cell: ({ row }) => <span>RM {parseFloat(row.getValue("total_amount")).toFixed(2)}</span>,
+      header: `Total Amount (${currency})`,
+      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_amount")).toFixed(2)}</span>,
     },
     {
       accessorKey: "status",

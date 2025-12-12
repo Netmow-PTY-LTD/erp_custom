@@ -12,9 +12,13 @@ import {
     MapPin,
 } from "lucide-react";
 import { useGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
+import { useAppSelector } from "@/store/store";
 
 export default function CustomerViewPage() {
     const { customerId } = useParams();
+
+      const currency = useAppSelector((state) => state.currency.value);
+    
 
     const { data, isLoading, error } = useGetCustomerByIdQuery(Number(customerId));
 
@@ -119,10 +123,10 @@ export default function CustomerViewPage() {
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
                         <p>
-                            <strong>Credit Limit:</strong> {customer.credit_limit ? `RM ${customer.credit_limit.toLocaleString()}` : "RM 0"}
+                            <strong>Credit Limit:</strong> {customer.credit_limit ? `${currency} ${customer.credit_limit.toLocaleString()}` : `${currency} 0`}
                         </p>
                         <p>
-                            <strong>Outstanding Balance:</strong> {customer.outstanding_balance ? `RM ${customer.outstanding_balance.toLocaleString()}` : "RM 0"}
+                            <strong>Outstanding Balance:</strong> {customer.outstanding_balance ? `${currency} ${customer.outstanding_balance.toLocaleString()}`: `${currency} 0`}
                         </p>
                         {customer.tax_id && (
                             <p>

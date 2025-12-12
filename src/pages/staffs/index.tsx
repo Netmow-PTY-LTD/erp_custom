@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDeleteStaffMutation, useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
-import type { Staff } from "@/types/types";
+import type { Department, Staff } from "@/types/types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CalendarX2, Clock, PlusCircle, Trash, Users, XCircle } from "lucide-react";
 import { useState } from "react";
@@ -133,16 +133,6 @@ export default function Staffs() {
   };
 
 
-
-
-
-
-
-
-
-
-
-
   const staffColumns: ColumnDef<Staff>[] = [
     {
       accessorKey: "id",
@@ -183,6 +173,12 @@ export default function Staffs() {
     {
       accessorKey: "department",
       header: "Department",
+      cell: ({ row }) => {
+        const department = row.getValue("department") as Department | null;
+        return (
+          <div className="font-normal">{department?.name}</div>
+        );
+      }
     },
 
     {

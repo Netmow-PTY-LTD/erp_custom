@@ -175,3 +175,11 @@ export interface Staff {
   gallery_items?: string[];
 }
 
+export type Settings = {
+    company_name: string;
+    email: string;
+    phone: string;
+    description: string;
+    address: string;
+    currency: string;
+}

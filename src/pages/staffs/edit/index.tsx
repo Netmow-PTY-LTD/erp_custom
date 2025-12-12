@@ -128,9 +128,18 @@ export default function EditStaffPage() {
   //  SUBMIT HANDLER
   // =====================================================
   const onSubmit = async (values: StaffFormValues) => {
-    const payload = {
-      ...values,
+     const payload = {
+      first_name: values.first_name,
+      last_name: values.last_name,
+      email: values.email,
+      phone: values.phone,
+      department_id: values.department,
+      position: values.position,
+      hire_date: values.hire_date,
+      salary: values.salary,
+      status: values.status,
       thumb_url: values.image,
+      gallery_items: values.gallery_items,
     };
     try {
       // const fd = new FormData();

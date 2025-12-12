@@ -2,7 +2,6 @@
 import { baseApi } from "@/store/baseApi";
 import type { Attendance } from "@/types/Attendence.types";
 
-
 type AttendanceResponse = {
   status: boolean;
   message: string;
@@ -11,7 +10,6 @@ type AttendanceResponse = {
 
 export const attendanceApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-
     // CHECK-IN
     checkIn: builder.mutation<AttendanceResponse, any>({
       query: (body) => ({
@@ -33,7 +31,10 @@ export const attendanceApiService = baseApi.injectEndpoints({
     }),
 
     // GET ALL ATTENDANCE
-    getAllAttendance: builder.query<AttendanceResponse, void>({
+    getAllAttendance: builder.query<
+      AttendanceResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
       query: () => ({
         url: "/attendance",
         method: "GET",
@@ -51,7 +52,10 @@ export const attendanceApiService = baseApi.injectEndpoints({
     }),
 
     // UPDATE ATTENDANCE
-    updateAttendance: builder.mutation<AttendanceResponse, { id: number; body: any }>({
+    updateAttendance: builder.mutation<
+      AttendanceResponse,
+      { id: number; body: any }
+    >({
       query: ({ id, body }) => ({
         url: `/attendance/${id}`,
         method: "PUT",
@@ -68,7 +72,6 @@ export const attendanceApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Attendance"],
     }),
-
   }),
 });
 
