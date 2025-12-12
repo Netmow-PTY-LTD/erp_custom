@@ -75,7 +75,7 @@ export default function PurchaseOrderView() {
       if (res.status) {
         toast.success("Purchase Order Approved");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to approve");
     }
@@ -87,35 +87,14 @@ export default function PurchaseOrderView() {
     <div className="space-y-6 max-w-6xl mx-auto py-6">
 
       {/* HEADER */}
+      {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Purchase Order {purchase.po_number}</h1>
 
         <div className="flex items-center gap-3">
 
-
-          {/* ==== INVOICE BUTTON ==== */}
-          {purchase.invoice ? (
-            <Link to={`/dashboard/purchase-invoices/${purchase.invoice.id}`}>
-              <Button variant="secondary" className="flex gap-2 items-center">
-                <Eye className="w-4 h-4" />
-                View Invoice
-              </Button>
-            </Link>
-          ) : (
-            <Button
-              variant="default"
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-              onClick={handleCreateInvoice}
-              disabled={isCreating}
-            >
-              <FilePlus className="w-4 h-4" />
-              {isCreating ? "Creating..." : "Create Invoice"}
-            </Button>
-          )}
-
-
           {/* ==== APPROVE BUTTON ==== */}
-          {purchase.status !== "approved" && (
+          {!["approved", "received", "delivered"].includes(purchase.status) && (
             <Button
               variant="default"
               className="flex items-center gap-2"
@@ -127,6 +106,27 @@ export default function PurchaseOrderView() {
             </Button>
           )}
 
+          {/* ==== INVOICE BUTTON ==== */}
+          {["approved", "received", "delivered"].includes(purchase.status) && (
+            purchase.invoice ? (
+              <Link to={`/dashboard/purchase-invoices/${purchase.invoice.id}`}>
+                <Button variant="secondary" className="flex gap-2 items-center">
+                  <Eye className="w-4 h-4" />
+                  View Invoice
+                </Button>
+              </Link>
+            ) : (
+              <Button
+                variant="default"
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                onClick={handleCreateInvoice}
+                disabled={isCreating}
+              >
+                <FilePlus className="w-4 h-4" />
+                {isCreating ? "Creating..." : "Create Invoice"}
+              </Button>
+            )
+          )}
 
           {/* BACK */}
           <Link to="/dashboard/suppliers/purchase-orders">
@@ -135,8 +135,10 @@ export default function PurchaseOrderView() {
               Back
             </Button>
           </Link>
+
         </div>
       </div>
+
 
 
 

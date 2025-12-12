@@ -2,7 +2,7 @@
 
 
 import { baseApi } from "@/store/baseApi";
-import type { PurchaseOrder } from "@/types/purchaseOrder.types";
+import type { PurchaseOrder, PurchaseOrderLocation } from "@/types/purchaseOrder.types";
 
 export type PurchaseResponse = {
  status: boolean;
@@ -15,6 +15,23 @@ export type PurchaseResponse = {
     totalPage: number;
   };
 };
+
+
+export interface PurchaseOrderLocationsData {
+  total: number;
+  locations: PurchaseOrderLocation[];
+}
+
+export interface PurchaseOrderLocationsResponse {
+  status: boolean;
+  message: string;
+  data: PurchaseOrderLocationsData;
+}
+
+
+
+
+
 
 export const purchaseApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -52,7 +69,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
         url: `/purchase/orders/${id}`,
         method: "GET",
       }),
-      providesTags: ["Purchases"],
+      providesTags: ["Purchase"],
     }),
 
     // UPDATE PURCHASE ORDER
@@ -65,7 +82,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Purchases"],
+      invalidatesTags: ["Purchases","Purchase"],
     }),
 
     // DELETE PURCHASE ORDER
@@ -110,7 +127,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["PurchaseInvoices"],
+      invalidatesTags: ["PurchaseInvoices","Purchase"],
     }),
 
     // GET SINGLE INVOICE
@@ -161,7 +178,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     //-------------------------------------
     //  PURCHASE MAPS
     //-------------------------------------
-    getPurchaseMaps: builder.query<PurchaseResponse, void>({
+    getPurchaseMaps: builder.query<PurchaseOrderLocationsResponse, void>({
       query: () => ({
         url: "/purchase/maps",
         method: "GET",

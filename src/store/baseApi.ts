@@ -114,6 +114,7 @@ export const baseApi = createApi({
     "PurchaseInvoices",
     "PurchasePayments",
     "PurchaseMaps",
+    "Purchase",
   ],
   endpoints: () => ({}),
 });

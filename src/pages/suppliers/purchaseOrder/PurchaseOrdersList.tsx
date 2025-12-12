@@ -152,6 +152,7 @@ export default function PurchaseOrdersList() {
       header: "Actions",
       cell: ({ row }) => {
         const po = row.original;
+          const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/purchase-orders/${po.id}`}>
@@ -160,30 +161,34 @@ export default function PurchaseOrdersList() {
               </Button>
             </Link>
 
-            <Link to={`/dashboard/purchase-orders/${po.id}/edit`}>
-              <Button size="sm" variant="outline">
-                <Edit className="w-4 h-4 mr-1" /> Edit
-              </Button>
-            </Link>
+            {isEditable && (
+              <>
+                <Link to={`/dashboard/purchase-orders/${po.id}/edit`}>
+                  <Button size="sm" variant="outline">
+                    <Edit className="w-4 h-4 mr-1" /> Edit
+                  </Button>
+                </Link>
 
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-              onClick={() => {
-                setSelectedPOId(po.id);
-                setModalOpen(true);
-              }}
-              disabled={isDeleting}
-            >
-              <Trash2 className="w-4 h-4 mr-1" />
-              {isDeleting ? "Deleting..." : "Delete"}
-            </Button>
-
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
+                  onClick={() => {
+                    setSelectedPOId(po.id);
+                    setModalOpen(true);
+                  }}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </Button>
+              </>
+            )}
           </div>
         );
       },
-    },
+    }
+
   ];
 
 
