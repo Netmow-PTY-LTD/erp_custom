@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Check } from "lucide-react";
-import { Link,  useParams } from "react-router";
-import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { ArrowLeft, Check, Eye, FilePlus } from "lucide-react";
+import { Link, useParams } from "react-router";
+import { useAddPurchaseInvoiceMutation, useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { toast } from "sonner";
 import type { POItem, PurchaseOrder } from "@/types/purchaseOrder.types";
 
@@ -60,6 +60,7 @@ export default function PurchaseOrderView() {
   const { data: poResponse, isLoading } = useGetPurchaseOrderByIdQuery(Number(purchaseId));
 
   const [poData, setPoData] = useState<PurchaseOrder | null>(null);
+  const [addInvoice, { isLoading: isCreating }] = useAddPurchaseInvoiceMutation();
 
   useEffect(() => {
     if (poResponse?.data) {
@@ -99,6 +100,23 @@ export default function PurchaseOrderView() {
 
 
 
+  const handleCreateInvoice = async () => {
+    try {
+      await addInvoice({
+        purchase_order_id: poData.id,
+        due_date: poData.due_date || new Date().toISOString().split("T")[0],
+      }).unwrap();
+
+      alert("Invoice Created Successfully!");
+    } catch (error) {
+      console.error("Failed to create invoice:", error);
+      alert("Failed to create invoice");
+    }
+  };
+
+
+
+
   const handleApprove = async () => {
     try {
       const payload: Partial<PurchaseOrder> = {
@@ -130,27 +148,6 @@ export default function PurchaseOrderView() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-6">
       {/* Header */}
-      {/* <div className="flex items-center justify-between mb-4">
-
-        <h1 className="text-2xl font-bold">
-          Purchase Order {poData?.po_number}
-        </h1>
-
-        <div className="flex items-center gap-3">
-
-          <span className="inline-flex items-center px-3 py-1 text-sm font-medium border rounded-md">
-            <Check className="w-4 h-4 mr-2" /> Approved
-          </span>
-
-
-          <Link to="/dashboard/suppliers/purchase-orders">
-            <Button variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </Link>
-        </div>
-      </div> */}
 
       <div className="flex items-center justify-between mb-4">
         {/* Title */}
@@ -159,6 +156,31 @@ export default function PurchaseOrderView() {
         </h1>
 
         <div className="flex items-center gap-3">
+
+
+          {/* ============================
+            INVOICE BUTTON LOGIC
+        ============================ */}
+          {poData?.invoice ? (
+            // If invoice exists → Show "View Invoice"
+            <Link to={`/dashboard/purchase-invoices/${poData.invoice.id}`}>
+              <Button variant="secondary" className="flex gap-2 items-center">
+                <Eye className="w-4 h-4" />
+                View Invoice
+              </Button>
+            </Link>
+          ) : (
+            // If no invoice → Show "Create Invoice"
+            <Button
+              variant="default"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              onClick={handleCreateInvoice}
+              disabled={isCreating}
+            >
+              <FilePlus className="w-4 h-4" />
+              {isCreating ? "Creating..." : "Create Invoice"}
+            </Button>
+          )}
 
 
 
@@ -231,7 +253,7 @@ export default function PurchaseOrderView() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {poData?.items?.map((item:POItem) => (
+              {poData?.items?.map((item: POItem) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.product_id}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
