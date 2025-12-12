@@ -7,37 +7,54 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Check } from "lucide-react";
-import { Link, useParams } from "react-router";
-import { useGetPurchaseOrderByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { Link, useNavigate, useParams } from "react-router";
+import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { toast } from "sonner";
+import type { POItem, PurchaseOrder } from "@/types/purchaseOrder.types";
 
-interface POItem {
-  id: number;
-  purchase_order_id: number;
-  product_id: number;
-  quantity: number;
-  unit_cost: number;
-  line_total: number;
-  created_at: string;
-  updated_at: string;
-}
 
-interface PurchaseOrder {
-  id: number;
-  po_number: string;
-  supplier_id: number;
-  order_date: string;
-  expected_delivery_date: string | null;
-  status: string;
-  total_amount: number;
-  notes?: string;
-  created_by: number;
-  created_at: string;
-  updated_at: string;
-  items: POItem[];
-}
+
+
+
+const renderStatusBadge = (status: string) => {
+  switch (status) {
+    case "approved":
+      return (
+        <Badge className="bg-green-500 text-white">
+          Approved
+        </Badge>
+      );
+    case "pending":
+      return (
+        <Badge className="bg-yellow-400 text-black">
+          Pending
+        </Badge>
+      );
+    case "rejected":
+      return (
+        <Badge className="bg-red-500 text-white">
+          Rejected
+        </Badge>
+      );
+    default:
+      return (
+        <Badge className="bg-gray-500 text-white">
+          {status}
+        </Badge>
+      );
+  }
+};
+
+
+
+
+
+
 
 export default function PurchaseOrderView() {
+  const navigate = useNavigate();
   const { purchaseId } = useParams();
+  const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 
   // Fetch Purchase Order
   const { data: poResponse, isLoading } = useGetPurchaseOrderByIdQuery(Number(purchaseId));
@@ -80,9 +97,61 @@ export default function PurchaseOrderView() {
     return <div>Loading Purchase Order...</div>;
   }
 
+
+
+  const handleApprove = async () => {
+    try {
+      const payload: Partial<PurchaseOrder> = {
+        status: "approved",
+      };
+
+      const res = await updatePurchaseOrder({
+        id: Number(purchaseId),
+        body: payload,
+      }).unwrap();
+
+      if (res.success) {
+        toast.success("Purchase Order Approved");
+        setPoData((prev) =>
+          prev ? { ...prev, status: "approved" } : prev
+        );
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to approve");
+    }
+  };
+
+
+
+
+
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-6">
       {/* Header */}
+      {/* <div className="flex items-center justify-between mb-4">
+
+        <h1 className="text-2xl font-bold">
+          Purchase Order {poData?.po_number}
+        </h1>
+
+        <div className="flex items-center gap-3">
+
+          <span className="inline-flex items-center px-3 py-1 text-sm font-medium border rounded-md">
+            <Check className="w-4 h-4 mr-2" /> Approved
+          </span>
+
+
+          <Link to="/dashboard/suppliers/purchase-orders">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          </Link>
+        </div>
+      </div> */}
+
       <div className="flex items-center justify-between mb-4">
         {/* Title */}
         <h1 className="text-2xl font-bold">
@@ -90,10 +159,21 @@ export default function PurchaseOrderView() {
         </h1>
 
         <div className="flex items-center gap-3">
-          {/* Status Badge */}
-          <span className="inline-flex items-center px-3 py-1 text-sm font-medium border rounded-md">
-            <Check className="w-4 h-4 mr-2" /> Approved
-          </span>
+
+
+
+          {/* Approve Button (only if not approved) */}
+          {poData.status !== "approved" && (
+            <Button
+              variant="default"
+              className="flex items-center gap-2"
+              onClick={handleApprove}
+              disabled={isUpdating}
+            >
+              <Check className="w-4 h-4" />
+              {isUpdating ? "Approving..." : "Approve"}
+            </Button>
+          )}
 
           {/* Back Button */}
           <Link to="/dashboard/suppliers/purchase-orders">
@@ -104,6 +184,7 @@ export default function PurchaseOrderView() {
           </Link>
         </div>
       </div>
+
 
 
       {/* Summary */}
@@ -123,7 +204,7 @@ export default function PurchaseOrderView() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-2">
           <div>
             <p className="text-sm text-muted-foreground">Status</p>
-            <Badge className="bg-yellow-400 text-black">{poData.status}</Badge>
+            {renderStatusBadge(poData.status)}
           </div>
           <div className="text-right md:text-left">
             <p className="text-sm text-muted-foreground">Total Amount</p>
@@ -150,7 +231,7 @@ export default function PurchaseOrderView() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {poData.items.map((item) => (
+              {poData?.items?.map((item:POItem) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.product_id}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
