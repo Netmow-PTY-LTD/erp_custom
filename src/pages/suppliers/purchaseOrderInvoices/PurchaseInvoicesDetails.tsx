@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router";
 import { useGetPurchaseInvoiceByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import type { PurchasePayment } from "@/types/purchasePayment.types";
 
 
 export default function PurchaseInvoicesDetails() {
@@ -15,6 +16,7 @@ export default function PurchaseInvoicesDetails() {
     const invoice = data?.data || {};
     const po = invoice.purchase_order;
     const supplier = po.supplier;
+    const payments: PurchasePayment[] = invoice.payments || [];
 
     // Invoice Calculations
     const subtotal = po.total_amount;
@@ -112,18 +114,43 @@ export default function PurchaseInvoicesDetails() {
                     </div>
 
                     {/* Payments */}
+
                     <div className="border rounded-md p-4">
                         <h2 className="font-semibold text-lg mb-2">Payments</h2>
 
-                        {invoice.payments.length === 0 ? (
+                        {payments.length === 0 ? (
                             <p className="text-sm">No payments yet.</p>
                         ) : (
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            invoice.payments.map((payment: any, i: number) => (
-                                <p key={i}>Payment #{payment.id}</p>
-                            ))
+                            <div className="space-y-2">
+                                {payments.map((payment) => (
+                                    <div
+                                        key={payment.id}
+                                        className="flex justify-between items-center border rounded-md p-2"
+                                    >
+                                        <div className="space-y-1 text-sm">
+                                            <p><strong>Payment #{payment.id}</strong></p>
+                                            <p>Amount: RM {payment.amount.toFixed(2)}</p>
+                                            <p>Method: {payment.payment_method}</p>
+                                            <p>Reference: {payment.reference_number}</p>
+                                            <p>Date: {new Date(payment.payment_date).toLocaleDateString()}</p>
+                                        </div>
+                                        <Badge
+                                            className={`capitalize ${payment.status === "pending"
+                                                ? "bg-yellow-500 text-white"
+                                                : payment.status === "completed"
+                                                    ? "bg-green-600 text-white"
+                                                    : "bg-red-600 text-white"
+                                                }`}
+                                        >
+                                            {payment.status}
+                                        </Badge>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
+
+
                 </div>
 
                 {/* Summary */}
