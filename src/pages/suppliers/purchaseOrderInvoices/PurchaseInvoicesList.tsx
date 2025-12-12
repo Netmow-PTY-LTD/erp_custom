@@ -11,7 +11,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchaseInvoicesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
-import type { PurchaseInvoice } from "@/types/PurchaseInvoice";
+import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 
 
 import type { ColumnDef } from "@tanstack/react-table";

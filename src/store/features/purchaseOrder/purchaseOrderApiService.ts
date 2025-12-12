@@ -129,7 +129,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     // GET ALL PAYMENTS
     getAllPurchasePayments: builder.query<
       PurchaseResponse,
-      { page?: number; limit?: number }
+      { page?: number; limit?: number, search?:string }
     >({
       query: (params) => ({
         url: "/purchase/orders/payments",
