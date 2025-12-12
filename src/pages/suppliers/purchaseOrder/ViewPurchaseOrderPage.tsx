@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { useGetPurchaseOrderByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 
@@ -40,7 +40,7 @@ export default function PurchaseOrderView() {
   const { purchaseId } = useParams();
 
   // Fetch Purchase Order
-  const { data: poResponse, isLoading} = useGetPurchaseOrderByIdQuery(Number(purchaseId));
+  const { data: poResponse, isLoading } = useGetPurchaseOrderByIdQuery(Number(purchaseId));
 
   const [poData, setPoData] = useState<PurchaseOrder | null>(null);
 
@@ -83,15 +83,28 @@ export default function PurchaseOrderView() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Purchase Order {poData.po_number}</h1>
-        <Link to="/dashboard/suppliers/purchase-orders">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back
-          </Button>
-        </Link>
+      <div className="flex items-center justify-between mb-4">
+        {/* Title */}
+        <h1 className="text-2xl font-bold">
+          Purchase Order {poData?.po_number}
+        </h1>
+
+        <div className="flex items-center gap-3">
+          {/* Status Badge */}
+          <span className="inline-flex items-center px-3 py-1 text-sm font-medium border rounded-md">
+            <Check className="w-4 h-4 mr-2" /> Approved
+          </span>
+
+          {/* Back Button */}
+          <Link to="/dashboard/suppliers/purchase-orders">
+            <Button variant="outline">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          </Link>
+        </div>
       </div>
+
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white rounded-lg shadow p-4">
