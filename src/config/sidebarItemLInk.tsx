@@ -32,15 +32,15 @@ import AccountingOverview from "@/pages/accounting/Accounting";
 import InvoiceDetailsPage from "@/pages/salesOrders/invoices/InvoiceDetails";
 import CreatePaymentPage from "@/pages/salesOrders/payments/createPayment";
 import PaymentDetails from "@/pages/salesOrders/payments/PaymentDetails";
-import SuppliersList from "@/pages/suppliers/suppliersList";
-import AddSupplierPage from "@/pages/suppliers/AddSupplier";
+import SuppliersList from "@/pages/suppliers/supplier/suppliersList";
+import AddSupplierPage from "@/pages/suppliers/supplier/AddSupplier";
 // import WarehousesPage from "@/pages/warehouse";
 import DeliveryPage from "@/pages/salesOrders/delivery/DeliveryPage";
 import SalesRoutesPage from "@/pages/salesOrders/salesRoutes/SalesRoutePage";
-import PurchaseOrdersList from "@/pages/suppliers/PurchaseOrdersList";
-import EditSupplierPage from "@/pages/suppliers/EditSupplier";
-import CreatePurchaseOrderPage from "@/pages/suppliers/CreatePurchaseOrderPage";
-import ViewPurchaseOrderPage from "@/pages/suppliers/ViewPurchaseOrderPage";
+import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersList";
+import EditSupplierPage from "@/pages/suppliers/supplier/EditSupplier";
+import CreatePurchaseOrderPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseOrderPage";
+import ViewPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseOrderPage";
 import RouteDetails from "@/pages/salesOrders/salesRoutes/RouteDetails";
 import AssignRoutePage from "@/pages/salesOrders/salesRoutes/AssignRoute";
 import Staffs from "@/pages/staffs";
@@ -69,9 +69,16 @@ import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
 import StaffReports from "@/pages/reports/StaffReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
-import EditPurchaseOrderPage from "@/pages/suppliers/EditPurchaseOrderPage";
+import EditPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/EditPurchaseOrderPage";
 import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
+import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
+import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
+
+import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayments";
+import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
+import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
+import PurchaseOrdersMapPage from "@/pages/suppliers/PurchaseOrdersMap";
 
 
 // This is sample data.
@@ -159,7 +166,7 @@ export const sidebarItemLink = [
         url: "/dashboard/customers/sales-routes/:routeId/assign",
         element: <AssignRoutePage />,
       },
-     
+
       {
         title: "Customer Maps",
         url: "/dashboard/customers/map",
@@ -207,6 +214,40 @@ export const sidebarItemLink = [
         url: "/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
       },
+      {
+        title: "Purchase Invoices",
+        url: "/dashboard/purchase-invoices",
+        element: <PurchaseInvoicesList />,
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-invoices/:id",
+        element: <PurchaseInvoicesDetails />,
+      },
+
+      // PURCHASE PAYMENTS ROUTES
+      {
+        title: "",
+        url: "/dashboard/purchase-payments/create",
+        element: <CreatePurchasePayments />,
+      },
+      {
+        title: "Purchase Payments",
+        url: "/dashboard/purchase-payments",
+        element: <PurchasePayments />,
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-payments/:id",
+        element: <PurchasePaymentsDetails />,
+      },
+      {
+        title: "Purchase Orders Map",
+        url: "/dashboard/purchase-orders-map",
+        element: <PurchaseOrdersMapPage />,
+      },
+
+
     ],
   },
   {
@@ -465,7 +506,7 @@ export const sidebarItemLink = [
         element: <CustomerReports />
       },
 
-   {
+      {
         title: "Staff Reports",
         url: "/dashboard/reports/staffs",
         element: <StaffReports />
