@@ -1,140 +1,81 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Check, Eye, FilePlus } from "lucide-react";
 import { Link, useParams } from "react-router";
-import { useAddPurchaseInvoiceMutation, useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import {
+  useAddPurchaseInvoiceMutation,
+  useGetPurchaseOrderByIdQuery,
+  useUpdatePurchaseOrderMutation,
+} from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { toast } from "sonner";
-import type { POItem, PurchaseOrder } from "@/types/purchaseOrder.types";
+import type { POItem } from "@/types/purchaseOrder.types";
 
 
-
-
-
+// === STATUS BADGE ===
 const renderStatusBadge = (status: string) => {
-  switch (status) {
-    case "approved":
-      return (
-        <Badge className="bg-green-500 text-white">
-          Approved
-        </Badge>
-      );
-    case "pending":
-      return (
-        <Badge className="bg-yellow-400 text-black">
-          Pending
-        </Badge>
-      );
-    case "rejected":
-      return (
-        <Badge className="bg-red-500 text-white">
-          Rejected
-        </Badge>
-      );
-    default:
-      return (
-        <Badge className="bg-gray-500 text-white">
-          {status}
-        </Badge>
-      );
-  }
+  const classes: Record<string, string> = {
+    approved: "bg-green-500 text-white",
+    pending: "bg-yellow-400 text-black",
+    rejected: "bg-red-500 text-white",
+  };
+
+  return <Badge className={classes[status] || "bg-gray-500 text-white"}>{status}</Badge>;
 };
 
 
 
-
-
-
-
 export default function PurchaseOrderView() {
-
   const { purchaseId } = useParams();
-  const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 
-  // Fetch Purchase Order
+  // FETCH Purchase Order by ID
   const { data: poResponse, isLoading } = useGetPurchaseOrderByIdQuery(Number(purchaseId));
 
-  const [poData, setPoData] = useState<PurchaseOrder | null>(null);
+  const purchase = Array.isArray(poResponse?.data)
+    ? poResponse?.data[0]
+    : poResponse?.data;
+
+  const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
   const [addInvoice, { isLoading: isCreating }] = useAddPurchaseInvoiceMutation();
 
-  useEffect(() => {
-    if (poResponse?.data) {
-      const po = Array.isArray(poResponse.data) ? poResponse.data[0] : poResponse.data;
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setPoData({
-        id: po.id,
-        po_number: po.po_number,
-        supplier_id: po.supplier_id,
-        order_date: po.order_date ? po.order_date.split("T")[0] : "",
-        expected_delivery_date: po.expected_delivery_date ? po.expected_delivery_date.split("T")[0] : null,
-        status: po.status,
-        total_amount: Number(po.total_amount),
-        notes: po.notes,
-        created_by: po.created_by,
-        created_at: po.created_at,
-        updated_at: po.updated_at,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        items: (po.items ?? []).map((item: any) => ({
-          id: item.id,
-          purchase_order_id: item.purchase_order_id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          unit_cost: Number(item.unit_cost),
-          line_total: Number(item.line_total),
-          created_at: item.created_at,
-          updated_at: item.updated_at,
-        })),
-      });
-    }
-  }, [poResponse]);
-
-  if (isLoading || !poData) {
+  if (isLoading || !purchase) {
     return <div>Loading Purchase Order...</div>;
   }
 
 
-
+  // === CREATE INVOICE ===
   const handleCreateInvoice = async () => {
     try {
       await addInvoice({
-        purchase_order_id: poData.id,
-        due_date: poData.due_date || new Date().toISOString().split("T")[0],
+        purchase_order_id: purchase.id,
+        due_date: new Date().toISOString().split("T")[0],
       }).unwrap();
 
-      alert("Invoice Created Successfully!");
+      toast.success("Invoice Created Successfully!");
     } catch (error) {
-      console.error("Failed to create invoice:", error);
-      alert("Failed to create invoice");
+      console.error("Invoice creation failed:", error);
+      toast.error("Failed to create invoice");
     }
   };
 
 
-
-
+  // === APPROVE PURCHASE ORDER ===
   const handleApprove = async () => {
     try {
-      const payload: Partial<PurchaseOrder> = {
-        status: "approved",
-      };
-
       const res = await updatePurchaseOrder({
         id: Number(purchaseId),
-        body: payload,
+        body: { status: "approved" },
       }).unwrap();
 
       if (res.success) {
         toast.success("Purchase Order Approved");
-        setPoData((prev) =>
-          prev ? { ...prev, status: "approved" } : prev
-        );
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to approve");
     }
@@ -142,35 +83,25 @@ export default function PurchaseOrderView() {
 
 
 
-
-
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-6">
-      {/* Header */}
 
+      {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
-        {/* Title */}
-        <h1 className="text-2xl font-bold">
-          Purchase Order {poData?.po_number}
-        </h1>
+        <h1 className="text-2xl font-bold">Purchase Order {purchase.po_number}</h1>
 
         <div className="flex items-center gap-3">
 
 
-          {/* ============================
-            INVOICE BUTTON LOGIC
-        ============================ */}
-          {poData?.invoice ? (
-            // If invoice exists → Show "View Invoice"
-            <Link to={`/dashboard/purchase-invoices/${poData.invoice.id}`}>
+          {/* ==== INVOICE BUTTON ==== */}
+          {purchase.invoice ? (
+            <Link to={`/dashboard/purchase-invoices/${purchase.invoice.id}`}>
               <Button variant="secondary" className="flex gap-2 items-center">
                 <Eye className="w-4 h-4" />
                 View Invoice
               </Button>
             </Link>
           ) : (
-            // If no invoice → Show "Create Invoice"
             <Button
               variant="default"
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
@@ -183,9 +114,8 @@ export default function PurchaseOrderView() {
           )}
 
 
-
-          {/* Approve Button (only if not approved) */}
-          {poData.status !== "approved" && (
+          {/* ==== APPROVE BUTTON ==== */}
+          {purchase.status !== "approved" && (
             <Button
               variant="default"
               className="flex items-center gap-2"
@@ -197,7 +127,8 @@ export default function PurchaseOrderView() {
             </Button>
           )}
 
-          {/* Back Button */}
+
+          {/* BACK */}
           <Link to="/dashboard/suppliers/purchase-orders">
             <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -209,33 +140,40 @@ export default function PurchaseOrderView() {
 
 
 
-      {/* Summary */}
+      {/* SUMMARY */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white rounded-lg shadow p-4">
         <div>
           <p className="text-sm text-muted-foreground">Supplier ID</p>
-          <p className="font-semibold">{poData.supplier_id}</p>
+          <p className="font-semibold">{purchase.supplier_id}</p>
         </div>
+
         <div>
           <p className="text-sm text-muted-foreground">Order Date</p>
-          <p className="font-semibold">{poData.order_date}</p>
+          <p className="font-semibold">{purchase.order_date?.split("T")[0]}</p>
         </div>
+
         <div>
           <p className="text-sm text-muted-foreground">Expected Delivery</p>
-          <p className="font-semibold">{poData.expected_delivery_date || "-"}</p>
+          <p className="font-semibold">
+            {purchase.expected_delivery_date?.split("T")[0] || "-"}
+          </p>
         </div>
+
         <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-2">
           <div>
             <p className="text-sm text-muted-foreground">Status</p>
-            {renderStatusBadge(poData.status)}
+            {renderStatusBadge(purchase.status)}
           </div>
           <div className="text-right md:text-left">
             <p className="text-sm text-muted-foreground">Total Amount</p>
-            <p className="font-semibold">RM {poData.total_amount.toFixed(2)}</p>
+            <p className="font-semibold">RM {purchase.total_amount.toFixed(2)}</p>
           </div>
         </div>
       </div>
 
-      {/* Items Table */}
+
+
+      {/* ITEMS TABLE */}
       <Card>
         <CardHeader>
           <CardTitle>Items</CardTitle>
@@ -252,13 +190,14 @@ export default function PurchaseOrderView() {
                 <TableHead>Updated At</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {poData?.items?.map((item: POItem) => (
+              {purchase.items?.map((item: POItem) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.product_id}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
-                  <TableCell>{item.unit_cost.toFixed(2)}</TableCell>
-                  <TableCell>{item.line_total.toFixed(2)}</TableCell>
+                  <TableCell>{Number(item.unit_cost).toFixed(2)}</TableCell>
+                  <TableCell>{Number(item.line_total).toFixed(2)}</TableCell>
                   <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>
                   <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>
                 </TableRow>
@@ -268,13 +207,15 @@ export default function PurchaseOrderView() {
         </CardContent>
       </Card>
 
-      {/* Notes */}
-      {poData.notes && (
+
+
+      {/* NOTES */}
+      {purchase.notes && (
         <Card>
           <CardHeader>
             <CardTitle>Notes</CardTitle>
           </CardHeader>
-          <CardContent>{poData.notes}</CardContent>
+          <CardContent>{purchase.notes}</CardContent>
         </Card>
       )}
     </div>
