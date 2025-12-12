@@ -11,7 +11,9 @@ export default function InvoiceDetailsPage() {
 
   const invoiceId = useParams().invoiceId;
 
-  const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), { skip: !invoiceId });
+  const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), {
+    skip: !invoiceId,
+  });
   console.log("invoice data", invoiceData);
 
   const invoice = invoiceData?.data;
@@ -20,35 +22,18 @@ export default function InvoiceDetailsPage() {
 
   const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
   const from = fetchedSettingsInfo?.data;
-  // const invoice = {
-  //   invoiceNo: "INV-20251121-36A05F",
-  //   orderNo: "ORD-20251121-7E2E87",
-  //   invoiceDate: "2025-11-21",
-  //   dueDate: "2025-11-22",
-  //   status: "Sent",
-  //   subtotal: 4345,
-  //   tax: 0,
-  //   total: 4300,
-  //   paid: 0,
-  //   balance: 4300,
-  // };
-
-  // const from = {
-  //   name: "Frank Fruit Sdn. Bhd.",
-  //   address: "ABC Address Cyberjaya, Selangor 6800, Malaysia",
-  //   email: "frank@gmail.com",
-  //   phone: "+6023432432",
-  // };
-
-  // const to = {
-  //   name: "Modern Enterprises",
-  //   address: "67 Persiaran Gurney, Georgetown",
-  //   email: "sales@modern.com.my",
-  //   phone: "+60334567890",
-  //   code: "CUST005",
-  // };
 
   const to = invoice?.order?.customer;
+
+  const total = (
+    Number(invoice?.order?.total_amount) + Number(invoice?.order?.tax_amount)
+  ).toFixed(2);
+
+  const payableAmount = invoice?.payments
+    ?.reduce((acc, cur) => acc + Number(cur.amount), 0)
+    ?.toFixed(2);
+
+  const balance = Number(total) - Number(payableAmount);
 
   return (
     <div className="space-y-6">
@@ -209,25 +194,21 @@ export default function InvoiceDetailsPage() {
               <div className="flex justify-between">
                 <span>Total</span>
                 <span className="font-semibold">
-                  {currency}{" "}
-                  {(
-                    Number(invoice?.order?.total_amount) +
-                    Number(invoice?.order?.tax_amount)
-                  ).toFixed(2)}
+                  {currency} {total}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span>Paid</span>
                 <span className="font-semibold">
-                  {currency} {Number(invoice?.paid_amount)?.toFixed(2)}
+                  {currency} {payableAmount}
                 </span>
               </div>
 
               <div className="flex justify-between text-lg font-bold mt-1">
                 <span>Balance</span>
                 <span>
-                  {currency} {Number(invoice?.balance_amount)?.toFixed(2)}
+                  {currency} {balance.toFixed(2)}
                 </span>
               </div>
 
@@ -244,7 +225,6 @@ export default function InvoiceDetailsPage() {
             <div className="">
               <h3 className="font-semibold text-lg">Customer</h3>
               <p className="mt-2 font-semibold">{to?.name}</p>
-              <p className="text-sm">{to?.code}</p>
               <p className="text-sm">{to?.email}</p>
               <p className="text-sm">{to?.phone}</p>
               <p className="text-sm">{to?.address}</p>

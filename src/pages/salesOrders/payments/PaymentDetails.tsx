@@ -48,9 +48,9 @@ export default function PaymentDetails() {
             <Button variant="outline">← Back to Payments</Button>
           </Link>
           {payment?.invoice && (
-            <Link to={`/dashboard/sales/invoices/${payment?.order?.id}`}>
+            <Link to={`/dashboard/sales/orders/${paymentData?.order?.id}`}>
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                View Invoice {payment.invoice.number}
+                View Order {payment?.invoice.number}
               </Button>
             </Link>
           )}
@@ -103,7 +103,7 @@ export default function PaymentDetails() {
                 <p className="font-semibold">Linked Invoice</p>
                 {payment.invoice ? (
                   <Link
-                    to={`/dashboard/invoices/${payment.invoice.number}`}
+                    to={`/dashboard/sales/orders/${paymentData?.order?.id}`}
                     className="text-blue-600 underline hover:text-blue-800"
                   >
                     {payment.invoice.number}

@@ -1,8 +1,32 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import type { Customer } from "@/store/features/customers/types";
+import { useAppSelector } from "@/store/store";
+import type { SalesInvoice } from "@/types/salesInvoice.types";
+import type { Settings } from "@/types/types";
 
-export default function PrintableInvoice() {
+interface Props {
+  invoice: SalesInvoice | undefined;
+  from: Settings | undefined;
+  to: Customer | undefined;
+}
+
+export default function PrintableInvoice({ invoice, from, to }: Props) {
+  console.log("invoice", invoice);
+
+  const total = (
+    Number(invoice?.order?.total_amount) + Number(invoice?.order?.tax_amount)
+  ).toFixed(2);
+
+  const payableAmount = invoice?.payments
+    ?.reduce((acc, cur) => acc + Number(cur.amount), 0)
+    ?.toFixed(2);
+
+  const balance = Number(total) - Number(payableAmount);
+
+  const currency = useAppSelector((state) => state.currency.value);
+
   const handlePrint = () => {
     window.print();
   };
@@ -16,23 +40,22 @@ export default function PrintableInvoice() {
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-8 border-b pb-4">
-
-            <div>
-              <h1 className="text-3xl font-bold">INVOICE</h1>
-              <p className="text-sm text-gray-500">#{invoice.invoiceNo}</p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold">INVOICE</h1>
+            <p className="text-sm text-gray-500">#{invoice?.invoice_number}</p>
+          </div>
 
           {/* Company Info */}
           <div className="text-right flex flex-col items-end">
             <img
               src="https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png" // <-- Replace with your logo
               alt="Company Logo"
-              className="h-16 w-auto object-contain inline-block mb-2"
+              className="h-16 w-auto object-contain inline-block"
             />
-            <p className="font-semibold">{from.name}</p>
-            <p className="text-sm">{from.address}</p>
-            <p className="text-sm">{from.email}</p>
-            <p className="text-sm">{from.phone}</p>
+            <p className="font-semibold">{from?.company_name}</p>
+            <p className="text-sm">{from?.address}</p>
+            <p className="text-sm">{from?.email}</p>
+            <p className="text-sm">{from?.phone}</p>
           </div>
         </div>
 
@@ -40,27 +63,27 @@ export default function PrintableInvoice() {
         <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-8 mb-10">
           <div>
             <h2 className="font-semibold text-lg mb-2">Bill To</h2>
-            <p className="font-semibold">{to.name}</p>
-            <p className="text-sm">{to.address}</p>
-            <p className="text-sm">{to.email}</p>
-            <p className="text-sm">{to.phone}</p>
+            <p className="font-semibold">{to?.name}</p>
+            <p className="text-sm">{to?.address}</p>
+            <p className="text-sm">{to?.email}</p>
+            <p className="text-sm">{to?.phone}</p>
           </div>
 
           <div className="text-sm space-y-1">
             <p>
-              <strong>Invoice Date:</strong> {invoice.invoiceDate}
+              <strong>Invoice Date:</strong> {invoice?.invoice_date}
             </p>
             <p>
-              <strong>Due Date:</strong> {invoice.dueDate}
+              <strong>Due Date:</strong> {invoice?.due_date}
             </p>
             <p>
               <strong>Status:</strong>{" "}
               <Badge className="bg-yellow-500 text-white">
-                {invoice.status}
+                {invoice?.status}
               </Badge>
             </p>
             <p>
-              <strong>Order #:</strong> {invoice.orderNo}
+              <strong>Order #:</strong> {invoice?.order?.order_number}
             </p>
           </div>
         </div>
@@ -72,7 +95,7 @@ export default function PrintableInvoice() {
               <tr className="text-left">
                 <th className="p-3">Product</th>
                 <th className="p-3">SKU</th>
-                <th className="p-3">Unit Price (RM)</th>
+                <th className="p-3">Unit Price ({currency})</th>
                 <th className="p-3">Qty</th>
                 <th className="p-3">Discount %</th>
                 <th className="p-3 text-right">Line Total (RM)</th>
@@ -80,14 +103,18 @@ export default function PrintableInvoice() {
             </thead>
 
             <tbody>
-              {items?.map((item: any, idx: number) => (
-                <tr key={idx} className="border-b">
-                  <td className="p-3">{item.product}</td>
-                  <td className="p-3">{item.sku}</td>
-                  <td className="p-3">{item.price.toFixed(2)}</td>
-                  <td className="p-3">{item.qty}</td>
-                  <td className="p-3">{item.discount.toFixed(2)}</td>
-                  <td className="p-3 text-right">{item.total.toFixed(2)}</td>
+              {invoice?.order?.items?.map((item) => (
+                <tr key={item?.id} className="border-b">
+                  <td className="p-3">{item?.product?.name}</td>
+                  <td className="p-3">{item?.product?.sku}</td>
+                  <td className="p-3">
+                    {Number(item?.product?.price).toFixed(2)}
+                  </td>
+                  <td className="p-3">{item?.quantity}</td>
+                  <td className="p-3">{item?.discount?.toFixed(2)}</td>
+                  <td className="p-3 text-right">
+                    {Number(item?.total_price)?.toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -99,38 +126,43 @@ export default function PrintableInvoice() {
           <div className="flex justify-between">
             <span>Subtotal</span>
             <span className="font-semibold">
-              RM {invoice.subtotal.toFixed(2)}
+              {currency} {Number(invoice?.total_amount)?.toFixed(2)}
             </span>
           </div>
 
           <div className="flex justify-between">
             <span>Tax</span>
-            <span className="font-semibold">RM {invoice.tax.toFixed(2)}</span>
+            <span className="font-semibold">
+              {currency} {Number(invoice?.order?.tax_amount)?.toFixed(2)}
+            </span>
           </div>
 
           <div className="flex justify-between">
             <span>Total</span>
-            <span className="font-semibold">RM {invoice.total.toFixed(2)}</span>
+            <span className="font-semibold">
+              RM {Number(invoice?.order?.total_amount)?.toFixed(2)}
+            </span>
           </div>
 
           <Separator />
 
           <div className="flex justify-between">
             <span>Paid</span>
-            <span className="font-semibold">RM {invoice.paid.toFixed(2)}</span>
+            <span className="font-semibold">
+              {currency} {Number(payableAmount)?.toFixed(2)}
+            </span>
           </div>
 
           <div className="flex justify-between text-lg font-bold">
             <span>Balance</span>
-            <span>RM {invoice.balance.toFixed(2)}</span>
+            <span>
+              {currency} {Number(balance)?.toFixed(2)}
+            </span>
           </div>
 
           {/* Print Button */}
           <div className="mt-10 print:hidden text-right">
-            <Button
-              onClick={handlePrint}
-              variant="outline"
-            >
+            <Button onClick={handlePrint} variant="outline">
               Print Invoice
             </Button>
           </div>

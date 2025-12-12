@@ -11,8 +11,8 @@ import {
 } from "@/store/features/admin/settingsApiService";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { selectCurrency, setCurrency } from "@/store/currencySlice";
-import { useAppDispatch, useAppSelector } from "@/store/store";
+import { setCurrency } from "@/store/currencySlice";
+import { useAppDispatch } from "@/store/store";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 
 /* ------------------ ZOD SCHEMA ------------------ */
