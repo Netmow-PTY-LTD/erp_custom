@@ -7,6 +7,8 @@ export default function PaymentDetails() {
   const { paymentId } = useParams();
   const { data, isLoading, error } = useGetSalesPaymentByIdQuery(paymentId as string);
 
+  console.log('payment data', data);
+
   if (isLoading) return <p>Loading...</p>;
   if (error || !data?.data) return <p>Payment not found.</p>;
 
@@ -39,16 +41,16 @@ export default function PaymentDetails() {
     <div className="p-4 md:p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-        <h1 className="text-2xl sm:text-3xl font-bold">Payment {payment.number}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Payment {payment?.number}</h1>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <Link to="/dashboard/payments">
+          <Link to="/dashboard/sales/payments">
             <Button variant="outline">← Back to Payments</Button>
           </Link>
-          {payment.invoice && (
-            <Link to={`/dashboard/invoices/${payment.invoice.number}`}>
+          {payment?.invoice && (
+            <Link to={`/dashboard/sales/orders/${paymentData?.order?.id}`}>
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                View Invoice {payment.invoice.number}
+                View Order {payment?.invoice.number}
               </Button>
             </Link>
           )}
@@ -101,7 +103,7 @@ export default function PaymentDetails() {
                 <p className="font-semibold">Linked Invoice</p>
                 {payment.invoice ? (
                   <Link
-                    to={`/dashboard/invoices/${payment.invoice.number}`}
+                    to={`/dashboard/sales/orders/${paymentData?.order?.id}`}
                     className="text-blue-600 underline hover:text-blue-800"
                   >
                     {payment.invoice.number}

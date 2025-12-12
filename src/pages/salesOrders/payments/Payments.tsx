@@ -104,6 +104,7 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useGetSalesPaymentQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAppSelector } from "@/store/store";
 import type { SalesPayment } from "@/types/salesPayment.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { PlusCircle } from "lucide-react";
@@ -120,6 +121,8 @@ export default function Payments() {
     limit,
     search,
   });
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const paymentColumns: ColumnDef<SalesPayment>[] = [
     {
@@ -175,7 +178,7 @@ export default function Payments() {
       header: "Amount",
       cell: ({ row }) => {
         const value = parseFloat(row.original.amount);
-        return <span>৳ {value.toFixed(2)}</span>;
+        return <span>{currency} {value.toFixed(2)}</span>;
       },
     },
     {
@@ -190,7 +193,7 @@ export default function Payments() {
         const payment = row.original;
         return (
           <div className="flex items-center gap-2">
-            <Link to={`/dashboard/payments/${payment.id}`}>
+            <Link to={`/dashboard/sales/payments/${payment.id}`}>
               <Button size="sm" variant="outline">View</Button>
             </Link>
           </div>
@@ -204,7 +207,7 @@ export default function Payments() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Payments</h1>
 
-        <Link to="/dashboard/payments/create">
+        <Link to="/dashboard/sales/payments/create">
           <Button variant="info">
             <PlusCircle className="h-4 w-4" />
             Record Payment

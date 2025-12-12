@@ -13,7 +13,6 @@ export default function OrderDetails() {
 
   const { orderId } = useParams();
   const { data, isLoading } = useGetSalesOrderByIdQuery(orderId as string);
-
   if (isLoading) return <div>Loading...</div>;
 
   const order = data?.data;
@@ -41,14 +40,14 @@ export default function OrderDetails() {
         <h1 className="text-2xl font-bold">Order #{order.order_number}</h1>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Link to="/dashboard/orders">
+          <Link to="/dashboard/sales/orders">
             <Button variant="outline">
               <ArrowLeft className="h-4 w-4" /> Back to Orders
             </Button>
           </Link>
 
           {order.invoice && (
-            <Link to={`/dashboard/invoices/${order.invoice}`}>
+            <Link to={`/dashboard/sales/invoices/${order.invoice?.id}`}>
               <Button variant="info">View Invoice</Button>
             </Link>
           )}
