@@ -5,7 +5,7 @@ import { baseApi } from "@/store/baseApi";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
 export type PurchaseResponse = {
-  success: boolean;
+ status: boolean;
   message: string;
   data: any;
   pagination?: {
