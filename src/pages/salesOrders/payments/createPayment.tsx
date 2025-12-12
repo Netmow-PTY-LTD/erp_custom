@@ -295,7 +295,7 @@ const navigate=useNavigate()
     <div className="w-full">
       {/* BACK BUTTON */}
       <div className="flex items-center gap-2 mb-6">
-        <Link to="/dashboard/payments">
+        <Link to="/dashboard/sales/payments">
           <Button variant="outline" className="flex items-center gap-2">
             <ChevronLeft size={16} />
             Back to Payments

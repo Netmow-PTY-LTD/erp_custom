@@ -5,11 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import { useGetSettingsInfoQuery, useUpdateSettingsInfoMutation } from "@/store/features/admin/settingsApiService";
+import {
+  useGetSettingsInfoQuery,
+  useUpdateSettingsInfoMutation,
+} from "@/store/features/admin/settingsApiService";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { selectCurrency, setCurrency } from "@/store/currencySlice";
 import { useAppDispatch, useAppSelector } from "@/store/store";
+import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const profileSchema = z.object({
@@ -19,13 +23,17 @@ const profileSchema = z.object({
   description: z.string().optional(),
   address: z.string().optional(),
   currency: z.string().optional(),
+  logo_url: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function EditProfilePage() {
+  const [logo, setLogo] = useState<string>('');
+
   const dispatch = useAppDispatch();
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -35,6 +43,7 @@ export default function EditProfilePage() {
       description: "",
       address: "",
       currency: "",
+      logo_url: "",
     },
   });
 
@@ -49,28 +58,26 @@ export default function EditProfilePage() {
   //     urls.filter((_, i) => i !== index)
   //   );
 
-  const {data: companyProfileSettings} = useGetSettingsInfoQuery();
+  const { data: companyProfileSettings } = useGetSettingsInfoQuery();
 
   console.log("companyProfileSettings", companyProfileSettings);
 
   const settings = companyProfileSettings?.data;
 
   useEffect(() => {
-    if(settings){
+    if (settings) {
       form.reset({
-        company_name: settings.company_name,
-        email: settings.email,
-        phone: settings.phone,
-        description: settings.description,
-        address: settings.address,
-        currency: settings.currency
-      })
+        company_name: settings?.company_name,
+        email: settings?.email,
+        phone: settings?.phone,
+        description: settings?.description,
+        address: settings?.address,
+        currency: settings?.currency,
+        logo_url: settings?.logo_url,
+      });
     }
   }, [settings, form]);
 
-  const currency = useAppSelector(selectCurrency);
-
-  console.log("currency", currency);
 
   const [updateCompanyProfile] = useUpdateSettingsInfoMutation();
 
@@ -82,10 +89,14 @@ export default function EditProfilePage() {
       if (res.status) {
         toast.success(res.message || "Profile updated successfully");
         dispatch(setCurrency(res.data.currency));
+        setLogo(res.data.logo_url);
       }
-    }catch (error) {
+    } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Error updating profile" + (error instanceof Error ? ": " + error.message : ""));
+      toast.error(
+        "Error updating profile" +
+          (error instanceof Error ? ": " + error.message : "")
+      );
     }
   };
 
@@ -95,11 +106,28 @@ export default function EditProfilePage() {
       <div>
         <h1 className="text-2xl font-semibold">Company Profile</h1>
         <p className="text-sm text-gray-500 mt-1">
-          This is how your company will be presented to others on the site. You can change this at any time.
+          This is how your company will be presented to others on the site. You
+          can change this at any time.
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                {/* Logo Preview */}
+
+        {logo && <img src={logo} alt="Logo Preview" />}
+
+        {/* LOGO */}
+        <Controller
+          control={control}
+          name="logo_url"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Company Logo</FieldLabel>
+              <ImageUploaderPro value={field.value} onChange={field.onChange} />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
         {/* USERNAME */}
         <Controller
           control={control}
@@ -146,7 +174,7 @@ export default function EditProfilePage() {
           )}
         />
         {/* Address */}
-       
+
         <Controller
           control={control}
           name="address"
@@ -170,7 +198,7 @@ export default function EditProfilePage() {
           )}
         />
 
-         <Controller
+        <Controller
           control={control}
           name="currency"
           render={({ field, fieldState }) => (

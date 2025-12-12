@@ -243,9 +243,9 @@ export default function CreateSalesOrderPage() {
     <div className="space-y-6">
       <div className="flex items-center flex-wrap gap-2">
         <h1 className="text-3xl font-bold">Create Sales Order</h1>
-        <Link to="/dashboard/orders" className="ml-auto">
+        <Link to="/dashboard/sales/orders" className="ml-auto">
           <Button variant="outline">
-            <ArrowLeft className="h-4 w-4" /> Back
+            <ArrowLeft className="h-4 w-4" /> Back to Orders
           </Button>
         </Link>
       </div>
