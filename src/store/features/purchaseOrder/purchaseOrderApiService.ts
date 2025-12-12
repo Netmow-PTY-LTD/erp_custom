@@ -52,7 +52,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
         url: `/purchase/orders/${id}`,
         method: "GET",
       }),
-      providesTags: ["Purchases"],
+      providesTags: ["Purchase"],
     }),
 
     // UPDATE PURCHASE ORDER
@@ -65,7 +65,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Purchases"],
+      invalidatesTags: ["Purchases","Purchase"],
     }),
 
     // DELETE PURCHASE ORDER
@@ -110,7 +110,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["PurchaseInvoices"],
+      invalidatesTags: ["PurchaseInvoices","Purchase"],
     }),
 
     // GET SINGLE INVOICE
