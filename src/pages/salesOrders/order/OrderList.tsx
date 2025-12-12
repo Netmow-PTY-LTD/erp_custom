@@ -342,7 +342,7 @@ export default function Orders() {
         const item = row.original;
         return (
           <div className="flex gap-2">
-            <Link to={`/dashboard/orders/${item.id}`}>
+            <Link to={`/dashboard/sales/orders/${item.id}`}>
               <Button size="sm" variant="outline-info">
                 View
               </Button>
@@ -363,21 +363,21 @@ export default function Orders() {
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Orders Management</h1>
         <div className="flex flex-wrap items-center gap-4">
-          <Link to="/dashboard/invoices">
+          <Link to="/dashboard/sales/invoices">
             <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">
               <ClipboardList size={18} />
               Invoices
             </button>
           </Link>
 
-          <Link to="/dashboard/payments">
+          <Link to="/dashboard/sales/payments">
             <button className="flex items-center gap-2 bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-500">
               <CreditCard size={18} />
               Payments
             </button>
           </Link>
 
-          <Link to="/dashboard/orders/create">
+          <Link to="/dashboard/sales/orders/create">
             <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
               <PlusCircle size={18} />
               Create Order

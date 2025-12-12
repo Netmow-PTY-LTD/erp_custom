@@ -93,7 +93,7 @@ export default function Invoices() {
         const invoice = row.original;
         return (
           <div className="flex items-center gap-2">
-            <Link to={`/dashboard/invoices/${invoice.id}`}>
+            <Link to={`/dashboard/sales/invoices/${invoice.id}`}>
               <Button size="sm" variant="outline-info">View</Button>
             </Link>
           </div>
@@ -107,7 +107,7 @@ export default function Invoices() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Invoices</h1>
-        <Link to="/dashboard/orders/create">
+        <Link to="/dashboard/sales/orders/create">
           <Button variant="info">
             <PlusCircle className="h-4 w-4" /> Create Order
           </Button>

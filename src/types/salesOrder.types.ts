@@ -11,6 +11,7 @@ export interface SalesOrderItem {
   quantity: number;
   unit_price: string;      // decimal return as string
   total_price: string;     // decimal return as string
+  discount: number;
   created_at: string;      // ISO date
   updated_at: string;      // ISO date
 }

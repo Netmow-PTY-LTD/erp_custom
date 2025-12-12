@@ -182,4 +182,5 @@ export type Settings = {
     description: string;
     address: string;
     currency: string;
+    logo_url: string;
 }
