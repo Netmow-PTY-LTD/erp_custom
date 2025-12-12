@@ -42,6 +42,7 @@ export default function PurchasePaymentsDetails() {
   // --------------------------
   const invoice = payment.invoice
     ? {
+        invoice_id: payment.invoice_id,
         number: payment.invoice.invoice_number,
         total: payment.invoice.total_amount,
         dueDate: payment.invoice.due_date,
@@ -62,7 +63,7 @@ export default function PurchasePaymentsDetails() {
           </Link>
 
           {invoice && (
-            <Link to={`/dashboard/purchase-invoices/${invoice.number}`}>
+            <Link to={`/dashboard/purchase-invoices/${invoice.invoice_id}`}>
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 View Invoice {invoice.number}
               </Button>
