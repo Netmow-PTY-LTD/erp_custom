@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -19,7 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CalendarIcon, ArrowLeft } from "lucide-react";
+import { CalendarIcon, ArrowLeft, ChevronDown, Check } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -31,14 +30,17 @@ import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageUploader } from "@/components/form/ImageUploader";
 import { Link, useNavigate, useParams } from "react-router";
 import {
   useGetStaffByIdQuery,
   useUpdateStaffMutation,
 } from "@/store/features/staffs/staffApiService";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import type { Staff } from "@/types/staff.types";
+import { useGetAllDepartmentsQuery } from "@/store/features/admin/departmentApiService";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
 // =====================================================
 //  FORM SCHEMA
@@ -48,14 +50,15 @@ const StaffSchema = z.object({
   last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
-  department: z.string().optional(),
+  department: z.number().optional(),
   position: z.string().min(1, "Required"),
   hire_date: z.string().refine((v) => !isNaN(Date.parse(v)), {
     message: "Invalid date",
   }),
   salary: z.number().optional(),
-  status: z.string(),
-  image: z.instanceof(File).optional().nullable(),
+  status: z.enum(["active", "terminated", "on_leave"]),
+  image: z.string().optional(),
+  gallery_items: z.array(z.string()).optional(),
 });
 
 type StaffFormValues = z.infer<typeof StaffSchema>;
@@ -64,10 +67,22 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 //  EDIT PAGE
 // =====================================================
 export default function EditStaffPage() {
-  const navigate = useNavigate();
+  const [open, setOpen] = useState<boolean>(false);
+  const [page] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
   const { staffId } = useParams<{ staffId: string }>();
   const { data, isLoading: isFetching } = useGetStaffByIdQuery(staffId!);
   const [updateStaff, { isLoading: isUpdating }] = useUpdateStaffMutation();
+
+  const navigate = useNavigate();
+
+  const { data: fetchedDepartments } = useGetAllDepartmentsQuery({
+    page,
+    limit,
+    search,
+  });
+
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(StaffSchema),
     defaultValues: {
@@ -75,41 +90,57 @@ export default function EditStaffPage() {
       last_name: "",
       email: "",
       phone: "",
-      department: "",
+      department: 0,
       position: "",
       hire_date: "",
       salary: 0,
       status: "active",
-      image: null,
+      image: "",
+      gallery_items: [],
     },
   });
 
-  // Auto-fill form when data loads
-  useEffect(() => {
-    if (data?.data) {
-      const s = Array.isArray(data.data) ? data.data[0] : data.data;
+  const staff: Staff | undefined = Array.isArray(data?.data)
+    ? data?.data[0]
+    : data?.data;
 
-      if (s) {
-        form.reset({
-          first_name: s.first_name,
-          last_name: s.last_name,
-          email: s.email,
-          phone: s.phone || "",
-          department: s.department || "",
-          position: s.position,
-          hire_date: s.hire_date,
-          salary: s.salary || 0,
-          status: s.status,
-          image: null,
-        });
-      }
+  useEffect(() => {
+    if (staff) {
+      
+
+      form.reset({
+        first_name: staff?.first_name,
+        last_name: staff?.last_name,
+        email: staff?.email,
+        phone: staff?.phone || "",
+        department: staff?.department_id,
+        position: staff?.position,
+        hire_date: staff?.hire_date,
+        salary: staff?.salary || 0,
+        status: staff?.status,
+        image: staff?.thumb_url,
+        gallery_items: staff?.gallery_items,
+      });
     }
-  }, [data, form]);
+  }, [staff, fetchedDepartments?.data, form]);
 
   // =====================================================
   //  SUBMIT HANDLER
   // =====================================================
   const onSubmit = async (values: StaffFormValues) => {
+     const payload = {
+      first_name: values.first_name,
+      last_name: values.last_name,
+      email: values.email,
+      phone: values.phone,
+      department_id: values.department,
+      position: values.position,
+      hire_date: values.hire_date,
+      salary: values.salary,
+      status: values.status,
+      thumb_url: values.image,
+      gallery_items: values.gallery_items,
+    };
     try {
       // const fd = new FormData();
 
@@ -122,7 +153,7 @@ export default function EditStaffPage() {
       // });
 
       // const res = await updateStaff({ id, data: fd }).unwrap();
-      const res = await updateStaff({ id: staffId!, body: values }).unwrap();
+      const res = await updateStaff({ id: staffId!, body: payload }).unwrap();
 
       if (res.status) {
         toast.success("Staff updated successfully!");
@@ -171,7 +202,7 @@ export default function EditStaffPage() {
                     <FormItem>
                       <FormLabel>Profile Image</FormLabel>
 
-                      <ImageUploader
+                      <ImageUploaderPro
                         value={field.value}
                         onChange={(file) => field.onChange(file)}
                       />
@@ -248,27 +279,75 @@ export default function EditStaffPage() {
                   <FormField
                     control={form.control}
                     name="department"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Department</FormLabel>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select department" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="sales">Sales</SelectItem>
-                            <SelectItem value="marketing">Marketing</SelectItem>
-                            <SelectItem value="support">Support</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const selected = fetchedDepartments?.data?.find(
+                        (dept) => Number(dept.id) === Number(field.value)
+                      );
+                      
+                      return (
+                        <FormItem>
+                          <FormLabel>Department</FormLabel>
+                          <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={open}
+                                className="w-full justify-between font-medium"
+                              >
+                                {selected
+                                  ? selected?.name
+                                  : "Select department..."}
+                                <ChevronDown className="opacity-50 h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                {/* Search input */}
+                                <CommandInput
+                                  placeholder="Search category..."
+                                  className="h-9"
+                                  value={search}
+                                  onValueChange={setSearch}
+                                />
+
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No department found.
+                                  </CommandEmpty>
+
+                                  <CommandGroup>
+                                    {fetchedDepartments?.data?.map((dept) => (
+                                      <CommandItem
+                                        key={dept?.id}
+                                        value={`${dept?.name}-${dept?.id}`} // unique, string
+                                        onSelect={() => {
+                                          field.onChange(dept?.id); // convert back to number
+                                          setOpen(false);
+                                        }}
+                                      >
+                                        {dept?.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto h-4 w-4",
+                                            Number(field.value) ===
+                                              Number(dept?.id)
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField
@@ -316,8 +395,7 @@ export default function EditStaffPage() {
                               mode="single"
                               selected={new Date(field.value)}
                               onSelect={(date) =>
-                                date &&
-                                field.onChange(date.toISOString())
+                                date && field.onChange(date.toISOString())
                               }
                             />
                           </PopoverContent>
@@ -361,7 +439,7 @@ export default function EditStaffPage() {
                         onValueChange={field.onChange}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
@@ -371,6 +449,24 @@ export default function EditStaffPage() {
                           <SelectItem value="on_leave">On Leave</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gallery_items"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Profile Gallery</FormLabel>
+
+                      <ImageUploaderPro
+                        value={field.value}
+                        onChange={(file) => field.onChange(file)}
+                        multiple
+                      />
+
                       <FormMessage />
                     </FormItem>
                   )}

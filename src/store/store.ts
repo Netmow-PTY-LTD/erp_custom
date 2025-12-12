@@ -1,18 +1,25 @@
-
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./features/auth/authSlice";
 import { loadState, saveState } from "./localStorage";
-import { useDispatch, useSelector, type TypedUseSelectorHook } from "react-redux";
+import {
+  useDispatch,
+  useSelector,
+  type TypedUseSelectorHook,
+} from "react-redux";
 import { baseApi } from "./baseApi";
+import currencyReducer from "./currencySlice";
 
 const LOCAL_STORAGE_KEY = "reduxState";
 
 // Load persisted state from localStorage
-const preloadedState = loadState<{ auth: ReturnType<typeof authReducer> }>(LOCAL_STORAGE_KEY);
+const preloadedState = loadState<{ auth: ReturnType<typeof authReducer> }>(
+  LOCAL_STORAGE_KEY
+);
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    currency: currencyReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -24,6 +31,7 @@ export const store = configureStore({
 store.subscribe(() => {
   saveState(LOCAL_STORAGE_KEY, {
     auth: store.getState().auth,
+    currency: store.getState().currency,
   });
 });
 

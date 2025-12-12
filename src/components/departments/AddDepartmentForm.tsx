@@ -58,6 +58,7 @@ export default function AddDepartmentForm({ open, onOpenChange }: Props) {
         toast.success("Department added successfully");
         navigate("/dashboard/departments");
         onOpenChange(false);
+        form.reset();
       }
     } catch (error) {
       console.error("Error adding department: ", error);

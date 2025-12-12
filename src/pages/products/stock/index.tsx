@@ -15,6 +15,7 @@ import AddStockForm from "@/components/products/AddStockForm";
 import type { Product } from "@/types/types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import { Link } from "react-router";
+import { useAppSelector } from "@/store/store";
 
 export default function StockManagement() {
   const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
@@ -43,6 +44,8 @@ export default function StockManagement() {
   //   console.log(`Deleting stock with SKU: ${sku}`);
   // };
 
+  const currency = useAppSelector((state) => state.currency.value);
+
   const productColumns: ColumnDef<Product>[] = [
     {
       accessorKey: "sku",
@@ -70,12 +73,12 @@ export default function StockManagement() {
     },
     {
       accessorKey: "cost",
-      header: "Cost Price (RM)",
+      header: `Cost Price (${currency})`,
       cell: ({ row }) => row.original.cost,
     },
     {
       accessorKey: "price",
-      header: "Selling Price (RM)",
+      header: `Selling Price (${currency})`,
       cell: ({ row }) => row.original.price,
     },
     // {

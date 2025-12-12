@@ -27,6 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useAppSelector } from "@/store/store";
 
 export default function Customers() {
   const [pageIndex, setPageIndex] = useState(0);
@@ -92,6 +93,8 @@ export default function Customers() {
     },
   ];
 
+  const currency = useAppSelector((state) => state.currency.value);
+
   const customerColumns: ColumnDef<Customer>[] = [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },
@@ -116,18 +119,18 @@ export default function Customers() {
     },
     {
       accessorKey: "credit_limit",
-      header: "Credit Limit (RM)",
+      header: `Credit Limit (${currency})`,
       cell: ({ row }) => {
         const limit = row.getValue("credit_limit") as number;
-        return limit ? `RM ${limit.toLocaleString()}` : "-";
+        return limit ? `${currency} ${limit.toLocaleString()}` : "-";
       },
     },
     {
       accessorKey: "outstanding_balance",
-      header: "Balance (RM)",
+      header: `Balance (${currency})`,
       cell: ({ row }) => {
         const balance = row.getValue("outstanding_balance") as number;
-        return balance ? `RM ${balance.toLocaleString()}` : "RM 0";
+        return balance ? `${currency} ${balance.toLocaleString()}` : `${currency} 0`;
       },
     },
     {

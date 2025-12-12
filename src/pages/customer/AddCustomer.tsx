@@ -1,4 +1,9 @@
-import { Controller, useForm, type SubmitHandler, type Resolver } from "react-hook-form";
+import {
+  Controller,
+  useForm,
+  type SubmitHandler,
+  type Resolver,
+} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -19,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
@@ -46,6 +52,8 @@ type CustomerFormValues = z.infer<typeof customerSchema>;
 export default function AddCustomerPage() {
   const navigate = useNavigate();
   const [createCustomer, { isLoading }] = useCreateCustomerMutation();
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema) as Resolver<CustomerFormValues>,
@@ -257,7 +265,11 @@ export default function AddCustomerPage() {
                       step="any"
                       placeholder="e.g. 40.7128"
                       value={field.value || ""}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? Number(e.target.value) : undefined
+                        )
+                      }
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -275,7 +287,11 @@ export default function AddCustomerPage() {
                       step="any"
                       placeholder="e.g. -74.0060"
                       value={field.value || ""}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? Number(e.target.value) : undefined
+                        )
+                      }
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -289,7 +305,9 @@ export default function AddCustomerPage() {
                 name="credit_limit"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Credit Limit</FieldLabel>
+                    <FieldLabel>
+                      Credit Limit {currency ? `(${currency})` : ""}
+                    </FieldLabel>
                     <Input
                       type="number"
                       value={field.value}

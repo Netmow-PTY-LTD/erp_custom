@@ -1,13 +1,32 @@
-export type Staff = {
-  hire_date: string | undefined;
+// export type Staff = {
+//   hire_date: string | undefined;
+//   id: number;
+//   first_name: string;
+//   last_name: string;
+//   email: string;
+//   phone: string;
+//   position: string;
+//   department: string;
+//   salary: number;
+//   status: "active" | "inactive" | string; // You can expand if there are other statuses
+//   created_at: string; // ISO date string
+// };
+
+import type { Department } from "./types";
+
+export interface Staff {
   id: number;
+  employeeId: string;
   first_name: string;
   last_name: string;
   email: string;
-  phone: string;
+  phone?: string;
+  department_id: number;
+  department: Department | null;
   position: string;
-  department: string;
+  status: "active" | "terminated" | "on_leave"; 
+  hire_date: string; 
   salary: number;
-  status: "active" | "inactive" | string; // You can expand if there are other statuses
-  created_at: string; // ISO date string
-};
+  thumb_url?: string;
+  gallery_items?: string[];
+}

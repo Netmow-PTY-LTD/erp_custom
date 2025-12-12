@@ -19,7 +19,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CalendarIcon, ArrowLeft } from "lucide-react";
+import { CalendarIcon, ArrowLeft, ChevronDown, Check } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -31,10 +31,22 @@ import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageUploader } from "@/components/form/ImageUploader";
+//import { ImageUploader } from "@/components/form/ImageUploader";
 import { Link, useNavigate } from "react-router";
 import { useAddStaffMutation } from "@/store/features/staffs/staffApiService";
 import { toast } from "sonner";
+import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { useState } from "react";
+import { useGetAllDepartmentsQuery } from "@/store/features/admin/departmentApiService";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { useAppSelector } from "@/store/store";
 
 // =====================================================
 //  FORM SCHEMA (PAYLOAD READY)
@@ -44,15 +56,16 @@ const StaffSchema = z.object({
   last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
-  department: z.string().optional(),
+  department: z.number(),
   position: z.string().min(1, "Required"),
   hire_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid date",
   }),
   salary: z.number().optional(),
   // address: z.string().optional(),
-  status: z.string(),
-  image: z.instanceof(File).optional().nullable(),
+  status: z.enum(["active", "terminated", "on_leave"]),
+  image: z.string().optional(),
+  gallery_items: z.array(z.string()).optional(),
 });
 
 type StaffFormValues = z.infer<typeof StaffSchema>;
@@ -61,9 +74,21 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 //  PAGE COMPONENT
 // =====================================================
 export default function AddStaffPage() {
-  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
   const [addStaff, { isLoading }] = useAddStaffMutation();
+  const [page] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  const limit = 10;
 
+  const navigate = useNavigate();
+
+  const { data: fetchedDepartments } = useGetAllDepartmentsQuery({
+    page,
+    limit,
+    search,
+  });
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const form = useForm<StaffFormValues>({
     resolver: zodResolver(StaffSchema),
@@ -72,13 +97,13 @@ export default function AddStaffPage() {
       last_name: "",
       email: "",
       phone: "",
-      department: "",
+      department: 0,
       position: "",
       hire_date: "",
       salary: 0,
-      // address: "",
       status: "active",
-      image: null,
+      image: "",
+      gallery_items: [],
     },
   });
 
@@ -86,6 +111,21 @@ export default function AddStaffPage() {
   // API PAYLOAD + SUBMIT HANDLER
   // =====================================================
   const onSubmit = async (values: StaffFormValues) => {
+    console.log("API Payload:", values);
+    const payload = {
+      first_name: values.first_name,
+      last_name: values.last_name,
+      email: values.email,
+      phone: values.phone,
+      department_id: values.department,
+      position: values.position,
+      hire_date: values.hire_date,
+      salary: values.salary,
+      status: values.status,
+      thumb_url: values.image,
+      gallery_items: values.gallery_items,
+    };
+
     try {
       // const fd = new FormData();
 
@@ -104,7 +144,7 @@ export default function AddStaffPage() {
       // }
 
       // const res = await addStaff(fd).unwrap();
-      const res = await addStaff(values).unwrap();
+      const res = await addStaff(payload).unwrap();
 
       if (res.status) {
         navigate("/dashboard/staffs");
@@ -155,7 +195,7 @@ export default function AddStaffPage() {
                     <FormItem>
                       <FormLabel>Profile Image</FormLabel>
 
-                      <ImageUploader
+                      <ImageUploaderPro
                         value={field.value}
                         onChange={(file) => field.onChange(file)}
                       />
@@ -165,7 +205,7 @@ export default function AddStaffPage() {
                   )}
                 />
                 {/* ROW 1 — FIRST + LAST NAME */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                   <FormField
                     control={form.control}
                     name="first_name"
@@ -200,7 +240,7 @@ export default function AddStaffPage() {
                 </div>
 
                 {/* ROW 2 — EMAIL + PHONE */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                   <FormField
                     control={form.control}
                     name="email"
@@ -233,28 +273,79 @@ export default function AddStaffPage() {
                 </div>
 
                 {/* ROW 3 — DEPT + POSITION */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                   <FormField
                     control={form.control}
                     name="department"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Department</FormLabel>
-                        <Select onValueChange={field.onChange}>
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select Department" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="sales">Sales</SelectItem>
-                            <SelectItem value="marketing">Marketing</SelectItem>
-                            <SelectItem value="support">Support</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const selected = fetchedDepartments?.data?.find(
+                        (dept) => Number(dept.id) === Number(field.value)
+                      );
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Department</FormLabel>
+                          <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={open}
+                                className="w-full justify-between"
+                              >
+                                {selected
+                                  ? selected.name
+                                  : "Select department..."}
+                                <ChevronDown className="opacity-50 h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                {/* Search input */}
+                                <CommandInput
+                                  placeholder="Search category..."
+                                  className="h-9"
+                                  value={search}
+                                  onValueChange={setSearch}
+                                />
+
+                                <CommandList>
+                                  <CommandEmpty>
+                                    No department found.
+                                  </CommandEmpty>
+
+                                  <CommandGroup>
+                                    {fetchedDepartments?.data?.map((dept) => (
+                                      <CommandItem
+                                        key={dept?.id}
+                                        value={`${dept?.name}-${dept?.id}`} // unique, string
+                                        onSelect={() => {
+                                          field.onChange(dept?.id); // convert back to number
+                                          setOpen(false);
+                                        }}
+                                      >
+                                        {dept?.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto h-4 w-4",
+                                            Number(field.value) ===
+                                              Number(dept?.id)
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField
@@ -275,7 +366,7 @@ export default function AddStaffPage() {
                 </div>
 
                 {/* ROW 4 — HIRE DATE + SALARY */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                   <FormField
                     control={form.control}
                     name="hire_date"
@@ -325,15 +416,17 @@ export default function AddStaffPage() {
                     name="salary"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Salary (RM)</FormLabel>
+                        <FormLabel>
+                          Salary {`${currency ? `(${currency})` : ""}`}
+                        </FormLabel>
                         <FormControl>
-
                           <Input
                             type="number"
                             placeholder="salary i.e. 1000"
                             {...field}
-                             onChange={(e) => field.onChange(e.target.valueAsNumber)}
-
+                            onChange={(e) =>
+                              field.onChange(e.target.valueAsNumber)
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -389,6 +482,24 @@ export default function AddStaffPage() {
                   )}
                 />
 
+                <FormField
+                  control={form.control}
+                  name="gallery_items"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Profile Gallery</FormLabel>
+
+                      <ImageUploaderPro
+                        value={field.value}
+                        onChange={(file) => field.onChange(file)}
+                        multiple
+                      />
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* BUTTONS */}
                 <div className="flex justify-end gap-3 pt-4">
                   <Button variant="outline">Cancel</Button>
@@ -421,6 +532,3 @@ export default function AddStaffPage() {
     </div>
   );
 }
-
-
-

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -7,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { useGetSalesOrderByIdQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAppSelector } from "@/store/store";
 
 export default function OrderDetails() {
+  const currency = useAppSelector((state) => state.currency.value);
+
   const { orderId } = useParams();
   const { data, isLoading } = useGetSalesOrderByIdQuery(orderId as string);
-
- 
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -25,8 +25,8 @@ export default function OrderDetails() {
     order.status === "confirmed"
       ? "bg-blue-600 text-white"
       : order.status === "pending"
-        ? "bg-yellow-500 text-black"
-        : "bg-gray-500 text-white";
+      ? "bg-yellow-500 text-black"
+      : "bg-gray-500 text-white";
 
   // Calculate subtotal if needed
   const subtotal = order.items.reduce(
@@ -59,7 +59,6 @@ export default function OrderDetails() {
 
       {/* 2 COLUMN LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
         {/* LEFT COLUMN — ORDER ITEMS */}
         <div className="lg:col-span-8">
           <h2 className="text-lg font-semibold mb-3">Order Items</h2>
@@ -72,18 +71,23 @@ export default function OrderDetails() {
                     <th className="p-3 text-left">Product</th>
                     <th className="p-3 text-left">SKU</th>
                     <th className="p-3 text-center">Quantity</th>
-                    <th className="p-3 text-center">Unit Price (RM)</th>
-                    <th className="p-3 text-center">Total Price (RM)</th>
+                    <th className="p-3 text-center">Unit Price ({currency})</th>
+                    <th className="p-3 text-center">Total Price ({currency})</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {order.items.map((item) => (
-                    <tr key={item.id} className="border-b hover:bg-gray-50 transition">
+                  {order?.items?.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="border-b hover:bg-gray-50 transition"
+                    >
                       <td className="p-3">{item.product.name}</td>
                       <td className="p-3">{item.product.sku}</td>
                       <td className="p-3 text-center">{item.quantity}</td>
-                      <td className="p-3 text-center">{Number(item.unit_price).toFixed(2)}</td>
+                      <td className="p-3 text-center">
+                        {Number(item.unit_price).toFixed(2)}
+                      </td>
                       <td className="p-3 text-center font-medium">
                         {Number(item.total_price).toFixed(2)}
                       </td>
@@ -97,7 +101,6 @@ export default function OrderDetails() {
 
         {/* RIGHT COLUMN — ORDER INFO, SUMMARY, CUSTOMER */}
         <div className="lg:col-span-4 space-y-5">
-
           {/* ORDER INFO */}
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Order Info</h3>
@@ -132,26 +135,26 @@ export default function OrderDetails() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-medium">RM {subtotal.toFixed(2)}</span>
+                <span className="font-medium">{currency} {subtotal.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
                 <span>Tax</span>
                 <span className="font-medium">
-                  RM {Number(order.tax_amount).toFixed(2)}
+                  {currency} {Number(order.tax_amount).toFixed(2)}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span>Discount</span>
                 <span className="font-medium text-red-600">
-                  RM {Number(order.discount_amount).toFixed(2)}
+                  {currency} {Number(order.discount_amount).toFixed(2)}
                 </span>
               </div>
 
               <div className="flex justify-between text-lg font-bold border-t pt-3">
                 <span>Total</span>
-                <span>RM {Number(order.total_amount).toFixed(2)}</span>
+                <span>{currency} {Number(order.total_amount).toFixed(2)}</span>
               </div>
             </div>
           </Card>
@@ -161,7 +164,6 @@ export default function OrderDetails() {
             <h3 className="text-lg font-semibold mb-4">Customer Details</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm">
-
               <div>
                 <p className="text-muted-foreground text-xs">Customer ID</p>
                 <p className="font-medium">{order.customer_id}</p>
@@ -181,13 +183,10 @@ export default function OrderDetails() {
                 <p className="text-muted-foreground text-xs">Company</p>
                 <p className="font-medium">{order.customer.company}</p>
               </div>
-
             </div>
           </Card>
-
         </div>
       </div>
     </div>
-
   );
 }

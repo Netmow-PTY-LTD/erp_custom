@@ -194,10 +194,6 @@
 //   );
 // }
 
-
-
-
-
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -209,6 +205,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useGetAllSalesOrdersQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAppSelector } from "@/store/store";
 import type { SalesOrder } from "@/types/salesOrder.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -250,11 +247,6 @@ const orderStats = [
   },
 ];
 
-
-
-
-
-
 export default function Orders() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1); // backend starts from 1
@@ -267,6 +259,8 @@ export default function Orders() {
   });
 
   const orders = data?.data ?? [];
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const OrderColumns: ColumnDef<SalesOrder>[] = [
     {
@@ -282,7 +276,9 @@ export default function Orders() {
       header: "Customer",
       cell: ({ row }) => (
         <div>
-          <div className="font-semibold">Customer #{row.original.customer_id}</div>
+          <div className="font-semibold">
+            Customer #{row.original.customer_id}
+          </div>
           <div className="text-xs text-muted-foreground">
             ID: {row.original.customer_id}
           </div>
@@ -293,8 +289,7 @@ export default function Orders() {
     {
       accessorKey: "order_date",
       header: "Date",
-      cell: ({ row }) =>
-        new Date(row.original.order_date).toLocaleDateString(),
+      cell: ({ row }) => new Date(row.original.order_date).toLocaleDateString(),
     },
 
     {
@@ -316,23 +311,22 @@ export default function Orders() {
           status === "delivered"
             ? "bg-green-600"
             : status === "pending"
-              ? "bg-yellow-600"
-              : status === "confirmed"
-                ? "bg-blue-600"
-                : "bg-gray-500";
+            ? "bg-yellow-600"
+            : status === "confirmed"
+            ? "bg-blue-600"
+            : "bg-gray-500";
 
         return (
-          <Badge className={`${color} text-white capitalize`}>
-            {status}
-          </Badge>
+          <Badge className={`${color} text-white capitalize`}>{status}</Badge>
         );
       },
     },
 
     {
       accessorKey: "total_amount",
-      header: "Amount",
-      cell: ({ row }) => `RM ${parseFloat(row.original.total_amount).toFixed(2)}`,
+      header: `Amount (${currency})`,
+      cell: ({ row }) =>
+        `${currency} ${parseFloat(row.original.total_amount).toFixed(2)}`,
     },
 
     // {
@@ -365,7 +359,6 @@ export default function Orders() {
   ];
 
   return (
-
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Orders Management</h1>
@@ -413,7 +406,6 @@ export default function Orders() {
           <CardDescription>Manage your orders</CardDescription>
         </CardHeader>
         <CardContent>
-
           <DataTable
             columns={OrderColumns}
             data={orders}
@@ -427,14 +419,8 @@ export default function Orders() {
             }}
             isFetching={isLoading}
           />
-
-
         </CardContent>
       </Card>
     </div>
-
-
-
-
   );
 }

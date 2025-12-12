@@ -44,6 +44,7 @@ import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { useAppSelector } from "@/store/store";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const productSchema = z.object({
@@ -68,23 +69,6 @@ const productSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
-type NumericFieldNames =
-  | "price"
-  | "costPrice"
-  | "initialStock"
-  | "minStock"
-  | "maxStock";
-
-type NumericFieldTuple = [NumericFieldNames, string];
-
-const numericFields: NumericFieldTuple[] = [
-  ["price", "Price (RM)"],
-  ["costPrice", "Cost Price (RM)"],
-  ["initialStock", "Initial Stock"],
-  ["minStock", "Min Stock"],
-  ["maxStock", "Max Stock"],
-];
-
 /* ------------------ PAGE ------------------ */
 export default function AddProductPage() {
   const [open, setOpen] = useState(false);
@@ -108,6 +92,8 @@ export default function AddProductPage() {
   });
 
   // console.log("Fetched Units: ", fetchedUnits);
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -471,28 +457,105 @@ export default function AddProductPage() {
             </CardHeader>
 
             <CardContent className="grid gap-4 md:grid-cols-3">
-              {numericFields.map(([name, label]) => (
-                <Controller
-                  key={name}
-                  control={control}
-                  name={name}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel>{label}</FieldLabel>
-                      <Input
-                        type="number"
-                        value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === "" ? "" : Number(e.target.value)
-                          )
-                        }
-                      />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
-              ))}
+              <Controller
+                control={control}
+                name="price"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>
+                      Price {currency ? `(${currency})` : ""}{" "}
+                    </FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="costPrice"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>
+                      Cost Price {currency ? `(${currency})` : ""}{" "}
+                    </FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="initialStock"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Initial Stock</FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="minStock"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Min Stock</FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="maxStock"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Max Stock</FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
             </CardContent>
           </Card>
 
