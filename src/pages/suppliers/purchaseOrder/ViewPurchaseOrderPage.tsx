@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft, Check } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link,  useParams } from "react-router";
 import { useGetPurchaseOrderByIdQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { toast } from "sonner";
 import type { POItem, PurchaseOrder } from "@/types/purchaseOrder.types";
@@ -52,7 +52,7 @@ const renderStatusBadge = (status: string) => {
 
 
 export default function PurchaseOrderView() {
-  const navigate = useNavigate();
+
   const { purchaseId } = useParams();
   const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 
