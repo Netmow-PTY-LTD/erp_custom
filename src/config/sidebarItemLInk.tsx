@@ -71,6 +71,8 @@ import StaffReports from "@/pages/reports/StaffReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
 import EditPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/EditPurchaseOrderPage";
 import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
+import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
+import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
 
 
 // This is sample data.
@@ -158,7 +160,7 @@ export const sidebarItemLink = [
         url: "/dashboard/customers/sales-routes/:routeId/assign",
         element: <AssignRoutePage />,
       },
-     
+
       {
         title: "Customer Maps",
         url: "/dashboard/customers/map",
@@ -205,6 +207,16 @@ export const sidebarItemLink = [
         title: "",
         url: "/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
+      },
+      {
+        title: "Purchase Invoices",
+        url: "/dashboard/purchase-invoices",
+        element: <PurchaseInvoicesList />,
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-invoices/:id",
+        element: <PurchaseInvoicesDetails />,
       },
     ],
   },
@@ -459,7 +471,7 @@ export const sidebarItemLink = [
         element: <CustomerReports />
       },
 
-   {
+      {
         title: "Staff Reports",
         url: "/dashboard/reports/staffs",
         element: <StaffReports />
