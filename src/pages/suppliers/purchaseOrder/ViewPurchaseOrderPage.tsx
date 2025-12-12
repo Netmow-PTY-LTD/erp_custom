@@ -72,7 +72,7 @@ export default function PurchaseOrderView() {
         body: { status: "approved" },
       }).unwrap();
 
-      if (res.success) {
+      if (res.status) {
         toast.success("Purchase Order Approved");
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -89,7 +89,7 @@ export default function PurchaseOrdersList() {
 
     try {
       const res = await deletePurchaseOrder(selectedPOId).unwrap();
-      if (res.success) {
+      if (res.status) {
         toast.success("Purchase Order Deleted Successfully");
       } else {
         toast.error(res?.message || "Delete failed");
