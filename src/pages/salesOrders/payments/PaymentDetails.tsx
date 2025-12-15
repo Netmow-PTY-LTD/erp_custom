@@ -1,13 +1,18 @@
-
 import { Button } from "@/components/ui/button";
 import { useGetSalesPaymentByIdQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAppSelector } from "@/store/store";
 import { Link, useParams } from "react-router";
 
 export default function PaymentDetails() {
-  const { paymentId } = useParams();
-  const { data, isLoading, error } = useGetSalesPaymentByIdQuery(paymentId as string);
 
-  console.log('payment data', data);
+  const currency = useAppSelector((state) => state.currency.value);
+
+  const { paymentId } = useParams();
+  const { data, isLoading, error } = useGetSalesPaymentByIdQuery(
+    paymentId as string
+  );
+
+  console.log("payment data", data);
 
   if (isLoading) return <p>Loading...</p>;
   if (error || !data?.data) return <p>Payment not found.</p>;
@@ -17,7 +22,9 @@ export default function PaymentDetails() {
   const payment = {
     number: `PAY-${paymentData.id.toString().padStart(6, "0")}`,
     date: new Date(paymentData.payment_date).toLocaleDateString(),
-    method: paymentData.payment_method.replaceAll("_", " ").replace(/^\w/, c => c.toUpperCase()),
+    method: paymentData.payment_method
+      .replaceAll("_", " ")
+      .replace(/^\w/, (c) => c.toUpperCase()),
     reference: paymentData.reference_number || "-",
     notes: paymentData.notes || "-",
     amount: Number(paymentData.amount),
@@ -33,7 +40,9 @@ export default function PaymentDetails() {
   const customer = paymentData.order?.customer
     ? {
         name: paymentData.order.customer.name,
-        code: `CUST-${paymentData.order.customer.id.toString().padStart(3, "0")}`,
+        code: `CUST-${paymentData.order.customer.id
+          .toString()
+          .padStart(3, "0")}`,
       }
     : null;
 
@@ -41,16 +50,18 @@ export default function PaymentDetails() {
     <div className="p-4 md:p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-        <h1 className="text-2xl sm:text-3xl font-bold">Payment {payment?.number}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">
+          Payment {payment?.number}
+        </h1>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           <Link to="/dashboard/sales/payments">
             <Button variant="outline">← Back to Payments</Button>
           </Link>
           {payment?.invoice && (
-            <Link to={`/dashboard/sales/orders/${paymentData?.order?.id}`}>
+            <Link to={`/dashboard/sales/invoices/${paymentData?.invoice?.id}`}>
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                View Order {payment?.invoice.number}
+                View Invoice {paymentData?.invoice?.invoice_number}
               </Button>
             </Link>
           )}
@@ -103,10 +114,10 @@ export default function PaymentDetails() {
                 <p className="font-semibold">Linked Invoice</p>
                 {payment.invoice ? (
                   <Link
-                    to={`/dashboard/sales/orders/${paymentData?.order?.id}`}
+                    to={`/dashboard/sales/invoices/${paymentData?.invoice?.id}`}
                     className="text-blue-600 underline hover:text-blue-800"
                   >
-                    {payment.invoice.number}
+                    {paymentData?.invoice?.invoice_number}
                   </Link>
                 ) : (
                   <p className="text-gray-400">No Invoice</p>
@@ -115,7 +126,9 @@ export default function PaymentDetails() {
 
               <div className="mt-8">
                 <p className="font-semibold">Amount</p>
-                <p className="text-xl font-bold">RM {payment.amount.toFixed(2)}</p>
+                <p className="text-xl font-bold">
+                  {currency} {payment.amount.toFixed(2)}
+                </p>
               </div>
             </div>
           </div>
@@ -142,13 +155,13 @@ export default function PaymentDetails() {
 
               <div className="flex justify-between text-sm">
                 <span>Invoice #</span>
-                <span className="font-semibold">{payment.invoice.number}</span>
+                <span className="font-semibold">{paymentData?.invoice?.invoice_number}</span>
               </div>
 
               <div className="flex justify-between text-sm">
                 <span>Invoice Total</span>
                 <span className="font-semibold">
-                  RM {payment.invoice.total.toFixed(2)}
+                  {currency} {Number(paymentData?.invoice?.total_amount).toFixed(2)}
                 </span>
               </div>
             </div>
