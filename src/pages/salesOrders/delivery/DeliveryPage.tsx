@@ -37,13 +37,14 @@ export default function DeliveryPage() {
   const handleOpenModal = (order: SalesOrder) => {
     setSelectedOrder(order);
     setStatus(order.status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
-    setDeliveryDate(order.delivery_date
-      ? typeof order.delivery_date === "string"
-        ? order.delivery_date.split("T")[0] // string case
-        : order.delivery_date instanceof Date
-          ? order.delivery_date.toISOString().split("T")[0] // Date case
-          : new Date(order.delivery_date).toISOString().split("T")[0] // number (timestamp) case
-      : "");
+    const deliveryDateValue = order.delivery?.delivery_date;
+
+    setDeliveryDate(
+      deliveryDateValue
+        ? new Date(deliveryDateValue).toISOString().split("T")[0]
+        : ""
+    );
+
     setNotes(order.notes || "");
     setOpenModal(true);
   };
