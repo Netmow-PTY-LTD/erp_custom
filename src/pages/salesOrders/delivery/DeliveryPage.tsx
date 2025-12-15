@@ -270,7 +270,7 @@ export default function DeliveryPage() {
               </Button>
             </Link>
             <Button size="sm" variant="outline" onClick={() => handleOpenModal(item)}>
-              Update
+              Delivary Action
             </Button>
           </div>
         );
