@@ -7,6 +7,7 @@ import { PlusCircle } from "lucide-react";
 import type { SalesRoute } from "@/types/salesRoute.types";
 import { useGetAllSalesRouteQuery } from "@/store/features/salesRoute/salesRoute";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 export default function SalesRoutesPage() {
 
@@ -21,7 +22,7 @@ export default function SalesRoutesPage() {
 
   const salesRoute: SalesRoute[] = salesRouteData?.data || [];
 
-  console.log('salesRoute',salesRoute)
+  console.log('salesRoute', salesRoute)
 
 
 
@@ -31,14 +32,14 @@ export default function SalesRoutesPage() {
 
   const RoutesColumns: ColumnDef<SalesRoute>[] = [
     {
-      accessorKey: "name",
-      header: "Name",
+      accessorKey: "route_name",
+      header: "Route Name",
       cell: ({ row }) => (
         <Link
           to={`/dashboard/sales-routes/${row.original.id}`}
-          className="font-medium text-blue-500 hover:underline"
+          className="font-medium text-blue-600 hover:underline"
         >
-          {row.getValue("name")}
+          {row.original.route_name}
         </Link>
       ),
     },
@@ -47,22 +48,55 @@ export default function SalesRoutesPage() {
       accessorKey: "description",
       header: "Description",
       cell: ({ row }) => (
-        <div>
-          <div className="font-semibold">{row.getValue("description")}</div>
-        </div>
+        <span className="text-sm text-gray-600">
+          {row.original.description || "-"}
+        </span>
       ),
     },
 
     {
-      accessorKey: "staff",
-      header: "Staff",
-      cell: ({ row }) => row.getValue("staff"),
+      accessorKey: "assigned_sales_rep_id",
+      header: "Sales Rep",
+      cell: ({ row }) => (
+        <span className="font-medium">
+          Rep #{row.original.assigned_sales_rep_id ?? "-"}
+        </span>
+      ),
     },
 
     {
-      accessorKey: "customers",
-      header: "Customers",
-      cell: ({ row }) => row.getValue("customers"),
+      accessorKey: "start_location",
+      header: "Start Location",
+      cell: ({ row }) => row.original.start_location || "-",
+    },
+
+    {
+      accessorKey: "end_location",
+      header: "End Location",
+      cell: ({ row }) => row.original.end_location || "-",
+    },
+
+    {
+      accessorKey: "is_active",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge
+          className={
+            row.original.is_active
+              ? "bg-green-600 text-white"
+              : "bg-gray-500 text-white"
+          }
+        >
+          {row.original.is_active ? "Active" : "Inactive"}
+        </Badge>
+      ),
+    },
+
+    {
+      accessorKey: "created_at",
+      header: "Created",
+      cell: ({ row }) =>
+        new Date(row.original.created_at).toLocaleDateString(),
     },
 
     {
@@ -77,6 +111,7 @@ export default function SalesRoutesPage() {
                 View
               </Button>
             </Link>
+
             <Link to={`/dashboard/sales-routes/${route.id}/assign`}>
               <Button size="sm" variant="outline-info">
                 Assign
@@ -101,7 +136,7 @@ export default function SalesRoutesPage() {
       </div>
       <Card className="shadow-sm">
         <CardContent>
-         
+
 
           <DataTable
             columns={RoutesColumns}
