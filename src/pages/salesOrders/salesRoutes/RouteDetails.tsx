@@ -18,7 +18,7 @@ export default function RouteDetails() {
         </div>
 
         <div className="flex gap-2">
-          <Link to="/dashboard/sales-routes">
+          <Link to="/dashboard/sales/sales-routes">
             <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Back to routes

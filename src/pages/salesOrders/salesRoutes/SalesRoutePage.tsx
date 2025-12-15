@@ -127,7 +127,7 @@ export default function SalesRoutesPage() {
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-5">
         <h2 className="text-xl font-bold">Sales Routes</h2>
-        <Link to="/dashboard/sales-routes/create">
+        <Link to="/dashboard/sales/sales-routes/create">
           <Button size="sm" variant="info">
             <PlusCircle className="h-4 w-4" />
             New Route
