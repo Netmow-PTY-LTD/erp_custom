@@ -71,7 +71,7 @@ export default function EditStockForm({
     },
   });
 
-  const { control, setValue } = form;
+  const { control } = form;
 
   const { data: fetchedProduct, refetch: refetchProduct } =
     useGetProductByIdQuery(Number(productId), {
@@ -267,16 +267,8 @@ export default function EditStockForm({
               <div className="flex justify-center items-center gap-2">
                 <Button
                   type="submit"
-                  onClick={() => setValue("operation", "add")}
                 >
-                  Add Stock
-                </Button>
-
-                <Button
-                  type="submit"
-                  onClick={() => setValue("operation", "subtract")}
-                >
-                  Subtract Stock
+                  Adjust Stock
                 </Button>
               </div>
             </form>

@@ -2,9 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router";
-import { useGetInvoiceByIdQuery } from "@/store/features/salesOrder/salesOrder";
+import {
+  useGetInvoiceByIdQuery,
+  useUpdateInvoiceStatusMutation,
+} from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { toast } from "sonner";
 
 export default function InvoiceDetailsPage() {
   // Example data (replace with your actual API response)
@@ -35,6 +39,36 @@ export default function InvoiceDetailsPage() {
 
   const balance = Number(total) - Number(payableAmount);
 
+  const [updateInvoiceStatus] = useUpdateInvoiceStatusMutation();
+  const handleUpdateInvoiceStatus = async (id: number) => {
+    console.log("Invoice ID:", id);
+
+    if(!id) return;
+    if (invoice?.payments?.length === 0) {
+      toast.error(`No payments found for this invoice. Cannot mark as paid.`);
+      return;
+    };
+
+    const payload = {
+      invoiceId: id,
+      invoiceData: { status: "paid" },
+    };
+
+    try {
+      const res = await updateInvoiceStatus(payload).unwrap();
+      console.log("Invoice updated successfully:", res);
+      if (res.status) {
+        toast.success(res.message || "Invoice updated successfully");
+      }
+    } catch (error) {
+      console.error("Error updating invoice status:", error);
+      toast.error(
+        "Error updating invoice status" +
+          (error instanceof Error ? ": " + error.message : "")
+      );
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -60,6 +94,7 @@ export default function InvoiceDetailsPage() {
           <Button
             variant="default"
             className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={() => handleUpdateInvoiceStatus(Number(invoice?.id))}
           >
             ✔ Mark as Paid
           </Button>
@@ -114,7 +149,11 @@ export default function InvoiceDetailsPage() {
                   <strong>Status:</strong>{" "}
                   <Badge
                     variant="secondary"
-                    className="bg-yellow-500 text-white"
+                    className={`text-white py-1 ${
+                      invoice?.status === "paid"
+                        ? "bg-green-500"
+                        : "bg-yellow-500"
+                    }`}
                   >
                     {invoice?.status}
                   </Badge>
@@ -148,7 +187,7 @@ export default function InvoiceDetailsPage() {
                       <td className="p-3">{item?.product?.name}</td>
                       <td className="p-3">{item?.product?.sku}</td>
                       <td className="p-3">
-                        {item?.product?.price?.toFixed(2)}
+                        {Number(item?.unit_price)?.toFixed(2)}
                       </td>
                       <td className="p-3">{item?.quantity}</td>
                       <td className="p-3">{Number(item?.discount)}</td>
@@ -165,7 +204,63 @@ export default function InvoiceDetailsPage() {
           {/* Payments */}
           <div className="border rounded-md p-4">
             <h2 className="font-semibold text-lg mb-2">Payments</h2>
-            <p className="text-sm">No payments yet.</p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-100">
+                  <tr className="text-left">
+                    <th className="p-3">Date</th>
+                    <th className="p-3">Method</th>
+                    <th className="p-3">Amount ({currency})</th>
+                    <th className="p-3">Due Amount ({currency})</th>
+                    <th className="p-3">Reference</th>
+                    <th className="p-3">Collected By</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {invoice?.payments && invoice.payments.length > 0 ? (
+                    invoice?.payments?.map((item, idx) => (
+                      <tr key={idx} className="border-b">
+                        <td className="p-3">
+                          {item?.payment_date
+                            ? new Date(item.payment_date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )
+                            : "-"}
+                        </td>
+
+                        <td className="p-3">{item?.payment_method}</td>
+                        <td className="p-3">
+                          {Number(item?.amount || 0).toFixed(2)}
+                        </td>
+                        <td className="p-3">
+                          {(
+                            Number(invoice?.total_amount || 0) -
+                            Number(item?.amount || 0)
+                          ).toFixed(2)}
+                        </td>
+                        <td className="p-3">{item?.reference_number || "-"}</td>
+                        <td className="p-3">{item?.created_by || "-"}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="p-3 text-center text-sm text-gray-500"
+                      >
+                        No payments yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -214,7 +309,9 @@ export default function InvoiceDetailsPage() {
 
               <Badge
                 variant="secondary"
-                className="bg-yellow-500 text-white mt-1"
+                className={`text-white ${
+                  invoice?.status === "paid" ? "bg-green-500" : "bg-yellow-500"
+                }`}
               >
                 {invoice?.status}
               </Badge>

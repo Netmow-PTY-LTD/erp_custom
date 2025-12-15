@@ -98,7 +98,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                 <th className="p-3">Unit Price ({currency})</th>
                 <th className="p-3">Qty</th>
                 <th className="p-3">Discount %</th>
-                <th className="p-3 text-right">Line Total (RM)</th>
+                <th className="p-3 text-right">Line Total ({currency})</th>
               </tr>
             </thead>
 
@@ -108,7 +108,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                   <td className="p-3">{item?.product?.name}</td>
                   <td className="p-3">{item?.product?.sku}</td>
                   <td className="p-3">
-                    {Number(item?.product?.price).toFixed(2)}
+                    {Number(item?.unit_price).toFixed(2)}
                   </td>
                   <td className="p-3">{item?.quantity}</td>
                   <td className="p-3">{item?.discount?.toFixed(2)}</td>
@@ -140,7 +140,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
           <div className="flex justify-between">
             <span>Total</span>
             <span className="font-semibold">
-              RM {Number(invoice?.order?.total_amount)?.toFixed(2)}
+              {currency} {Number(invoice?.order?.total_amount)?.toFixed(2)}
             </span>
           </div>
 

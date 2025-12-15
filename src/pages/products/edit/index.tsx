@@ -167,7 +167,7 @@ export default function EditProductPage() {
       price: Number(values.price),
       cost: Number(values.costPrice),
       initial_stock: Number(values.initialStock),
-      // stock_quantity: Number(values.initialStock),
+      stock_quantity: Number(values.initialStock),
       min_stock_level: Number(values.minStock),
       max_stock_level: Number(values.maxStock),
       weight: Number(values.weight),
