@@ -33,6 +33,7 @@ export default function DeliveryPage() {
 
   const orders = data?.data ?? [];
 
+
   const handleOpenModal = (order: SalesOrder) => {
     setSelectedOrder(order);
     setStatus(order.status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
@@ -87,11 +88,17 @@ export default function DeliveryPage() {
       cell: ({ row }) => `RM ${parseFloat(row.original.total_amount).toFixed(2)}`,
     },
     {
-      accessorKey: "delivery_date",
+      accessorKey: "delivery.delivery_date",
       header: "Delivery Date",
-      cell: ({ row }) =>
-        row.original.delivery_date ? new Date(row.original.delivery_date).toLocaleDateString() : "-",
-    },
+      cell: ({ row }) => {
+        const deliveryDate = row.original.delivery?.delivery_date;
+
+        return deliveryDate
+          ? new Date(deliveryDate).toLocaleDateString()
+          : "—";
+      },
+    }
+    ,
     {
       accessorKey: "status",
       header: "Status",

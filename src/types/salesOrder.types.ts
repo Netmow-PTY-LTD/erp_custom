@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Customer } from "@/store/features/customers/types";
 import type { Product } from "./types";
 
@@ -17,6 +18,7 @@ export interface SalesOrderItem {
 }
 
 export interface SalesOrder {
+  delivery: any;
   delivery_date: string | number | Date;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   invoice: any;
