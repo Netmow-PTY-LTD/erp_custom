@@ -1,86 +1,60 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
+import { useGetInvoiceByIdQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAppSelector } from "@/store/store";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 
 export default function InvoiceDetailsPage() {
   // Example data (replace with your actual API response)
-  const invoice = {
-    invoiceNo: "INV-20251121-36A05F",
-    orderNo: "ORD-20251121-7E2E87",
-    invoiceDate: "2025-11-21",
-    dueDate: "2025-11-22",
-    status: "Sent",
-    subtotal: 4345,
-    tax: 0,
-    total: 4300,
-    paid: 0,
-    balance: 4300,
-  };
 
-  const from = {
-    name: "Frank Fruit Sdn. Bhd.",
-    address: "ABC Address Cyberjaya, Selangor 6800, Malaysia",
-    email: "frank@gmail.com",
-    phone: "+6023432432",
-  };
+  const invoiceId = useParams().invoiceId;
 
-  const to = {
-    name: "Modern Enterprises",
-    address: "67 Persiaran Gurney, Georgetown",
-    email: "sales@modern.com.my",
-    phone: "+60334567890",
-    code: "CUST005",
-  };
+  const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), {
+    skip: !invoiceId,
+  });
+  console.log("invoice data", invoiceData);
 
-  const items = [
-    {
-      product: "Desk Lamp",
-      sku: "SKU007",
-      price: 75,
-      qty: 2,
-      discount: 0,
-      total: 150,
-    },
-    {
-      product: "Office Chair",
-      sku: "SKU002",
-      price: 299,
-      qty: 5,
-      discount: 0,
-      total: 1495,
-    },
-    {
-      product: "Wireless Mouse",
-      sku: "SKU001",
-      price: 45,
-      qty: 10,
-      discount: 10,
-      total: 405,
-    },
-    {
-      product: "Wireless Mouse",
-      sku: "SKU001",
-      price: 45,
-      qty: 10,
-      discount: 10,
-      total: 405,
-    },
-  ];
+  const invoice = invoiceData?.data;
+
+  const currency = useAppSelector((state) => state.currency.value);
+
+  const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
+  const from = fetchedSettingsInfo?.data;
+
+  const to = invoice?.order?.customer;
+
+  const total = (
+    Number(invoice?.order?.total_amount) + Number(invoice?.order?.tax_amount)
+  ).toFixed(2);
+
+  const payableAmount = invoice?.payments
+    ?.reduce((acc, cur) => acc + Number(cur.amount), 0)
+    ?.toFixed(2);
+
+  const balance = Number(total) - Number(payableAmount);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-5">
-        <h1 className="text-3xl font-bold">Invoice {invoice.invoiceNo}</h1>
+        <h1 className="text-3xl font-bold">
+          Invoice {invoice?.invoice_number}
+        </h1>
 
         <div className="flex items-center gap-2">
-          <Link to="/dashboard/invoices">
+          <Link to="/dashboard/sales/invoices">
             <Button variant="outline">← Back to Invoices</Button>
           </Link>
-          <Link to={`/dashboard/payments/create`}>
+          <Link to={`/dashboard/sales/payments/create`}>
             <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
               Record Payment
+            </Button>
+          </Link>
+          <Link to={`/dashboard/sales/invoices/${invoice?.id}/preview`}>
+            <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
+              Print Preview
             </Button>
           </Link>
           <Button
@@ -104,20 +78,20 @@ export default function InvoiceDetailsPage() {
               <div className="space-y-5">
                 <div className="space-y-1">
                   <p className="font-semibold">From:</p>
-                  <p>{from.name}</p>
-                  <p>{from.address}</p>
+                  <p>{from?.company_name}</p>
+                  <p>{from?.address}</p>
                   <p>
-                    {from.email} | {from.phone}
+                    {from?.email} | {from?.phone}
                   </p>
                 </div>
 
                 {/* To: */}
                 <div>
                   <p className="font-semibold">To:</p>
-                  <p>{to.name}</p>
-                  <p>{to.address}</p>
+                  <p>{to?.name}</p>
+                  <p>{to?.address}</p>
                   <p>
-                    {to.email} | {to.phone}
+                    {to?.email} | {to?.phone}
                   </p>
                 </div>
               </div>
@@ -125,16 +99,16 @@ export default function InvoiceDetailsPage() {
               {/* Invoice Numbers */}
               <div className="space-y-2">
                 <p>
-                  <strong>Invoice #:</strong> {invoice.invoiceNo}
+                  <strong>Invoice #:</strong> {invoice?.invoice_number}
                 </p>
                 <p>
-                  <strong>Order #:</strong> {invoice.orderNo}
+                  <strong>Order #:</strong> {invoice?.order?.order_number}
                 </p>
                 <p>
-                  <strong>Invoice Date:</strong> {invoice.invoiceDate}
+                  <strong>Invoice Date:</strong> {invoice?.invoice_date}
                 </p>
                 <p>
-                  <strong>Due Date:</strong> {invoice.dueDate}
+                  <strong>Due Date:</strong> {invoice?.due_date}
                 </p>
                 <p>
                   <strong>Status:</strong>{" "}
@@ -142,7 +116,7 @@ export default function InvoiceDetailsPage() {
                     variant="secondary"
                     className="bg-yellow-500 text-white"
                   >
-                    {invoice.status}
+                    {invoice?.status}
                   </Badge>
                 </p>
                 <p>
@@ -155,33 +129,37 @@ export default function InvoiceDetailsPage() {
           <div className="border rounded-md">
             <div className="p-4 font-semibold text-lg">Invoice Items</div>
 
-           <div className="overflow-x-auto">
-             <table className="w-full text-sm">
-              <thead className="bg-gray-100">
-                <tr className="text-left">
-                  <th className="p-3">Product</th>
-                  <th className="p-3">SKU</th>
-                  <th className="p-3">Unit Price (RM)</th>
-                  <th className="p-3">Qty</th>
-                  <th className="p-3">Discount %</th>
-                  <th className="p-3">Line Total (RM)</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {items.map((item, idx) => (
-                  <tr key={idx} className="border-b">
-                    <td className="p-3">{item.product}</td>
-                    <td className="p-3">{item.sku}</td>
-                    <td className="p-3">{item.price.toFixed(2)}</td>
-                    <td className="p-3">{item.qty}</td>
-                    <td className="p-3">{item.discount.toFixed(2)}</td>
-                    <td className="p-3">{item.total.toFixed(2)}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-100">
+                  <tr className="text-left">
+                    <th className="p-3">Product</th>
+                    <th className="p-3">SKU</th>
+                    <th className="p-3">Unit Price ({currency})</th>
+                    <th className="p-3">Qty</th>
+                    <th className="p-3">Discount %</th>
+                    <th className="p-3">Line Total (RM)</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-           </div>
+                </thead>
+
+                <tbody>
+                  {invoice?.order?.items?.map((item, idx) => (
+                    <tr key={idx} className="border-b">
+                      <td className="p-3">{item?.product?.name}</td>
+                      <td className="p-3">{item?.product?.sku}</td>
+                      <td className="p-3">
+                        {item?.product?.price?.toFixed(2)}
+                      </td>
+                      <td className="p-3">{item?.quantity}</td>
+                      <td className="p-3">{Number(item?.discount)}</td>
+                      <td className="p-3">
+                        {Number(item?.total_price)?.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Payments */}
@@ -200,55 +178,56 @@ export default function InvoiceDetailsPage() {
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="font-semibold">
-                  RM {invoice.subtotal.toFixed(2)}
+                  {currency} {Number(invoice?.total_amount)?.toFixed(2)}
                 </span>
               </div>
 
               <div className="flex justify-between">
                 <span>Tax</span>
                 <span className="font-semibold">
-                  RM {invoice.tax.toFixed(2)}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Total</span>
-                <span className="font-semibold">
-                  RM {invoice.total.toFixed(2)}
+                  {currency} {Number(invoice?.order?.tax_amount)?.toFixed(2)}
                 </span>
               </div>
 
               <Separator />
 
               <div className="flex justify-between">
+                <span>Total</span>
+                <span className="font-semibold">
+                  {currency} {total}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
                 <span>Paid</span>
                 <span className="font-semibold">
-                  RM {invoice.paid.toFixed(2)}
+                  {currency} {payableAmount}
                 </span>
               </div>
 
               <div className="flex justify-between text-lg font-bold mt-1">
                 <span>Balance</span>
-                <span>RM {invoice.balance.toFixed(2)}</span>
+                <span>
+                  {currency} {balance.toFixed(2)}
+                </span>
               </div>
 
               <Badge
                 variant="secondary"
                 className="bg-yellow-500 text-white mt-1"
               >
-                {invoice.status}
+                {invoice?.status}
               </Badge>
             </div>
           </div>
           <div className="border rounded-md p-5">
             {/* Customer */}
-            <div className="mt-5">
+            <div className="">
               <h3 className="font-semibold text-lg">Customer</h3>
-              <p className="mt-2 font-semibold">{to.name}</p>
-              <p className="text-sm">{to.code}</p>
-              <p className="text-sm">{to.email}</p>
-              <p className="text-sm">{to.phone}</p>
-              <p className="text-sm">{to.address}</p>
+              <p className="mt-2 font-semibold">{to?.name}</p>
+              <p className="text-sm">{to?.email}</p>
+              <p className="text-sm">{to?.phone}</p>
+              <p className="text-sm">{to?.address}</p>
             </div>
           </div>
         </div>

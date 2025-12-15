@@ -1,4 +1,5 @@
 import type { SalesOrder } from "./salesOrder.types";
+import type { Payment } from "./types";
 
 
 
@@ -14,6 +15,7 @@ export interface SalesInvoice {
   created_at: string;
   updated_at: string;
   order: SalesOrder;
+  payments: Payment[]
 }
 
 

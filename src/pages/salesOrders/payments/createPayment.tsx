@@ -30,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useAddSalesPaymentMutation, useGetInvoicesByCustomerQuery, useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
 
 const paymentSchema = z.object({
   customer_id: z.number().min(1, "Customer is required"),
@@ -45,7 +46,9 @@ type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 
 export default function CreatePaymentPage() {
-const navigate=useNavigate()
+const navigate = useNavigate();
+
+const currency = useAppSelector((state) => state.currency.value);
 
   const [addPayment] = useAddSalesPaymentMutation()
 
@@ -184,13 +187,16 @@ const navigate=useNavigate()
     );
 
     const list = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.find((inv) => inv.id === field.value);
+    console.log("Invoice List:", list);
+    const selected = list.find((inv) => Number(inv.id) === Number(field.value));
+
+    console.log("Selected Invoice:", selected);
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button className="w-full justify-between" variant="outline" disabled={!customerId}>
-            {selected ? `INV-${selected.id}` : customerId ? "Select Invoice..." : "Select Customer first"}
+            {selected ? `${selected?.invoice_number}` : customerId ? "Select Invoice..." : "Select Customer first"}
           </Button>
         </PopoverTrigger>
 
@@ -204,16 +210,16 @@ const navigate=useNavigate()
                 {!isLoading &&
                   list.map((invoice) => (
                     <CommandItem
-                      key={invoice.id}
+                      key={invoice?.id}
                       onSelect={() => {
-                        field.onChange(invoice.id);
+                        field.onChange(invoice?.id);
                         setOpen(false);
                       }}
                     >
                       <div className="flex flex-col">
-                        <span className="font-medium">INV-{invoice.id}</span>
+                        <span className="font-medium">{invoice?.invoice_number}</span>
                         <span className="text-xs text-gray-500">
-                          Amount: ৳ {Number(invoice.total_amount).toFixed(2)}
+                          Amount: {currency} {Number(invoice?.total_amount).toFixed(2)}
                         </span>
                       </div>
                     </CommandItem>
@@ -260,7 +266,7 @@ const navigate=useNavigate()
 
       if (res.status) {
         toast.success(res.message || "Payment Added Successfully!")
-        navigate('/dashboard/payments')
+        navigate('/dashboard/sales/payments')
       }
 
     } catch (error) {
@@ -295,7 +301,7 @@ const navigate=useNavigate()
     <div className="w-full">
       {/* BACK BUTTON */}
       <div className="flex items-center gap-2 mb-6">
-        <Link to="/dashboard/payments">
+        <Link to="/dashboard/sales/payments">
           <Button variant="outline" className="flex items-center gap-2">
             <ChevronLeft size={16} />
             Back to Payments
@@ -353,7 +359,7 @@ const navigate=useNavigate()
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Amount (RM) <span className="text-red-500">*</span>
+                        Amount ({currency}) <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input

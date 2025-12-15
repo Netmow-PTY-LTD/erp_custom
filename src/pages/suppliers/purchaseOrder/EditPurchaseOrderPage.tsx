@@ -249,7 +249,7 @@ export default function EditPurchaseOrderPage() {
 
 
       const res = await updatePurchaseOrder({ id: Number(purchaseId), body: payload }).unwrap();
-      if (res.success) {
+      if (res.status) {
         toast.success(res.message || "Purchase Order Updated Successfully");
         navigate("/dashboard/suppliers/purchase-orders");
       } else {

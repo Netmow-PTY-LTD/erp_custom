@@ -71,6 +71,7 @@ import StaffReports from "@/pages/reports/StaffReports";
 import CustomerReports from "@/pages/reports/CustomerReports";
 import EditPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/EditPurchaseOrderPage";
 import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
+import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
 import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
 import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
 
@@ -302,47 +303,52 @@ export const sidebarItemLink = [
     items: [
       {
         title: "Orders",
-        url: "/dashboard/orders",
+        url: "/dashboard/sales/orders",
         element: <Orders />,
       },
       {
         title: "",
-        url: "/dashboard/orders/:orderId",
+        url: "/dashboard/sales/orders/:orderId",
         element: <OrderDetails />,
       },
       {
         title: "",
-        url: "/dashboard/orders/create",
+        url: "/dashboard/sales/orders/create",
         element: <CreateOrderPage />,
       },
       {
         title: "",
-        url: "/dashboard/orders/:orderId/edit",
+        url: "/dashboard/sales/orders/:orderId/edit",
         element: <EditOrderPage />,
       },
       {
         title: "Invoices",
-        url: "/dashboard/invoices",
+        url: "/dashboard/sales/invoices",
         element: <Invoices />,
       },
       {
         title: "",
-        url: "/dashboard/invoices/:invoiceId",
+        url: "/dashboard/sales/invoices/:invoiceId",
         element: <InvoiceDetailsPage />,
       },
       {
+        title: "",
+        url: "/dashboard/sales/invoices/:invoiceId/preview",
+        element: <InvoicePrintPreview />,
+      },
+      {
         title: "Payments",
-        url: "/dashboard/payments",
+        url: "/dashboard/sales/payments",
         element: <Payments />,
       },
       {
         title: "",
-        url: "/dashboard/payments/:paymentId",
+        url: "/dashboard/sales/payments/:paymentId",
         element: <PaymentDetails />,
       },
       {
         title: "",
-        url: "/dashboard/payments/create",
+        url: "/dashboard/sales/payments/create",
         element: <CreatePaymentPage />,
       },
       // {
@@ -352,27 +358,27 @@ export const sidebarItemLink = [
       // },
       {
         title: "Delivery",
-        url: "/dashboard/delivery",
+        url: "/dashboard/sales/delivery",
         element: <DeliveryPage />,
       },
       {
         title: "Sales Routes",
-        url: "/dashboard/sales-routes",
+        url: "/dashboard/sales/sales-routes",
         element: <SalesRoutesPage />,
       },
       {
         title: "",
-        url: "/dashboard/sales-routes/:routeId",
+        url: "/dashboard/sales/sales-routes/:routeId",
         element: <RouteDetails />,
       },
       {
         title: "",
-        url: "/dashboard/sales-routes/create",
+        url: "/dashboard/sales/sales-routes/create",
         element: <CreateRoutePage />,
       },
       {
         title: "",
-        url: "/dashboard/sales-routes/:routeId/assign",
+        url: "/dashboard/sales/sales-routes/:routeId/assign",
         element: <AssignRoutePage />,
       },
     ],
