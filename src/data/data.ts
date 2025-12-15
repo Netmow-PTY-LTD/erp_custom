@@ -1,4 +1,4 @@
-import type { Order, Payment,  WarehouseOrder } from "@/types/types";
+import type { Order,  WarehouseOrder } from "@/types/types";
 
 
 // export const invoiceData: Invoice[] = [
@@ -227,52 +227,52 @@ export const ordersData: Order[] = [
 
 
 // Payment data array
-export const payments: Payment[] = [
-  {
-    id: 1,
-    paymentNumber: "PAY-20251012-09E0E3",
-    customer: "Digital Works Sdn Bhd",
-    customerId: "CUST006",
-    invoiceNumber: "INV-20251012-FBB652",
-    paymentDate: "Oct 12, 2025",
-    method: "Cash",
-    amount: 59800.0,
-    reference: "-",
-  },
-  {
-    id: 2,
-    paymentNumber: "PAY2025001",
-    customer: "Tech Solutions Sdn Bhd",
-    customerId: "CUST001",
-    invoiceNumber: "INV2025001",
-    paymentDate: "Oct 05, 2025",
-    method: "Bank Transfer",
-    amount: 3063.4,
-    reference: "TXN789456123",
-  },
-  {
-    id: 3,
-    paymentNumber: "PAY2025002",
-    customer: "Global Trading Co",
-    customerId: "CUST002",
-    invoiceNumber: "INV2025002",
-    paymentDate: "Oct 06, 2025",
-    method: "Credit Card",
-    amount: 1460.5,
-    reference: "CC987654321",
-  },
-  {
-    id: 4,
-    paymentNumber: "PAY2025003",
-    customer: "Tech Solutions Sdn Bhd",
-    customerId: "CUST001",
-    invoiceNumber: "INV2025001",
-    paymentDate: "Oct 03, 2025",
-    method: "Bank Transfer",
-    amount: 500.0,
-    reference: "TXN123789456",
-  },
-];
+// export const payments: Payment[] = [
+//   {
+//     id: 1,
+//     paymentNumber: "PAY-20251012-09E0E3",
+//     customer: "Digital Works Sdn Bhd",
+//     customerId: "CUST006",
+//     invoiceNumber: "INV-20251012-FBB652",
+//     paymentDate: "Oct 12, 2025",
+//     method: "Cash",
+//     amount: 59800.0,
+//     reference: "-",
+//   },
+//   {
+//     id: 2,
+//     paymentNumber: "PAY2025001",
+//     customer: "Tech Solutions Sdn Bhd",
+//     customerId: "CUST001",
+//     invoiceNumber: "INV2025001",
+//     paymentDate: "Oct 05, 2025",
+//     method: "Bank Transfer",
+//     amount: 3063.4,
+//     reference: "TXN789456123",
+//   },
+//   {
+//     id: 3,
+//     paymentNumber: "PAY2025002",
+//     customer: "Global Trading Co",
+//     customerId: "CUST002",
+//     invoiceNumber: "INV2025002",
+//     paymentDate: "Oct 06, 2025",
+//     method: "Credit Card",
+//     amount: 1460.5,
+//     reference: "CC987654321",
+//   },
+//   {
+//     id: 4,
+//     paymentNumber: "PAY2025003",
+//     customer: "Tech Solutions Sdn Bhd",
+//     customerId: "CUST001",
+//     invoiceNumber: "INV2025001",
+//     paymentDate: "Oct 03, 2025",
+//     method: "Bank Transfer",
+//     amount: 500.0,
+//     reference: "TXN123789456",
+//   },
+// ];
 
 
 export const warehouseOrders: WarehouseOrder[] = [
