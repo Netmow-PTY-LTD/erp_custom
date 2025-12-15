@@ -106,13 +106,13 @@ export default function SalesRoutesPage() {
         const route = row.original;
         return (
           <div className="flex items-center gap-2">
-            <Link to={`/dashboard/sales-routes/${route.id}`}>
+            <Link to={`/dashboard/sales/sales-routes/${route.id}`}>
               <Button size="sm" variant="outline-info">
                 View
               </Button>
             </Link>
 
-            <Link to={`/dashboard/sales-routes/${route.id}/assign`}>
+            <Link to={`/dashboard/sales/sales-routes/${route.id}/assign`}>
               <Button size="sm" variant="outline-info">
                 Assign
               </Button>
