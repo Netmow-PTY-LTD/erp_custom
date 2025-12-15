@@ -70,9 +70,7 @@ export default function PurchaseInvoicesList() {
         const color =
           status === "draft"
             ? "bg-yellow-500"
-            : status === "sent"
-              ? "bg-blue-600"
-              : status === "paid"
+            : status === "paid"
                 ? "bg-green-600"
                 : status === "overdue"
                   ? "bg-red-600"
