@@ -205,28 +205,18 @@ export default function AddSupplierPage() {
                 </Field>
               )}
             />
-
             <Controller
               control={control}
               name="country"
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Country</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Malaysia">Malaysia</SelectItem>
-                      <SelectItem value="Singapore">Singapore</SelectItem>
-                      <SelectItem value="Thailand">Thailand</SelectItem>
-                      <SelectItem value="Indonesia">Indonesia</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input placeholder="Country" {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
+
           </CardContent>
         </Card>
 

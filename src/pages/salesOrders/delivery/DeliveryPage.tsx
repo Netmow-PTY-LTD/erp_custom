@@ -1,153 +1,4 @@
 
-
-// import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-// import { DataTable } from "@/components/dashboard/components/DataTable";
-// import type { ColumnDef } from "@tanstack/react-table";
-// import { Badge } from "@/components/ui/badge";
-// import { Button } from "@/components/ui/button";
-// import { Link } from "react-router";
-// import { useGetAllSalesOrdersQuery } from "@/store/features/salesOrder/salesOrder";
-// import { useState } from "react";
-// import type { SalesOrder } from "@/types/salesOrder.types";
-// export default function DeliveryPage() {
-//   const [search, setSearch] = useState("");
-//   const [page, setPage] = useState(1); // backend starts from 1
-//   const [limit] = useState(10);
-
-//   const { data, isLoading } = useGetAllSalesOrdersQuery({
-//     page,
-//     limit,
-//     search,
-//   });
-
-//   const orders = data?.data ?? [];
-
-
-
-//   const OrderColumns: ColumnDef<SalesOrder>[] = [
-//     {
-//       accessorKey: "order_number",
-//       header: "Order #",
-//       cell: ({ row }) => (
-//         <span className="font-medium">{row.original.order_number}</span>
-//       ),
-//     },
-
-//     {
-//       accessorKey: "customer_id",
-//       header: "Customer",
-//       cell: ({ row }) => (
-//         <div>
-//           <div className="font-semibold">Customer #{row.original.customer_id}</div>
-//           <div className="text-xs text-muted-foreground">
-//             ID: {row.original.customer_id}
-//           </div>
-//         </div>
-//       ),
-//     },
-
-//     {
-//       accessorKey: "total_amount",
-//       header: "Total Amount",
-//       cell: ({ row }) => `RM ${parseFloat(row.original.total_amount).toFixed(2)}`,
-//     },
-//     {
-//       accessorKey: "delivery_date",
-//       header: "Delivery Date ",
-//       cell: ({ row }) => {
-//         return row.original.delivery_date ? new Date(row.original.delivery_date).toLocaleDateString() : '-'
-//       }
-
-//     },
-
-//     {
-//       accessorKey: "status",
-//       header: "Status",
-//       cell: ({ row }) => {
-//         const status = row.original.status;
-
-//         const color =
-//           status === "delivered"
-//             ? "bg-green-600"
-//             : status === "pending"
-//               ? "bg-yellow-600"
-//               : status === "confirmed"
-//                 ? "bg-blue-600"
-//                 : "bg-gray-500";
-
-//         return (
-//           <Badge className={`${color} text-white capitalize`}>
-//             {status}
-//           </Badge>
-//         );
-//       },
-//     },
-
-
-
-//     {
-//       id: "actions",
-//       header: "Actions",
-//       cell: ({ row }) => {
-//         const item = row.original;
-//         return (
-//           <div className="flex gap-2">
-//             <Link to={`/dashboard/orders/${item.id}`}>
-//               <Button size="sm" variant="outline-info">
-//                 View
-//               </Button>
-//             </Link>
-//           </div>
-//         );
-//       },
-//     },
-//   ];
-
-
-
-
-
-
-
-
-
-
-//   return (
-//     <div className="p-6">
-//       <Card className="shadow-sm">
-//         <CardHeader>
-//           <CardTitle className="text-xl font-bold">Delivery - Ready to Dispatch</CardTitle>
-//         </CardHeader>
-
-//         <CardContent>
-
-//           <DataTable
-//             columns={OrderColumns}
-//             data={orders}
-//             pageIndex={page - 1}
-//             pageSize={limit}
-//             totalCount={data?.pagination?.total ?? 0}
-//             onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-//             onSearch={(value) => {
-//               setSearch(value);
-//               setPage(1);
-//             }}
-//             isFetching={isLoading}
-//           />
-
-
-
-
-//         </CardContent>
-//       </Card>
-//     </div>
-//   );
-// }
-
-
-
-
-
 "use client";
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
@@ -182,16 +33,18 @@ export default function DeliveryPage() {
 
   const orders = data?.data ?? [];
 
+
   const handleOpenModal = (order: SalesOrder) => {
     setSelectedOrder(order);
-    setStatus(order.status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
-    setDeliveryDate(order.delivery_date
-      ? typeof order.delivery_date === "string"
-        ? order.delivery_date.split("T")[0] // string case
-        : order.delivery_date instanceof Date
-          ? order.delivery_date.toISOString().split("T")[0] // Date case
-          : new Date(order.delivery_date).toISOString().split("T")[0] // number (timestamp) case
-      : "");
+    setStatus(order.delivery_status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
+    const deliveryDateValue = order.delivery?.delivery_date;
+
+    setDeliveryDate(
+      deliveryDateValue
+        ? new Date(deliveryDateValue).toISOString().split("T")[0]
+        : ""
+    );
+
     setNotes(order.notes || "");
     setOpenModal(true);
   };
@@ -236,27 +89,49 @@ export default function DeliveryPage() {
       cell: ({ row }) => `RM ${parseFloat(row.original.total_amount).toFixed(2)}`,
     },
     {
-      accessorKey: "delivery_date",
+      accessorKey: "delivery.delivery_date",
       header: "Delivery Date",
-      cell: ({ row }) =>
-        row.original.delivery_date ? new Date(row.original.delivery_date).toLocaleDateString() : "-",
-    },
+      cell: ({ row }) => {
+        const deliveryDate = row.original.delivery?.delivery_date;
+
+        return deliveryDate
+          ? new Date(deliveryDate).toLocaleDateString()
+          : "—";
+      },
+    }
+    ,
     {
-      accessorKey: "status",
+      accessorKey: "delivery_status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
-        const color =
-          status === "delivered"
-            ? "bg-green-600"
-            : status === "pending"
-              ? "bg-yellow-600"
-              : status === "confirmed"
-                ? "bg-blue-600"
-                : "bg-gray-500";
-        return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
+        const status = row.original?.delivery_status as
+          | "pending"
+          | "confirmed"
+          | "in_transit"
+          | "delivered"
+          | "failed"
+          | "returned"
+          | undefined;
+
+        const statusColorMap: Record<string, string> = {
+          pending: "bg-yellow-600",
+          confirmed: "bg-blue-600",
+          in_transit: "bg-purple-600",
+          delivered: "bg-green-600",
+          failed: "bg-red-600",
+          returned: "bg-gray-600",
+        };
+
+        const color = status ? statusColorMap[status] ?? "bg-gray-500" : "bg-gray-400";
+
+        return (
+          <Badge className={`${color} text-white capitalize`}>
+            {status ?? "N/A"}
+          </Badge>
+        );
       },
     },
+
     {
       id: "actions",
       header: "Actions",
@@ -264,13 +139,13 @@ export default function DeliveryPage() {
         const item = row.original;
         return (
           <div className="flex gap-2 flex-wrap">
-            <Link to={`/dashboard/orders/${item.id}`}>
+            <Link to={`/dashboard/sales/orders/${item.id}`}>
               <Button size="sm" variant="outline-info">
                 View
               </Button>
             </Link>
             <Button size="sm" variant="outline" onClick={() => handleOpenModal(item)}>
-              Update
+              Delivery Action
             </Button>
           </div>
         );
@@ -321,7 +196,7 @@ export default function DeliveryPage() {
                   <SelectItem value="delivered">Delivered</SelectItem>
                   <SelectItem value="failed">Failed</SelectItem>
                   <SelectItem value="returned">Returned</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  {/* <SelectItem value="confirmed">Confirmed</SelectItem> */}
                 </SelectContent>
 
               </Select>

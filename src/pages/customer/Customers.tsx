@@ -95,6 +95,8 @@ export default function Customers() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
+  console.log('test ==>',currency)
+
   const customerColumns: ColumnDef<Customer>[] = [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },

@@ -24,6 +24,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 
 import { toast } from "sonner";
 import { useAddPurchasePaymentMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useAppSelector } from "@/store/store";
 
 const paymentSchema = z.object({
   purchase_order_id: z.number().min(1, "Purchase Order is required"),
@@ -49,6 +50,11 @@ export default function CreatePurchasePayments() {
       notes: "",
     },
   });
+
+
+
+  const currency = useAppSelector((state) => state.currency.value);
+
 
   /* -------------------- Purchase Order Select -------------------- */
   const PurchaseOrderSelectField = ({ field }: { field: { value: number; onChange: (v: number) => void } }) => {
@@ -76,7 +82,7 @@ export default function CreatePurchasePayments() {
                 {!isLoading &&
                   list.map((po) => (
                     <CommandItem key={po.id} onSelect={() => { field.onChange(po.id); setOpen(false); }}>
-                      {po.po_number} - ৳ {po.total_amount}
+                      {po.po_number} - {currency} {po.total_amount}
                     </CommandItem>
                   ))}
               </CommandGroup>
