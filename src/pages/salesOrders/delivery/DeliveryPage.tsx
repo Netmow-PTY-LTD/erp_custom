@@ -264,7 +264,7 @@ export default function DeliveryPage() {
         const item = row.original;
         return (
           <div className="flex gap-2 flex-wrap">
-            <Link to={`/dashboard/orders/${item.id}`}>
+            <Link to={`/dashboard/sales/orders/${item.id}`}>
               <Button size="sm" variant="outline-info">
                 View
               </Button>
