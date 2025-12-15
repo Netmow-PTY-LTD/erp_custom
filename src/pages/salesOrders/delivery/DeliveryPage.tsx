@@ -33,16 +33,18 @@ export default function DeliveryPage() {
 
   const orders = data?.data ?? [];
 
+
   const handleOpenModal = (order: SalesOrder) => {
     setSelectedOrder(order);
-    setStatus(order.status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
-    setDeliveryDate(order.delivery_date
-      ? typeof order.delivery_date === "string"
-        ? order.delivery_date.split("T")[0] // string case
-        : order.delivery_date instanceof Date
-          ? order.delivery_date.toISOString().split("T")[0] // Date case
-          : new Date(order.delivery_date).toISOString().split("T")[0] // number (timestamp) case
-      : "");
+    setStatus(order.delivery_status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
+    const deliveryDateValue = order.delivery?.delivery_date;
+
+    setDeliveryDate(
+      deliveryDateValue
+        ? new Date(deliveryDateValue).toISOString().split("T")[0]
+        : ""
+    );
+
     setNotes(order.notes || "");
     setOpenModal(true);
   };
@@ -87,16 +89,22 @@ export default function DeliveryPage() {
       cell: ({ row }) => `RM ${parseFloat(row.original.total_amount).toFixed(2)}`,
     },
     {
-      accessorKey: "delivery_date",
+      accessorKey: "delivery.delivery_date",
       header: "Delivery Date",
-      cell: ({ row }) =>
-        row.original.delivery_date ? new Date(row.original.delivery_date).toLocaleDateString() : "-",
-    },
+      cell: ({ row }) => {
+        const deliveryDate = row.original.delivery?.delivery_date;
+
+        return deliveryDate
+          ? new Date(deliveryDate).toLocaleDateString()
+          : "—";
+      },
+    }
+    ,
     {
-      accessorKey: "status",
+      accessorKey: "delivery_status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = row.original?.delivery_status;
         const color =
           status === "delivered"
             ? "bg-green-600"
@@ -172,7 +180,7 @@ export default function DeliveryPage() {
                   <SelectItem value="delivered">Delivered</SelectItem>
                   <SelectItem value="failed">Failed</SelectItem>
                   <SelectItem value="returned">Returned</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  {/* <SelectItem value="confirmed">Confirmed</SelectItem> */}
                 </SelectContent>
 
               </Select>
