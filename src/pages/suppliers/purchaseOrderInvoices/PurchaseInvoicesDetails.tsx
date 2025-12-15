@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -134,10 +135,68 @@ export default function PurchaseInvoicesDetails() {
                     <div className="border rounded-md">
                         <div className="p-4 font-semibold text-lg">Invoice Items</div>
 
-                        <div className="p-4 text-gray-600">
-                            No items table included in API yet.
-                        </div>
+                        {po.items.length === 0 ? (
+                            <div className="p-4 text-gray-600">No items found.</div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-gray-50 border-b">
+                                        <tr>
+                                            <th className="p-3 text-left">Product</th>
+                                            <th className="p-3 text-right">Qty</th>
+                                            <th className="p-3 text-right">Unit Cost</th>
+                                            <th className="p-3 text-right">Discount</th>
+                                            <th className="p-3 text-right">Line Total</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {po.items.map((item:any) => (
+                                            <tr key={item.id} className="border-b">
+                                                {/* Product */}
+                                                <td className="p-3">
+                                                    <div className="flex items-center gap-3">
+                                                        {item.product.image_url && (
+                                                            <img
+                                                                src={item.product.image_url}
+                                                                alt={item.product.name}
+                                                                className="h-10 w-10 rounded object-cover"
+                                                            />
+                                                        )}
+                                                        <div>
+                                                            <p className="font-medium">{item.product.name}</p>
+                                                            <p className="text-xs text-gray-500">
+                                                                SKU: {item.product.sku}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                {/* Quantity */}
+                                                <td className="p-3 text-right">{item.quantity}</td>
+
+                                                {/* Unit Cost */}
+                                                <td className="p-3 text-right">
+                                                    RM {item.unit_cost.toFixed(2)}
+                                                </td>
+
+                                                {/* Discount */}
+                                                <td className="p-3 text-right">
+                                                    RM {item.discount.toFixed(2)}
+                                                </td>
+
+                                                {/* Line Total */}
+                                                <td className="p-3 text-right font-semibold">
+                                                    RM {item.line_total.toFixed(2)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
+
 
                     {/* Payments */}
 
