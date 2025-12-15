@@ -101,10 +101,10 @@ export default function DeliveryPage() {
     }
     ,
     {
-      accessorKey: "status",
+      accessorKey: "delivery_status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original.status;
+        const status = row.original?.delivery_status;
         const color =
           status === "delivered"
             ? "bg-green-600"
