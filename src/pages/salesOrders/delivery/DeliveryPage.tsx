@@ -36,7 +36,7 @@ export default function DeliveryPage() {
 
   const handleOpenModal = (order: SalesOrder) => {
     setSelectedOrder(order);
-    setStatus(order.status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
+    setStatus(order.delivery_status as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed");
     const deliveryDateValue = order.delivery?.delivery_date;
 
     setDeliveryDate(
