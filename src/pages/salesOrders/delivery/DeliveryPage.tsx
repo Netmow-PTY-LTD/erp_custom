@@ -104,18 +104,34 @@ export default function DeliveryPage() {
       accessorKey: "delivery_status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.original?.delivery_status;
-        const color =
-          status === "delivered"
-            ? "bg-green-600"
-            : status === "pending"
-              ? "bg-yellow-600"
-              : status === "confirmed"
-                ? "bg-blue-600"
-                : "bg-gray-500";
-        return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
+        const status = row.original?.delivery_status as
+          | "pending"
+          | "confirmed"
+          | "in_transit"
+          | "delivered"
+          | "failed"
+          | "returned"
+          | undefined;
+
+        const statusColorMap: Record<string, string> = {
+          pending: "bg-yellow-600",
+          confirmed: "bg-blue-600",
+          in_transit: "bg-purple-600",
+          delivered: "bg-green-600",
+          failed: "bg-red-600",
+          returned: "bg-gray-600",
+        };
+
+        const color = status ? statusColorMap[status] ?? "bg-gray-500" : "bg-gray-400";
+
+        return (
+          <Badge className={`${color} text-white capitalize`}>
+            {status ?? "N/A"}
+          </Badge>
+        );
       },
     },
+
     {
       id: "actions",
       header: "Actions",
