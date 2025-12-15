@@ -136,7 +136,7 @@ export default function AddProductPage() {
       price: Number(values.costPrice),
       cost: Number(values.costPrice),
       initial_stock: Number(values.initialStock),
-      //stock_quantity: Number(values.initialStock),
+      stock_quantity: Number(values.initialStock),
       min_stock_level: Number(values.minStock),
       max_stock_level: Number(values.maxStock),
       weight: Number(values.weight),

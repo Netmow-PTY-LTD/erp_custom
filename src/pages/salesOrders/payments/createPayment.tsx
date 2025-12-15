@@ -1,4 +1,3 @@
-
 import {
   Form,
   FormControl,
@@ -26,9 +25,24 @@ import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { useAddSalesPaymentMutation, useGetInvoicesByCustomerQuery, useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  useAddSalesPaymentMutation,
+  useGetInvoicesByCustomerQuery,
+  useGetSalesInvoicesQuery,
+} from "@/store/features/salesOrder/salesOrder";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 
@@ -44,14 +58,13 @@ const paymentSchema = z.object({
 
 type PaymentFormValues = z.infer<typeof paymentSchema>;
 
-
 export default function CreatePaymentPage() {
-const navigate = useNavigate();
 
-const currency = useAppSelector((state) => state.currency.value);
+  const navigate = useNavigate();
 
-  const [addPayment] = useAddSalesPaymentMutation()
+  const currency = useAppSelector((state) => state.currency.value);
 
+  const [addPayment] = useAddSalesPaymentMutation();
 
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
@@ -66,14 +79,19 @@ const currency = useAppSelector((state) => state.currency.value);
     },
   });
 
-
-
-
   /* -------------------- Customer  Select Fields -------------------- */
-  const CustomerSelectField = ({ field }: { field: { value: number; onChange: (v: number) => void } }) => {
+  const CustomerSelectField = ({
+    field,
+  }: {
+    field: { value: number; onChange: (v: number) => void };
+  }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
-    const { data, isLoading } = useGetCustomersQuery({ page: 1, limit: 20, search: query });
+    const { data, isLoading } = useGetCustomersQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+    });
     const list = Array.isArray(data?.data) ? data.data : [];
     const selected = list.find((c) => c.id === field.value);
 
@@ -86,16 +104,30 @@ const currency = useAppSelector((state) => state.currency.value);
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder="Search customers..." onValueChange={setQuery} />
+            <CommandInput
+              placeholder="Search customers..."
+              onValueChange={setQuery}
+            />
             <CommandList>
               <CommandEmpty>No customers found</CommandEmpty>
               <CommandGroup>
-                {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
-                {!isLoading && list.map((customer) => (
-                  <CommandItem key={customer.id} onSelect={() => { field.onChange(customer.id); setOpen(false); }}>
-                    {customer.name}
-                  </CommandItem>
-                ))}
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+                {!isLoading &&
+                  list.map((customer) => (
+                    <CommandItem
+                      key={customer.id}
+                      onSelect={() => {
+                        field.onChange(customer.id);
+                        setOpen(false);
+                      }}
+                    >
+                      {customer.name}
+                    </CommandItem>
+                  ))}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -104,109 +136,59 @@ const currency = useAppSelector((state) => state.currency.value);
     );
   };
 
-
-
-
-
-  /* -------------------- Invoice Select Field -------------------- */
-  // const InvoiceSelectField = ({
-  //   field,
-  // }: {
-  //   field: { value: number | undefined | null; onChange: (v: number | null) => void };
-  // }) => {
-  //   const [open, setOpen] = useState(false);
-  //   const [query, setQuery] = useState("");
-
-  //   const { data, isLoading } = useGetSalesInvoicesQuery({
-  //     page: 1,
-  //     limit: 20,
-  //     search: query,
-  //   });
-
-  //   const list = Array.isArray(data?.data) ? data.data : [];
-  //   const selected = list.find((inv) => inv.id === field.value);
-
-  //   return (
-  //     <Popover open={open} onOpenChange={setOpen}>
-  //       <PopoverTrigger asChild>
-  //         <Button className="w-full justify-between" variant="outline">
-  //           {selected ? `INV-${selected.id}` : "Select Invoice..."}
-  //         </Button>
-  //       </PopoverTrigger>
-
-  //       <PopoverContent className="w-[300px] p-0">
-  //         <Command>
-  //           <CommandInput placeholder="Search invoices..." onValueChange={setQuery} />
-
-  //           <CommandList>
-  //             <CommandEmpty>No invoices found</CommandEmpty>
-
-  //             <CommandGroup>
-  //               {isLoading && (
-  //                 <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>
-  //               )}
-
-  //               {!isLoading &&
-  //                 list.map((invoice) => (
-  //                   <CommandItem
-  //                     key={invoice.id}
-  //                     onSelect={() => {
-  //                       field.onChange(invoice.id);
-  //                       setOpen(false);
-  //                     }}
-  //                   >
-  //                     <div className="flex flex-col">
-  //                       <span className="font-medium">INV-{invoice.id}</span>
-  //                       <span className="text-xs text-gray-500">
-  //                         Amount: ৳ {Number(invoice.total_amount).toFixed(2)}
-  //                       </span>
-  //                     </div>
-  //                   </CommandItem>
-  //                 ))}
-  //             </CommandGroup>
-  //           </CommandList>
-  //         </Command>
-  //       </PopoverContent>
-  //     </Popover>
-  //   );
-  // };
-
   /* -------------------- Invoice Select Field -------------------- */
   const InvoiceSelectField = ({
     field,
     customerId, // pass selected customer_id as prop
   }: {
-    field: { value: number | undefined | null; onChange: (v: number | null) => void };
+    field: {
+      value: number | undefined | null;
+      onChange: (v: number | null) => void;
+    };
     customerId: number;
   }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
 
     const { data, isLoading } = useGetInvoicesByCustomerQuery(
-      { page: 1, limit: 20, search: query, customerId }, { skip: !customerId }
+      { page: 1, limit: 20, search: query, customerId },
+      { skip: !customerId }
     );
 
     const list = Array.isArray(data?.data) ? data.data : [];
     console.log("Invoice List:", list);
     const selected = list.find((inv) => Number(inv.id) === Number(field.value));
 
-    console.log("Selected Invoice:", selected);
-
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button className="w-full justify-between" variant="outline" disabled={!customerId}>
-            {selected ? `${selected?.invoice_number}` : customerId ? "Select Invoice..." : "Select Customer first"}
+          <Button
+            className="w-full justify-between"
+            variant="outline"
+            disabled={!customerId}
+          >
+            {selected
+              ? `${selected?.invoice_number}`
+              : customerId
+              ? "Select Invoice..."
+              : "Select Customer first"}
           </Button>
         </PopoverTrigger>
 
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder="Search invoices..." onValueChange={setQuery} />
+            <CommandInput
+              placeholder="Search invoices..."
+              onValueChange={setQuery}
+            />
             <CommandList>
               <CommandEmpty>No invoices found</CommandEmpty>
               <CommandGroup>
-                {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
                 {!isLoading &&
                   list.map((invoice) => (
                     <CommandItem
@@ -217,9 +199,12 @@ const currency = useAppSelector((state) => state.currency.value);
                       }}
                     >
                       <div className="flex flex-col">
-                        <span className="font-medium">{invoice?.invoice_number}</span>
+                        <span className="font-medium">
+                          {invoice?.invoice_number}
+                        </span>
                         <span className="text-xs text-gray-500">
-                          Amount: {currency} {Number(invoice?.total_amount).toFixed(2)}
+                          Amount: {currency}{" "}
+                          {Number(invoice?.total_amount).toFixed(2)}
                         </span>
                       </div>
                     </CommandItem>
@@ -232,51 +217,6 @@ const currency = useAppSelector((state) => state.currency.value);
     );
   };
 
-
-
-
-
-
-  async function onSubmit(values: PaymentFormValues) {
-
-    // Construct payload dynamically
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const payload: Record<string, any> = {
-      order_id: values.invoice_id,                     // invoice_id → order_id
-      amount: Number(values.amount),                   // ensure numeric
-      payment_method: values.payment_method.toLowerCase(), // lowercase
-    };
-
-
-
-    // Optional fields: add only if they have values
-    if (values.customer_id) payload.customer_id = values.customer_id;
-    if (values.date) payload.date = values.date;
-    if (values.reference) payload.reference = values.reference;
-    if (values.notes) payload.notes = values.notes;
-
-
-
-
-    console.log("FINAL API PAYLOAD:", payload);
-
-
-    try {
-      const res = await addPayment(payload).unwrap();
-
-      if (res.status) {
-        toast.success(res.message || "Payment Added Successfully!")
-        navigate('/dashboard/sales/payments')
-      }
-
-    } catch (error) {
-      console.error("Payment Error:", error);
-    }
-  }
-
-
-
-
   /* --------------------------------------------------- */
   /* DYNAMIC SUMMARY WATCH VALUES */
   /* --------------------------------------------------- */
@@ -286,16 +226,55 @@ const currency = useAppSelector((state) => state.currency.value);
   const watchMethod = form.watch("payment_method");
   const watchDate = form.watch("date");
 
-  const { data: customerData } = useGetCustomersQuery({ page: 1, limit: 999, search: "" });
-  const allCustomers = Array.isArray(customerData?.data) ? customerData.data : [];
+  const { data: customerData } = useGetCustomersQuery({
+    page: 1,
+    limit: 999,
+    search: "",
+  });
+  const allCustomers = Array.isArray(customerData?.data)
+    ? customerData.data
+    : [];
   const customer = allCustomers.find((c) => c.id === watchCustomer);
 
-  const { data: invoiceData } = useGetSalesInvoicesQuery({ page: 1, limit: 999, search: "" });
-  const allInvoices = Array.isArray(invoiceData?.data) ? invoiceData.data : [];
-  const invoice = allInvoices.find((inv) => inv.id === watchInvoice);
+  const { data: invoiceData } = useGetSalesInvoicesQuery({
+    page: 1,
+    limit: 999,
+    search: "",
+  });
+  const allInvoices = Array.isArray(invoiceData?.data) ? invoiceData?.data : [];
+  const invoice = allInvoices?.find((inv) => inv.id === watchInvoice);
 
+  console.log("INVOICE:", invoice);
 
+  async function onSubmit(values: PaymentFormValues) {
+    // Construct payload dynamically
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: Record<string, any> = {
+      order_id: invoice?.order?.id,
+      invoice_id: values.invoice_id, // invoice_id → order_id
+      amount: Number(values.amount), // ensure numeric
+      payment_method: values.payment_method.toLowerCase(), // lowercase
+    };
 
+    // Optional fields: add only if they have values
+    if (values.customer_id) payload.customer_id = values.customer_id;
+    if (values.date) payload.date = values.date;
+    if (values.reference) payload.reference = values.reference;
+    if (values.notes) payload.notes = values.notes;
+
+    console.log("FINAL API PAYLOAD:", payload);
+
+    try {
+      const res = await addPayment(payload).unwrap();
+
+      if (res.status) {
+        toast.success(res.message || "Payment Added Successfully!");
+        navigate("/dashboard/sales/payments");
+      }
+    } catch (error) {
+      console.error("Payment Error:", error);
+    }
+  }
 
   return (
     <div className="w-full">
@@ -344,13 +323,15 @@ const currency = useAppSelector((state) => state.currency.value);
                     <FormItem>
                       <FormLabel>Invoice </FormLabel>
                       <FormControl>
-                        <InvoiceSelectField field={field} customerId={watchCustomer} />
+                        <InvoiceSelectField
+                          field={field}
+                          customerId={watchCustomer}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
 
                 {/* AMOUNT */}
                 <FormField
@@ -359,7 +340,8 @@ const currency = useAppSelector((state) => state.currency.value);
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Amount ({currency}) <span className="text-red-500">*</span>
+                        Amount ({currency}){" "}
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
@@ -481,7 +463,6 @@ const currency = useAppSelector((state) => state.currency.value);
 
         {/* RIGHT SIDE INFO */}
 
-
         <div>
           <div className="rounded-lg border p-6 bg-white">
             <h2 className="text-lg font-semibold mb-4">Payment Summary</h2>
@@ -489,12 +470,20 @@ const currency = useAppSelector((state) => state.currency.value);
             <div className="text-sm space-y-3 leading-relaxed">
               <p>
                 <strong>Customer:</strong>{" "}
-                {customer ? customer.name : <span className="text-gray-400">Not Selected</span>}
+                {customer ? (
+                  customer.name
+                ) : (
+                  <span className="text-gray-400">Not Selected</span>
+                )}
               </p>
 
               <p>
                 <strong>Invoice:</strong>{" "}
-                {invoice ? `INV-${invoice.id}` : <span className="text-gray-400">None Selected</span>}
+                {invoice ? (
+                  `${invoice?.invoice_number}`
+                ) : (
+                  <span className="text-gray-400">None Selected</span>
+                )}
               </p>
 
               {invoice && (
@@ -515,9 +504,13 @@ const currency = useAppSelector((state) => state.currency.value);
 
               <p>
                 <strong>Method:</strong>{" "}
-                {watchMethod
-                  ? watchMethod.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase())
-                  : <span className="text-gray-400">Not Selected</span>}
+                {watchMethod ? (
+                  watchMethod
+                    .replaceAll("_", " ")
+                    .replace(/^\w/, (c) => c.toUpperCase())
+                ) : (
+                  <span className="text-gray-400">Not Selected</span>
+                )}
               </p>
 
               <p>
@@ -527,14 +520,14 @@ const currency = useAppSelector((state) => state.currency.value);
               {invoice && watchAmount && (
                 <p className="font-semibold text-blue-600">
                   Remaining Balance: RM{" "}
-                  {(Number(invoice.total_amount) - Number(watchAmount)).toFixed(2)}
+                  {(
+                    Number(invoice?.total_amount) - Number(watchAmount)
+                  ).toFixed(2)}
                 </p>
               )}
             </div>
           </div>
         </div>
-
-
       </div>
     </div>
   );

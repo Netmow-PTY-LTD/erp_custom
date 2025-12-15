@@ -114,7 +114,7 @@ export default function CreateSalesOrderPage() {
         }
 
         // ➤ Redirect
-        navigate("/dashboard/orders");
+        navigate("/dashboard/sales/orders");
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

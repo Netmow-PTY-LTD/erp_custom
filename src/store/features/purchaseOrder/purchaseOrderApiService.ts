@@ -2,6 +2,7 @@
 
 
 import { baseApi } from "@/store/baseApi";
+import type { InvoiceStatus } from "@/types/PurchaseInvoice.types";
 import type { PurchaseOrder, PurchaseOrderLocation } from "@/types/purchaseOrder.types";
 
 export type PurchaseResponse = {
@@ -129,6 +130,15 @@ export const purchaseApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["PurchaseInvoices","Purchase"],
     }),
+    // Update INVOICE
+    updatePurchaseInvoice: builder.mutation<PurchaseResponse, {invoiceId:string|number,data:{status:InvoiceStatus}}>({
+      query: ({invoiceId,data}) => ({
+        url: `/purchase/orders/invoices/${invoiceId}`,
+        method: "PATCH",
+        body:data,
+      }),
+      invalidatesTags: ["PurchaseInvoices","Purchase"],
+    }),
 
     // GET SINGLE INVOICE
     getPurchaseInvoiceById: builder.query<PurchaseResponse, string | number>({
@@ -202,6 +212,7 @@ export const {
   useGetAllPurchaseInvoicesQuery,
   useAddPurchaseInvoiceMutation,
   useGetPurchaseInvoiceByIdQuery,
+  useUpdatePurchaseInvoiceMutation,
 
   // PAYMENTS
   useGetAllPurchasePaymentsQuery,

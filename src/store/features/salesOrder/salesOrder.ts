@@ -18,6 +18,11 @@ export type SalesResponse<T = any> = {
   };
 };
 
+export interface UpdateInvoiceStatusPayload {
+  status: string;
+}
+
+
 export const salesApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // ============================
@@ -130,6 +135,21 @@ export const salesApiService = baseApi.injectEndpoints({
       }
     ),
 
+  updateInvoiceStatus: builder.mutation<
+      SalesResponse<SalesInvoice>,
+     {
+      invoiceId: number,
+      invoiceData:UpdateInvoiceStatusPayload
+     }
+    >({
+      query: (body) => ({
+        url: `/sales/orders/invoices/${body.invoiceId}/status`,
+        method: "PATCH",
+        body:body.invoiceData,
+      }),
+      invalidatesTags: ["SalesInvoices"],
+    }),
+
     // ============================
     // PAYMENTS
     // ============================
@@ -224,6 +244,7 @@ export const {
   useAddSalesInvoiceMutation,
   useGetInvoiceByIdQuery,
   useLazyGetInvoiceByIdQuery,
+  useUpdateInvoiceStatusMutation,
   useAddSalesPaymentMutation,
   useGetSalesPaymentQuery,
   useGetSalesWarehousesQuery,

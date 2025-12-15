@@ -88,14 +88,16 @@ export type Order = {
 // Payment type
 export type Payment = {
   id: number;
-  paymentNumber: string;
-  customer: string;
-  customerId: string;
-  invoiceNumber: string;
-  paymentDate: string;
-  method: "Cash" | "Bank Transfer" | "Credit Card";
-  amount: number;
-  reference: string;
+  amount: number; // API sends number, not string
+  invoice_id: number | null;
+  order_id: number;
+  payment_date: string; // ISO string
+  payment_method: string;
+  reference_number: string;
+  status: string;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
 };
 // export type Order = {
 //   customer_id: ReactNode;
