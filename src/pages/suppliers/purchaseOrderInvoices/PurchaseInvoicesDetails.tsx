@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router";
-import { useGetPurchaseInvoiceByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useGetPurchaseInvoiceByIdQuery, useUpdatePurchaseInvoiceMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import type { PurchasePayment } from "@/types/purchasePayment.types";
 
 
 export default function PurchaseInvoicesDetails() {
     const { id } = useParams();
     const { data, isLoading } = useGetPurchaseInvoiceByIdQuery(id as string);
+    const [markPaid, { isLoading: isMarkingPaid }] =
+        useUpdatePurchaseInvoiceMutation();
 
     if (isLoading) return <p>Loading...</p>;
 
@@ -25,6 +27,22 @@ export default function PurchaseInvoicesDetails() {
     const total = subtotal + tax - discount;
     const paid = 0; // No payments yet
     const balance = total - paid;
+
+
+    const handleMarkAsPaid = async () => {
+        try {
+            await markPaid({
+                invoiceId: invoice.id,
+                data: {
+                    status: "paid",
+                },
+            }).unwrap();
+        } catch (error) {
+            console.error("Failed to mark invoice as paid", error);
+        }
+    };
+
+
 
     return (
         <div className="space-y-6">
@@ -43,9 +61,17 @@ export default function PurchaseInvoicesDetails() {
                         </Button>
                     </Link>
 
-                    <Button className="bg-green-600 hover:bg-green-700 text-white">
-                        ✔ Mark as Paid
-                    </Button>
+                    {
+                        invoice.status !== "paid" && <Button
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={handleMarkAsPaid}
+                            disabled={isMarkingPaid}
+                        >
+                            {isMarkingPaid ? "Marking..." : "✔ Mark as Paid"}
+                        </Button>
+                    }
+
+
                 </div>
             </div>
 
