@@ -15,7 +15,7 @@ import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, } from "lucide-react";
+import { CreditCard, Eye, } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -63,6 +63,22 @@ export default function PurchaseInvoicesList() {
     //   cell: ({ row }) => `Supplier #${row.original.supplier_id}`,
     // },
     {
+      accessorKey: "total_amount",
+      header: "Total Amount",
+      cell: ({ row }) => `RM ${row.original.total_amount}`,
+    },
+    {
+      accessorKey: "paid_amount",
+      header: "Paid Amount",
+      cell: ({ row }) => `RM ${row.original.paid_amount}`,
+    },
+    {
+      accessorKey: "due_amount",
+      header: "Due Amount",
+      cell: ({ row }) => `RM ${row.original.due_amount}`,
+    },
+
+    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
@@ -71,24 +87,21 @@ export default function PurchaseInvoicesList() {
           status === "draft"
             ? "bg-yellow-500"
             : status === "paid"
-                ? "bg-green-600"
-                : status === "overdue"
-                  ? "bg-red-600"
-                  : "bg-gray-400";
+              ? "bg-green-600"
+              : status === "overdue"
+                ? "bg-red-600"
+                : "bg-gray-400";
 
         return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
       },
     },
-    {
-      accessorKey: "total_amount",
-      header: "Total",
-      cell: ({ row }) => `RM ${row.original.total_amount.toFixed(2)}`,
-    },
+    
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const invoice = row.original;
+       
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/purchase-invoices/${invoice.id}`}>
@@ -96,6 +109,12 @@ export default function PurchaseInvoicesList() {
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
+            <Link to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}>
+              <Button size="sm" variant="outline"  className="flex items-center gap-1.5 px-3">
+                <CreditCard className="w-4 h-4" /> Pay
+              </Button>
+            </Link>
+
           </div>
         );
       },
