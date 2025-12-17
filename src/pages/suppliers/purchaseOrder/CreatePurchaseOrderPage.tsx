@@ -36,13 +36,14 @@ import { Link, useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
-import  { useState } from "react";
+import { useState } from "react";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
   productId: string;
   quantity: number;
   unit_cost: number;
+  discount: number;
 }
 
 interface PurchaseOrderFormValues {
@@ -73,6 +74,7 @@ export default function CreatePurchaseOrderPage() {
           productId: "",
           quantity: 1,
           unit_cost: 0,
+          discount: 0,
         },
       ],
     },
@@ -158,7 +160,7 @@ export default function CreatePurchaseOrderPage() {
 
 
 
-  
+
 
 
   function ProductSelectField({
@@ -177,6 +179,7 @@ export default function CreatePurchaseOrderPage() {
 
     const list = Array.isArray(data?.data) ? data.data : [];
 
+
     const selected = list.find(
       (p) => String(p.id) === String(field.value)
     );
@@ -185,8 +188,9 @@ export default function CreatePurchaseOrderPage() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
+
             {selected
-              ? `${selected.name} (SKU: ${selected.sku})`
+              ? `${selected.name} (SKU: ${selected.sku}) (${selected.unit?.name || "-"})`
               : "Select Product..."}
           </Button>
         </PopoverTrigger>
@@ -217,7 +221,7 @@ export default function CreatePurchaseOrderPage() {
                         setOpen(false);
                       }}
                     >
-                      {product.name} (SKU: {product.sku})
+                      {product.name} (SKU: {product.sku}) ( {product.unit?.name || "-"})
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -250,6 +254,7 @@ export default function CreatePurchaseOrderPage() {
           product_id: Number(item.productId),
           quantity: Number(item.quantity),
           unit_cost: Number(item.unit_cost),
+          discount: Number(item.discount),
         })),
       };
 
@@ -356,9 +361,9 @@ export default function CreatePurchaseOrderPage() {
                 onClick={() =>
                   append({
                     productId: "",
-
                     quantity: 1,
                     unit_cost: 0,
+                    discount: 0,
                   })
                 }
               >
@@ -378,7 +383,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Product required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-6">
+                      <FormItem className="col-span-4">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
                           <ProductSelectField field={field} />
@@ -414,6 +419,22 @@ export default function CreatePurchaseOrderPage() {
                     render={({ field }) => (
                       <FormItem className="col-span-2">
                         <FormLabel>Quantity</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* discount */}
+                  <FormField
+                    name={`items.${index}.discount`}
+                    control={control}
+                    rules={{ required: "Discount required" }}
+                    render={({ field }) => (
+                      <FormItem className="col-span-2">
+                        <FormLabel>Discount</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
