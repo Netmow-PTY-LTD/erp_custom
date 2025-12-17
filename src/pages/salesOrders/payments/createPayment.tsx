@@ -156,7 +156,7 @@ export default function CreatePaymentPage() {
     );
 
     const unpaidInvoices = Array.isArray(data?.data) ? data.data : [];
-    console.log("Invoice List:", unpaidInvoices);
+    //console.log("Invoice List:", unpaidInvoices);
     const selected = unpaidInvoices.find((inv) => Number(inv.id) === Number(field.value));
 
     return (
@@ -175,7 +175,7 @@ export default function CreatePaymentPage() {
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-[300px] p-0">
+        <PopoverContent className="w-[300px] p-0 shadow-md rounded-lg bg-white">
           <Command>
             <CommandInput
               placeholder="Search invoices..."

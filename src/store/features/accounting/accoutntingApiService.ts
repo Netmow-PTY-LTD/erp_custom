@@ -1,8 +1,9 @@
+import type { Expense } from "@/pages/accounting/Expenses";
+import type { Income } from "@/pages/accounting/Income";
 import { baseApi } from "@/store/baseApi";
 import type {
   CreditHead,
   DebitHead,
-  IncomeExpense,
   Overview,
   Payroll,
 } from "@/types/accounting.types";
@@ -29,6 +30,10 @@ export type ListResponse<T> = {
   pagination: Pagination;
   data: T[];
 };
+
+export type IncomeResponse = ListResponse<Income>;
+
+export type ExpenseResponse = ListResponse<Expense>;
 
 // -------------------- Credit Head --------------------
 export type CreditHeadResponse = ListResponse<CreditHead>;
@@ -62,25 +67,39 @@ export const accountingApiService = baseApi.injectEndpoints({
     }),
 
     // GET ALL INCOMES
-    getIncomes: builder.query<ListResponse<IncomeExpense>, void>({
-      query: () => ({ url: "/accounting/incomes", method: "GET" }),
+    getIncomes: builder.query<
+      IncomeResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/accounting/incomes",
+        method: "GET",
+        params,
+      }),
       providesTags: ["Accounting"],
     }),
 
     // ADD INCOME
-    addIncome: builder.mutation<IncomeExpense, Partial<IncomeExpense>>({
+    addIncome: builder.mutation<IncomeResponse, Partial<Income>>({
       query: (body) => ({ url: "/accounting/incomes", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
 
     // GET ALL EXPENSES
-    getExpenses: builder.query<ListResponse<IncomeExpense>, void>({
-      query: () => ({ url: "/accounting/expenses", method: "GET" }),
+    getExpenses: builder.query<
+      ExpenseResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/accounting/expenses",
+        method: "GET",
+        params,
+      }),
       providesTags: ["Accounting"],
     }),
 
     // ADD EXPENSE
-    addExpense: builder.mutation<IncomeExpense, Partial<IncomeExpense>>({
+    addExpense: builder.mutation<ExpenseResponse, Partial<Expense>>({
       query: (body) => ({ url: "/accounting/expenses", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
@@ -151,7 +170,11 @@ export const accountingApiService = baseApi.injectEndpoints({
       DebitHeadResponse,
       { page?: number; limit?: number; search?: string }
     >({
-      query: (params) => ({ url: "/accounting/debit-head", method: "GET", params }),
+      query: (params) => ({
+        url: "/accounting/debit-head",
+        method: "GET",
+        params,
+      }),
       providesTags: ["Accounting"],
     }),
 
