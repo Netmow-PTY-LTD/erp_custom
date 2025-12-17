@@ -15,7 +15,7 @@ import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, } from "lucide-react";
+import { CreditCard, Eye, } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -105,6 +105,7 @@ export default function PurchaseInvoicesList() {
       header: "Actions",
       cell: ({ row }) => {
         const invoice = row.original;
+       
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/purchase-invoices/${invoice.id}`}>
@@ -112,6 +113,12 @@ export default function PurchaseInvoicesList() {
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
+            <Link to={`/dashboard/purchase-payments/create?poId=${invoice.purchase_order_id}`}>
+              <Button size="sm" variant="outline"  className="flex items-center gap-1.5 px-3">
+                <CreditCard className="w-4 h-4" /> Pay
+              </Button>
+            </Link>
+
           </div>
         );
       },

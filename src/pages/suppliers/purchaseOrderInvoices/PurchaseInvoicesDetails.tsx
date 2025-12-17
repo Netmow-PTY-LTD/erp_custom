@@ -26,7 +26,7 @@ export default function PurchaseInvoicesDetails() {
     const tax = po.tax_amount ?? 0;
     const discount = po.discount_amount ?? 0;
     const total = subtotal + tax - discount;
-    const paid = 0; // No payments yet
+    const paid = po.paid_amount ?? 0; // No payments yet
     const balance = total - paid;
 
 
@@ -151,7 +151,7 @@ export default function PurchaseInvoicesDetails() {
                                     </thead>
 
                                     <tbody>
-                                        {po.items.map((item:any) => (
+                                        {po.items.map((item: any) => (
                                             <tr key={item.id} className="border-b">
                                                 {/* Product */}
                                                 <td className="p-3">

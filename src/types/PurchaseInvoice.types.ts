@@ -11,6 +11,8 @@ export type InvoiceStatus =
 
 
 export type PurchaseInvoice = {
+  due_amount: number;
+  paid_amount: number;
   id: number;
   invoice_number: string;
   purchase_order_id: number;
