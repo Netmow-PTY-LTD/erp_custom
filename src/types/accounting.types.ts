@@ -1,5 +1,4 @@
 
-
 // -------------------- OVERVIEW --------------------
 export type Overview = {
   total_income: number;
@@ -29,4 +28,22 @@ export type Payroll = {
   salary_month: string; // e.g., "2025-01"
   net_salary: number;
   status: string;
+};
+
+// -------------------- Credit Head --------------------
+export type CreditHead = {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+  is_active: boolean;
+};
+
+// -------------------- Debit Head --------------------
+export type DebitHead = {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+  is_active: boolean;
 };
