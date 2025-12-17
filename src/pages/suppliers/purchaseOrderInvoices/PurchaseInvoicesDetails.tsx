@@ -58,7 +58,7 @@ export default function PurchaseInvoicesDetails() {
                         <Button variant="outline">← Back to Invoices</Button>
                     </Link>
 
-                    <Link to={`/dashboard/purchase-payments/create?invoice_id=${invoice.id}`}>
+                    <Link to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}>
                         <Button className="bg-blue-500 hover:bg-blue-600 text-white">
                             Record Payment
                         </Button>

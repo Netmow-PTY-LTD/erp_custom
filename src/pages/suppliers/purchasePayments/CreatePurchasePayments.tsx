@@ -17,8 +17,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronLeft } from "lucide-react";
-import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
@@ -38,7 +38,11 @@ type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 export default function CreatePurchasePayments() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const purchase_order_number = searchParams.get("pon");
   const [addPayment] = useAddPurchasePaymentMutation();
+
+  console.log('purchases order number', purchase_order_number)
 
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
@@ -59,10 +63,22 @@ export default function CreatePurchasePayments() {
   /* -------------------- Purchase Order Select -------------------- */
   const PurchaseOrderSelectField = ({ field }: { field: { value: number; onChange: (v: number) => void } }) => {
     const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState("");
+    const [query, setQuery] = useState(purchase_order_number || "");
     const { data, isLoading } = useGetAllPurchasesQuery({ page: 1, limit: 20, search: query });
 
     const list = Array.isArray(data?.data) ? data.data : [];
+
+
+    // Auto-select purchase order if found in search results
+    useEffect(() => {
+      if (!field.value && list.length > 0 && purchase_order_number) {
+        const po = list.find((po) => po.po_number === purchase_order_number);
+        if (po) field.onChange(po.id);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [list, field, purchase_order_number]);
+
+
     const selected = list.find((po) => po.id === field.value);
 
     return (

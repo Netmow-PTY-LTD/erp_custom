@@ -113,7 +113,7 @@ export default function PurchaseInvoicesList() {
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
-            <Link to={`/dashboard/purchase-payments/create?poId=${invoice.purchase_order_id}`}>
+            <Link to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}>
               <Button size="sm" variant="outline"  className="flex items-center gap-1.5 px-3">
                 <CreditCard className="w-4 h-4" /> Pay
               </Button>
