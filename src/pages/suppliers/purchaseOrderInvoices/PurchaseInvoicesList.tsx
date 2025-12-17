@@ -95,11 +95,7 @@ export default function PurchaseInvoicesList() {
         return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
       },
     },
-    {
-      accessorKey: "total_amount",
-      header: "Total",
-      cell: ({ row }) => `RM ${row.original.total_amount.toFixed(2)}`,
-    },
+    
     {
       id: "actions",
       header: "Actions",
