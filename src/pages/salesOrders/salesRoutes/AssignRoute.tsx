@@ -80,7 +80,7 @@ export default function AssignRoutePage() {
           <h1 className="text-2xl font-semibold">Assign to Downtown Area</h1>
           <p className="text-muted-foreground">Add staff and customers to this route.</p>
         </div>
-        <Link to="/dashboard/sales-routes">
+        <Link to="/dashboard/sales/sales-routes">
             <Button variant="outline">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Routes
