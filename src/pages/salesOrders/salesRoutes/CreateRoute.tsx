@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -156,61 +157,67 @@ export default function CreateRoutePage() {
   return (
     <div className="w-full">
       <Card className="w-full shadow-md">
-        <CardHeader className="flex flex-row items-center gap-4">
+        {/* ---------- Header ---------- */}
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <Button
             variant="outline"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
 
-          <CardTitle className="text-2xl font-semibold">
+          <CardTitle className="text-xl sm:text-2xl font-semibold">
             Create Route
           </CardTitle>
         </CardHeader>
 
-
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+            >
               {/* ---------- Row 1 ---------- */}
-              <div className="grid grid-cols-12 gap-4">
-                <FormField
-                  control={form.control}
-                  name="routeName"
-                  render={({ field }) => (
-                    <FormItem className="col-span-9">
-                      <FormLabel>Route Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Cyberjaya Road" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="sm:col-span-9">
+                  <FormField
+                    control={form.control}
+                    name="routeName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Route Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Cyberjaya Road" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="zoomLevel"
-                  render={({ field }) => (
-                    <FormItem className="col-span-3">
-                      <FormLabel>Zoom Level</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="sm:col-span-3">
+                  <FormField
+                    control={form.control}
+                    name="zoomLevel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Zoom Level</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               {/* ---------- Description ---------- */}
@@ -229,73 +236,27 @@ export default function CreateRoutePage() {
               />
 
               {/* ---------- Row 2 ---------- */}
-              <div className="grid grid-cols-4 gap-4">
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="capitalize">
-                        Country
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="capitalize">
-                        State
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="capitalize">
-                        City
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="postalCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="capitalize">
-                        Postal Code
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {["country", "state", "city", "postalCode"].map((name) => (
+                  <FormField
+                    key={name}
+                    control={form.control}
+                    name={name as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="capitalize">{name}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
               </div>
 
-
-
-              {/* ---------- Row (Start / End Location) ---------- */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* ---------- Start / End Location ---------- */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="start_location"
@@ -325,16 +286,13 @@ export default function CreateRoutePage() {
                 />
               </div>
 
-
-
-
-              {/* ---------- Row 3 (Lat/Lng) ---------- */}
-              <div className="grid grid-cols-12 gap-4">
+              {/* ---------- Lat / Lng ---------- */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="centerLat"
                   render={({ field }) => (
-                    <FormItem className="col-span-6">
+                    <FormItem>
                       <FormLabel>Center Latitude</FormLabel>
                       <FormControl>
                         <Input
@@ -355,7 +313,7 @@ export default function CreateRoutePage() {
                   control={form.control}
                   name="centerLng"
                   render={({ field }) => (
-                    <FormItem className="col-span-6">
+                    <FormItem>
                       <FormLabel>Center Longitude</FormLabel>
                       <FormControl>
                         <Input
@@ -373,53 +331,52 @@ export default function CreateRoutePage() {
                 />
               </div>
 
-              {/* ---------- Row 4 (Coverage Radius) ---------- */}
-              <div className="grid grid-cols-12 gap-4 items-end">
-                <FormField
-                  control={form.control}
-                  name="coverageRadius"
-                  render={({ field }) => (
-                    <FormItem className="col-span-3">
-                      <FormLabel>Coverage Radius (km)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* ---------- Coverage Radius ---------- */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                <div className="md:col-span-3">
+                  <FormField
+                    control={form.control}
+                    name="coverageRadius"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Coverage Radius (km)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                <div className="col-span-9 flex gap-3">
-                  <Button type="button" onClick={() => alert("Use Pin Location")}>
-                    Use Pin Location
-                  </Button>
-
-                  <Button type="button" onClick={() => alert("Use Map Bounds Radius")}>
-                    Use Map Bounds Radius
-                  </Button>
+                <div className="md:col-span-9 flex flex-col sm:flex-row gap-3">
+                  <Button type="button">Use Pin Location</Button>
+                  <Button type="button">Use Map Bounds Radius</Button>
                 </div>
               </div>
 
-              {/* ---------- Google Map ---------- */}
-              <div className="mb-4">
+              {/* ---------- Map ---------- */}
+              <div className="h-[250px] sm:h-[350px] md:h-[450px] w-full">
                 <MapEmbed />
               </div>
 
               {/* ---------- Submit ---------- */}
               <div className="flex justify-end">
-                <Button type="submit">Create</Button>
+                <Button type="submit" className="w-full sm:w-auto">
+                  Create
+                </Button>
               </div>
-
             </form>
           </Form>
         </CardContent>
       </Card>
     </div>
+
   );
 }
