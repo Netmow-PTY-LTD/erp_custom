@@ -19,6 +19,7 @@ import { MapEmbed } from "@/components/MapEmbed";
 import { useAddSalesRouteMutation } from "@/store/features/salesRoute/salesRoute";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 // ---------------- Schema ----------------
 const FormSchema = z.object({
@@ -133,13 +134,11 @@ export default function CreateRoutePage() {
   // ---------------- Submit Payload ----------------
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
 
-    console.log('payload data ==>', data)
+   
 
     const res = await addRoute(data).unwrap()
 
     if (res.status) {
-
-
       toast.success(res.message || 'Route add successfull')
       navigate('/dashboard/sales/sales-routes')
     }
@@ -152,9 +151,21 @@ export default function CreateRoutePage() {
   return (
     <div className="w-full">
       <Card className="w-full shadow-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold">Create Route</CardTitle>
+        <CardHeader className="flex flex-row items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+
+          <CardTitle className="text-2xl font-semibold">
+            Create Route
+          </CardTitle>
         </CardHeader>
+
 
         <CardContent>
           <Form {...form}>
