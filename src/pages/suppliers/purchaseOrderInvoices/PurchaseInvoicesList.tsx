@@ -63,6 +63,22 @@ export default function PurchaseInvoicesList() {
     //   cell: ({ row }) => `Supplier #${row.original.supplier_id}`,
     // },
     {
+      accessorKey: "total_amount",
+      header: "Total Amount",
+      cell: ({ row }) => `RM ${row.original.total_amount}`,
+    },
+    {
+      accessorKey: "paid_amount",
+      header: "Paid Amount",
+      cell: ({ row }) => `RM ${row.original.paid_amount}`,
+    },
+    {
+      accessorKey: "due_amount",
+      header: "Due Amount",
+      cell: ({ row }) => `RM ${row.original.due_amount}`,
+    },
+
+    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
@@ -71,10 +87,10 @@ export default function PurchaseInvoicesList() {
           status === "draft"
             ? "bg-yellow-500"
             : status === "paid"
-                ? "bg-green-600"
-                : status === "overdue"
-                  ? "bg-red-600"
-                  : "bg-gray-400";
+              ? "bg-green-600"
+              : status === "overdue"
+                ? "bg-red-600"
+                : "bg-gray-400";
 
         return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
       },
