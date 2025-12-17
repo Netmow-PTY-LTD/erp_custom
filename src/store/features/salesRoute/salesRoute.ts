@@ -5,8 +5,6 @@ import type { SalesRoute } from "@/types/salesRoute.types";
 // Types
 // ----------------------
 
-
-
 export interface SalesRoutePagination {
   total: number;
   page: number;
@@ -15,14 +13,14 @@ export interface SalesRoutePagination {
 }
 
 export interface SalesRouteListResponse {
-  success: boolean;
+  status: boolean;
   message: string;
   pagination: SalesRoutePagination;
   data: SalesRoute[];
 }
 
 export interface SalesRouteSingleResponse {
-  success: boolean;
+  status: boolean;
   message: string;
   data: SalesRoute;
 }
@@ -35,19 +33,25 @@ export const salesRouteApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL SALES ROUTES
-    getAllSalesRoute: builder.query<SalesRouteListResponse, { page:number, limit:number, search:string }>({
+    getAllSalesRoute: builder.query<
+      SalesRouteListResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
       query: (params) => ({
-        url: "/sales",
+        url: "/sales/routes",
         method: "GET",
-        params
+        params,
       }),
       providesTags: ["SalesRoute"],
     }),
 
-    // ADD SALES ROUTE
-    addSalesRoute: builder.mutation<SalesRouteSingleResponse, Partial<SalesRoute>>({
+    // CREATE SALES ROUTE
+    addSalesRoute: builder.mutation<
+      SalesRouteSingleResponse,
+      Partial<SalesRoute>
+    >({
       query: (body) => ({
-        url: "/sales",
+        url: "/sales/sales-route",
         method: "POST",
         body,
       }),
@@ -55,9 +59,12 @@ export const salesRouteApiService = baseApi.injectEndpoints({
     }),
 
     // GET SINGLE SALES ROUTE
-    getSalesRouteById: builder.query<SalesRouteSingleResponse, string | number>({
+    getSalesRouteById: builder.query<
+      SalesRouteSingleResponse,
+      string | number
+    >({
       query: (id) => ({
-        url: `/sales/${id}`,
+        url: `/sales/sales-route/${id}`,
         method: "GET",
       }),
       providesTags: ["SalesRoute"],
@@ -69,7 +76,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
       { id: string | number; body: Partial<SalesRoute> }
     >({
       query: ({ id, body }) => ({
-        url: `/sales/${id}`,
+        url: `/sales/sales-route/${id}`,
         method: "PUT",
         body,
       }),
@@ -77,9 +84,12 @@ export const salesRouteApiService = baseApi.injectEndpoints({
     }),
 
     // DELETE SALES ROUTE
-    deleteSalesRoute: builder.mutation<SalesRouteSingleResponse, string | number>({
+    deleteSalesRoute: builder.mutation<
+      SalesRouteSingleResponse,
+      string | number
+    >({
       query: (id) => ({
-        url: `/sales/${id}`,
+        url: `/sales/sales-route/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["SalesRoute"],
@@ -88,7 +98,10 @@ export const salesRouteApiService = baseApi.injectEndpoints({
   }),
 });
 
+// ----------------------
 // Hooks
+// ----------------------
+
 export const {
   useGetAllSalesRouteQuery,
   useAddSalesRouteMutation,
