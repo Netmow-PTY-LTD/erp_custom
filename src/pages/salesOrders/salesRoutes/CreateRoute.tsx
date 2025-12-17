@@ -29,6 +29,8 @@ const FormSchema = z.object({
   country: z.string(),
   state: z.string(),
   city: z.string(),
+  end_location: z.string(),
+  start_location: z.string(),
   postalCode: z.string(),
   centerLat: z.number(),
   centerLng: z.number(),
@@ -58,6 +60,9 @@ export default function CreateRoutePage() {
       centerLat: 2.9253,
       centerLng: 101.6559,
       coverageRadius: 5,
+      start_location: '',
+      end_location: ''
+
     },
   });
 
@@ -134,7 +139,7 @@ export default function CreateRoutePage() {
   // ---------------- Submit Payload ----------------
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
 
-   
+
 
     const res = await addRoute(data).unwrap()
 
@@ -286,6 +291,42 @@ export default function CreateRoutePage() {
                   )}
                 />
               </div>
+
+
+
+              {/* ---------- Row (Start / End Location) ---------- */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="start_location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Cyberjaya Gate" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="end_location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Putrajaya Sentral" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+
+
 
               {/* ---------- Row 3 (Lat/Lng) ---------- */}
               <div className="grid grid-cols-12 gap-4">
