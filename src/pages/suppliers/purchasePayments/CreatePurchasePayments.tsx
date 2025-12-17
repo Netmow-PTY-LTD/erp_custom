@@ -23,7 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
 import { toast } from "sonner";
-import { useAddPurchasePaymentMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useAddPurchasePaymentMutation, useGetAllPurchasesQuery, useGetPurchaseOrderByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useAppSelector } from "@/store/store";
 
 const paymentSchema = z.object({
@@ -41,8 +41,6 @@ export default function CreatePurchasePayments() {
   const [searchParams] = useSearchParams();
   const purchase_order_number = searchParams.get("pon");
   const [addPayment] = useAddPurchasePaymentMutation();
-
-  console.log('purchases order number', purchase_order_number)
 
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
@@ -135,6 +133,14 @@ export default function CreatePurchasePayments() {
   const watchPO = form.watch("purchase_order_id");
   const watchAmount = form.watch("amount");
   const watchMethod = form.watch("payment_method");
+
+
+  const { data } = useGetPurchaseOrderByIdQuery(watchPO, {
+    skip: !watchPO,
+  });
+  const purchaseOrderDetails = data?.data
+
+
 
   return (
     <div className="w-full">
@@ -266,7 +272,7 @@ export default function CreatePurchasePayments() {
         </div>
 
         {/* SUMMARY */}
-        <div className="rounded-lg border p-6 bg-white">
+        {/* <div className="rounded-lg border p-6 bg-white">
           <h2 className="text-lg font-semibold mb-4">Payment Summary</h2>
           <div className="space-y-2 text-sm">
             <p>
@@ -280,7 +286,51 @@ export default function CreatePurchasePayments() {
               {watchMethod ? watchMethod.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()) : "Not Selected"}
             </p>
           </div>
+        </div> */}
+        {/* SUMMARY PANEL */}
+        <div className="rounded-lg border p-6 bg-white space-y-4">
+          <h2 className="text-lg font-semibold mb-4">Summary</h2>
+
+          {/* PURCHASE ORDER SUMMARY */}
+          <div className="space-y-1 text-sm">
+            <h3 className="font-medium">Purchase Order Details</h3>
+            {purchaseOrderDetails ? (
+              <>
+                <p><strong>PO Number:</strong> {purchaseOrderDetails.po_number}</p>
+                <p><strong>Subtotal:</strong> {currency} {purchaseOrderDetails.total_amount?.toFixed(2)}</p>
+                <p><strong>Tax:</strong> {currency} {(purchaseOrderDetails.tax_amount ?? 0).toFixed(2)}</p>
+                <p><strong>Discount:</strong> {currency} {(purchaseOrderDetails.discount_amount ?? 0).toFixed(2)}</p>
+                <p>
+                  <strong>Total:</strong>{" "}
+                  {currency} {((purchaseOrderDetails.total_amount ?? 0) + (purchaseOrderDetails.tax_amount ?? 0) - (purchaseOrderDetails.discount_amount ?? 0)).toFixed(2)}
+                </p>
+                <p><strong>Paid:</strong> {currency} {(purchaseOrderDetails.paid_amount ?? 0).toFixed(2)}</p>
+                <p>
+                  <strong>Balance:</strong>{" "}
+                  {currency} {(((purchaseOrderDetails.total_amount ?? 0) + (purchaseOrderDetails.tax_amount ?? 0) - (purchaseOrderDetails.discount_amount ?? 0)) - (purchaseOrderDetails.paid_amount ?? 0)).toFixed(2)}
+                </p>
+              </>
+            ) : (
+              <p>No Purchase Order Selected</p>
+            )}
+          </div>
+
+          {/* PAYMENT SUMMARY */}
+          <div className="space-y-1 text-sm mt-4">
+            <h3 className="font-medium">Payment Details</h3>
+            <p>
+              <strong>Amount:</strong>{" "}
+              {watchAmount ? `${currency} ${Number(watchAmount).toFixed(2)}` : "Not Entered"}
+            </p>
+            <p>
+              <strong>Method:</strong>{" "}
+              {watchMethod
+                ? watchMethod.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase())
+                : "Not Selected"}
+            </p>
+          </div>
         </div>
+
       </div>
     </div>
   );
