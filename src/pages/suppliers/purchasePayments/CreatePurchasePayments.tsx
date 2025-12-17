@@ -61,7 +61,7 @@ export default function CreatePurchasePayments() {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const { data, isLoading } = useGetAllPurchasesQuery({ page: 1, limit: 20, search: query });
-    
+
     const list = Array.isArray(data?.data) ? data.data : [];
     const selected = list.find((po) => po.id === field.value);
 
@@ -164,12 +164,21 @@ export default function CreatePurchasePayments() {
                     <FormItem>
                       <FormLabel>Amount (৳)</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" placeholder="Enter amount" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Enter amount"
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value === "" ? "" : Number(e.target.value))
+                          }
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
 
                 {/* PAYMENT METHOD */}
                 <FormField
