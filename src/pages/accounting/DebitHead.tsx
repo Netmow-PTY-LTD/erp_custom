@@ -24,65 +24,68 @@ export default function DebitHead() {
     page,
     limit: 10,
     search,
-});
+  });
+  
   const debitHeads: DebitHead[] = data?.data || [];
 
   console.log("Debit Heads", data);
 
   const [deleteDebitHead] = useDeleteDebitHeadMutation();
 
- const handleDeleteDebitHead = async (id: number) => {
-  const confirmed = await new Promise<boolean>((resolve) => {
-    const toastId = toast.custom(() => (
-      <div className="flex flex-col items-center gap-4 rounded-md border bg-white p-4 shadow">
-        <p className="text-sm font-semibold">
-          Are you sure you want to delete this credit head?
-        </p>
+  const handleDeleteDebitHead = async (id: number) => {
+    const confirmed = await new Promise<boolean>((resolve) => {
+      const toastId = toast.custom(
+        () => (
+          <div className="flex flex-col items-center gap-4 rounded-md border bg-white p-4 shadow">
+            <p className="text-sm font-semibold">
+              Are you sure you want to delete this credit head?
+            </p>
 
-        <div className="flex gap-2 ml-auto">
-          <button
-            onClick={() => {
-              toast.dismiss(toastId);
-              resolve(false);
-            }}
-            className="px-3 py-1 text-sm rounded border"
-          >
-            No
-          </button>
+            <div className="flex gap-2 ml-auto">
+              <button
+                onClick={() => {
+                  toast.dismiss(toastId);
+                  resolve(false);
+                }}
+                className="px-3 py-1 text-sm rounded border"
+              >
+                No
+              </button>
 
-          <button
-            onClick={() => {
-              toast.dismiss(toastId);
-              resolve(true);
-            }}
-            className="px-3 py-1 text-sm rounded bg-red-600 text-white"
-          >
-            Yes
-          </button>
-        </div>
-      </div>
-    ), {
-      duration: 10000,
+              <button
+                onClick={() => {
+                  toast.dismiss(toastId);
+                  resolve(true);
+                }}
+                className="px-3 py-1 text-sm rounded bg-red-600 text-white"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: 10000,
+        }
+      );
     });
-  });
 
-  if (!confirmed) return;
+    if (!confirmed) return;
 
-  try {
-    const res = await deleteDebitHead(id).unwrap();
-    if (res.status) {
-      toast.success("Debit head deleted successfully");
-    } else {
-      toast.error("Failed to delete debit head");
+    try {
+      const res = await deleteDebitHead(id).unwrap();
+      if (res.status) {
+        toast.success("Debit head deleted successfully");
+      } else {
+        toast.error("Failed to delete debit head");
+      }
+    } catch (error) {
+      toast.error(
+        "Failed to delete debit head" +
+          (error instanceof Error ? ": " + error.message : "")
+      );
     }
-  } catch (error) {
-    toast.error(
-      "Failed to delete debit head" +
-        (error instanceof Error ? ": " + error.message : "")
-    );
-  }
-};
-
+  };
 
   const debitHeadColumns: ColumnDef<CreditHead>[] = [
     { accessorKey: "id", header: "ID" },
@@ -95,7 +98,9 @@ export default function DebitHead() {
       cell: ({ row }) => {
         const status = row.getValue("is_active") as boolean;
         return (
-          <Badge className={`${status ? "bg-green-600" : "bg-red-600"}`}>{status ? "Active" : "Inactive"}</Badge>
+          <Badge className={`${status ? "bg-green-600" : "bg-red-600"}`}>
+            {status ? "Active" : "Inactive"}
+          </Badge>
         );
       },
     },
@@ -146,9 +151,9 @@ export default function DebitHead() {
         pageSize={limit}
         totalCount={data?.pagination?.total || 0}
         onPageChange={setPage}
-        onSearch={(val)=>{
-            setSearch(val);
-            setPage(1);
+        onSearch={(val) => {
+          setSearch(val);
+          setPage(1);
         }}
         isFetching={isFetching}
       />

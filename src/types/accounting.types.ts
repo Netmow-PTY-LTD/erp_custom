@@ -14,6 +14,7 @@ export type IncomeExpense = {
   status: any;
   id: number;
   title: string;
+  credit_head_id: number;
   amount: number;
   income_date?: string;   // for income
   expense_date?: string;  // for expense
