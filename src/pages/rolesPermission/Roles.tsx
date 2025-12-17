@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import AddNewRoleForm from "@/components/roles/AddRoleForm";
 import { useState } from "react";
 import EditRoleForm from "@/components/roles/EditRoleForm";
+import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 
 interface Role {
   id: number;
@@ -43,6 +44,9 @@ export default function Roles() {
   const [open, setOpen] = useState<boolean>(false);
   const [openEditForm, setOpenEditForm] = useState<boolean>(false);
   //const [newRole, setNewRole] = useState({ name: "", description: "" });
+  const {data}=useGetAllRolesQuery();
+
+  console.log('data of roles ==>',data)
 
   // const addRole = () => {
   //   if (!newRole.name.trim()) return;
