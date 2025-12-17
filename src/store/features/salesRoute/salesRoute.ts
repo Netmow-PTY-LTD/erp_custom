@@ -13,14 +13,14 @@ export interface SalesRoutePagination {
 }
 
 export interface SalesRouteListResponse {
-  success: boolean;
+  status: boolean;
   message: string;
   pagination: SalesRoutePagination;
   data: SalesRoute[];
 }
 
 export interface SalesRouteSingleResponse {
-  success: boolean;
+  status: boolean;
   message: string;
   data: SalesRoute;
 }
@@ -38,7 +38,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
       { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({
-        url: "/sales/sales-route",
+        url: "/sales/routes",
         method: "GET",
         params,
       }),

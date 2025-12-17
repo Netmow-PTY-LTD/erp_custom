@@ -16,6 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { MapEmbed } from "@/components/MapEmbed";
+import { useAddSalesRouteMutation } from "@/store/features/salesRoute/salesRoute";
+import { toast } from "sonner";
+import { useNavigate } from "react-router";
 
 // ---------------- Schema ----------------
 const FormSchema = z.object({
@@ -34,9 +37,12 @@ const FormSchema = z.object({
 
 
 export default function CreateRoutePage() {
-//   const mapRef = useRef(null);
-//   const markerRef = useRef(null);
-//   const [map, setMap] = useState(null);
+  const navigate = useNavigate()
+  const [addRoute] = useAddSalesRouteMutation();
+
+  //   const mapRef = useRef(null);
+  //   const markerRef = useRef(null);
+  //   const [map, setMap] = useState(null);
 
   const form = useForm({
     resolver: zodResolver(FormSchema),
@@ -54,95 +60,90 @@ export default function CreateRoutePage() {
     },
   });
 
-//   const watchLat = form.watch("centerLat");
-//   const watchLng = form.watch("centerLng");
-//   const watchZoom = form.watch("zoomLevel");
+  //   const watchLat = form.watch("centerLat");
+  //   const watchLng = form.watch("centerLng");
+  //   const watchZoom = form.watch("zoomLevel");
 
-//   // ---------------- MAP INIT ----------------
-//   useEffect(() => {
-//     if (!window.google || !mapRef.current) return;
+  //   // ---------------- MAP INIT ----------------
+  //   useEffect(() => {
+  //     if (!window.google || !mapRef.current) return;
 
-//     const initialCenter = {
-//       lat: watchLat,
-//       lng: watchLng,
-//     };
+  //     const initialCenter = {
+  //       lat: watchLat,
+  //       lng: watchLng,
+  //     };
 
-//     const mapInstance = new window.google.maps.Map(mapRef.current, {
-//       center: initialCenter,
-//       zoom: watchZoom,
-//     });
+  //     const mapInstance = new window.google.maps.Map(mapRef.current, {
+  //       center: initialCenter,
+  //       zoom: watchZoom,
+  //     });
 
-//     const marker = new window.google.maps.Marker({
-//       map: mapInstance,
-//       position: initialCenter,
-//       draggable: true,
-//     });
+  //     const marker = new window.google.maps.Marker({
+  //       map: mapInstance,
+  //       position: initialCenter,
+  //       draggable: true,
+  //     });
 
-//     marker.addListener("dragend", (e) => {
-//       form.setValue("centerLat", e.latLng.lat());
-//       form.setValue("centerLng", e.latLng.lng());
-//     });
+  //     marker.addListener("dragend", (e) => {
+  //       form.setValue("centerLat", e.latLng.lat());
+  //       form.setValue("centerLng", e.latLng.lng());
+  //     });
 
-//     markerRef.current = marker;
-//     setMap(mapInstance);
-//   }, []);
+  //     markerRef.current = marker;
+  //     setMap(mapInstance);
+  //   }, []);
 
   // ---------------- Use Pin Location ----------------
-//   const usePinLocation = () => {
-//     if (!markerRef.current) return;
-//     const pos = markerRef.current.getPosition();
-//     form.setValue("centerLat", pos.lat());
-//     form.setValue("centerLng", pos.lng());
-//   };
+  //   const usePinLocation = () => {
+  //     if (!markerRef.current) return;
+  //     const pos = markerRef.current.getPosition();
+  //     form.setValue("centerLat", pos.lat());
+  //     form.setValue("centerLng", pos.lng());
+  //   };
 
   // ---------------- Use Map Bounds Radius ----------------
-//   const useBoundsRadius = () => {
-//     if (!map) return;
-    
-//     const bounds = map.getBounds();
-//     if (!bounds) return;
+  //   const useBoundsRadius = () => {
+  //     if (!map) return;
 
-//     const center = bounds.getCenter();
-//     const ne = bounds.getNorthEast();
+  //     const bounds = map.getBounds();
+  //     if (!bounds) return;
 
-//     // Haversine formula
-//     const R = 6371;
-//     const dLat = ((ne.lat() - center.lat()) * Math.PI) / 180;
-//     const dLng = ((ne.lng() - center.lng()) * Math.PI) / 180;
+  //     const center = bounds.getCenter();
+  //     const ne = bounds.getNorthEast();
 
-//     const lat1 = center.lat() * (Math.PI / 180);
-//     const lat2 = ne.lat() * (Math.PI / 180);
+  //     // Haversine formula
+  //     const R = 6371;
+  //     const dLat = ((ne.lat() - center.lat()) * Math.PI) / 180;
+  //     const dLng = ((ne.lng() - center.lng()) * Math.PI) / 180;
 
-//     const a =
-//       Math.sin(dLat / 2) ** 2 +
-//       Math.cos(lat1) *
-//         Math.cos(lat2) *
-//         Math.sin(dLng / 2) ** 2;
+  //     const lat1 = center.lat() * (Math.PI / 180);
+  //     const lat2 = ne.lat() * (Math.PI / 180);
 
-//     const distance = 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //     const a =
+  //       Math.sin(dLat / 2) ** 2 +
+  //       Math.cos(lat1) *
+  //         Math.cos(lat2) *
+  //         Math.sin(dLng / 2) ** 2;
 
-//     form.setValue("coverageRadius", Number(distance.toFixed(2)));
-//   };
+  //     const distance = 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  //     form.setValue("coverageRadius", Number(distance.toFixed(2)));
+  //   };
 
   // ---------------- Submit Payload ----------------
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    const payload = {
-      route_name: data.routeName,
-      zoom_level: data.zoomLevel,
-      description: data.description,
-      country: data.country,
-      state: data.state,
-      city: data.city,
-      postal_code: data.postalCode,
-      center: {
-        lat: data.centerLat,
-        lng: data.centerLng,
-      },
-      coverage_radius_km: data.coverageRadius,
-    };
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
 
-    console.log("Final Payload:", payload);
-    alert("Payload logged in console");
+    console.log('payload data ==>', data)
+
+    const res = await addRoute(data).unwrap()
+
+    if (res.status) {
+
+
+      toast.success(res.message || 'Route add successfull')
+      navigate('/dashboard/sales/sales-routes')
+    }
+
   };
 
 
@@ -213,66 +214,66 @@ export default function CreateRoutePage() {
 
               {/* ---------- Row 2 ---------- */}
               <div className="grid grid-cols-4 gap-4">
-               <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="capitalize">
-                          Country
-                        </FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                    <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="capitalize">
-                          State
-                        </FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                    <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="capitalize">
-                          City
-                        </FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                    <FormField
-                    control={form.control}
-                    name="postalCode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="capitalize">
-                          Postal Code
-                        </FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="capitalize">
+                        Country
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="capitalize">
+                        State
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="capitalize">
+                        City
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="postalCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="capitalize">
+                        Postal Code
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* ---------- Row 3 (Lat/Lng) ---------- */}
