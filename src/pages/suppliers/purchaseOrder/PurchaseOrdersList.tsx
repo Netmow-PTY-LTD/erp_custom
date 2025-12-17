@@ -123,6 +123,7 @@ export default function PurchaseOrdersList() {
       header: "Date",
       cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
     },
+    
     {
       accessorKey: "status",
       header: "Status",

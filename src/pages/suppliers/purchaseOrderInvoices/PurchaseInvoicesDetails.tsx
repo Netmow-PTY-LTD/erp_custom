@@ -26,11 +26,13 @@ export default function PurchaseInvoicesDetails() {
     const tax = po.tax_amount ?? 0;
     const discount = po.discount_amount ?? 0;
     const total = subtotal + tax - discount;
-    const paid = 0; // No payments yet
+    const paid = invoice.paid_amount ?? 0; // No payments yet
     const balance = total - paid;
-
+    const isFullyPaid = balance <= 0;
+    const canMarkAsPaid = !isFullyPaid && invoice.status !== "paid";
 
     const handleMarkAsPaid = async () => {
+        if (!isFullyPaid) return;
         try {
             await markPaid({
                 invoiceId: invoice.id,
@@ -56,21 +58,22 @@ export default function PurchaseInvoicesDetails() {
                         <Button variant="outline">← Back to Invoices</Button>
                     </Link>
 
-                    <Link to={`/dashboard/purchase-payments/create?invoice_id=${invoice.id}`}>
+                    <Link to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}>
                         <Button className="bg-blue-500 hover:bg-blue-600 text-white">
                             Record Payment
                         </Button>
                     </Link>
 
-                    {
-                        invoice.status !== "paid" && <Button
+                    {canMarkAsPaid && (
+                        <Button
                             className="bg-green-600 hover:bg-green-700 text-white"
                             onClick={handleMarkAsPaid}
-                            disabled={isMarkingPaid}
+                            disabled={!isFullyPaid || isMarkingPaid}
                         >
                             {isMarkingPaid ? "Marking..." : "✔ Mark as Paid"}
                         </Button>
-                    }
+                    )}
+
 
 
                 </div>
@@ -151,7 +154,7 @@ export default function PurchaseInvoicesDetails() {
                                     </thead>
 
                                     <tbody>
-                                        {po.items.map((item:any) => (
+                                        {po.items.map((item: any) => (
                                             <tr key={item.id} className="border-b">
                                                 {/* Product */}
                                                 <td className="p-3">
