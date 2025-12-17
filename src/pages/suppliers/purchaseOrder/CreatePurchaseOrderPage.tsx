@@ -36,7 +36,7 @@ import { Link, useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
-import  { useState } from "react";
+import { useState } from "react";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -158,7 +158,7 @@ export default function CreatePurchaseOrderPage() {
 
 
 
-  
+
 
 
   function ProductSelectField({
@@ -177,6 +177,7 @@ export default function CreatePurchaseOrderPage() {
 
     const list = Array.isArray(data?.data) ? data.data : [];
 
+
     const selected = list.find(
       (p) => String(p.id) === String(field.value)
     );
@@ -185,8 +186,9 @@ export default function CreatePurchaseOrderPage() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
+            
             {selected
-              ? `${selected.name} (SKU: ${selected.sku})`
+              ? `${selected.name} (SKU: ${selected.sku}) (${selected.unit?.name || "-"})`
               : "Select Product..."}
           </Button>
         </PopoverTrigger>
@@ -217,7 +219,7 @@ export default function CreatePurchaseOrderPage() {
                         setOpen(false);
                       }}
                     >
-                      {product.name} (SKU: {product.sku})
+                      {product.name} (SKU: {product.sku}) ( {product.unit?.name || "-"})
                     </CommandItem>
                   ))}
               </CommandGroup>
