@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
@@ -19,16 +18,38 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { useAddIncomeMutation } from "@/store/features/accounting/accoutntingApiService";
+import {
+  useAddIncomeMutation,
+  useGetAllCreditHeadsQuery,
+} from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronDown } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import type { CreditHead } from "@/types/accounting.types";
+import { useAppSelector } from "@/store/store";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const incomeSchema = z.object({
   title: z.string().min(1, "Title is required"),
   income_date: z.string().min(1, "Date is required"),
+  credit_head_id: z.number().min(1, "Credit Head is required"),
   description: z.string().optional(),
-  category: z.string().min(1, "Category is required"),
+  //category: z.string().min(1, "Category is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   receivedVia: z.string().min(1, "Received Via is required"),
   reference: z.string().optional(),
@@ -38,31 +59,55 @@ type IncomeFormValues = z.infer<typeof incomeSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function AddIncomePage() {
+  const [open, setOpen] = useState(false);
+  const [page] = useState(1);
+  const [search, setSearch] = useState("");
+  const limit = 10;
   const navigate = useNavigate();
-    const [addIncome, { isLoading }] = useAddIncomeMutation();
+  const [addIncome, { isLoading }] = useAddIncomeMutation();
 
   const form = useForm<IncomeFormValues>({
     resolver: zodResolver(incomeSchema),
     defaultValues: {
       title: "",
       income_date: "",
+      credit_head_id: 0,
       description: "",
-      category: "",
       amount: 0,
       receivedVia: "",
       reference: "",
     },
   });
 
-  const { control, handleSubmit, reset} = form;
+  const { control, handleSubmit, reset } = form;
 
-   const onSubmit: SubmitHandler<IncomeFormValues> = async (values) => {
+  const { data } = useGetAllCreditHeadsQuery({
+    page,
+    limit,
+    search,
+  });
+  const creditHeads: CreditHead[] = data?.data || [];
+
+  console.log("Debit Heads", data);
+  const currency = useAppSelector((state) => state.currency.value);
+
+  const onSubmit: SubmitHandler<IncomeFormValues> = async (values) => {
+    console.log("Income Form Values", values);
+    const payload = {
+      title: values.title,
+      income_date: values.income_date,
+      credit_head_id: values.credit_head_id,
+      description: values.description,
+      amount: values.amount,
+      payment_method: values.receivedVia,
+      reference_number: values.reference,
+    }
     try {
-      const res = await addIncome(values).unwrap();
+      const res = await addIncome(payload).unwrap();
       if (res.status) {
         toast.success("Income added successfully");
         reset(); // Clear the form
-        navigate('/dashboard/accounting/incomes'); // Go back to previous page
+        navigate("/dashboard/accounting/incomes"); // Go back to previous page
       } else {
         toast.error("Failed to add income");
       }
@@ -84,21 +129,20 @@ export default function AddIncomePage() {
           </CardHeader>
 
           <CardContent className="grid gap-4 md:grid-cols-2">
-            {/* DATE */}
+            {/* TITLE */}
             <Controller
               control={control}
-              name="income_date"
+              name="title"
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Date</FieldLabel>
-                  <Input type="date" {...field} className="block" />
+                  <FieldLabel>Title</FieldLabel>
+                  <Input placeholder="Income Title" {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
-
             {/* CATEGORY */}
-            <Controller
+            {/* <Controller
               control={control}
               name="category"
               render={({ field, fieldState }) => (
@@ -118,20 +162,96 @@ export default function AddIncomePage() {
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
-            />
+            /> */}
 
-            {/* TITLE */}
             <Controller
               control={control}
-              name="title"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Title</FieldLabel>
-                  <Input placeholder="Income Title" {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
+              name="credit_head_id"
+              render={({ field, fieldState }) => {
+                const selected = creditHeads?.find(
+                  (item) => Number(item.id) === Number(field.value)
+                );
+
+                return (
+                  <Field>
+                    <FieldLabel>Credit Head</FieldLabel>
+
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={open}
+                          className="w-full justify-between"
+                        >
+                          {selected ? selected.name : "Select credit head..."}
+                          <ChevronDown className="opacity-50 h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          {/* Search input */}
+                          <CommandInput
+                            placeholder="Search category..."
+                            className="h-9"
+                            value={search}
+                            onValueChange={setSearch}
+                          />
+
+                          <CommandList>
+                            <CommandEmpty>No category found.</CommandEmpty>
+
+                            <CommandGroup>
+                              {creditHeads?.map((item) => (
+                                <CommandItem
+                                  key={item.id}
+                                  value={`${item.name}-${item.id}`} // unique, string
+                                  onSelect={() => {
+                                    field.onChange(item.id); // convert back to number
+                                    setOpen(false);
+                                  }}
+                                >
+                                  {item.name}
+                                  <Check
+                                    className={cn(
+                                      "ml-auto h-4 w-4",
+                                      Number(field.value) === Number(item.id)
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+
+                    {fieldState.error && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </Field>
+                );
+              }}
             />
+            {/* DATE */}
+            <div className="md:col-span-2">
+              <Controller
+                control={control}
+                name="income_date"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Date</FieldLabel>
+                    <Input type="date" {...field} className="block" />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
 
             {/* DESCRIPTION */}
             <div className="md:col-span-2">
@@ -141,7 +261,11 @@ export default function AddIncomePage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Description</FieldLabel>
-                    <Textarea rows={4} placeholder="Describe income..." {...field} />
+                    <Textarea
+                      rows={4}
+                      placeholder="Describe income..."
+                      {...field}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -163,7 +287,7 @@ export default function AddIncomePage() {
               name="amount"
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Amount (RM)</FieldLabel>
+                  <FieldLabel>Amount ({currency})</FieldLabel>
                   <Input
                     type="number"
                     value={field.value ?? ""}
@@ -184,7 +308,7 @@ export default function AddIncomePage() {
               name="receivedVia"
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Received Via</FieldLabel>
+                  <FieldLabel>Payment Method</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Cash, Bank, etc." />
@@ -219,7 +343,7 @@ export default function AddIncomePage() {
 
         {/* SUBMIT BUTTON */}
         <div className="flex justify-end">
-            <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? "Saving..." : "Save Income"}
           </Button>
         </div>

@@ -4,88 +4,107 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useGetExpensesQuery } from "@/store/features/accounting/accoutntingApiService";
+import { useAppSelector } from "@/store/store";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
 export type Expense = {
+  id: number;
+  date: string;
+  description: string;
+  debit_head_id: number;
+  debitHead: {
     id: number;
-    date: string;
-    description: string;
-    category: string;
-    amount: number;
-    paidVia: string;
-    reference: string;
-    status: string;
+    name: string;
+    code: string;
+  };
+  category: string;
+  amount: number;
+  paidVia: string;
+  reference: string;
+  status: string;
 };
 
 export default function ExpensesPage() {
-    const [pageIndex, setPageIndex] = useState(0);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const limit = 10;
 
-    const { data, isLoading, isError } = useGetExpensesQuery();
-    const fetchedExpenses = data?.data || [];
+  const { data, isFetching, isError } = useGetExpensesQuery({
+    page,
+    limit,
+    search,
+  });
+  const fetchedExpenses = data?.data || [];
 
-    // Map API response to Expense type
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const expenses: Expense[] = fetchedExpenses.map((item: any) => ({
-        id: item.id,
-        date: item.expense_date || item.created_at,
-        description: item.description || item.title || "N/A",
-        category: item.category || "N/A",
-        amount: Number(item.amount),
-        paidVia: item.payment_method || "N/A",
-        reference: item.reference_number || "N/A",
-        status: "Paid", // Default, update if your API provides status
-    }));
+  const currency = useAppSelector((state) => state.currency.value);
 
-    const expenseColumns: ColumnDef<Expense>[] = [
-        { accessorKey: "id", header: "ID" },
-        { accessorKey: "date", header: "Date" },
-        { accessorKey: "description", header: "Description" },
-        { accessorKey: "category", header: "Category" },
-        { accessorKey: "amount", header: "Amount (RM)" },
-        { accessorKey: "paidVia", header: "Paid Via" },
-        { accessorKey: "reference", header: "Reference" },
-        {
-            accessorKey: "status",
-            header: "Status",
-            cell: ({ row }) => {
-                const status = row.getValue("status") as string;
-                const variant =
-                    status === "Paid"
-                        ? "success"
-                        : status === "Pending"
-                            ? "secondary"
-                            : "destructive";
+  const expenseColumns: ColumnDef<Expense>[] = [
+    { accessorKey: "id", header: "ID" },
+    { accessorKey: "title", header: "Title" },
+    { accessorKey: "description", header: "Description" },
+    {
+      accessorKey: "debitHead",
+      header: "Category",
+      cell: ({ row }) => {
+        const debitHead = row?.original?.debitHead?.name;
+        return <span className="font-medium">{debitHead}</span>;
+      },
+    },
+    {
+      accessorKey: "amount",
+      header: `Amount (${currency})`,
+      cell: ({ row }) => `${currency} ${row.getValue("amount")}`,
+    },
+    { accessorKey: "expense_date", header: "Date" },
+    { accessorKey: "payment_method", header: "Payment Method" },
+    { accessorKey: "reference_number", header: "Reference" },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = (row.getValue("status") as string) || "pending";
+        const variant =
+          status.toLowerCase() === "paid"
+            ? "success"
+            : status.toLowerCase() === "pending"
+            ? "secondary"
+            : "destructive";
 
-                return <Badge variant={variant}>{status}</Badge>;
-            },
-        },
-    ];
+        return <Badge variant={variant}>{status}</Badge>;
+      },
+    },
+  ];
 
-    if (isLoading) return <p>Loading expenses...</p>;
-    if (isError) return <p>Error loading expenses</p>;
+  if (isError) return <p>Error loading expenses</p>;
 
-    return (
-        <div>
-            <div className="flex justify-between">
-                <h2 className="text-2xl font-semibold mb-4">All Expenses</h2>
-                <div className="flex gap-2">
-                    <Link to={'/dashboard/accounting/add-expanse'}>
-                        <Button variant="info">
-                            <Plus className="h-4 w-4" /> Add Expense
-                        </Button>
-                    </Link>
-                </div>
-            </div>
-            <DataTable
-                columns={expenseColumns}
-                data={expenses}
-                pageIndex={pageIndex}
-                pageSize={10}
-                onPageChange={setPageIndex}
-            />
+  return (
+    <div>
+      <div className="flex justify-between">
+        <h2 className="text-2xl font-semibold mb-4">All Expenses</h2>
+        <div className="flex gap-2">
+          <Link to={"/dashboard/accounting/add-expanse"}>
+            <Button variant="info">
+              <Plus className="h-4 w-4" /> Add Expense
+            </Button>
+          </Link>
         </div>
-    );
+      </div>
+      <DataTable
+        columns={expenseColumns}
+        data={fetchedExpenses}
+        pageIndex={page - 1}
+        pageSize={limit}
+        totalCount={data?.pagination?.total || 0}
+        onPageChange={setPage}
+        onSearch={(val) => {
+          setSearch(val);
+          setPage(1);
+        }}
+        isFetching={isFetching}
+      />
+    </div>
+  );
 }
