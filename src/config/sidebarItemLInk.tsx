@@ -86,6 +86,7 @@ import CreditHead from "@/pages/accounting/CreditHead";
 import DebitHead from "@/pages/accounting/DebitHead";
 import Roles from "@/pages/rolesPermission/Roles";
 import PermissionsPage from "@/pages/rolesPermission/PermissionsPage";
+import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
 
 
 // This is sample data.
@@ -230,6 +231,12 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/purchase-invoices/:id",
         element: <PurchaseInvoicesDetails />,
+      },
+
+       {
+        title: "",
+        url: "/dashboard/purchase-invoices/:id/preview",
+        element: <PurchaseInvoicePrintPreview />,
       },
 
       // PURCHASE PAYMENTS ROUTES
