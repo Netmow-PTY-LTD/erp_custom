@@ -1,6 +1,7 @@
 import { baseApi } from "@/store/baseApi";
 import type { Staff } from "@/types/staff.types";
 
+
 export type StaffResponse = {
   status: boolean;
   message: string;
@@ -23,6 +24,12 @@ export type StaffQueryParams = {
   search?: string;       // Search by name, email, or position
 };
 
+
+interface GetStaffByIdResponse {
+  status: boolean;
+  message: string;
+  data: Staff; 
+}
 
 
 
@@ -51,7 +58,7 @@ export const staffApiService = baseApi.injectEndpoints({
     }),
 
     // GET SINGLE STAFF BY ID
-    getStaffById: builder.query<StaffResponse, string | number>({
+    getStaffById: builder.query< GetStaffByIdResponse, string | number>({
       query: (id) => ({
         url: `/staffs/${id}`,
         method: "GET",
