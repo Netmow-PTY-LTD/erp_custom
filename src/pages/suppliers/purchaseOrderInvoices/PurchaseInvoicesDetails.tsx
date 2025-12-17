@@ -26,11 +26,13 @@ export default function PurchaseInvoicesDetails() {
     const tax = po.tax_amount ?? 0;
     const discount = po.discount_amount ?? 0;
     const total = subtotal + tax - discount;
-    const paid = po.paid_amount ?? 0; // No payments yet
+    const paid = invoice.paid_amount ?? 0; // No payments yet
     const balance = total - paid;
-
+    const isFullyPaid = balance <= 0;
+    const canMarkAsPaid = !isFullyPaid && invoice.status !== "paid";
 
     const handleMarkAsPaid = async () => {
+        if (!isFullyPaid) return;
         try {
             await markPaid({
                 invoiceId: invoice.id,
@@ -62,15 +64,16 @@ export default function PurchaseInvoicesDetails() {
                         </Button>
                     </Link>
 
-                    {
-                        invoice.status !== "paid" && <Button
+                    {canMarkAsPaid && (
+                        <Button
                             className="bg-green-600 hover:bg-green-700 text-white"
                             onClick={handleMarkAsPaid}
-                            disabled={isMarkingPaid}
+                            disabled={!isFullyPaid || isMarkingPaid}
                         >
                             {isMarkingPaid ? "Marking..." : "✔ Mark as Paid"}
                         </Button>
-                    }
+                    )}
+
 
 
                 </div>
