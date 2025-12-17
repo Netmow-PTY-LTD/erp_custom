@@ -123,7 +123,7 @@ export const salesApiService = baseApi.injectEndpoints({
       }
     ),
         // GET SINGLE SALES INVOICE BY ID
-    getInvoicesByCustomer: builder.query< SalesResponse<SalesInvoice>, { page?: number; limit?: number; search?: string ,customerId:number|string}>(
+    getInvoicesByCustomer: builder.query< SalesResponse<SalesInvoice>, { page?: number; limit?: number; search?: string, customerId:number|string}>(
       {
         query: (params) => ({
           url: `/sales/orders/invoices/customer/${params.customerId}`,
@@ -148,6 +148,19 @@ export const salesApiService = baseApi.injectEndpoints({
         body:body.invoiceData,
       }),
       invalidatesTags: ["SalesInvoices"],
+    }),
+
+      // GET ALL SALES INVOICES
+    getAllUnpaidSalesInvoices: builder.query<
+      SalesResponse<SalesInvoice[]>,
+      { page?: number; limit?: number; search?: string, customerId:number|string }
+    >({
+      query: (params) => ({
+        url: `/sales/orders/invoices/unpaid/customer/${params.customerId}`,
+        method: "GET",
+        params,
+      }),
+      providesTags: ["SalesInvoices"],
     }),
 
     // ============================
@@ -245,6 +258,7 @@ export const {
   useGetInvoiceByIdQuery,
   useLazyGetInvoiceByIdQuery,
   useUpdateInvoiceStatusMutation,
+  useGetAllUnpaidSalesInvoicesQuery,
   useAddSalesPaymentMutation,
   useGetSalesPaymentQuery,
   useGetSalesWarehousesQuery,

@@ -79,6 +79,8 @@ import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayment
 import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
 import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
 import PurchaseOrdersMapPage from "@/pages/suppliers/PurchaseOrdersMap";
+import CreditHead from "@/pages/accounting/CreditHead";
+import DebitHead from "@/pages/accounting/DebitHead";
 
 
 // This is sample data.
@@ -392,6 +394,16 @@ export const sidebarItemLink = [
         title: "Overview",
         url: "/dashboard/accounting",
         element: <AccountingOverview />,
+      },
+      {
+        title: "Credit Heads",
+        url: "/dashboard/accounting/credit-head",
+        element: <CreditHead />,
+      },
+       {
+        title: "Debit Heads",
+        url: "/dashboard/accounting/debit-head",
+        element: <DebitHead />,
       },
       {
         title: "Incomes",
