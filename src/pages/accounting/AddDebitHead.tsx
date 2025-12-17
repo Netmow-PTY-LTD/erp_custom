@@ -108,7 +108,7 @@ export default function AddDebitHeadForm() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Credit Head Name</FormLabel>
+                    <FormLabel>Debit Head Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter credit head name" {...field} />
                     </FormControl>
