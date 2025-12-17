@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/command";
 import {
   useAddSalesPaymentMutation,
-  useGetInvoicesByCustomerQuery,
+  useGetAllUnpaidSalesInvoicesQuery,
   useGetSalesInvoicesQuery,
 } from "@/store/features/salesOrder/salesOrder";
 import { toast } from "sonner";
@@ -150,14 +150,14 @@ export default function CreatePaymentPage() {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
 
-    const { data, isLoading } = useGetInvoicesByCustomerQuery(
+    const { data, isLoading } = useGetAllUnpaidSalesInvoicesQuery(
       { page: 1, limit: 20, search: query, customerId },
       { skip: !customerId }
     );
 
-    const list = Array.isArray(data?.data) ? data.data : [];
-    console.log("Invoice List:", list);
-    const selected = list.find((inv) => Number(inv.id) === Number(field.value));
+    const unpaidInvoices = Array.isArray(data?.data) ? data.data : [];
+    console.log("Invoice List:", unpaidInvoices);
+    const selected = unpaidInvoices.find((inv) => Number(inv.id) === Number(field.value));
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -182,7 +182,7 @@ export default function CreatePaymentPage() {
               onValueChange={setQuery}
             />
             <CommandList>
-              <CommandEmpty>No invoices found</CommandEmpty>
+              <CommandEmpty>No invoices found to be paid</CommandEmpty>
               <CommandGroup>
                 {isLoading && (
                   <div className="py-2 px-3 text-sm text-gray-500">
@@ -190,7 +190,7 @@ export default function CreatePaymentPage() {
                   </div>
                 )}
                 {!isLoading &&
-                  list.map((invoice) => (
+                  unpaidInvoices?.map((invoice) => (
                     <CommandItem
                       key={invoice?.id}
                       onSelect={() => {

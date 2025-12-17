@@ -54,7 +54,7 @@ export default function AddIncomePage() {
     },
   });
 
-  const { control, handleSubmit ,reset} = form;
+  const { control, handleSubmit, reset} = form;
 
    const onSubmit: SubmitHandler<IncomeFormValues> = async (values) => {
     try {
@@ -91,7 +91,7 @@ export default function AddIncomePage() {
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Date</FieldLabel>
-                  <Input type="date" {...field} />
+                  <Input type="date" {...field} className="block" />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}

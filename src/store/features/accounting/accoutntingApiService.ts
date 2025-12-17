@@ -1,8 +1,13 @@
 import { baseApi } from "@/store/baseApi";
-import type { IncomeExpense, Overview, Payroll } from "@/types/accounting.types";
+import type {
+  CreditHead,
+  DebitHead,
+  IncomeExpense,
+  Overview,
+  Payroll,
+} from "@/types/accounting.types";
 
 // -------------------- OVERVIEW --------------------
-
 
 export type OverviewResponse = {
   status: boolean;
@@ -19,10 +24,28 @@ export type Pagination = {
 
 // -------------------- INCOME / EXPENSE --------------------
 export type ListResponse<T> = {
-  success: boolean;
+  status: boolean;
   message: string;
   pagination: Pagination;
   data: T[];
+};
+
+// -------------------- Credit Head --------------------
+export type CreditHeadResponse = ListResponse<CreditHead>;
+
+export type CreditHeadByIdResponse = {
+  status: boolean;
+  message: string;
+  data: CreditHead;
+};
+
+// -------------------- Debit Head --------------------
+export type DebitHeadResponse = ListResponse<DebitHead>;
+
+export type DebitHeadByIdResponse = {
+  status: boolean;
+  message: string;
+  data: DebitHead;
 };
 
 // -------------------- PAYROLL --------------------
@@ -32,7 +55,6 @@ export type PayrollResponse = ListResponse<Payroll>;
 // -------------------- RTK QUERY SERVICE --------------------
 export const accountingApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-
     // GET ACCOUNTING OVERVIEW
     getOverview: builder.query<OverviewResponse, void>({
       query: () => ({ url: "/accounting/overview", method: "GET" }),
@@ -63,6 +85,104 @@ export const accountingApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Accounting"],
     }),
 
+    //Add credit head
+    addCreditHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+      query: (body) => ({
+        url: "/accounting/credit-head",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+    // GET CREDIT HEAD
+    getAllCreditHeads: builder.query<
+      CreditHeadResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/accounting/credit-head",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    //get single credit head
+    getSingleCreditHead: builder.query<CreditHeadByIdResponse, number>({
+      query: (id) => ({ url: `/accounting/credit-head/${id}`, method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
+    //update credit head
+    updateCreditHead: builder.mutation<
+      CreditHeadResponse,
+      { id: number; body: Partial<CreditHead> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/accounting/credit-head/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+    //delete credit head
+    deleteCreditHead: builder.mutation<CreditHeadResponse, number>({
+      query: (id) => ({
+        url: `/accounting/credit-head/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+    //Add debit head
+    addDebitHead: builder.mutation<DebitHeadResponse, Partial<DebitHead>>({
+      query: (body) => ({
+        url: "/accounting/debit-head",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+    // GET CREDIT HEAD
+    getAllDebitHeads: builder.query<
+      DebitHeadResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({ url: "/accounting/debit-head", method: "GET", params }),
+      providesTags: ["Accounting"],
+    }),
+
+    //get single credit head
+    getSingleDebitHead: builder.query<DebitHeadByIdResponse, number>({
+      query: (id) => ({ url: `/accounting/debit-head/${id}`, method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
+    //update credit head
+    updateDebitHead: builder.mutation<
+      DebitHeadResponse,
+      { id: number; body: Partial<CreditHead> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/accounting/debit-head/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+    //delete credit head
+    deleteDebitHead: builder.mutation<DebitHeadResponse, number>({
+      query: (id) => ({
+        url: `/accounting/debit-head/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
     // GET PAYROLL
     getPayroll: builder.query<PayrollResponse, void>({
       query: () => ({ url: "/accounting/payroll", method: "GET" }),
@@ -74,7 +194,6 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: (body) => ({ url: "/accounting/payroll", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
-
   }),
 });
 
@@ -84,6 +203,16 @@ export const {
   useAddIncomeMutation,
   useGetExpensesQuery,
   useAddExpenseMutation,
+  useAddCreditHeadMutation,
+  useGetAllCreditHeadsQuery,
+  useGetSingleCreditHeadQuery,
+  useUpdateCreditHeadMutation,
+  useDeleteCreditHeadMutation,
+  useAddDebitHeadMutation,
+  useGetAllDebitHeadsQuery,
+  useGetSingleDebitHeadQuery,
+  useUpdateDebitHeadMutation,
+  useDeleteDebitHeadMutation,
   useGetPayrollQuery,
   useAddPayrollMutation,
 } = accountingApiService;
