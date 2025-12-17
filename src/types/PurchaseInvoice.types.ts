@@ -1,5 +1,8 @@
 // types/purchaseInvoice.types.ts
 
+import type { PurchaseOrder } from "./purchaseOrder.types";
+import type { PurchasePayment } from "./purchasePayment.types";
+
 export type InvoiceStatus =
   | "draft"
   | "pending"
@@ -14,6 +17,8 @@ export type PurchaseInvoice = {
   id: number;
   invoice_number: string;
   purchase_order_id: number;
+  purchase_order: PurchaseOrder;
+  payments: PurchasePayment[];
   total_amount: number;
   status:InvoiceStatus;
   invoice_date: string; // ISO string
