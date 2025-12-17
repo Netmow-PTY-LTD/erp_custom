@@ -29,7 +29,7 @@ const rootRouter = createBrowserRouter([
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/unauthorized", element: <div>Unauthorized</div> },
 
-  // 🔐 PROTECTED DASHBOARD
+  //  PROTECTED DASHBOARD
   {
     element: <ProtectedRoute />, // No allowed[] needed
     children: [
@@ -47,19 +47,3 @@ const rootRouter = createBrowserRouter([
 
 export default rootRouter;
 
-//   protected route example
-
-// export const AppRouter = createBrowserRouter([
-//   {
-//     path: "/",
-//     element: <DashboardLayout />,
-//     children: roleRoutes.map((r) => ({
-//       path: r.path,
-//       element: (
-//         <ProtectedRoute allowed={r.allowed}>
-//           <r.element />
-//         </ProtectedRoute>
-//       ),
-//     })),
-//   },
-// ]);

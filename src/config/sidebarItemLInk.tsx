@@ -1,12 +1,15 @@
 import {
   Car,
   HandCoins,
+  KeyRound,
   LayoutDashboard,
   LineChart,
   Package,
   Pencil,
   Settings,
+  ShieldCheck,
   ShoppingCart,
+  UserCog,
   UserPlus,
   Users,
   Wrench,
@@ -81,6 +84,8 @@ import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePur
 import PurchaseOrdersMapPage from "@/pages/suppliers/PurchaseOrdersMap";
 import CreditHead from "@/pages/accounting/CreditHead";
 import DebitHead from "@/pages/accounting/DebitHead";
+import Roles from "@/pages/rolesPermission/Roles";
+import PermissionsPage from "@/pages/rolesPermission/PermissionsPage";
 
 
 // This is sample data.
@@ -400,7 +405,7 @@ export const sidebarItemLink = [
         url: "/dashboard/accounting/credit-head",
         element: <CreditHead />,
       },
-       {
+      {
         title: "Debit Heads",
         url: "/dashboard/accounting/debit-head",
         element: <DebitHead />,
@@ -458,23 +463,25 @@ export const sidebarItemLink = [
 
     ],
   },
-  // {
-  //   title: "Roles & Permissions",
-  //   url: "#",
-  //   icon: List,
-  //   items: [
-  //     {
-  //       title: "Roles",
-  //       url: "/dashboard/roles",
-  //       element: <Roles />,
-  //     },
-  //     {
-  //       title: "Permissions",
-  //       url: "/dashboard/permissions",
-  //       element: <PermissionsPage />,
-  //     },
-  //   ]
-  // },
+  {
+    title: "Roles & Permissions",
+    url: "#",
+    icon: ShieldCheck,
+    items: [
+      {
+        title: "Roles",
+        url: "/dashboard/roles",
+        element: <Roles />,
+        icon: UserCog,
+      },
+      {
+        title: "Permissions",
+        url: "/dashboard/permissions",
+        element: <PermissionsPage />,
+        icon: KeyRound,
+      },
+    ],
+  },
   {
     title: "Settings",
     url: "/dashboard/settings",
