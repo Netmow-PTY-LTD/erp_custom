@@ -37,6 +37,7 @@ import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiS
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import { useState } from "react";
+import { useAppSelector } from "@/store/store";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -59,9 +60,9 @@ interface PurchaseOrderFormValues {
 export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
 
+  const currency = useAppSelector((state) => state.currency.value);
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
-  // const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
-  // const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
+
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -238,9 +239,25 @@ export default function CreatePurchaseOrderPage() {
 
 
   const subtotal = items.reduce(
-    (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
+    (sum, item) =>
+      sum +
+      Number(item.quantity) * Number(item.unit_cost) -
+      Number(item.discount || 0),
     0
   );
+
+  const totalDiscount = items.reduce(
+    (sum, item) => sum + Number(item.discount || 0),
+    0
+  );
+
+  const TAX_RATE = 0; // 0%
+
+  const taxAmount = (subtotal * TAX_RATE) / 100;
+
+  const grandTotal = subtotal + taxAmount;
+
+
 
   /* ---------------- ON SUBMIT ---------------- */
   const onSubmit = async (values: PurchaseOrderFormValues) => {
@@ -447,7 +464,11 @@ export default function CreatePurchaseOrderPage() {
                   <div className="col-span-1">
                     <FormLabel>Total</FormLabel>
                     <div className="font-semibold">
-                      RM {(items[index].quantity * items[index].unit_cost).toFixed(2)}
+                      {currency} {(
+                        items[index].quantity * items[index].unit_cost -
+                        items[index].discount
+                      ).toFixed(2)}
+
                     </div>
                   </div>
 
@@ -467,12 +488,25 @@ export default function CreatePurchaseOrderPage() {
             </div>
 
             {/* Summary */}
-            <div className="mt-4 text-right pr-2">
-              <div>Subtotal: RM {subtotal.toFixed(2)}</div>
-              <div className="font-bold text-lg">
-                Total: RM {subtotal.toFixed(2)}
+            <div className="mt-4 text-right pr-2 space-y-1 text-sm">
+              <div>
+                Subtotal: {currency} {(subtotal + totalDiscount).toFixed(2)}
+              </div>
+
+              <div className="text-red-600">
+                Discount: - {currency} {totalDiscount.toFixed(2)}
+              </div>
+
+              <div>
+                Tax ({TAX_RATE}%): {currency} {taxAmount.toFixed(2)}
+              </div>
+
+              <div className="font-bold text-lg border-t pt-2">
+                Total: {currency} {grandTotal.toFixed(2)}
               </div>
             </div>
+
+
           </div>
 
           {/* Submit */}
