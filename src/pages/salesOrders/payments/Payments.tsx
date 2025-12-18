@@ -107,7 +107,7 @@ export default function Payments() {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Payments</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Sales Payments</h1>
 
         <Link to="/dashboard/sales/payments/create">
           <Button variant="info">

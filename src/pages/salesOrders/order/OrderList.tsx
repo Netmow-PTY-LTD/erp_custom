@@ -361,7 +361,7 @@ export default function Orders() {
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Orders Management</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Sales Orders Management</h1>
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/sales/invoices">
             <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">

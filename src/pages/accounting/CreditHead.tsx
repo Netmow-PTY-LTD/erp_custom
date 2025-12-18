@@ -3,7 +3,6 @@
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import {
-  useDeleteCreditHeadMutation,
   useGetAllCreditHeadsQuery,
 } from "@/store/features/accounting/accoutntingApiService";
 import type { CreditHead } from "@/types/accounting.types";
@@ -11,7 +10,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import AddCreditHeadForm from "./AddCreditHead";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import EditCreditHeadForm from "./EditCreditHead";
 export default function CreditHead() {
   const [openEditForm, setOpenEditForm] = useState<boolean>(false);
@@ -29,59 +27,59 @@ export default function CreditHead() {
 
   console.log("creditHeads", data);
 
-  const [deleteCreditHead] = useDeleteCreditHeadMutation();
+//   const [deleteCreditHead] = useDeleteCreditHeadMutation();
 
- const handleDeleteCreditHead = async (id: number) => {
-  const confirmed = await new Promise<boolean>((resolve) => {
-    const toastId = toast.custom(() => (
-      <div className="flex flex-col items-center gap-4 rounded-md border bg-white p-4 shadow">
-        <p className="text-sm font-semibold">
-          Are you sure you want to delete this credit head?
-        </p>
+//  const handleDeleteCreditHead = async (id: number) => {
+//   const confirmed = await new Promise<boolean>((resolve) => {
+//     const toastId = toast.custom(() => (
+//       <div className="flex flex-col items-center gap-4 rounded-md border bg-white p-4 shadow">
+//         <p className="text-sm font-semibold">
+//           Are you sure you want to delete this credit head?
+//         </p>
 
-        <div className="flex gap-2 ml-auto">
-          <button
-            onClick={() => {
-              toast.dismiss(toastId);
-              resolve(false);
-            }}
-            className="px-3 py-1 text-sm rounded border"
-          >
-            No
-          </button>
+//         <div className="flex gap-2 ml-auto">
+//           <button
+//             onClick={() => {
+//               toast.dismiss(toastId);
+//               resolve(false);
+//             }}
+//             className="px-3 py-1 text-sm rounded border"
+//           >
+//             No
+//           </button>
 
-          <button
-            onClick={() => {
-              toast.dismiss(toastId);
-              resolve(true);
-            }}
-            className="px-3 py-1 text-sm rounded bg-red-600 text-white"
-          >
-            Yes
-          </button>
-        </div>
-      </div>
-    ), {
-      duration: 10000,
-    });
-  });
+//           <button
+//             onClick={() => {
+//               toast.dismiss(toastId);
+//               resolve(true);
+//             }}
+//             className="px-3 py-1 text-sm rounded bg-red-600 text-white"
+//           >
+//             Yes
+//           </button>
+//         </div>
+//       </div>
+//     ), {
+//       duration: 10000,
+//     });
+//   });
 
-  if (!confirmed) return;
+//   if (!confirmed) return;
 
-  try {
-    const res = await deleteCreditHead(id).unwrap();
-    if (res.status) {
-      toast.success("Credit head deleted successfully");
-    } else {
-      toast.error("Failed to delete credit head");
-    }
-  } catch (error) {
-    toast.error(
-      "Failed to delete credit head" +
-        (error instanceof Error ? ": " + error.message : "")
-    );
-  }
-};
+//   try {
+//     const res = await deleteCreditHead(id).unwrap();
+//     if (res.status) {
+//       toast.success("Credit head deleted successfully");
+//     } else {
+//       toast.error("Failed to delete credit head");
+//     }
+//   } catch (error) {
+//     toast.error(
+//       "Failed to delete credit head" +
+//         (error instanceof Error ? ": " + error.message : "")
+//     );
+//   }
+// };
 
 
   const creditHeadColumns: ColumnDef<CreditHead>[] = [
@@ -117,14 +115,14 @@ export default function CreditHead() {
             >
               Edit
             </Button>
-
+{/* 
             <Button
               variant="destructive"
               size="sm"
               onClick={() => handleDeleteCreditHead(creditHeadId)}
             >
               Delete
-            </Button>
+            </Button> */}
           </div>
         );
       },

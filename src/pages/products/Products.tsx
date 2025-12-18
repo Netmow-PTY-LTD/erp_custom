@@ -145,12 +145,22 @@ export default function Products() {
     {
       accessorKey: "cost",
       header: `Cost Price ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => row.original.cost,
+      cell: ({ row }) => <span>{parseFloat(row.getValue("cost")).toFixed(2)}</span>,
     },
     {
       accessorKey: "price",
       header: `Selling Price ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => row.original.price,
+      cell: ({ row }) => <span>{parseFloat(row.getValue("price")).toFixed(2)}</span>,
+    },
+     {
+      accessorKey: "purchase_tax",
+      header: `Purchase Tax ${currency ? `(${currency})` : ""}`,
+      cell: ({ row }) => <span>{parseFloat(row.getValue("purchase_tax")).toFixed(2)}</span>,
+    },
+     {
+      accessorKey: "sales_tax",
+      header: `Sales Tax ${currency ? `(${currency})` : ""}`,
+      cell: ({ row }) => <span>{parseFloat(row.getValue("sales_tax")).toFixed(2)}</span>,
     },
     // {
     //   accessorKey: "unit",

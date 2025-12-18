@@ -60,6 +60,8 @@ const productSchema = z.object({
   initialStock: z.number(),
   minStock: z.number(),
   maxStock: z.number(),
+  purchase_tax: z.number(),
+  sales_tax: z.number(),
   weight: z.number(),
   width: z.number(),
   height: z.number(),
@@ -112,6 +114,8 @@ export default function EditProductPage() {
       initialStock: 0,
       minStock: 0,
       maxStock: 0,
+      purchase_tax: 0,
+      sales_tax: 0,
       weight: 0,
       width: 0,
       height: 0,
@@ -143,6 +147,8 @@ export default function EditProductPage() {
         initialStock: fetchedProduct?.data?.initial_stock || 0,
         minStock: fetchedProduct?.data?.min_stock_level || 0,
         maxStock: fetchedProduct?.data?.max_stock_level || 0,
+        purchase_tax: fetchedProduct?.data?.purchase_tax || 0,
+        sales_tax: fetchedProduct?.data?.sales_tax || 0,
         weight: fetchedProduct?.data?.weight || 0,
         width: fetchedProduct?.data?.width || 0,
         height: fetchedProduct?.data?.height || 0,
@@ -167,7 +173,6 @@ export default function EditProductPage() {
       price: Number(values.price),
       cost: Number(values.costPrice),
       initial_stock: Number(values.initialStock),
-      stock_quantity: Number(values.initialStock),
       min_stock_level: Number(values.minStock),
       max_stock_level: Number(values.maxStock),
       weight: Number(values.weight),
@@ -571,6 +576,44 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Max Stock</FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="purchase_tax"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Purchase Tax</FieldLabel>
+                    <Input
+                      type="number"
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? "" : Number(e.target.value)
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="sales_tax"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Sales Tax</FieldLabel>
                     <Input
                       type="number"
                       value={field.value ?? ""}
