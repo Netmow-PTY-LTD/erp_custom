@@ -72,6 +72,16 @@ export default function Invoices() {
       header: `Total Amount (${currency})`,
       cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_amount")).toFixed(2)}</span>,
     },
+     {
+      accessorKey: "paid_amount",
+      header: `Paid Amount (${currency})`,
+      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("paid_amount")).toFixed(2)}</span>,
+    },
+     {
+      accessorKey: "remaining_balance",
+      header: `Due Amount (${currency})`,
+      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("remaining_balance")).toFixed(2)}</span>,
+    },
     {
       accessorKey: "status",
       header: "Status",
@@ -106,7 +116,7 @@ export default function Invoices() {
     <div className="p-8 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Invoices</h1>
+        <h1 className="text-2xl font-bold">Sales Invoices</h1>
         <Link to="/dashboard/sales/orders/create">
           <Button variant="info">
             <PlusCircle className="h-4 w-4" /> Create Order

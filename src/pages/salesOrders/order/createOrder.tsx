@@ -37,6 +37,7 @@ import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
 import { Link, useNavigate } from "react-router";
 import { useAppSelector } from "@/store/store";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function CreateSalesOrderPage() {
   const navigate = useNavigate();
@@ -55,23 +56,80 @@ export default function CreateSalesOrderPage() {
     },
   });
 
-  const { control, watch } = form;
+  const { control, watch, setValue } = form;
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
   });
 
-  const items = watch("items");
+  // const items = watch("items");
 
-  const subtotal = items.reduce(
-    (sum, it) => sum + it.unit_price * it.quantity,
+  // const subtotal = items.reduce(
+  //   (sum, it) => sum + Number(it.unit_price || 0) * Number(it.quantity || 0),
+  //   0
+  // );
+
+  // const totalDiscount = items.reduce(
+  //   (sum, it) => sum + Number(it.discount || 0),
+  //   0
+  // );
+
+  // //console.log("totalDiscount", totalDiscount);
+
+  // const total = subtotal - totalDiscount;
+
+  // const taxedAmount = total * items[0].sales_tax / 100;
+
+  // const grandTotal = total + taxedAmount;
+
+  const items = watch("items") ?? [];
+
+  const calculatedItems = items.map((it) => {
+    const unitPrice = Number(it.unit_price || 0);
+    const qty = Number(it.quantity || 0);
+    const discount = Number(it.discount || 0);
+    const taxRate = Number(it.sales_tax || 0);
+
+    // 1️⃣ Subtotal (before discount & tax)
+    const subtotal = unitPrice * qty;
+
+    // 2️⃣ Amount after discount
+    const taxableAmount = subtotal - discount;
+
+    // 3️⃣ Tax amount
+    const taxAmount = taxableAmount * (taxRate / 100);
+
+    // 4️⃣ Line total (final)
+    const total = taxableAmount + taxAmount;
+
+    return {
+      subtotal,
+      discount,
+      taxableAmount,
+      taxAmount,
+      total,
+    };
+  });
+
+  // 🔢 Totals across all products
+  const totalSubtotal = calculatedItems.reduce(
+    (sum, it) => sum + it.subtotal,
     0
   );
-  const totalDiscount = items.reduce(
-    (sum, it) => sum + (it.unit_price * it.quantity * it.discount) / 100,
+
+  const totalDiscount = calculatedItems.reduce(
+    (sum, it) => sum + it.discount,
     0
   );
-  const total = subtotal - totalDiscount;
+
+  // const totalTaxableAmount = calculatedItems.reduce(
+  //   (sum, it) => sum + it.taxableAmount,
+  //   0
+  // );
+
+  const totalTax = calculatedItems.reduce((sum, it) => sum + it.taxAmount, 0);
+
+  const grandTotal = calculatedItems.reduce((sum, it) => sum + it.total, 0);
 
   const onSubmit = async (values: SalesOrderFormValues) => {
     if (values.customer_id === 0)
@@ -90,6 +148,7 @@ export default function CreateSalesOrderPage() {
           quantity: Number(i.quantity),
           unit_price: Number(i.unit_price),
           discount: Number(i.discount),
+          sales_tax: Number(i.sales_tax),
         })),
       };
 
@@ -183,8 +242,13 @@ export default function CreateSalesOrderPage() {
 
   const ProductSelectField = ({
     field,
+    onSelectTax,
   }: {
-    field: { value: number; onChange: (v: number) => void };
+    field: {
+      value: number;
+      onChange: (v: number) => void;
+    };
+    onSelectTax?: (v: number) => void;
   }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -225,10 +289,12 @@ export default function CreateSalesOrderPage() {
                       key={product.id}
                       onSelect={() => {
                         field.onChange(product.id);
+                        onSelectTax?.(product.sales_tax ?? 0);
                         setOpen(false);
                       }}
                     >
-                      {product.name} (SKU: {product.sku}) (Unit: {product.unit.name})
+                      {product.name} (SKU: {product.sku}) (Unit:{" "}
+                      {product.unit.name})
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -255,7 +321,7 @@ export default function CreateSalesOrderPage() {
           {/* Customer & Shipping */}
           <div className="border rounded-md p-4 space-y-4">
             <h2 className="font-semibold mb-4">Customer & Shipping</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               <FormField
                 name="customer_id"
                 control={control}
@@ -301,7 +367,10 @@ export default function CreateSalesOrderPage() {
                   <FormItem>
                     <FormLabel>Shipping Address</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter shipping address" {...field} />
+                      <Textarea
+                        placeholder="Enter shipping address"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -322,6 +391,7 @@ export default function CreateSalesOrderPage() {
                     quantity: 1,
                     unit_price: 0,
                     discount: 0,
+                    sales_tax: 0,
                   })
                 }
               >
@@ -343,7 +413,12 @@ export default function CreateSalesOrderPage() {
                       <FormItem className="sm:col-span-4">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
-                          <ProductSelectField field={field} />
+                          <ProductSelectField
+                            field={field}
+                            onSelectTax={(tax) => {
+                              setValue(`items.${index}.sales_tax`, tax);
+                            }}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -358,7 +433,12 @@ export default function CreateSalesOrderPage() {
                       <FormItem className="sm:col-span-2">
                         <FormLabel>Unit Price ({currency})</FormLabel>
                         <FormControl>
-                          <Input type="number" min={0} {...field} />
+                          <Input
+                            type="number"
+                            min={0}
+                            {...field}
+                            className="bg-white"
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -369,10 +449,15 @@ export default function CreateSalesOrderPage() {
                     control={control}
                     rules={{ required: "Quantity required" }}
                     render={({ field }) => (
-                      <FormItem className="sm:col-span-2">
+                      <FormItem className="sm:col-span-1">
                         <FormLabel>Qty</FormLabel>
                         <FormControl>
-                          <Input type="number" min={1} {...field} />
+                          <Input
+                            type="number"
+                            min={1}
+                            {...field}
+                            className="bg-white"
+                          />
                         </FormControl>
                       </FormItem>
                     )}
@@ -383,19 +468,47 @@ export default function CreateSalesOrderPage() {
                     control={control}
                     render={({ field }) => (
                       <FormItem className="sm:col-span-1">
-                        <FormLabel>Disc %</FormLabel>
-                        <Input type="number" min={0} max={100} {...field} />
+                        <FormLabel>Discount</FormLabel>
+                        <Input
+                          type="number"
+                          min={0}
+                          {...field}
+                          className="bg-white"
+                        />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name={`items.${index}.sales_tax`}
+                    control={control}
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-1">
+                        <FormLabel>Tax %</FormLabel>
+                        <Input
+                          type="number"
+                          min={0}
+                          {...field}
+                          className="bg-white"
+                          readOnly
+                        />
                       </FormItem>
                     )}
                   />
 
+                  <div className="sm:col-span-1">
+                    <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">Tax Amount</label>
+                    <Input
+                      type="number"
+                      value={
+                        calculatedItems[index]?.taxAmount.toFixed(2) ?? "0.00"
+                      }
+                      readOnly
+                      className="bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
+
                   <div className="sm:col-span-1 font-semibold text-right">
-                    {currency}{" "}
-                    {(
-                      items[index].quantity *
-                      items[index].unit_price *
-                      (1 - items[index].discount / 100)
-                    ).toFixed(2)}
+                    {currency} {calculatedItems[index]?.total.toFixed(2)}
                   </div>
 
                   <div className="sm:flex sm:justify-end mt-2 sm:mt-0">
@@ -416,15 +529,27 @@ export default function CreateSalesOrderPage() {
             <div className="border-t mt-4 pt-4 space-y-2 text-right">
               <div className="flex justify-end gap-4">
                 <div className="font-semibold">Subtotal:</div>
-                <div>{currency} {subtotal.toFixed(2)}</div>
+                <div>
+                  {currency} {totalSubtotal.toFixed(2)}
+                </div>
               </div>
               <div className="flex justify-end gap-4">
                 <div className="font-semibold">Total Discount:</div>
-                <div>{currency} {totalDiscount.toFixed(2)}</div>
+                <div>
+                  {currency} {totalDiscount.toFixed(2)}
+                </div>
+              </div>
+              <div className="flex justify-end gap-4">
+                <div className="font-semibold">Total Tax:</div>
+                <div>
+                  {currency} {totalTax.toFixed(2)}
+                </div>
               </div>
               <div className="flex justify-end gap-4 text-lg font-bold">
                 <div>Total:</div>
-                <div>{currency} {total.toFixed(2)}</div>
+                <div>
+                  {currency} {grandTotal.toFixed(2)}
+                </div>
               </div>
             </div>
           </div>
