@@ -143,10 +143,14 @@ export default function PurchaseOrderView() {
 
 
       {/* SUMMARY */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white rounded-lg shadow p-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 bg-white rounded-lg shadow p-4">
         <div>
           <p className="text-sm text-muted-foreground">Supplier ID</p>
           <p className="font-semibold">{purchase.supplier_id}</p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Supplier Name</p>
+          <p className="font-semibold">{purchase.supplier.name}</p>
         </div>
 
         <div>
@@ -185,8 +189,11 @@ export default function PurchaseOrderView() {
             <TableHeader>
               <TableRow>
                 <TableHead>Product ID</TableHead>
+                <TableHead>Product Name</TableHead>
+                <TableHead>SKU</TableHead>
                 <TableHead>Quantity</TableHead>
                 <TableHead>Unit Cost</TableHead>
+                <TableHead>Discount</TableHead>
                 <TableHead>Line Total</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead>Updated At</TableHead>
@@ -197,8 +204,11 @@ export default function PurchaseOrderView() {
               {purchase.items?.map((item: POItem) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.product_id}</TableCell>
+                  <TableCell>{item.product.name}</TableCell>
+                  <TableCell>{item.product.sku}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell>{Number(item.unit_cost).toFixed(2)}</TableCell>
+                  <TableCell>{Number(item.discount).toFixed(2)}</TableCell>
                   <TableCell>{Number(item.line_total).toFixed(2)}</TableCell>
                   <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>
                   <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>
