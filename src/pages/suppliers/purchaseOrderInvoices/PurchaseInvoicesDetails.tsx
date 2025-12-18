@@ -10,9 +10,11 @@ import {
 } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import type { PurchasePayment } from "@/types/purchasePayment.types";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { useAppSelector } from "@/store/store";
 
 export default function PurchaseInvoicesDetails() {
     const { id } = useParams();
+    const currency = useAppSelector((state) => state.currency.value);
     const { data, isLoading } = useGetPurchaseInvoiceByIdQuery(id as string);
     const [markPaid, { isLoading: isMarkingPaid }] =
         useUpdatePurchaseInvoiceMutation();
@@ -216,7 +218,7 @@ export default function PurchaseInvoicesDetails() {
 
                     {/* Payments */}
 
-                    <div className="border rounded-md p-4">
+                    {/* <div className="border rounded-md p-4">
                         <h2 className="font-semibold text-lg mb-2">Payments</h2>
 
                         {payments.length === 0 ? (
@@ -254,6 +256,67 @@ export default function PurchaseInvoicesDetails() {
                                 ))}
                             </div>
                         )}
+                    </div> */}
+                    {/* Payments */}
+                    <div className="border rounded-md p-4">
+                        <h2 className="font-semibold text-lg mb-2">Payments</h2>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead className="bg-gray-100">
+                                    <tr className="text-left">
+                                        <th className="p-3">Date</th>
+                                        <th className="p-3">Method</th>
+                                        <th className="p-3">Amount ({currency})</th>
+                                        <th className="p-3">Due Amount ({currency})</th>
+                                        <th className="p-3">Reference</th>
+                                        <th className="p-3">Collected By</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {payments.length > 0 ? (
+                                        payments?.map((item, idx) => (
+                                            <tr key={idx} className="border-b">
+                                                <td className="p-3">
+                                                    {item?.payment_date
+                                                        ? new Date(item.payment_date).toLocaleDateString(
+                                                            "en-US",
+                                                            {
+                                                                year: "numeric",
+                                                                month: "long",
+                                                                day: "numeric",
+                                                            }
+                                                        )
+                                                        : "-"}
+                                                </td>
+
+                                                <td className="p-3">{item?.payment_method}</td>
+                                                <td className="p-3">
+                                                    {Number(item?.amount || 0).toFixed(2)}
+                                                </td>
+                                                <td className="p-3">
+                                                    {(
+                                                        Number(invoice?.total_amount || 0) -
+                                                        Number(item?.amount || 0)
+                                                    ).toFixed(2)}
+                                                </td>
+                                                <td className="p-3">{item?.reference_number || "-"}</td>
+                                                <td className="p-3">{item?.created_by || "-"}</td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td
+                                                colSpan={5}
+                                                className="p-3 text-center text-sm text-gray-500"
+                                            >
+                                                No payments yet.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
