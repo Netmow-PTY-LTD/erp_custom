@@ -60,8 +60,6 @@ export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
 
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
-  // const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
-  // const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -234,13 +232,28 @@ export default function CreatePurchaseOrderPage() {
 
 
 
+  const subtotal = items.reduce((sum, item) => {
+    const lineSubtotal =
+      Number(item.quantity) * Number(item.unit_cost);
+
+    const lineDiscount =
+      lineSubtotal * (Number(item.discount || 0) / 100);
+
+    return sum + (lineSubtotal - lineDiscount);
+  }, 0);
 
 
+  const totalDiscount = items.reduce((sum, item) => {
+    const lineSubtotal =
+      Number(item.quantity) * Number(item.unit_cost);
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
-    0
-  );
+    const lineDiscount =
+      lineSubtotal * (Number(item.discount || 0) / 100);
+
+    return sum + lineDiscount;
+  }, 0);
+
+
 
   /* ---------------- ON SUBMIT ---------------- */
   const onSubmit = async (values: PurchaseOrderFormValues) => {
@@ -383,7 +396,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Product required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-4">
+                      <FormItem className="col-span-3">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
                           <ProductSelectField field={field} />
@@ -434,7 +447,7 @@ export default function CreatePurchaseOrderPage() {
                     rules={{ required: "Discount required" }}
                     render={({ field }) => (
                       <FormItem className="col-span-2">
-                        <FormLabel>Discount</FormLabel>
+                        <FormLabel>Discount (%)</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
@@ -444,12 +457,31 @@ export default function CreatePurchaseOrderPage() {
                   />
 
                   {/* Line Total */}
-                  <div className="col-span-1">
-                    <FormLabel>Total</FormLabel>
-                    <div className="font-semibold">
-                      RM {(items[index].quantity * items[index].unit_cost).toFixed(2)}
-                    </div>
+                  <div className="col-span-2">
+                    <FormLabel>Amount</FormLabel>
+
+                    {(() => {
+                      const qty = Number(items[index].quantity);
+                      const price = Number(items[index].unit_cost);
+                      const discountPercent = Number(items[index].discount || 0);
+
+                      const lineSubtotal = qty * price;
+                      const discountAmount = (lineSubtotal * discountPercent) / 100;
+                      const lineTotal = lineSubtotal - discountAmount;
+
+                      return (
+                        <div className="space-y-1">
+                          <div className="text-sm text-gray-500">
+                            Discount: RM {discountAmount.toFixed(2)}
+                          </div>
+                          <div className="font-semibold">
+                            Total: RM {lineTotal.toFixed(2)}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
+
 
                   {/* Remove */}
                   <div className="col-span-1 flex justify-end">
@@ -468,10 +500,14 @@ export default function CreatePurchaseOrderPage() {
 
             {/* Summary */}
             <div className="mt-4 text-right pr-2">
-              <div>Subtotal: RM {subtotal.toFixed(2)}</div>
+
+              <div>Subtotal: RM {(subtotal + totalDiscount).toFixed(2)}</div>
+              <div>Discount: RM {totalDiscount.toFixed(2)}</div>
               <div className="font-bold text-lg">
                 Total: RM {subtotal.toFixed(2)}
               </div>
+
+
             </div>
           </div>
 
