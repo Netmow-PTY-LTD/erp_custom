@@ -60,8 +60,7 @@ export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
 
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
-  // const { data: suppliersData, isLoading: suppliersLoading } = useGetAllSuppliersQuery();
-  // const { data: productsData, isLoading: productsLoading } = useGetAllProductsQuery({ page: 1, limit: 100, search: "" });
+ 
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -238,9 +237,19 @@ export default function CreatePurchaseOrderPage() {
 
 
   const subtotal = items.reduce(
-    (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
+    (sum, item) =>
+      sum +
+      Number(item.quantity) * Number(item.unit_cost) -
+      Number(item.discount || 0),
     0
   );
+
+  const totalDiscount = items.reduce(
+    (sum, item) => sum + Number(item.discount || 0),
+    0
+  );
+
+
 
   /* ---------------- ON SUBMIT ---------------- */
   const onSubmit = async (values: PurchaseOrderFormValues) => {
@@ -447,7 +456,11 @@ export default function CreatePurchaseOrderPage() {
                   <div className="col-span-1">
                     <FormLabel>Total</FormLabel>
                     <div className="font-semibold">
-                      RM {(items[index].quantity * items[index].unit_cost).toFixed(2)}
+                      RM {(
+                        items[index].quantity * items[index].unit_cost -
+                        items[index].discount
+                      ).toFixed(2)}
+
                     </div>
                   </div>
 
@@ -468,10 +481,14 @@ export default function CreatePurchaseOrderPage() {
 
             {/* Summary */}
             <div className="mt-4 text-right pr-2">
-              <div>Subtotal: RM {subtotal.toFixed(2)}</div>
+
+              <div>Subtotal: RM {(subtotal + totalDiscount).toFixed(2)}</div>
+              <div>Discount: RM {totalDiscount.toFixed(2)}</div>
               <div className="font-bold text-lg">
                 Total: RM {subtotal.toFixed(2)}
               </div>
+
+
             </div>
           </div>
 
