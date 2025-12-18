@@ -91,13 +91,13 @@ export default function InvoiceDetailsPage() {
               Print Preview
             </Button>
           </Link>
-          <Button
+         {invoice?.status !== "paid" &&  <Button
             variant="default"
             className="bg-green-600 hover:bg-green-700 text-white"
             onClick={() => handleUpdateInvoiceStatus(Number(invoice?.id))}
           >
             ✔ Mark as Paid
-          </Button>
+          </Button>}
         </div>
       </div>
 
@@ -176,7 +176,7 @@ export default function InvoiceDetailsPage() {
                     <th className="p-3">SKU</th>
                     <th className="p-3">Unit Price ({currency})</th>
                     <th className="p-3">Qty</th>
-                    <th className="p-3">Discount %</th>
+                    <th className="p-3">Total Discount</th>
                     <th className="p-3">Line Total (RM)</th>
                   </tr>
                 </thead>
