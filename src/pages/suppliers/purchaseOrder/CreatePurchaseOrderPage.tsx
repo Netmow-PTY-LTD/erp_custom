@@ -60,6 +60,7 @@ export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
 
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
+ 
 
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
@@ -232,26 +233,21 @@ export default function CreatePurchaseOrderPage() {
 
 
 
-  const subtotal = items.reduce((sum, item) => {
-    const lineSubtotal =
-      Number(item.quantity) * Number(item.unit_cost);
-
-    const lineDiscount =
-      lineSubtotal * (Number(item.discount || 0) / 100);
-
-    return sum + (lineSubtotal - lineDiscount);
-  }, 0);
 
 
-  const totalDiscount = items.reduce((sum, item) => {
-    const lineSubtotal =
-      Number(item.quantity) * Number(item.unit_cost);
 
-    const lineDiscount =
-      lineSubtotal * (Number(item.discount || 0) / 100);
+  const subtotal = items.reduce(
+    (sum, item) =>
+      sum +
+      Number(item.quantity) * Number(item.unit_cost) -
+      Number(item.discount || 0),
+    0
+  );
 
-    return sum + lineDiscount;
-  }, 0);
+  const totalDiscount = items.reduce(
+    (sum, item) => sum + Number(item.discount || 0),
+    0
+  );
 
 
 
@@ -396,7 +392,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Product required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-3">
+                      <FormItem className="col-span-4">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
                           <ProductSelectField field={field} />
@@ -447,7 +443,7 @@ export default function CreatePurchaseOrderPage() {
                     rules={{ required: "Discount required" }}
                     render={({ field }) => (
                       <FormItem className="col-span-2">
-                        <FormLabel>Discount (%)</FormLabel>
+                        <FormLabel>Discount</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
@@ -457,31 +453,16 @@ export default function CreatePurchaseOrderPage() {
                   />
 
                   {/* Line Total */}
-                  <div className="col-span-2">
-                    <FormLabel>Amount</FormLabel>
+                  <div className="col-span-1">
+                    <FormLabel>Total</FormLabel>
+                    <div className="font-semibold">
+                      RM {(
+                        items[index].quantity * items[index].unit_cost -
+                        items[index].discount
+                      ).toFixed(2)}
 
-                    {(() => {
-                      const qty = Number(items[index].quantity);
-                      const price = Number(items[index].unit_cost);
-                      const discountPercent = Number(items[index].discount || 0);
-
-                      const lineSubtotal = qty * price;
-                      const discountAmount = (lineSubtotal * discountPercent) / 100;
-                      const lineTotal = lineSubtotal - discountAmount;
-
-                      return (
-                        <div className="space-y-1">
-                          <div className="text-sm text-gray-500">
-                            Discount: RM {discountAmount.toFixed(2)}
-                          </div>
-                          <div className="font-semibold">
-                            Total: RM {lineTotal.toFixed(2)}
-                          </div>
-                        </div>
-                      );
-                    })()}
+                    </div>
                   </div>
-
 
                   {/* Remove */}
                   <div className="col-span-1 flex justify-end">
