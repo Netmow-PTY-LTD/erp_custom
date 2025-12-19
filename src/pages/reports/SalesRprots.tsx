@@ -17,6 +17,7 @@ import {
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUp, ArrowDown, DollarSign, ShoppingCart } from "lucide-react";
+import { useGetSalesSummaryQuery } from "@/store/features/reports/reportApiService";
 
 const topProducts = [
   { sku: "PRD-001", name: "Wireless Mouse", quantity: 120, sales: 3600.5 },
@@ -59,6 +60,11 @@ const revenueData = [
 ];
 
 export default function SalesReportsPage() {
+
+  const { data:salesSummary ,isLoading:salesSummaryIsLoading} = useGetSalesSummaryQuery();
+
+  const summary =salesSummary?.data;
+
   const topProductsColumns: ColumnDef<any>[] = [
     { accessorKey: "sku", header: "SKU" },
     { accessorKey: "name", header: "Product" },
@@ -70,6 +76,16 @@ export default function SalesReportsPage() {
     { accessorKey: "name", header: "Customer" },
     { accessorKey: "sales", header: "Sales (RM)", cell: info => (info.getValue() as number).toFixed(2), meta: { textAlign: "right" } },
   ];
+
+
+  const formatCurrency = (value?: number) =>
+    `RM ${(value ?? 0).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+
+
+
 
   return (
     <div className="space-y-6 px-4 md:px-8">
@@ -91,10 +107,29 @@ export default function SalesReportsPage() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <Kpi title="Orders" value="0" icon={<ShoppingCart className="text-blue-500" />} />
-        <Kpi title="Revenue" value="RM 0.00" icon={<DollarSign className="text-green-500" />} />
-        <Kpi title="Tax" value="RM 0.00" icon={<ArrowUp className="text-yellow-500" />} />
-        <Kpi title="Discounts" value="RM 0.00" icon={<ArrowDown className="text-red-500" />} />
+        <Kpi
+          title="Orders"
+          value={salesSummaryIsLoading ? "—" : String(summary?.total_orders?? 0)}
+          icon={<ShoppingCart className="text-blue-500" />}
+        />
+
+        <Kpi
+          title="Revenue"
+          value={salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_revenue)}
+          icon={<DollarSign className="text-green-500" />}
+        />
+
+        <Kpi
+          title="Tax"
+          value={salesSummaryIsLoading ? "—" : formatCurrency(summary?.totalTax)}
+          icon={<ArrowUp className="text-yellow-500" />}
+        />
+
+        <Kpi
+          title="Discounts"
+          value={salesSummaryIsLoading ? "—" : formatCurrency(summary?.totalDiscount)}
+          icon={<ArrowDown className="text-red-500" />}
+        />
       </div>
 
       {/* Chart + Top Customers */}
