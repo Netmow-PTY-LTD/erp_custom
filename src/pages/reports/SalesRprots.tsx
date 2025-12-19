@@ -61,9 +61,9 @@ const revenueData = [
 
 export default function SalesReportsPage() {
 
-  const { data:salesSummary ,isLoading:salesSummaryIsLoading} = useGetSalesSummaryQuery();
+  const { data: salesSummary, isLoading: salesSummaryIsLoading } = useGetSalesSummaryQuery();
 
-  const summary =salesSummary?.data;
+  const summary = salesSummary?.data;
 
   const topProductsColumns: ColumnDef<any>[] = [
     { accessorKey: "sku", header: "SKU" },
@@ -109,7 +109,7 @@ export default function SalesReportsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Kpi
           title="Orders"
-          value={salesSummaryIsLoading ? "—" : String(summary?.total_orders?? 0)}
+          value={salesSummaryIsLoading ? "—" : String(summary?.total_orders ?? 0)}
           icon={<ShoppingCart className="text-blue-500" />}
         />
 
@@ -133,7 +133,7 @@ export default function SalesReportsPage() {
       </div>
 
       {/* Chart + Top Customers */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="">
         {/* Revenue Chart */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex-row justify-between items-center">
@@ -153,21 +153,23 @@ export default function SalesReportsPage() {
           </CardContent>
         </Card>
 
-        {/* Top Customers */}
-        <Card>
-          <CardHeader className="flex-row justify-between">
-            <CardTitle>Top Customers</CardTitle>
-            <span className="text-sm text-muted-foreground">By sales</span>
-          </CardHeader>
-          <CardContent>
-            {topCustomers.length > 0 ? (
-              <DataTable data={topCustomers} columns={topCustomersColumns} pageSize={5} />
-            ) : (
-              <div className="py-6 text-center text-muted-foreground">No data</div>
-            )}
-          </CardContent>
-        </Card>
+
       </div>
+
+      {/* Top Customers */}
+      <Card>
+        <CardHeader className="flex-row justify-between">
+          <CardTitle>Top Customers</CardTitle>
+          <span className="text-sm text-muted-foreground">By sales</span>
+        </CardHeader>
+        <CardContent>
+          {topCustomers.length > 0 ? (
+            <DataTable data={topCustomers} columns={topCustomersColumns} pageSize={5} />
+          ) : (
+            <div className="py-6 text-center text-muted-foreground">No data</div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Top Products */}
       <Card>
