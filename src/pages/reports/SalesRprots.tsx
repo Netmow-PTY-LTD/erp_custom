@@ -1,5 +1,4 @@
-
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -13,54 +12,20 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-
-
-
-
+import { ArrowUp, ArrowDown, DollarSign, ShoppingCart } from "lucide-react";
 
 const topProducts = [
-  {
-    sku: "PRD-001",
-    name: "Wireless Mouse",
-    quantity: 120,
-    sales: 3600.5,
-  },
-  {
-    sku: "PRD-002",
-    name: "Mechanical Keyboard",
-    quantity: 80,
-    sales: 6400.0,
-  },
-  {
-    sku: "PRD-003",
-    name: "HD Monitor 24\"",
-    quantity: 45,
-    sales: 13500.75,
-  },
-  {
-    sku: "PRD-004",
-    name: "USB-C Hub",
-    quantity: 150,
-    sales: 4500.25,
-  },
-  {
-    sku: "PRD-005",
-    name: "External SSD 1TB",
-    quantity: 30,
-    sales: 9000.0,
-  },
-  {
-    sku: "PRD-006",
-    name: "Laptop Stand",
-    quantity: 70,
-    sales: 2800.0,
-  },
+  { sku: "PRD-001", name: "Wireless Mouse", quantity: 120, sales: 3600.5 },
+  { sku: "PRD-002", name: "Mechanical Keyboard", quantity: 80, sales: 6400.0 },
+  { sku: "PRD-003", name: "HD Monitor 24\"", quantity: 45, sales: 13500.75 },
+  { sku: "PRD-004", name: "USB-C Hub", quantity: 150, sales: 4500.25 },
+  { sku: "PRD-005", name: "External SSD 1TB", quantity: 30, sales: 9000.0 },
+  { sku: "PRD-006", name: "Laptop Stand", quantity: 70, sales: 2800.0 },
 ];
-
-
 
 const topCustomers = [
   { name: "John Doe", sales: 12500.75 },
@@ -70,7 +35,6 @@ const topCustomers = [
   { name: "Alice Johnson", sales: 6400.0 },
   { name: "Tech Innovators", sales: 11200.0 },
 ];
-
 
 const revenueData = [
   { date: "2025-12-01", amount: 1200 },
@@ -94,74 +58,43 @@ const revenueData = [
   { date: "2025-12-19", amount: 3600 },
 ];
 
-
-
-
-
 export default function SalesReportsPage() {
-
-
-
   const topProductsColumns: ColumnDef<any>[] = [
-    {
-      accessorKey: "sku",
-      header: "SKU",
-    },
-    {
-      accessorKey: "name",
-      header: "Product",
-    },
-    {
-      accessorKey: "quantity",
-      header: "Qty",
-      cell: info => (info.getValue() as number).toLocaleString(),
-      meta: { textAlign: "right" },
-    },
-    {
-      accessorKey: "sales",
-      header: "Sales (RM)",
-      cell: info => (info.getValue() as number).toFixed(2),
-      meta: { textAlign: "right" },
-    },
+    { accessorKey: "sku", header: "SKU" },
+    { accessorKey: "name", header: "Product" },
+    { accessorKey: "quantity", header: "Qty", cell: info => (info.getValue() as number).toLocaleString(), meta: { textAlign: "right" } },
+    { accessorKey: "sales", header: "Sales (RM)", cell: info => (info.getValue() as number).toFixed(2), meta: { textAlign: "right" } },
   ];
-
-
-
 
   const topCustomersColumns: ColumnDef<any>[] = [
-    {
-      accessorKey: "name",
-      header: "Customer",
-    },
-    {
-      accessorKey: "sales",
-      header: "Sales (RM)",
-      cell: info => (info.getValue() as number).toFixed(2),
-      meta: { textAlign: "right" },
-    },
+    { accessorKey: "name", header: "Customer" },
+    { accessorKey: "sales", header: "Sales (RM)", cell: info => (info.getValue() as number).toFixed(2), meta: { textAlign: "right" } },
   ];
 
-
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 md:px-8">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Sales Reports</h1>
-
-        <div className="flex gap-2 items-center">
-          <Input type="date" className="w-40" />
-          <Input type="date" className="w-40" />
-          <Button>Filter</Button>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 className="text-3xl font-bold">Sales Reports</h1>
+        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+          <div className="flex flex-col">
+            <label className="text-sm text-muted-foreground">From</label>
+            <Input type="date" className="w-36" />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm text-muted-foreground">To</label>
+            <Input type="date" className="w-36" />
+          </div>
+          <Button className="mt-2 sm:mt-6">Filter</Button>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Kpi title="Orders" value="0" />
-        <Kpi title="Revenue" value="RM 0.00" />
-        <Kpi title="Tax" value="RM 0.00" />
-        <Kpi title="Discounts" value="RM 0.00" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <Kpi title="Orders" value="0" icon={<ShoppingCart className="text-blue-500" />} />
+        <Kpi title="Revenue" value="RM 0.00" icon={<DollarSign className="text-green-500" />} />
+        <Kpi title="Tax" value="RM 0.00" icon={<ArrowUp className="text-yellow-500" />} />
+        <Kpi title="Discounts" value="RM 0.00" icon={<ArrowDown className="text-red-500" />} />
       </div>
 
       {/* Chart + Top Customers */}
@@ -170,22 +103,16 @@ export default function SalesReportsPage() {
         <Card className="lg:col-span-2">
           <CardHeader className="flex-row justify-between items-center">
             <CardTitle>Revenue by Day</CardTitle>
-            <span className="text-sm text-muted-foreground">
-              2025-12-01 → 2025-12-19
-            </span>
+            <span className="text-sm text-muted-foreground">2025-12-01 → 2025-12-19</span>
           </CardHeader>
-
-          <CardContent className="h-[280px]">
+          <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueData}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="amount"
-                  strokeWidth={2}
-                />
+              <LineChart data={revenueData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip formatter={(value: number) => `RM ${value.toFixed(2)}`} />
+                <Line type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -197,7 +124,6 @@ export default function SalesReportsPage() {
             <CardTitle>Top Customers</CardTitle>
             <span className="text-sm text-muted-foreground">By sales</span>
           </CardHeader>
-
           <CardContent>
             {topCustomers.length > 0 ? (
               <DataTable data={topCustomers} columns={topCustomersColumns} pageSize={5} />
@@ -206,39 +132,31 @@ export default function SalesReportsPage() {
             )}
           </CardContent>
         </Card>
-
-
-
-
-
       </div>
 
       {/* Top Products */}
-
       <Card>
         <CardHeader className="flex-row justify-between">
           <CardTitle>Top Products</CardTitle>
           <span className="text-sm text-muted-foreground">By sales</span>
         </CardHeader>
-
         <CardContent>
           <DataTable data={topProducts} columns={topProductsColumns} pageSize={5} />
-
         </CardContent>
       </Card>
-
     </div>
   );
 }
 
 /* KPI Component */
-function Kpi({ title, value }: { title: string; value: string }) {
+function Kpi({ title, value, icon }: { title: string; value: string; icon?: React.ReactNode }) {
   return (
-    <Card>
-      <CardContent className="p-5">
+    <Card className="flex items-center justify-between p-5">
+      <div>
         <p className="text-sm text-muted-foreground">{title}</p>
         <p className="text-2xl font-semibold mt-1">{value}</p>
-      </CardContent>
+      </div>
+      {icon && <div className="ml-4">{icon}</div>}
     </Card>
   );
 }
@@ -250,6 +168,10 @@ function Kpi({ title, value }: { title: string; value: string }) {
 
 
 
+
+
+
+//   Privious code or design
 
 // import { useState } from "react";
 // import { Card, CardHeader, CardTitle } from "@/components/ui/card";
