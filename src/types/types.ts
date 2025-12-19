@@ -46,6 +46,7 @@ export type Product = {
   // Nested relationship
   category: Category; 
   unit: Unit; // In case category is missing
+  purchase_tax:number
 };
 
 export type Stock = {
