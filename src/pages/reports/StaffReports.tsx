@@ -94,7 +94,7 @@ export default function StaffReports() {
         <h1 className="text-2xl font-bold tracking-tight">Staff Reports</h1>
 
         {/* Filter */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4  p-4 ">
           <div className="flex flex-col">
             <label className="text-sm font-medium mb-1">Start Date</label>
             <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} />
