@@ -13,7 +13,7 @@ import { Link, Outlet } from "react-router";
 export default function DashboardLayout() {
   return (
     <SidebarProvider className={`bg-white`}>
-      <AppSidebar />
+      <AppSidebar className="print:hidden" />
       <SidebarInset>
         <header className="flex h-14 shrink-0 gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b border-gray-100 sticky top-0 z-30 print:hidden">
           <div className="flex items-center gap-2 px-4 w-full bg-background/20 backdrop-blur-lg">

@@ -28,10 +28,10 @@ export default function OrderDetails() {
       : "bg-gray-500 text-white";
 
   // Calculate subtotal if needed
-  const subtotal = order.items.reduce(
-    (sum, item) => sum + Number(item.total_price),
-    0
-  );
+  // const subtotal = order.items.reduce(
+  //   (sum, item) => sum + Number(item.total_price),
+  //   0
+  // );
 
   return (
     <div className="space-y-10">
@@ -51,8 +51,6 @@ export default function OrderDetails() {
               <Button variant="info">View Invoice</Button>
             </Link>
           )}
-
-          <Button variant="outline-info">Print</Button>
         </div>
       </div>
 
@@ -71,6 +69,7 @@ export default function OrderDetails() {
                     <th className="p-3 text-left">SKU</th>
                     <th className="p-3 text-center">Quantity</th>
                     <th className="p-3 text-center">Unit Price ({currency})</th>
+                    <th className="p-3 text-center">Discount ({currency})</th>
                     <th className="p-3 text-center">Total Price ({currency})</th>
                   </tr>
                 </thead>
@@ -87,6 +86,9 @@ export default function OrderDetails() {
                       <td className="p-3 text-center">
                         {Number(item.unit_price).toFixed(2)}
                       </td>
+                       <td className="p-3 text-center">
+                        {Number(item?.discount).toFixed(2)}
+                      </td>
                       <td className="p-3 text-center font-medium">
                         {Number(item.total_price).toFixed(2)}
                       </td>
@@ -102,7 +104,7 @@ export default function OrderDetails() {
         <div className="lg:col-span-4 space-y-5">
           {/* ORDER INFO */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Order Info</h3>
+            <h3 className="text-lg font-semibold">Order Info</h3>
 
             <div className="space-y-2 text-sm">
               <p>
@@ -122,19 +124,19 @@ export default function OrderDetails() {
 
               <p>
                 <span className="font-medium">Payment Status: </span>
-                {order.payment_status}
+                <span className={`${order.payment_status === 'paid' ? 'bg-green-600': 'bg-red-500'} px-2 py-0.5 rounded-full text-white`}>{order.payment_status}</span>
               </p>
             </div>
           </Card>
 
           {/* SUMMARY */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Summary</h3>
+            <h3 className="text-lg font-semibold">Summary</h3>
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-medium">{currency} {subtotal.toFixed(2)}</span>
+                <span className="font-medium">{currency} {Number(order?.total_amount)?.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
@@ -147,20 +149,24 @@ export default function OrderDetails() {
               <div className="flex justify-between">
                 <span>Discount</span>
                 <span className="font-medium text-red-600">
-                  {currency} {Number(order.discount_amount).toFixed(2)}
+                  {currency} {Number(order?.total_discount).toFixed(2)}
                 </span>
               </div>
 
               <div className="flex justify-between text-lg font-bold border-t pt-3">
                 <span>Total</span>
-                <span>{currency} {Number(order.total_amount).toFixed(2)}</span>
+                <span>{currency} {Number(order?.total_payable_amount).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-md">
+                <span>Paid</span>
+                <span className="font-medium">{currency} {Number(order?.total_paid_amount).toFixed(2)}</span>
               </div>
             </div>
           </Card>
 
           {/* CUSTOMER INFO */}
           <Card className="p-6 shadow-sm rounded-xl">
-            <h3 className="text-lg font-semibold mb-4">Customer Details</h3>
+            <h3 className="text-lg font-semibold">Customer Details</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm">
               <div>

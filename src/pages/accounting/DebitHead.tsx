@@ -3,14 +3,14 @@
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import {
-  useDeleteDebitHeadMutation,
+  // useDeleteDebitHeadMutation,
   useGetAllDebitHeadsQuery,
 } from "@/store/features/accounting/accoutntingApiService";
 import type { CreditHead, DebitHead } from "@/types/accounting.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+//import { toast } from "sonner";
 import AddDebitHeadForm from "./AddDebitHead";
 import EditDebitHeadForm from "./EditDebitHead";
 export default function DebitHead() {
@@ -30,62 +30,62 @@ export default function DebitHead() {
 
   console.log("Debit Heads", data);
 
-  const [deleteDebitHead] = useDeleteDebitHeadMutation();
+ // const [deleteDebitHead] = useDeleteDebitHeadMutation();
 
-  const handleDeleteDebitHead = async (id: number) => {
-    const confirmed = await new Promise<boolean>((resolve) => {
-      const toastId = toast.custom(
-        () => (
-          <div className="flex flex-col items-center gap-4 rounded-md border bg-white p-4 shadow">
-            <p className="text-sm font-semibold">
-              Are you sure you want to delete this credit head?
-            </p>
+  // const handleDeleteDebitHead = async (id: number) => {
+  //   const confirmed = await new Promise<boolean>((resolve) => {
+  //     const toastId = toast.custom(
+  //       () => (
+  //         <div className="flex flex-col items-center gap-4 rounded-md border bg-white p-4 shadow">
+  //           <p className="text-sm font-semibold">
+  //             Are you sure you want to delete this credit head?
+  //           </p>
 
-            <div className="flex gap-2 ml-auto">
-              <button
-                onClick={() => {
-                  toast.dismiss(toastId);
-                  resolve(false);
-                }}
-                className="px-3 py-1 text-sm rounded border"
-              >
-                No
-              </button>
+  //           <div className="flex gap-2 ml-auto">
+  //             <button
+  //               onClick={() => {
+  //                 toast.dismiss(toastId);
+  //                 resolve(false);
+  //               }}
+  //               className="px-3 py-1 text-sm rounded border"
+  //             >
+  //               No
+  //             </button>
 
-              <button
-                onClick={() => {
-                  toast.dismiss(toastId);
-                  resolve(true);
-                }}
-                className="px-3 py-1 text-sm rounded bg-red-600 text-white"
-              >
-                Yes
-              </button>
-            </div>
-          </div>
-        ),
-        {
-          duration: 10000,
-        }
-      );
-    });
+  //             <button
+  //               onClick={() => {
+  //                 toast.dismiss(toastId);
+  //                 resolve(true);
+  //               }}
+  //               className="px-3 py-1 text-sm rounded bg-red-600 text-white"
+  //             >
+  //               Yes
+  //             </button>
+  //           </div>
+  //         </div>
+  //       ),
+  //       {
+  //         duration: 10000,
+  //       }
+  //     );
+  //   });
 
-    if (!confirmed) return;
+  //   if (!confirmed) return;
 
-    try {
-      const res = await deleteDebitHead(id).unwrap();
-      if (res.status) {
-        toast.success("Debit head deleted successfully");
-      } else {
-        toast.error("Failed to delete debit head");
-      }
-    } catch (error) {
-      toast.error(
-        "Failed to delete debit head" +
-          (error instanceof Error ? ": " + error.message : "")
-      );
-    }
-  };
+  //   try {
+  //     const res = await deleteDebitHead(id).unwrap();
+  //     if (res.status) {
+  //       toast.success("Debit head deleted successfully");
+  //     } else {
+  //       toast.error("Failed to delete debit head");
+  //     }
+  //   } catch (error) {
+  //     toast.error(
+  //       "Failed to delete debit head" +
+  //         (error instanceof Error ? ": " + error.message : "")
+  //     );
+  //   }
+  // };
 
   const debitHeadColumns: ColumnDef<CreditHead>[] = [
     { accessorKey: "id", header: "ID" },
@@ -123,13 +123,13 @@ export default function DebitHead() {
               Edit
             </Button>
 
-            <Button
+            {/* <Button
               variant="destructive"
               size="sm"
               onClick={() => handleDeleteDebitHead(debitHeadId)}
             >
               Delete
-            </Button>
+            </Button> */}
           </div>
         );
       },

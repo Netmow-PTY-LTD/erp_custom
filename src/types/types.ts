@@ -33,6 +33,8 @@ export type Product = {
   stock_quantity: number;
   min_stock_level: number;
   max_stock_level: number;
+  purchase_tax: number;
+  sales_tax: number;
   weight: number;
   width: number;
   height: number;
