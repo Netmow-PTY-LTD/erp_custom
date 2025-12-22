@@ -37,7 +37,7 @@ export const roleApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Roles"],
+      invalidatesTags: ["Roles","Role"],
     }),
 
     // GET SINGLE ROLE (GET /get/:id)
@@ -46,7 +46,7 @@ export const roleApiService = baseApi.injectEndpoints({
         url: `/roles/get/${id}`,
         method: "GET",
       }),
-      providesTags: ["Roles"],
+      providesTags: ["Role"],
     }),
 
     // UPDATE ROLE (PUT /update/:id)
@@ -59,7 +59,7 @@ export const roleApiService = baseApi.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Roles"],
+      invalidatesTags: ["Roles","Role"],
     }),
 
     // DELETE ROLE (DELETE /delete/:id)
@@ -68,7 +68,7 @@ export const roleApiService = baseApi.injectEndpoints({
         url: `/roles/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Roles"],
+      invalidatesTags: ["Roles","Role"],
     }),
 
   }),
