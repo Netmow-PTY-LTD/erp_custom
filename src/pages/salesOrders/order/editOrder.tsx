@@ -82,6 +82,7 @@ export default function EditOrderPage() {
     name: "items",
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const items = watch("items");
   const taxPercent = watch("taxPercent");
 

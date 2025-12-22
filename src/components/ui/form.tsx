@@ -40,7 +40,7 @@ const FormField = <
   )
 }
 
-const useFormField = () => {
+ const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
   const { getFieldState } = useFormContext()
@@ -154,6 +154,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
 }
 
 export {
+  // eslint-disable-next-line react-refresh/only-export-components
   useFormField,
   Form,
   FormItem,

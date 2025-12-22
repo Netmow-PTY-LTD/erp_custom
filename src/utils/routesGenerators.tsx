@@ -4,6 +4,7 @@ import { Navigate, type RouteObject } from "react-router";
 import type { TUserPath } from "../types/sidebar.types";
 
 // Dummy fallback page
+// eslint-disable-next-line react-refresh/only-export-components
 const DummyPage = ({ title }: { title: string }) => (
   <div className="p-8 text-xl font-bold">{title} Page</div>
 );
