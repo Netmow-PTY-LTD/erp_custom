@@ -243,6 +243,30 @@ export const ReportPermission = {
   STAFFS: "reports.staffs.view" as const,
 };
 
+
+
+//   for sidebar
+export const PERMISSION_GROUPS = {
+  Dashboard: DashboardPermission,
+  Products: ProductPermission,
+  Customers: CustomerPermission,
+  Suppliers: SupplierPermission,
+  Staffs: StaffPermission,
+  Sales: SalesPermission,
+  Accounting: AccountingPermission,
+  Users: UserPermission,
+  Roles: RolePermission,
+  Settings: SettingsPermission,
+  Reports: ReportPermission,
+} as const;
+
+
+
+
+
+
+
+
 // --- Helper type ---
 export type PermissionType =
   | typeof DashboardPermission[keyof typeof DashboardPermission]
