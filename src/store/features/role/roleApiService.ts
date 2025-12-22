@@ -52,10 +52,10 @@ export const roleApiService = baseApi.injectEndpoints({
     // UPDATE ROLE (PUT /update/:id)
     updateRole: builder.mutation<
       RoleResponse<Role>,
-      { id: string | number; body: Partial<Role> }
+      { roleId: string | number; body: Partial<Role> }
     >({
-      query: ({ id, body }) => ({
-        url: `/roles/update/${id}`,
+      query: ({ roleId, body }) => ({
+        url: `/roles/update/${roleId}`,
         method: "PUT",
         body,
       }),

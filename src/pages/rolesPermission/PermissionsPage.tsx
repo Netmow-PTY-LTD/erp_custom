@@ -33,8 +33,9 @@ import {
 import { z } from "zod";
 import { PERMISSION_GROUPS } from "@/config/permissions";
 import { useParams } from "react-router";
-import { useGetRoleByIdQuery } from "@/store/features/role/roleApiService";
+import { useGetRoleByIdQuery, useUpdateRoleMutation } from "@/store/features/role/roleApiService";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 
 const roleSchema = z.object({
@@ -54,7 +55,7 @@ export default function PermissionsPage() {
 
 
   const { data, isLoading } = useGetRoleByIdQuery(roleId as string, { skip: !roleId });
-
+  const [updateRole, { isLoading: updateRoleIsLoading }] = useUpdateRoleMutation()
 
   const roleView = data?.data
 
@@ -90,8 +91,6 @@ export default function PermissionsPage() {
 
 
 
-
-
   // Watch permissions for checkboxes
   const permissions = useWatch({
     control: form.control,
@@ -122,9 +121,30 @@ export default function PermissionsPage() {
     );
   };
 
-  const onSubmit = (values: RoleFormValues) => {
-    console.log("ROLE PAYLOAD:", values);
+  const onSubmit = async (values: RoleFormValues) => {
+    if (!roleId) return;
+
+    try {
+      // Call the API mutation
+      const response = await updateRole({ roleId, body: values }).unwrap();
+      // Success feedback (you can replace with toast or modal)
+      if (response.status) {
+        console.log("Role updated successfully:", response);
+        toast.success(response.message || "Role updated successfully")
+
+      }
+
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      // Error handling
+      console.error("Failed to update role:", error);
+      alert(
+        error?.data?.message || "Something went wrong while updating the role."
+      );
+    }
   };
+
 
 
   // Loading state
@@ -286,7 +306,9 @@ export default function PermissionsPage() {
               />
 
               <div className="flex justify-end">
-                <Button type="submit">Save Role</Button>
+                <Button type="submit" disabled={updateRoleIsLoading}>
+                  {updateRoleIsLoading ? "Saving..." : "Save Role"}
+                </Button>
               </div>
             </form>
           </Form>

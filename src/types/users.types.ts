@@ -5,7 +5,7 @@ export interface Role {
   display_name: string;
   description: string;
   status: string;
-  permissions:[]
+ permissions: string[]
 }
 
 export type User = {
