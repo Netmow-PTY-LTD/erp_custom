@@ -2,17 +2,27 @@ import { baseApi } from "@/store/baseApi";
 import type { Role } from "@/types/users.types";
 
 
-export type RoleResponse = {
-  status: boolean;
+
+export type RoleResponse<T> = {
+ status: boolean;
   message: string;
-  data: Role | Role[];
+  data: T;
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
 };
+
+
+
 
 export const roleApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL ROLES (GET /list)
-    getAllRoles: builder.query<RoleResponse, void>({
+    getAllRoles: builder.query<RoleResponse<Role[]>, { page?: number; limit?: number; search?: string }>({
       query: () => ({
         url: "/roles/list",
         method: "GET",
@@ -21,44 +31,44 @@ export const roleApiService = baseApi.injectEndpoints({
     }),
 
     // ADD ROLE (POST /add)
-    addRole: builder.mutation<RoleResponse, Partial<Role>>({
+    addRole: builder.mutation<RoleResponse<Role>, Partial<Role>>({
       query: (body) => ({
         url: "/roles/add",
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Roles"],
+      invalidatesTags: ["Roles","Role"],
     }),
 
     // GET SINGLE ROLE (GET /get/:id)
-    getRoleById: builder.query<RoleResponse, string | number>({
+    getRoleById: builder.query<RoleResponse<Role>, string | number>({
       query: (id) => ({
         url: `/roles/get/${id}`,
         method: "GET",
       }),
-      providesTags: ["Roles"],
+      providesTags: ["Role"],
     }),
 
     // UPDATE ROLE (PUT /update/:id)
     updateRole: builder.mutation<
-      RoleResponse,
-      { id: string | number; body: Partial<Role> }
+      RoleResponse<Role>,
+      { roleId: string | number; body: Partial<Role> }
     >({
-      query: ({ id, body }) => ({
-        url: `/roles/update/${id}`,
+      query: ({ roleId, body }) => ({
+        url: `/roles/update/${roleId}`,
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Roles"],
+      invalidatesTags: ["Roles","Role"],
     }),
 
     // DELETE ROLE (DELETE /delete/:id)
-    deleteRole: builder.mutation<RoleResponse, string | number>({
+    deleteRole: builder.mutation<RoleResponse<Role>, string | number>({
       query: (id) => ({
         url: `/roles/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Roles"],
+      invalidatesTags: ["Roles","Role"],
     }),
 
   }),

@@ -87,10 +87,568 @@ import DebitHead from "@/pages/accounting/DebitHead";
 import Roles from "@/pages/rolesPermission/Roles";
 import PermissionsPage from "@/pages/rolesPermission/PermissionsPage";
 import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
+import {
+  DashboardPermission,
+  ProductPermission,
+  CustomerPermission,
+  SupplierPermission,
+  StaffPermission,
+  SalesPermission,
+  AccountingPermission,
+  UserPermission,
+  RolePermission,
+  SettingsPermission,
+  ReportPermission,
+} from "./permissions";
 
 
-// This is sample data.
+
+
+
+
+
 export const sidebarItemLink = [
+  // DASHBOARD
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+    element: <Dashboard />,
+    allowedPermissions: [DashboardPermission.VIEW],
+  },
+
+  // PRODUCTS
+  {
+    title: "Products",
+    url: "#",
+    icon: Package,
+    allowedPermissions: [ProductPermission.VIEW],
+    items: [
+      {
+        title: "Products",
+        url: "/dashboard/products",
+        element: <Products />,
+        allowedPermissions: [ProductPermission.LIST],
+      },
+      {
+        title: "",
+        url: "/dashboard/products/:productId",
+        element: <ProductDetailsPage />,
+        allowedPermissions: [ProductPermission.DETAILS],
+      },
+      {
+        title: "Add Product",
+        url: "/dashboard/products/create",
+        element: <CreateProduct />,
+        allowedPermissions: [ProductPermission.CREATE],
+      },
+      {
+        title: "",
+        url: "/dashboard/products/:productId/edit",
+        element: <EditProductPage />,
+        allowedPermissions: [ProductPermission.EDIT],
+      },
+      {
+        title: "Categories",
+        url: "/dashboard/products/categories",
+        element: <ProductCategories />,
+        allowedPermissions: [ProductPermission.VIEW_CATEGORIES],
+      },
+      {
+        title: "Unit",
+        url: "/dashboard/products/unit",
+        element: <UnitsPage />,
+        allowedPermissions: [ProductPermission.VIEW_UNITS],
+      },
+      {
+        title: "Stock Management",
+        url: "/dashboard/products/stock",
+        element: <StockManagement />,
+        allowedPermissions: [ProductPermission.MANAGE_STOCK],
+      },
+    ],
+  },
+
+  // CUSTOMERS
+  {
+    title: "Customers",
+    url: "#",
+    icon: Users,
+    allowedPermissions: [CustomerPermission.VIEW],
+    items: [
+      {
+        title: "List of Customers",
+        url: "/dashboard/customers",
+        element: <Customers />,
+        allowedPermissions: [CustomerPermission.LIST],
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/:customerId",
+        element: <CustomerViewPage />,
+        allowedPermissions: [CustomerPermission.DETAILS],
+      },
+      {
+        title: "Add Customer",
+        url: "/dashboard/customers/create",
+        element: <AddCustomer />,
+        allowedPermissions: [CustomerPermission.CREATE],
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/:customerId/edit",
+        element: <EditCustomerPage />,
+        allowedPermissions: [CustomerPermission.EDIT],
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId",
+        element: <RouteDetails />,
+        allowedPermissions: [CustomerPermission.VIEW_ROUTE_DETAILS],
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/sales-routes/:routeId/assign",
+        element: <AssignRoutePage />,
+        allowedPermissions: [CustomerPermission.ASSIGN_ROUTE],
+      },
+      {
+        title: "Customer Maps",
+        url: "/dashboard/customers/map",
+        element: <CustomersMapPage />,
+        allowedPermissions: [CustomerPermission.VIEW_MAP],
+      },
+    ],
+  },
+
+  // SUPPLIERS
+  {
+    title: "Suppliers",
+    url: "#",
+    icon: Car,
+    allowedPermissions: [SupplierPermission.VIEW],
+    items: [
+      {
+        title: "List of Suppliers",
+        url: "/dashboard/suppliers",
+        element: <SuppliersList />,
+        allowedPermissions: [SupplierPermission.LIST],
+      },
+      {
+        title: "Add Supplier",
+        url: "/dashboard/suppliers/create",
+        element: <AddSupplierPage />,
+        allowedPermissions: [SupplierPermission.CREATE],
+      },
+      {
+        title: "",
+        url: "/dashboard/suppliers/:supplierId/edit",
+        element: <EditSupplierPage />,
+        allowedPermissions: [SupplierPermission.EDIT],
+      },
+      {
+        title: "Purchase Orders",
+        url: "/dashboard/suppliers/purchase-orders",
+        element: <PurchaseOrdersList />,
+        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/:purchaseId",
+        element: <ViewPurchaseOrderPage />,
+        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/:purchaseId/edit",
+        element: <EditPurchaseOrderPage />,
+        allowedPermissions: [SupplierPermission.EDIT_PURCHASE_ORDER],
+      },
+      {
+        title: "",
+        url: "/purchase-orders/create",
+        element: <CreatePurchaseOrderPage />,
+        allowedPermissions: [SupplierPermission.CREATE_PURCHASE_ORDER],
+      },
+      {
+        title: "Purchase Invoices",
+        url: "/dashboard/purchase-invoices",
+        element: <PurchaseInvoicesList />,
+        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_INVOICES],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-invoices/:id",
+        element: <PurchaseInvoicesDetails />,
+        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_INVOICE_DETAILS],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-invoices/:id/preview",
+        element: <PurchaseInvoicePrintPreview />,
+        allowedPermissions: [SupplierPermission.PREVIEW_PURCHASE_INVOICE],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-payments/create",
+        element: <CreatePurchasePayments />,
+        allowedPermissions: [SupplierPermission.CREATE_PURCHASE_PAYMENT],
+      },
+      {
+        title: "Purchase Payments",
+        url: "/dashboard/purchase-payments",
+        element: <PurchasePayments />,
+        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_PAYMENTS],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-payments/:id",
+        element: <PurchasePaymentsDetails />,
+        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS],
+      },
+      {
+        title: "Purchase Orders Map",
+        url: "/dashboard/purchase-orders-map",
+        element: <PurchaseOrdersMapPage />,
+        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS_MAP],
+      },
+    ],
+  },
+
+  // STAFFS
+  {
+    title: "Staffs",
+    url: "#",
+    icon: Users,
+    allowedPermissions: [StaffPermission.VIEW],
+    items: [
+      {
+        title: "All Staffs",
+        url: "/dashboard/staffs",
+        element: <Staffs />,
+        allowedPermissions: [StaffPermission.LIST],
+      },
+      {
+        title: "",
+        url: "/dashboard/staffs/:staffId",
+        element: <StaffDetails />,
+        allowedPermissions: [StaffPermission.DETAILS],
+      },
+      {
+        title: "",
+        url: "/dashboard/staffs/add",
+        element: <AddStaffPage />,
+        allowedPermissions: [StaffPermission.CREATE],
+      },
+      {
+        title: "",
+        url: "/dashboard/staffs/:staffId/edit",
+        element: <EditStaff />,
+        allowedPermissions: [StaffPermission.EDIT],
+      },
+      {
+        title: "Departments",
+        url: "/dashboard/departments",
+        element: <DepartmentsPage />,
+        allowedPermissions: [StaffPermission.VIEW_DEPARTMENTS],
+      },
+      {
+        title: "Attendance",
+        url: "/dashboard/staffs/attendance",
+        element: <AttendancePage />,
+        allowedPermissions: [StaffPermission.VIEW_ATTENDANCE],
+      },
+      {
+        title: "Leave Management",
+        url: "/dashboard/staffs/leaves",
+        element: <LeavesManagement />,
+        allowedPermissions: [StaffPermission.MANAGE_LEAVES],
+      },
+    ],
+  },
+
+  // SALES & ORDERS
+  {
+    title: "Sales & Orders",
+    url: "#",
+    icon: ShoppingCart,
+    allowedPermissions: [SalesPermission.VIEW],
+    items: [
+      {
+        title: "Orders",
+        url: "/dashboard/sales/orders",
+        element: <Orders />,
+        allowedPermissions: [SalesPermission.ORDERS],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/orders/:orderId",
+        element: <OrderDetails />,
+        allowedPermissions: [SalesPermission.ORDER_DETAILS],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/orders/create",
+        element: <CreateOrderPage />,
+        allowedPermissions: [SalesPermission.CREATE_ORDER],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/orders/:orderId/edit",
+        element: <EditOrderPage />,
+        allowedPermissions: [SalesPermission.EDIT_ORDER],
+      },
+      {
+        title: "Invoices",
+        url: "/dashboard/sales/invoices",
+        element: <Invoices />,
+        allowedPermissions: [SalesPermission.INVOICES],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/:invoiceId",
+        element: <InvoiceDetailsPage />,
+        allowedPermissions: [SalesPermission.INVOICE_DETAILS],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/:invoiceId/preview",
+        element: <InvoicePrintPreview />,
+        allowedPermissions: [SalesPermission.INVOICE_PREVIEW],
+      },
+      {
+        title: "Payments",
+        url: "/dashboard/sales/payments",
+        element: <Payments />,
+        allowedPermissions: [SalesPermission.PAYMENTS],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/payments/:paymentId",
+        element: <PaymentDetails />,
+        allowedPermissions: [SalesPermission.PAYMENT_DETAILS],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/payments/create",
+        element: <CreatePaymentPage />,
+        allowedPermissions: [SalesPermission.CREATE_PAYMENT],
+      },
+      {
+        title: "Delivery",
+        url: "/dashboard/sales/delivery",
+        element: <DeliveryPage />,
+        allowedPermissions: [SalesPermission.DELIVERY],
+      },
+      {
+        title: "Sales Routes",
+        url: "/dashboard/sales/sales-routes",
+        element: <SalesRoutesPage />,
+        allowedPermissions: [SalesPermission.SALES_ROUTES],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/sales-routes/create",
+        element: <CreateRoutePage />,
+        allowedPermissions: [SalesPermission.CREATE_ROUTE],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/sales-routes/:routeId/assign",
+        element: <AssignRoutePage />,
+        allowedPermissions: [SalesPermission.ASSIGN_ROUTE],
+      },
+    ],
+  },
+
+  // ACCOUNTING
+  {
+    title: "Accounting",
+    url: "#",
+    icon: HandCoins,
+    allowedPermissions: [AccountingPermission.VIEW],
+    items: [
+      {
+        title: "Overview",
+        url: "/dashboard/accounting",
+        element: <AccountingOverview />,
+        allowedPermissions: [AccountingPermission.OVERVIEW],
+      },
+      {
+        title: "Credit Heads",
+        url: "/dashboard/accounting/credit-head",
+        element: <CreditHead />,
+        allowedPermissions: [AccountingPermission.CREDIT_HEADS],
+      },
+      {
+        title: "Debit Heads",
+        url: "/dashboard/accounting/debit-head",
+        element: <DebitHead />,
+        allowedPermissions: [AccountingPermission.DEBIT_HEADS],
+      },
+      {
+        title: "Incomes",
+        url: "/dashboard/accounting/incomes",
+        element: <IncomePage />,
+        allowedPermissions: [AccountingPermission.INCOMES],
+      },
+      {
+        title: "Expenses",
+        url: "/dashboard/accounting/expenses",
+        element: <Expenses />,
+        allowedPermissions: [AccountingPermission.EXPENSES],
+      },
+      {
+        title: "",
+        url: "/dashboard/accounting/add-income",
+        element: <AddIncomePage />,
+        allowedPermissions: [AccountingPermission.CREATE_INCOME],
+      },
+      {
+        title: "",
+        url: "/dashboard/accounting/add-expanse",
+        element: <AddExpensePage />,
+        allowedPermissions: [AccountingPermission.CREATE_EXPENSE],
+      },
+    ],
+  },
+
+  // USERS
+  {
+    title: "Users",
+    url: "#",
+    icon: Users,
+    allowedPermissions: [UserPermission.VIEW],
+    items: [
+      {
+        title: "User List",
+        url: "/dashboard/users/list",
+        element: <UsersList />,
+        allowedPermissions: [UserPermission.LIST],
+      },
+      {
+        title: "Add Users",
+        url: "/dashboard/users/add",
+        element: <AddUserPage />,
+        allowedPermissions: [UserPermission.CREATE],
+      },
+      {
+        title: "",
+        url: "/dashboard/users/:userId/edit",
+        element: <EditUserPage />,
+        allowedPermissions: [UserPermission.EDIT],
+      },
+      {
+        title: "",
+        url: "/dashboard/users/:userId",
+        element: <UserDetails />,
+        allowedPermissions: [UserPermission.DETAILS],
+      },
+    ],
+  },
+
+  // ROLES & PERMISSIONS
+  {
+    title: "Roles & Permissions",
+    url: "#",
+    icon: ShieldCheck,
+    allowedPermissions: [RolePermission.VIEW_ROLES_PERMISSIONS],
+    items: [
+      {
+        title: "Roles",
+        url: "/dashboard/roles",
+        element: <Roles />,
+        allowedPermissions: [RolePermission.VIEW_ROLES],
+      },
+      // {
+      //   title: "Permissions",
+      //   url: "/dashboard/permissions",
+      //   element: <PermissionsPage />,
+      //   allowedPermissions: [RolePermission.VIEW_PERMISSIONS],
+      // },
+      {
+        title: "",
+        url: "/dashboard/permissions/:roleId/edit",
+        element: <PermissionsPage />,
+        allowedPermissions: [RolePermission.EDIT_ROLES_PERMISSIONS],
+      },
+    ],
+  },
+
+  // SETTINGS
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+    layout: <SettingsSidebarLayout />,
+    allowedPermissions: [SettingsPermission.VIEW],
+    items: [
+      {
+        title: "Profile",
+        url: "/dashboard/settings/profile",
+        element: <UserProfilePage />,
+        allowedPermissions: [SettingsPermission.PROFILE],
+      },
+      {
+        title: "Account",
+        url: "/dashboard/settings/account",
+        element: <AccountSettings />,
+        allowedPermissions: [SettingsPermission.ACCOUNT],
+      },
+    ],
+  },
+
+  // REPORTS
+  {
+    title: "Reports",
+    url: "#",
+    icon: LineChart,
+    allowedPermissions: [ReportPermission.VIEW],
+    items: [
+      {
+        title: "Sales Reports",
+        url: "/dashboard/reports/sales",
+        element: <SalesRprots />,
+        allowedPermissions: [ReportPermission.SALES],
+      },
+      {
+        title: "Inventory Reports",
+        url: "/dashboard/reports/inventory",
+        element: <InventoryReports />,
+        allowedPermissions: [ReportPermission.INVENTORY],
+      },
+      {
+        title: "Customer Reports",
+        url: "/dashboard/reports/customers",
+        element: <CustomerReports />,
+        allowedPermissions: [ReportPermission.CUSTOMERS],
+      },
+      {
+        title: "Staff Reports",
+        url: "/dashboard/reports/staffs",
+        element: <StaffReports />,
+        allowedPermissions: [ReportPermission.STAFFS],
+      },
+    ],
+  },
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// This is sample data. of old manual sidebar
+export const _sidebarItemLink = [
   {
     title: "Dashboard",
     url: "/dashboard",
@@ -233,7 +791,7 @@ export const sidebarItemLink = [
         element: <PurchaseInvoicesDetails />,
       },
 
-       {
+      {
         title: "",
         url: "/dashboard/purchase-invoices/:id/preview",
         element: <PurchaseInvoicePrintPreview />,
@@ -541,6 +1099,12 @@ export const sidebarItemLink = [
     ],
   },
 ];
+
+
+
+
+
+
 
 
 
