@@ -32,6 +32,10 @@ import {
 
 import { z } from "zod";
 import { PERMISSION_GROUPS } from "@/config/permissions";
+import { useParams } from "react-router";
+import { useGetRoleByIdQuery } from "@/store/features/role/roleApiService";
+import { useEffect } from "react";
+
 
 const roleSchema = z.object({
   name: z.string().min(1, "Role code is required"),
@@ -45,6 +49,17 @@ export type RoleFormValues = z.infer<typeof roleSchema>;
 
 
 export default function PermissionsPage() {
+
+  const { roleId } = useParams();
+
+
+  const { data, isLoading } = useGetRoleByIdQuery(roleId as string, { skip: !roleId });
+
+
+  const roleView = data?.data
+
+  console.log('role details  ==>', roleView);
+
   const form = useForm<RoleFormValues>({
     resolver: zodResolver(roleSchema),
     defaultValues: {
@@ -56,6 +71,28 @@ export default function PermissionsPage() {
     },
   });
 
+
+
+  // Update form when API data is loaded
+  useEffect(() => {
+    if (roleView && Object.keys(roleView).length) {
+      form.reset({
+        name: roleView.name || "",
+        display_name: roleView.display_name || "",
+        description: roleView.description || "",
+        status: roleView.status as "active" | "inactive",
+        permissions: roleView.permissions || [],
+      });
+
+    }
+  }, [roleView, form]);
+
+
+
+
+
+
+  // Watch permissions for checkboxes
   const permissions = useWatch({
     control: form.control,
     name: "permissions",
@@ -88,6 +125,26 @@ export default function PermissionsPage() {
   const onSubmit = (values: RoleFormValues) => {
     console.log("ROLE PAYLOAD:", values);
   };
+
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="p-6 text-center text-gray-500">Loading role...</div>
+    );
+  }
+
+  // Role not found
+  if (!roleView) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        Role not found or data is missing.
+      </div>
+    );
+  }
+
+
+
 
   return (
     <div className=" p-6 space-y-6">
@@ -150,7 +207,7 @@ export default function PermissionsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="block w-full">Status</FormLabel>
-                      <Select  onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select status" />
