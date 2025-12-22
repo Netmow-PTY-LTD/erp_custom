@@ -1,11 +1,11 @@
 
-export type Role = {
+export interface Role {
   id: number;
   name: string;
+  display_name: string;
   description: string;
-  created_at?: string;
-};
-
+  status: string;
+}
 
 export type User = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
