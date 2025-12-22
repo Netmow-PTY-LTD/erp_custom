@@ -220,9 +220,11 @@ export const UserPermission = {
 
 // --- Roles & Permissions ---
 export const RolePermission = {
+  CREATE_ROLES: "roles.create" as const,
   VIEW_ROLES: "roles.view" as const,
   VIEW_PERMISSIONS: "permissions.view" as const,
   VIEW_ROLES_PERMISSIONS: "roles_permissions.view" as const,
+  EDIT_ROLES_PERMISSIONS: "roles_permissions.edit" as const,
 };
 
 // --- Settings ---

@@ -7,6 +7,7 @@ import AddNewRoleForm from "@/components/roles/AddRoleForm";
 import { useState } from "react";
 import EditRoleForm from "@/components/roles/EditRoleForm";
 import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
+import { Link } from "react-router";
 
 interface Role {
   id: number;
@@ -44,9 +45,9 @@ export default function Roles() {
   const [open, setOpen] = useState<boolean>(false);
   const [openEditForm, setOpenEditForm] = useState<boolean>(false);
   //const [newRole, setNewRole] = useState({ name: "", description: "" });
-  const {data}=useGetAllRolesQuery();
+  const { data } = useGetAllRolesQuery();
 
-  console.log('data of roles ==>',data)
+  console.log('data of roles ==>', data)
 
   // const addRole = () => {
   //   if (!newRole.name.trim()) return;
@@ -105,8 +106,8 @@ export default function Roles() {
           status.toLowerCase() === "active"
             ? "bg-green-400"
             : status.toLowerCase() === "inactive"
-            ? "bg-blue-500"
-            : "bg-gray-500";
+              ? "bg-blue-500"
+              : "bg-gray-500";
 
         return <Badge className={`${color} capitalize`}>{status}</Badge>;
       },
@@ -119,7 +120,7 @@ export default function Roles() {
         const route = row.original;
         return (
           <div className="flex items-center gap-2">
-            <Button
+            {/* <Button
               size="sm"
               variant="outline"
               onClick={() => {
@@ -127,7 +128,18 @@ export default function Roles() {
               }}
             >
               Edit
-            </Button>
+            </Button> */}
+            <Link to={`/dashboard/permissions/${route.id}/edit`} >
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setOpenEditForm(true);
+                }}
+              >
+                Edit
+              </Button>
+            </Link>
             <Button
               size="sm"
               variant="destructive"
