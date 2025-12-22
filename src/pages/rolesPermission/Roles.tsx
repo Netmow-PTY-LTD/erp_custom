@@ -44,27 +44,11 @@ const roles: Role[] = [
 export default function Roles() {
   const [open, setOpen] = useState<boolean>(false);
   const [openEditForm, setOpenEditForm] = useState<boolean>(false);
-  //const [newRole, setNewRole] = useState({ name: "", description: "" });
   const { data } = useGetAllRolesQuery();
 
   console.log('data of roles ==>', data)
 
-  // const addRole = () => {
-  //   if (!newRole.name.trim()) return;
-  //   setRoles([
-  //     ...roles,
-  //     {
-  //       id: roles.length + 1,
-  //       name: newRole.name,
-  //       description: newRole.description,
-  //     },
-  //   ]);
-  //   setNewRole({ name: "", description: "" });
-  // };
 
-  // const deleteRole = (id: number) => {
-  //   setRoles(roles.filter((role) => role.id !== id));
-  // };
 
   const columns: ColumnDef<Role>[] = [
     {
@@ -133,9 +117,6 @@ export default function Roles() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => {
-                  setOpenEditForm(true);
-                }}
               >
                 Edit
               </Button>
@@ -161,28 +142,6 @@ export default function Roles() {
         <h1 className="text-3xl font-bold">Existing Roles</h1>
         <AddNewRoleForm open={open} setOpen={setOpen} />
       </div>
-
-      {/* Add New Role */}
-      {/* <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Add New Role</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            placeholder="Role name"
-            value={newRole.name}
-            onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
-          />
-          <Input
-            placeholder="Role description"
-            value={newRole.description}
-            onChange={(e) =>
-              setNewRole({ ...newRole, description: e.target.value })
-            }
-          />
-          <Button onClick={addRole}>Add Role</Button>
-        </CardContent>
-      </Card> */}
 
       {/* Roles List */}
       <Card>

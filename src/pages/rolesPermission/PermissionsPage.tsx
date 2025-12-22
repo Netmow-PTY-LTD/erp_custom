@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ import {
 import { z } from "zod";
 import { PERMISSION_GROUPS } from "@/config/permissions";
 
- const roleSchema = z.object({
+const roleSchema = z.object({
   name: z.string().min(1, "Role code is required"),
   displayName: z.string().min(1, "Display name is required"),
   description: z.string().min(1, "Description is required"),
@@ -42,9 +42,6 @@ import { PERMISSION_GROUPS } from "@/config/permissions";
 });
 
 export type RoleFormValues = z.infer<typeof roleSchema>;
-
-
-
 
 
 export default function PermissionsPage() {
@@ -59,7 +56,10 @@ export default function PermissionsPage() {
     },
   });
 
-  const permissions = form.watch("permissions");
+  const permissions = useWatch({
+    control: form.control,
+    name: "permissions",
+  });
 
   const togglePermission = (value: string) => {
     const current = form.getValues("permissions");
@@ -90,7 +90,7 @@ export default function PermissionsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className=" p-6 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Edit Role & Permissions</CardTitle>
@@ -149,14 +149,14 @@ export default function PermissionsPage() {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <FormLabel className="block w-full">Status</FormLabel>
+                      <Select  onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="w-full">
                           <SelectItem value="Active">Active</SelectItem>
                           <SelectItem value="Inactive">Inactive</SelectItem>
                         </SelectContent>
