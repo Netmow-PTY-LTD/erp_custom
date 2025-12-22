@@ -39,7 +39,7 @@ import { toast } from "sonner";
 
 
 const roleSchema = z.object({
-  name: z.string().min(1, "Role code is required"),
+ role: z.string().min(1, "Role code is required"),
   display_name: z.string().min(1, "Display name is required"),
   description: z.string().min(1, "Description is required"),
   status: z.enum(["active", "inactive"]),
@@ -53,18 +53,16 @@ export default function PermissionsPage() {
 
   const { roleId } = useParams();
 
-
   const { data, isLoading } = useGetRoleByIdQuery(roleId as string, { skip: !roleId });
   const [updateRole, { isLoading: updateRoleIsLoading }] = useUpdateRoleMutation()
 
   const roleView = data?.data
 
-  console.log('role details  ==>', roleView);
 
   const form = useForm<RoleFormValues>({
     resolver: zodResolver(roleSchema),
     defaultValues: {
-      name: "",
+      role: "",
       display_name: "",
       description: "",
       status: "active",
@@ -78,7 +76,7 @@ export default function PermissionsPage() {
   useEffect(() => {
     if (roleView && Object.keys(roleView).length) {
       form.reset({
-        name: roleView.name || "",
+        role: roleView.role|| "",
         display_name: roleView.display_name || "",
         description: roleView.description || "",
         status: roleView.status as "active" | "inactive",
@@ -181,7 +179,7 @@ export default function PermissionsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="role"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role Code</FormLabel>

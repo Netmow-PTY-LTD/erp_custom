@@ -35,7 +35,7 @@ const statusOptions = [
 ];
 
 const roleSchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  role: z.string().min(1, "Category name is required"),
   display_name: z.string().min(1, "Display name is required"),
   description: z.string().min(1, "Description is required"),
   status: z.string().min(1, "Status is required"),
@@ -56,7 +56,7 @@ export default function AddNewRoleForm({
   const form = useForm({
     resolver: zodResolver(roleSchema),
     defaultValues: {
-      name: "",
+      role: "",
       display_name: "",
       description: "",
       status: "active",
@@ -100,7 +100,7 @@ export default function AddNewRoleForm({
             >
               <FormField
                 control={form.control}
-                name="name"
+                name="role"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role Name (Code)</FormLabel>
