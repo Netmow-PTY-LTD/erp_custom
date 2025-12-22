@@ -26,17 +26,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useAddRoleMutation } from "@/store/features/role/roleApiService";
+import { toast } from "sonner";
 
 const statusOptions = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
 ];
 
 const roleSchema = z.object({
-  name: z.string().min(1, "Category name is required"),
-  displayName: z.string().min(1, "Display name is required"),
+  role: z.string().min(1, "Category name is required"),
+  display_name: z.string().min(1, "Display name is required"),
   description: z.string().min(1, "Description is required"),
   status: z.string().min(1, "Status is required"),
+  permissions: z.array(z.string())
+
 });
 export default function AddNewRoleForm({
   open,
@@ -45,18 +49,37 @@ export default function AddNewRoleForm({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+
+  const [createRole] = useAddRoleMutation()
+
+
   const form = useForm({
     resolver: zodResolver(roleSchema),
     defaultValues: {
-      name: "",
-      displayName: "",
+      role: "",
+      display_name: "",
       description: "",
-      status: "Active",
+      status: "active",
+      permissions: []
     },
   });
 
-  const handleAddRole = (values: z.infer<typeof roleSchema>) => {
+  const handleAddRole = async (values: z.infer<typeof roleSchema>) => {
     console.log(values);
+
+    try {
+      const res = await createRole(values).unwrap();
+
+      if (res.status) {
+        toast.success(res.message || "Role create successfully.")
+        setOpen(false)
+
+      }
+    } catch (error) {
+      console.log('Error: ==>', error)
+      toast.error("somthing went wrong!")
+    }
+
   };
 
   return (
@@ -77,7 +100,7 @@ export default function AddNewRoleForm({
             >
               <FormField
                 control={form.control}
-                name="name"
+                name="role"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role Name (Code)</FormLabel>
@@ -93,7 +116,7 @@ export default function AddNewRoleForm({
               />
               <FormField
                 control={form.control}
-                name="displayName"
+                name="display_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Display Name</FormLabel>
@@ -107,7 +130,7 @@ export default function AddNewRoleForm({
                   </FormItem>
                 )}
               />
-                <FormField
+              <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (
