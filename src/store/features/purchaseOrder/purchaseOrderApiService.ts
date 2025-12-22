@@ -2,13 +2,14 @@
 
 
 import { baseApi } from "@/store/baseApi";
-import type { InvoiceStatus } from "@/types/PurchaseInvoice.types";
+import type { InvoiceStatus, PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 import type { PurchaseOrder, PurchaseOrderLocation } from "@/types/purchaseOrder.types";
+import type { PurchasePayment } from "@/types/purchasePayment.types";
 
-export type PurchaseResponse = {
+export type PurchaseResponse<T> = {
  status: boolean;
   message: string;
-  data: any;
+  data: T;
   pagination?: {
     total: number;
     page: number;
@@ -43,7 +44,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
 
     // GET ALL PURCHASE ORDERS
     getAllPurchases: builder.query<
-      PurchaseResponse,
+      PurchaseResponse<PurchaseOrder>,
       { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({
@@ -55,7 +56,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // ADD PURCHASE ORDER
-    addPurchaseOrder: builder.mutation<PurchaseResponse, Partial<PurchaseOrder>>({
+    addPurchaseOrder: builder.mutation<PurchaseResponse<PurchaseOrder>, Partial<PurchaseOrder>>({
       query: (body) => ({
         url: "/purchase/orders",
         method: "POST",
@@ -65,7 +66,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // GET SINGLE PURCHASE ORDER BY ID
-    getPurchaseOrderById: builder.query<PurchaseResponse, string | number>({
+    getPurchaseOrderById: builder.query<PurchaseResponse<PurchaseOrder>, string | number>({
       query: (id) => ({
         url: `/purchase/orders/${id}`,
         method: "GET",
@@ -75,7 +76,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
 
     // UPDATE PURCHASE ORDER
     updatePurchaseOrder: builder.mutation<
-      PurchaseResponse,
+      PurchaseResponse<PurchaseOrder>,
       { id: string | number; body: Partial<PurchaseOrder> }
     >({
       query: ({ id, body }) => ({
@@ -87,7 +88,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // DELETE PURCHASE ORDER
-    deletePurchaseOrder: builder.mutation<PurchaseResponse, string | number>({
+    deletePurchaseOrder: builder.mutation<PurchaseResponse<PurchaseOrder>, string | number>({
       query: (id) => ({
         url: `/purchase/orders/${id}`,
         method: "DELETE",
@@ -96,7 +97,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // RECEIVE PURCHASE ORDER
-    receivePurchaseOrder: builder.mutation<PurchaseResponse, string | number>({
+    receivePurchaseOrder: builder.mutation<PurchaseResponse<PurchaseOrder>, string | number>({
       query: (id) => ({
         url: `/purchase/orders/${id}/receive`,
         method: "POST",
@@ -110,7 +111,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
 
     // GET ALL INVOICES
     getAllPurchaseInvoices: builder.query<
-      PurchaseResponse,
+      PurchaseResponse<PurchaseInvoice>,
       { page?: number; limit?: number, search?:string }
     >({
       query: (params) => ({
@@ -122,7 +123,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // CREATE INVOICE
-    addPurchaseInvoice: builder.mutation<PurchaseResponse, any>({
+    addPurchaseInvoice: builder.mutation<  PurchaseResponse<PurchaseInvoice>, any>({
       query: (body) => ({
         url: "/purchase/orders/invoices",
         method: "POST",
@@ -131,7 +132,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
       invalidatesTags: ["PurchaseInvoices","Purchase"],
     }),
     // Update INVOICE
-    updatePurchaseInvoice: builder.mutation<PurchaseResponse, {invoiceId:string|number,data:{status:InvoiceStatus}}>({
+    updatePurchaseInvoice: builder.mutation<PurchaseResponse<PurchaseInvoice>, {invoiceId:string|number,data:{status:InvoiceStatus}}>({
       query: ({invoiceId,data}) => ({
         url: `/purchase/orders/invoices/${invoiceId}`,
         method: "PATCH",
@@ -141,7 +142,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // GET SINGLE INVOICE
-    getPurchaseInvoiceById: builder.query<PurchaseResponse, string | number>({
+    getPurchaseInvoiceById: builder.query< PurchaseResponse<PurchaseInvoice>, string | number>({
       query: (id) => ({
         url: `/purchase/orders/invoices/${id}`,
         method: "GET",
@@ -155,7 +156,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
 
     // GET ALL PAYMENTS
     getAllPurchasePayments: builder.query<
-      PurchaseResponse,
+      PurchaseResponse<PurchasePayment>,
       { page?: number; limit?: number, search?:string }
     >({
       query: (params) => ({
@@ -167,7 +168,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // ADD PAYMENT
-    addPurchasePayment: builder.mutation<PurchaseResponse, any>({
+    addPurchasePayment: builder.mutation<PurchaseResponse<PurchasePayment>, any>({
       query: (body) => ({
         url: "/purchase/orders/payments",
         method: "POST",
@@ -177,7 +178,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     // GET PAYMENT BY ID
-    getPurchasePaymentById: builder.query<PurchaseResponse, string | number>({
+    getPurchasePaymentById: builder.query<PurchaseResponse<PurchasePayment>, string | number>({
       query: (id) => ({
         url: `/purchase/orders/payments/${id}`,
         method: "GET",

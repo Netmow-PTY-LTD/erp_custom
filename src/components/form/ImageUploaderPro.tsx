@@ -72,6 +72,7 @@ export default function ImageUploaderPro({
 
   useEffect(() => {
     if (open) fetchLibrary(page);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, page]);
 
   // ---------------- HANDLE FILE SELECTION AND UPLOAD ----------------

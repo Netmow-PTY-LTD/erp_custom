@@ -62,6 +62,7 @@ export default function ImageGalleryUploaderPro({
 
   useEffect(() => {
     if (open) fetchLibrary(page);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, page]);
 
   /* ---------------- MULTI UPLOAD ---------------- */

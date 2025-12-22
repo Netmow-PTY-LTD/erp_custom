@@ -7,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
 import { useUpdateStockMutation } from "@/store/features/admin/productsApiService";
@@ -79,10 +79,14 @@ export default function AddStockForm({
     },
   });
 
-  const { control, watch, setValue } = form;
+  const { control, setValue } = form;
 
   // Watch selected productId
-  const selectedProductId = watch("product_id");
+  // const selectedProductId = watch("product_id");
+  const selectedProductId = useWatch({
+    control,
+    name: "product_id",
+  });
 
   console.log("Selected Product ID:", selectedProductId);
 
@@ -190,11 +194,10 @@ export default function AddStockForm({
                                 >
                                   {product.name}
                                   <Check
-                                    className={`ml-auto h-4 w-4 ${
-                                      Number(field.value) === product.id
+                                    className={`ml-auto h-4 w-4 ${Number(field.value) === product.id
                                         ? "opacity-100"
                                         : "opacity-0"
-                                    }`}
+                                      }`}
                                   />
                                 </CommandItem>
                               ))}

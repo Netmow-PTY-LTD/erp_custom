@@ -171,6 +171,7 @@ export default function PurchaseOrderView() {
                     <th className="p-3 text-center">Qty</th>
                     <th className="p-3 text-center">Unit Cost</th>
                     <th className="p-3 text-center">Discount</th>
+                    <th className="p-3 text-center">Purchase Tax</th>
                     <th className="p-3 text-center">Line Total</th>
                   </tr>
                 </thead>
@@ -190,7 +191,10 @@ export default function PurchaseOrderView() {
                         RM {Number(item.unit_cost).toFixed(2)}
                       </td>
                       <td className="p-3 text-center">
-                        {item.discount}
+                        {item.discount ?? 0}
+                      </td>
+                      <td className="p-3 text-center">
+                        {item.purchase_tax ?? 0}
                       </td>
                       <td className="p-3 text-center font-medium">
                         RM {Number(item.line_total).toFixed(2)}

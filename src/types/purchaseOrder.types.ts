@@ -14,6 +14,7 @@ export interface POItem {
   discount: number;
   created_at: string;
   updated_at: string;
+  purchase_tax:number
 }
 
 

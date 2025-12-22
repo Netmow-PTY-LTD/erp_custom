@@ -23,6 +23,7 @@ export default function LeaveTypes() {
     {
       accessorKey: "status",
       header: "Status",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cell: ({ row }: { row: any }) => {
         const value = row.getValue("status");
         return (

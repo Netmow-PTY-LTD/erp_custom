@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createContext, useContext, useState, type ReactNode } from "react";
 import useDialogState from "../hooks/use-dialog-state";
@@ -30,6 +31,7 @@ export function UsersProvider({ children }: UsersProviderProps) {
 }
 
 // Custom hook to use the context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUsers = (): UsersContextType => {
   const usersContext = useContext(UsersContext);
 
