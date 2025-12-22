@@ -28,15 +28,17 @@ import {
 } from "@/components/ui/form";
 
 const statusOptions = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
 ];
 
 const roleSchema = z.object({
   name: z.string().min(1, "Category name is required"),
-  displayName: z.string().min(1, "Display name is required"),
+  display_name: z.string().min(1, "Display name is required"),
   description: z.string().min(1, "Description is required"),
   status: z.string().min(1, "Status is required"),
+  permissions: z.array(z.string())
+
 });
 export default function AddNewRoleForm({
   open,
@@ -49,9 +51,10 @@ export default function AddNewRoleForm({
     resolver: zodResolver(roleSchema),
     defaultValues: {
       name: "",
-      displayName: "",
+      display_name: "",
       description: "",
-      status: "Active",
+      status: "active",
+      permissions: []
     },
   });
 
@@ -93,7 +96,7 @@ export default function AddNewRoleForm({
               />
               <FormField
                 control={form.control}
-                name="displayName"
+                name="display_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Display Name</FormLabel>
@@ -107,7 +110,7 @@ export default function AddNewRoleForm({
                   </FormItem>
                 )}
               />
-                <FormField
+              <FormField
                 control={form.control}
                 name="description"
                 render={({ field }) => (

@@ -35,9 +35,9 @@ import { PERMISSION_GROUPS } from "@/config/permissions";
 
 const roleSchema = z.object({
   name: z.string().min(1, "Role code is required"),
-  displayName: z.string().min(1, "Display name is required"),
+  display_name: z.string().min(1, "Display name is required"),
   description: z.string().min(1, "Description is required"),
-  status: z.enum(["Active", "Inactive"]),
+  status: z.enum(["active", "inactive"]),
   permissions: z.array(z.string()).min(1, "Select at least one permission"),
 });
 
@@ -49,9 +49,9 @@ export default function PermissionsPage() {
     resolver: zodResolver(roleSchema),
     defaultValues: {
       name: "",
-      displayName: "",
+      display_name: "",
       description: "",
-      status: "Active",
+      status: "active",
       permissions: [],
     },
   });
@@ -118,7 +118,7 @@ export default function PermissionsPage() {
 
                 <FormField
                   control={form.control}
-                  name="displayName"
+                  name="display_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Display Name</FormLabel>
@@ -157,8 +157,8 @@ export default function PermissionsPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent className="w-full">
-                          <SelectItem value="Active">Active</SelectItem>
-                          <SelectItem value="Inactive">Inactive</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
