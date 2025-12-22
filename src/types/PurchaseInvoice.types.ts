@@ -14,7 +14,6 @@ export type InvoiceStatus =
 
 
 export type PurchaseInvoice = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   due_amount: number;
   paid_amount: number;
   id: number;

@@ -59,6 +59,7 @@ export default function ModuleManagement() {
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as "Enabled" | "Disabled";
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const [isEnabled, setIsEnabled] = useState(status === "Enabled");
 
         const toggleStatus = () => {

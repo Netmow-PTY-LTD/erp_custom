@@ -22,7 +22,6 @@ export interface SalesOrder {
   delivery_status: any;
   delivery: any;
   delivery_date: string | number | Date;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   invoice: any;
   due_date: string | Date;
   id: number;
