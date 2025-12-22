@@ -26,6 +26,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useAddRoleMutation } from "@/store/features/role/roleApiService";
+import { toast } from "sonner";
 
 const statusOptions = [
   { value: "active", label: "Active" },
@@ -47,6 +49,10 @@ export default function AddNewRoleForm({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+
+  const [createRole] = useAddRoleMutation()
+
+
   const form = useForm({
     resolver: zodResolver(roleSchema),
     defaultValues: {
@@ -58,8 +64,22 @@ export default function AddNewRoleForm({
     },
   });
 
-  const handleAddRole = (values: z.infer<typeof roleSchema>) => {
+  const handleAddRole = async (values: z.infer<typeof roleSchema>) => {
     console.log(values);
+
+    try {
+      const res = await createRole(values).unwrap();
+
+      if (res.status) {
+        toast.success(res.message || "Role create successfully.")
+        setOpen(false)
+
+      }
+    } catch (error) {
+      console.log('Error: ==>', error)
+      toast.error("somthing went wrong!")
+    }
+
   };
 
   return (
