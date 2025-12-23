@@ -24,9 +24,6 @@ export default function UnitsPage() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // Units permissions
-  const canViewUnits = userPermissions.includes(ProductPermission.VIEW_UNITS);
-  const canCreateUnits = userPermissions.includes(ProductPermission.CREATE_UNITS);
-  const canEditUnits = userPermissions.includes(ProductPermission.EDIT_UNITS);
   const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS);
 
 
@@ -104,8 +101,8 @@ export default function UnitsPage() {
         return (
           <span
             className={`px-2 py-1 text-xs rounded-full font-medium ${isActive
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
               }`}
           >
             {isActive ? "Active" : "Inactive"}
