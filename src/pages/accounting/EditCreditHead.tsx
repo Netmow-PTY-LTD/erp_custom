@@ -35,6 +35,7 @@ import {
 import { useEffect } from "react";
 import type { CreditHead } from "@/types/accounting.types";
 
+
 const statusOptions = [
   { value: "true", label: "Active" },
   { value: "false", label: "Inactive" },
@@ -55,6 +56,14 @@ export default function EditCreditHeadForm({
   setOpen: (open: boolean) => void;
   creditHeadId: number;
 }) {
+
+
+  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+// Credit Heads
+// const canEditCreditHeads = userPermissions.includes(AccountingPermission.EDIT_CREDIT_HEADS);
+
+
   const form = useForm({
     resolver: zodResolver(creditHeadSchema),
     defaultValues: {
