@@ -1,14 +1,33 @@
 import {
+  BanknoteArrowDown,
+  Box,
+  Boxes,
+  CalendarCheck,
   Car,
+  CreditCard,
+  DollarSign,
+  DollarSignIcon,
+  FileMinus,
+  FileText,
   HandCoins,
   KeyRound,
+  Layers,
   LayoutDashboard,
   LineChart,
+  List,
+  Map,
+  MapPin,
   Package,
   Pencil,
+  PieChart,
+  PlusCircle,
+  Ruler,
   Settings,
   ShieldCheck,
+  ShoppingBag,
   ShoppingCart,
+  Truck,
+  UserCheck,
   UserCog,
   UserPlus,
   Users,
@@ -77,7 +96,6 @@ import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
 import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
 import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
-
 import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayments";
 import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
 import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
@@ -128,6 +146,7 @@ export const sidebarItemLink = [
         title: "Products",
         url: "/dashboard/products",
         element: <Products />,
+        icon: List, // product list
         allowedPermissions: [ProductPermission.LIST],
       },
       {
@@ -140,6 +159,7 @@ export const sidebarItemLink = [
         title: "Add Product",
         url: "/dashboard/products/create",
         element: <CreateProduct />,
+        icon: PlusCircle, // add product
         allowedPermissions: [ProductPermission.CREATE],
       },
       {
@@ -152,18 +172,21 @@ export const sidebarItemLink = [
         title: "Categories",
         url: "/dashboard/products/categories",
         element: <ProductCategories />,
+        icon: Layers, // categories/groups
         allowedPermissions: [ProductPermission.VIEW_CATEGORIES],
       },
       {
         title: "Unit",
         url: "/dashboard/products/unit",
         element: <UnitsPage />,
+        icon: Ruler, // unit/measurement
         allowedPermissions: [ProductPermission.VIEW_UNITS],
       },
       {
         title: "Stock Management",
         url: "/dashboard/products/stock",
         element: <StockManagement />,
+        icon: Boxes, // inventory/stock
         allowedPermissions: [ProductPermission.MANAGE_STOCK],
       },
     ],
@@ -180,6 +203,7 @@ export const sidebarItemLink = [
         title: "List of Customers",
         url: "/dashboard/customers",
         element: <Customers />,
+        icon: List,
         allowedPermissions: [CustomerPermission.LIST],
       },
       {
@@ -216,6 +240,7 @@ export const sidebarItemLink = [
         title: "Customer Maps",
         url: "/dashboard/customers/map",
         element: <CustomersMapPage />,
+        icon: Map, // map view
         allowedPermissions: [CustomerPermission.VIEW_MAP],
       },
     ],
@@ -232,12 +257,14 @@ export const sidebarItemLink = [
         title: "List of Suppliers",
         url: "/dashboard/suppliers",
         element: <SuppliersList />,
+        icon: List,
         allowedPermissions: [SupplierPermission.LIST],
       },
       {
         title: "Add Supplier",
         url: "/dashboard/suppliers/create",
         element: <AddSupplierPage />,
+        icon: UserPlus,
         allowedPermissions: [SupplierPermission.CREATE],
       },
       {
@@ -250,6 +277,7 @@ export const sidebarItemLink = [
         title: "Purchase Orders",
         url: "/dashboard/suppliers/purchase-orders",
         element: <PurchaseOrdersList />,
+        icon: ShoppingBag,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS],
       },
       {
@@ -274,6 +302,7 @@ export const sidebarItemLink = [
         title: "Purchase Invoices",
         url: "/dashboard/purchase-invoices",
         element: <PurchaseInvoicesList />,
+        icon: FileText,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_INVOICES],
       },
       {
@@ -298,6 +327,7 @@ export const sidebarItemLink = [
         title: "Purchase Payments",
         url: "/dashboard/purchase-payments",
         element: <PurchasePayments />,
+        icon: CreditCard,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_PAYMENTS],
       },
       {
@@ -310,6 +340,7 @@ export const sidebarItemLink = [
         title: "Purchase Orders Map",
         url: "/dashboard/purchase-orders-map",
         element: <PurchaseOrdersMapPage />,
+        icon: MapPin,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS_MAP],
       },
     ],
@@ -326,6 +357,7 @@ export const sidebarItemLink = [
         title: "All Staffs",
         url: "/dashboard/staffs",
         element: <Staffs />,
+        icon: List,
         allowedPermissions: [StaffPermission.LIST],
       },
       {
@@ -350,18 +382,21 @@ export const sidebarItemLink = [
         title: "Departments",
         url: "/dashboard/departments",
         element: <DepartmentsPage />,
+        icon: Layers,
         allowedPermissions: [StaffPermission.VIEW_DEPARTMENTS],
       },
       {
         title: "Attendance",
         url: "/dashboard/staffs/attendance",
         element: <AttendancePage />,
+        icon: CalendarCheck,
         allowedPermissions: [StaffPermission.VIEW_ATTENDANCE],
       },
       {
         title: "Leave Management",
         url: "/dashboard/staffs/leaves",
         element: <LeavesManagement />,
+        icon: FileMinus,
         allowedPermissions: [StaffPermission.MANAGE_LEAVES],
       },
     ],
@@ -378,6 +413,7 @@ export const sidebarItemLink = [
         title: "Orders",
         url: "/dashboard/sales/orders",
         element: <Orders />,
+        icon: List,
         allowedPermissions: [SalesPermission.ORDERS],
       },
       {
@@ -402,6 +438,7 @@ export const sidebarItemLink = [
         title: "Invoices",
         url: "/dashboard/sales/invoices",
         element: <Invoices />,
+        icon: FileText,
         allowedPermissions: [SalesPermission.INVOICES],
       },
       {
@@ -420,6 +457,7 @@ export const sidebarItemLink = [
         title: "Payments",
         url: "/dashboard/sales/payments",
         element: <Payments />,
+        icon: CreditCard,
         allowedPermissions: [SalesPermission.PAYMENTS],
       },
       {
@@ -438,12 +476,14 @@ export const sidebarItemLink = [
         title: "Delivery",
         url: "/dashboard/sales/delivery",
         element: <DeliveryPage />,
+        icon: Truck,
         allowedPermissions: [SalesPermission.DELIVERY],
       },
       {
         title: "Sales Routes",
         url: "/dashboard/sales/sales-routes",
         element: <SalesRoutesPage />,
+        icon: MapPin,
         allowedPermissions: [SalesPermission.SALES_ROUTES],
       },
       {
@@ -472,42 +512,49 @@ export const sidebarItemLink = [
         title: "Overview",
         url: "/dashboard/accounting",
         element: <AccountingOverview />,
+        icon: PieChart,
         allowedPermissions: [AccountingPermission.OVERVIEW],
       },
       {
         title: "Credit Heads",
         url: "/dashboard/accounting/credit-head",
         element: <CreditHead />,
+        icon: CreditCard,
         allowedPermissions: [AccountingPermission.CREDIT_HEADS],
       },
       {
         title: "Debit Heads",
         url: "/dashboard/accounting/debit-head",
         element: <DebitHead />,
+        icon: FileMinus,
         allowedPermissions: [AccountingPermission.DEBIT_HEADS],
       },
       {
         title: "Incomes",
         url: "/dashboard/accounting/incomes",
         element: <IncomePage />,
+        icon: DollarSignIcon,
         allowedPermissions: [AccountingPermission.INCOMES],
       },
       {
         title: "Expenses",
         url: "/dashboard/accounting/expenses",
         element: <Expenses />,
+        icon: BanknoteArrowDown,
         allowedPermissions: [AccountingPermission.EXPENSES],
       },
       {
         title: "",
         url: "/dashboard/accounting/add-income",
         element: <AddIncomePage />,
+        icon: PlusCircle,
         allowedPermissions: [AccountingPermission.CREATE_INCOME],
       },
       {
         title: "",
         url: "/dashboard/accounting/add-expanse",
         element: <AddExpensePage />,
+        icon: PlusCircle,
         allowedPermissions: [AccountingPermission.CREATE_EXPENSE],
       },
     ],
@@ -524,12 +571,14 @@ export const sidebarItemLink = [
         title: "User List",
         url: "/dashboard/users/list",
         element: <UsersList />,
+        icon: List,
         allowedPermissions: [UserPermission.LIST],
       },
       {
         title: "Add Users",
         url: "/dashboard/users/add",
         element: <AddUserPage />,
+        icon: UserPlus,
         allowedPermissions: [UserPermission.CREATE],
       },
       {
@@ -558,6 +607,7 @@ export const sidebarItemLink = [
         title: "Roles",
         url: "/dashboard/roles",
         element: <Roles />,
+        icon: Users,
         allowedPermissions: [RolePermission.VIEW_ROLES],
       },
       // {
@@ -609,24 +659,28 @@ export const sidebarItemLink = [
         title: "Sales Reports",
         url: "/dashboard/reports/sales",
         element: <SalesRprots />,
+        icon: DollarSign,
         allowedPermissions: [ReportPermission.SALES],
       },
       {
         title: "Inventory Reports",
         url: "/dashboard/reports/inventory",
         element: <InventoryReports />,
+        icon: Box,
         allowedPermissions: [ReportPermission.INVENTORY],
       },
       {
         title: "Customer Reports",
         url: "/dashboard/reports/customers",
         element: <CustomerReports />,
+        icon: Users,
         allowedPermissions: [ReportPermission.CUSTOMERS],
       },
       {
         title: "Staff Reports",
         url: "/dashboard/reports/staffs",
         element: <StaffReports />,
+        icon: UserCheck,
         allowedPermissions: [ReportPermission.STAFFS],
       },
     ],
