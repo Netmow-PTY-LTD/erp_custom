@@ -21,6 +21,7 @@ import {
   PlusCircle,
   Settings,
   ShieldCheck,
+  ShoppingBag,
   ShoppingCart,
   Truck,
   UserCheck,
@@ -247,12 +248,14 @@ export const sidebarItemLink = [
         title: "List of Suppliers",
         url: "/dashboard/suppliers",
         element: <SuppliersList />,
+        icon: List,
         allowedPermissions: [SupplierPermission.LIST],
       },
       {
         title: "Add Supplier",
         url: "/dashboard/suppliers/create",
         element: <AddSupplierPage />,
+        icon: UserPlus,
         allowedPermissions: [SupplierPermission.CREATE],
       },
       {
@@ -265,6 +268,7 @@ export const sidebarItemLink = [
         title: "Purchase Orders",
         url: "/dashboard/suppliers/purchase-orders",
         element: <PurchaseOrdersList />,
+        icon: ShoppingBag,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS],
       },
       {
@@ -289,6 +293,7 @@ export const sidebarItemLink = [
         title: "Purchase Invoices",
         url: "/dashboard/purchase-invoices",
         element: <PurchaseInvoicesList />,
+        icon: FileText,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_INVOICES],
       },
       {
@@ -313,6 +318,7 @@ export const sidebarItemLink = [
         title: "Purchase Payments",
         url: "/dashboard/purchase-payments",
         element: <PurchasePayments />,
+        icon: CreditCard,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_PAYMENTS],
       },
       {
@@ -325,6 +331,7 @@ export const sidebarItemLink = [
         title: "Purchase Orders Map",
         url: "/dashboard/purchase-orders-map",
         element: <PurchaseOrdersMapPage />,
+        icon: MapPin,
         allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS_MAP],
       },
     ],
@@ -380,7 +387,7 @@ export const sidebarItemLink = [
         title: "Leave Management",
         url: "/dashboard/staffs/leaves",
         element: <LeavesManagement />,
-         icon: FileMinus,
+        icon: FileMinus,
         allowedPermissions: [StaffPermission.MANAGE_LEAVES],
       },
     ],
