@@ -103,12 +103,22 @@ export const SalesPermission = {
 export const AccountingPermission = {
   VIEW: "accounting.view" as const,
   OVERVIEW: "accounting.overview.view" as const,
-  CREDIT_HEADS: "accounting.credit_heads.view" as const,
-  DEBIT_HEADS: "accounting.debit_heads.view" as const,
   INCOMES: "accounting.incomes.view" as const,
   EXPENSES: "accounting.expenses.view" as const,
   CREATE_INCOME: "accounting.incomes.create" as const,
   CREATE_EXPENSE: "accounting.expenses.create" as const,
+
+   // Credit Heads
+  VIEW_CREDIT_HEADS: "accounting.credit_heads.view" as const,
+  CREATE_CREDIT_HEADS: "accounting.credit_heads.create" as const,
+  EDIT_CREDIT_HEADS: "accounting.credit_heads.edit" as const,
+  DELETE_CREDIT_HEADS: "accounting.credit_heads.delete" as const,
+
+  // Debit Heads
+  VIEW_DEBIT_HEADS: "accounting.debit_heads.view" as const,
+  CREATE_DEBIT_HEADS: "accounting.debit_heads.create" as const,
+  EDIT_DEBIT_HEADS: "accounting.debit_heads.edit" as const,
+  DELETE_DEBIT_HEADS: "accounting.debit_heads.delete" as const,
 };
 
 // --- Users ---
