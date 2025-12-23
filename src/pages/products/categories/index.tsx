@@ -44,6 +44,12 @@ export default function CategoryPage() {
 
   const [deleteCategory] = useDeleteCategoryMutation();
   const handleDeleteCategory = async (id: number) => {
+    // Check permission first
+    if (!canDeleteCategory) {
+      toast.error("You do not have permission to delete categories.");
+      return;
+    }
+
     // Ask for confirmation using a simple toast with prompt
     const confirmed = await new Promise<boolean>((resolve) => {
       toast(
@@ -136,6 +142,7 @@ export default function CategoryPage() {
               variant="destructive"
               size="sm"
               onClick={() => handleDeleteCategory(categoryId)}
+
             >
               Delete
             </Button>
