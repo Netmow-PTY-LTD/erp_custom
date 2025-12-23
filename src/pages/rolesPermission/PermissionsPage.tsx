@@ -225,7 +225,7 @@ export default function PermissionsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="block w-full">Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select  key={field.value}   onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select status" />
