@@ -1,13 +1,11 @@
 import { ShieldAlert, ArrowLeft } from "lucide-react";
-import { Link } from "react-router";
-
 export default function UnauthorizedPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-linear-to-br from-muted/40 via-background to-muted/40 px-4">
-      
+
       {/* Card */}
       <div className="w-full max-w-lg rounded-3xl border bg-background/80 backdrop-blur-xl shadow-xl p-8 sm:p-10 text-center">
-        
+
         {/* Icon */}
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
           <ShieldAlert className="h-10 w-10 text-destructive" />
@@ -31,13 +29,13 @@ export default function UnauthorizedPage() {
 
         {/* Actions */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            to="/dashboard"
+          <button
+            onClick={() => window.history.back()}
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
-          </Link>
+            Go Back
+          </button>
         </div>
 
         {/* Divider */}

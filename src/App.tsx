@@ -32,7 +32,7 @@ const APP = () => {
                 to="/login"
                 className="px-8 py-3 bg-white text-blue-600 font-semibold rounded shadow hover:bg-gray-100 transition"
               >
-                Login
+                Sign In
               </Link>
               {/* <Link
                 to="/register"

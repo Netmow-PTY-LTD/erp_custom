@@ -14,8 +14,22 @@ export const ProductPermission = {
   DETAILS: "products.details" as const,
   CREATE: "products.create" as const,
   EDIT: "products.edit" as const,
+    // Categories
   VIEW_CATEGORIES: "products.categories.view" as const,
+  CREATE_CATEGORIES: "products.categories.create" as const,
+  Edit_CATEGORIES: "products.categories.edit" as const,
+  DELETE_CATEGORIES: "products.categories.delete" as const,
+  // Units
   VIEW_UNITS: "products.units.view" as const,
+  CREATE_UNITS: "products.units.create" as const,
+  EDIT_UNITS: "products.units.edit" as const,
+  DELETE_UNITS: "products.units.delete" as const,
+
+  // Stock Management
+  VIEW_STOCK: "products.stock.view" as const,
+  CREATE_STOCK: "products.stock.create" as const,
+  EDIT_STOCK: "products.stock.edit" as const,
+  DELETE_STOCK: "products.stock.delete" as const,
   MANAGE_STOCK: "products.stock.manage" as const,
 };
 

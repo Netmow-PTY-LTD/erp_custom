@@ -14,7 +14,7 @@ import { useUpdateStockMutation } from "@/store/features/admin/productsApiServic
 import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ShieldAlert } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -35,6 +35,8 @@ import {
 } from "../ui/select";
 import z from "zod";
 import { Textarea } from "../ui/textarea";
+import { ProductPermission } from "@/config/permissions";
+import { useAppSelector } from "@/store/store";
 
 // 1️⃣ Define form schema using Zod
 const stockFormSchema = z.object({
@@ -65,6 +67,12 @@ export default function AddStockForm({
   refetchProducts?: () => void;
 }) {
   const [popoverOpen, setPopoverOpen] = useState(false);
+
+    const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canCreateStock = userPermissions.includes(ProductPermission.CREATE_STOCK);
+
+
+  
 
   const form = useForm<StockFormValues>({
     resolver: zodResolver(stockFormSchema),
@@ -147,7 +155,27 @@ export default function AddStockForm({
         </SheetHeader>
 
         <div className="p-4 max-h-[90vh] overflow-y-auto">
-          <Form {...form}>
+           {!canCreateStock? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to add a new Stock. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) :( <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               {/* PRODUCT DROPDOWN */}
               <Controller
@@ -318,7 +346,7 @@ export default function AddStockForm({
                 <Button type="submit">Adjust Stock</Button>
               </div>
             </form>
-          </Form>
+          </Form>)}
         </div>
       </SheetContent>
     </Sheet>

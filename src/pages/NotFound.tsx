@@ -1,4 +1,4 @@
-import { Link, useRouteError } from "react-router";
+import { useRouteError } from "react-router";
 
 
 
@@ -27,11 +27,11 @@ const NotFound = () => {
             <p className="text-gray-600 mb-6 text-center">
                 Sorry, the page you visited does not exist.
             </p>
-            <Link to="/">
-                <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                    Back Home
-                </button>
-            </Link>
+
+            <button onClick={() => window.history.back()} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                Go Back
+            </button>
+
         </div>
     );
 };
