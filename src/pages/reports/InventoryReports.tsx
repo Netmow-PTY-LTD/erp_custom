@@ -1,9 +1,14 @@
-
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
+import {
+  useGetInventoryLowStockListQuery,
+  useGetInventoryStatusQuery,
+  useGetInventoryValuationQuery,
+} from "@/store/features/reports/reportApiService";
+import { useState } from "react";
 
 export type LowStockRow = {
   sku: string;
@@ -12,22 +17,34 @@ export type LowStockRow = {
   minLevel: number;
 };
 
-const lowStockData: LowStockRow[] = [
-  { sku: "SKU004", product: "Laptop Computer", stock: -16, minLevel: 5 },
-  { sku: "SKU010", product: "Cable Management", stock: 1, minLevel: 10 },
-];
-
 export default function InventoryReports() {
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const limit = 10;
+
+  const { data: inventoryValuation } = useGetInventoryValuationQuery();
+
+  const totalValuation = inventoryValuation?.data?.total_Valuation || 0;
+  const totalUnits = inventoryValuation?.data?.total_units || 0;
+
+  const { data: lowStockReport } = useGetInventoryStatusQuery();
+
+  const lowStockCount = lowStockReport?.data?.low_stock_count || 0;
+
+  const { data: lowStockItems, isFetching: lowStockItemsIsFetching } =
+    useGetInventoryLowStockListQuery({
+      page,
+      limit,
+      search,
+    });
+  console.log("Low Stock Items:", lowStockItems);
+
   const columns: ColumnDef<LowStockRow>[] = [
     { accessorKey: "sku", header: "SKU" },
     { accessorKey: "product", header: "Product" },
     { accessorKey: "stock", header: "Stock" },
     { accessorKey: "minLevel", header: "Min Level" },
   ];
-
-  const stockValuation = 14697;
-  const totalUnits = 1375;
-  const lowStockCount = lowStockData.length;
 
   return (
     <div className="space-y-6">
@@ -37,15 +54,19 @@ export default function InventoryReports() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="p-4">
-          <CardTitle className="text-sm text-gray-500">Stock Valuation</CardTitle>
+          <CardTitle className="text-sm text-gray-500">
+            Stock Valuation
+          </CardTitle>
           <CardContent className="p-0 mt-2">
-            <p className="text-2xl font-bold">RM {stockValuation.toLocaleString()}</p>
+            <p className="text-2xl font-bold">RM {totalValuation}</p>
             <p className="text-gray-500 text-sm">Total Units: {totalUnits}</p>
           </CardContent>
         </Card>
 
         <Card className="p-4">
-          <CardTitle className="text-sm text-gray-500">Low Stock Items</CardTitle>
+          <CardTitle className="text-sm text-gray-500">
+            Low Stock Items
+          </CardTitle>
           <CardContent className="p-0 mt-2">
             <p className="text-2xl font-bold">{lowStockCount}</p>
           </CardContent>
@@ -58,29 +79,24 @@ export default function InventoryReports() {
           <CardTitle className="text-lg font-medium">Low Stock List</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={lowStockData} pageSize={10} />
+          <DataTable
+            columns={columns}
+            data={lowStockItems?.data || []}
+            pageIndex={page - 1}
+            pageSize={limit}
+            totalCount={lowStockItems?.pagination?.total || 0}
+            onPageChange={(newPage) => setPage(newPage + 1)}
+            onSearch={(val) => {
+              setSearch(val);
+              setPage(1);
+            }}
+            isFetching={lowStockItemsIsFetching}
+          />
         </CardContent>
       </Card>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // "use client";
 

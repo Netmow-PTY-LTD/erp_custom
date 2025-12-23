@@ -25,6 +25,7 @@ import {
 } from "@/store/features/reports/reportApiService";
 import { useAppSelector } from "@/store/store";
 import { useState } from "react";
+import { toast } from "sonner";
 
 // const topProducts = [
 //   { sku: "PRD-001", name: "Wireless Mouse", quantity: 120, sales: 3600.5 },
@@ -66,23 +67,21 @@ import { useState } from "react";
 //   { date: "2025-12-19", amount: 3600 },
 // ];
 
-export default function SalesReportsPage() {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [limit] = useState(10);
+function getStartOfCurrentMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1)
+    .toISOString()
+    .slice(0, 10);
+}
 
-  const [productsPage, setProductsPage] = useState(1);
-  const [productSearch, setProductSearch] = useState("");
-  const [productsLimit] = useState(10);
+function getEndOfCurrentMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    .toISOString()
+    .slice(0, 10);
+}
 
-  const currency = useAppSelector((state) => state.currency.value);
-
-  const { data: salesSummary, isLoading: salesSummaryIsLoading } =
-    useGetSalesSummaryQuery();
-
-  const summary = salesSummary?.data;
-
-  function formatChartDate(date: string, period: string) {
+function formatChartDate(date: string, period: string) {
   switch (period) {
     case "daily":
       return new Date(date).toLocaleDateString(); // 12 Dec
@@ -102,22 +101,49 @@ export default function SalesReportsPage() {
   }
 }
 
-  const {data:revenueChartData} = useGetSalesChartDataQuery();
-  console.log('revenueChartData ==>',revenueChartData);
+export default function SalesReportsPage() {
+  const [startDate, setStartDate] = useState(getStartOfCurrentMonth());
+  const [endDate, setEndDate] = useState(getEndOfCurrentMonth());
+  const [tempStartDate, setTempStartDate] = useState(startDate);
+  const [tempEndDate, setTempEndDate] = useState(endDate);
+
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [limit] = useState(10);
+
+  const [productsPage, setProductsPage] = useState(1);
+  const [productSearch, setProductSearch] = useState("");
+  const [productsLimit] = useState(10);
+
+  const currency = useAppSelector((state) => state.currency.value);
+
+  const { data: salesSummary, isLoading: salesSummaryIsLoading } =
+    useGetSalesSummaryQuery({
+      start_date: startDate,
+      end_date: endDate,
+    });
+
+  const summary = salesSummary?.data?.summary;
+
+  const { data: revenueChartData } = useGetSalesChartDataQuery({
+    start_date: startDate,
+    end_date: endDate,
+  });
+  console.log("revenueChartData ==>", revenueChartData);
 
   const revenueData =
-  revenueChartData?.data.data.map((item) => ({
-    date: formatChartDate(item.date, revenueChartData.data.period),
-    amount: item.amount,
-    orders: item.order_count,
-  })) ?? [];
+    revenueChartData?.data.data.map((item) => ({
+      date: formatChartDate(item.date, revenueChartData.data.period),
+      amount: item.amount,
+      orders: item.order_count,
+    })) ?? [];
 
-
-  const {data: topProductsData, isFetching: topProductsIsFetching} = useGetTopProductsQuery({
-    page: productsPage,
-    limit: productsLimit,
-    search: productSearch,
-  });
+  const { data: topProductsData, isFetching: topProductsIsFetching } =
+    useGetTopProductsQuery({
+      page: productsPage,
+      limit: productsLimit,
+      search: productSearch,
+    });
   const topProducts = topProductsData?.data || [];
 
   const topProductsColumns: ColumnDef<any>[] = [
@@ -132,16 +158,17 @@ export default function SalesReportsPage() {
     {
       accessorKey: "total_revenue",
       header: `Sales (${currency})`,
-      cell: (info) => (info.getValue() as number),
+      cell: (info) => info.getValue() as number,
       meta: { textAlign: "right" },
     },
   ];
 
-  const { data: topCustomersData, isFetching: topCustomersIsFetching } = useGetTopCustomersQuery({
-    page,
-    limit,
-    search,
-  });
+  const { data: topCustomersData, isFetching: topCustomersIsFetching } =
+    useGetTopCustomersQuery({
+      page,
+      limit,
+      search,
+    });
   const topCustomers = topCustomersData?.data || [];
 
   const topCustomersColumns: ColumnDef<any>[] = [
@@ -155,12 +182,12 @@ export default function SalesReportsPage() {
     {
       accessorKey: "total_spent",
       header: `Sales (${currency})`,
-      cell: (row) => (row.getValue() as number),
+      cell: (row) => row.getValue() as number,
     },
   ];
 
   const formatCurrency = (value?: number) =>
-    `RM ${(value ?? 0).toLocaleString(undefined, {
+    `${currency} ${(value ?? 0).toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -170,16 +197,41 @@ export default function SalesReportsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold">Sales Reports</h1>
-        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+        <div className="flex flex-wrap gap-2 items-end">
           <div className="flex flex-col">
             <label className="text-sm text-muted-foreground">From</label>
-            <Input type="date" className="w-36" />
+            <Input
+              type="date"
+              className="w-36"
+              value={tempStartDate}
+              onChange={(e) => setTempStartDate(e.target.value)}
+            />
           </div>
+
           <div className="flex flex-col">
             <label className="text-sm text-muted-foreground">To</label>
-            <Input type="date" className="w-36" />
+            <Input
+              type="date"
+              className="w-36"
+              value={tempEndDate}
+              onChange={(e) => setTempEndDate(e.target.value)}
+            />
           </div>
-          <Button className="mt-2 sm:mt-6">Filter</Button>
+          <Button
+            onClick={() => {
+              if (!tempStartDate || !tempEndDate) return;
+
+              if (tempStartDate > tempEndDate) {
+                toast.info("From date cannot be after To date");
+                return;
+              }
+
+              setStartDate(tempStartDate);
+              setEndDate(tempEndDate);
+            }}
+          >
+            Filter
+          </Button>
         </div>
       </div>
 
@@ -196,7 +248,7 @@ export default function SalesReportsPage() {
         <Kpi
           title="Revenue"
           value={
-            salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_revenue)
+            salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_sales)
           }
           icon={<DollarSign className="text-green-500" />}
         />
@@ -204,7 +256,7 @@ export default function SalesReportsPage() {
         <Kpi
           title="Tax"
           value={
-            salesSummaryIsLoading ? "—" : formatCurrency(summary?.totalTax)
+            salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_tax)
           }
           icon={<ArrowUp className="text-yellow-500" />}
         />
@@ -212,7 +264,9 @@ export default function SalesReportsPage() {
         <Kpi
           title="Discounts"
           value={
-            salesSummaryIsLoading ? "—" : formatCurrency(summary?.totalDiscount)
+            salesSummaryIsLoading
+              ? "—"
+              : formatCurrency(summary?.total_discount)
           }
           icon={<ArrowDown className="text-red-500" />}
         />
@@ -225,18 +279,8 @@ export default function SalesReportsPage() {
           <CardHeader className="flex-row justify-between items-center">
             <CardTitle>Revenue by Day</CardTitle>
             <span className="text-sm text-muted-foreground">
-              2025-12-01 → 2025-12-19
+              {startDate} → {endDate}
             </span>
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-          <div className="flex flex-col">
-            <label className="text-sm text-muted-foreground">From</label>
-            <Input type="date" className="w-36" />
-          </div>
-          <div className="flex flex-col">
-            <label className="text-sm text-muted-foreground">To</label>
-            <Input type="date" className="w-36" />
-          </div>
-          </div>
           </CardHeader>
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -333,7 +377,7 @@ function Kpi({
         <p className="text-sm text-muted-foreground">{title}</p>
         <p className="text-2xl font-semibold mt-1">{value}</p>
       </div>
-      {icon && <div className="ml-4">{icon}</div>}
+      {icon && <div className="">{icon}</div>}
     </Card>
   );
 }
