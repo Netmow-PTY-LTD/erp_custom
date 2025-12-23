@@ -207,7 +207,7 @@ export default function UserDetails() {
             <CardTitle className="text-xl">{user.name}</CardTitle>
             <div className="mt-1 flex gap-2">
               {/* ROLE BADGE */}
-              <Badge variant="outline">{user.role?.name}</Badge>
+              <Badge variant="outline">{user.role?.role}</Badge>
             </div>
           </div>
         </CardHeader>
@@ -230,7 +230,7 @@ export default function UserDetails() {
             <User className="h-5 w-5 opacity-70" />
             <div>
               <p className="text-sm text-muted-foreground">Role</p>
-              <p className="font-medium">{user.role?.name}</p>
+              <p className="font-medium">{user.role?.role}</p>
             </div>
           </div>
         </CardContent>

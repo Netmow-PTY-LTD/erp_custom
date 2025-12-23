@@ -11,6 +11,7 @@ import {
 import type { PurchasePayment } from "@/types/purchasePayment.types";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { useAppSelector } from "@/store/store";
+import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 
 export default function PurchaseInvoicesDetails() {
     const { id } = useParams();
@@ -23,27 +24,29 @@ export default function PurchaseInvoicesDetails() {
     const settingsInfo = fetchedSettingsInfo?.data;
 
     if (isLoading) return <p>Loading...</p>;
+    
+    if (!data?.data) return;
 
-    const invoice = data?.data || {};
-    const po = invoice.purchase_order;
-    const supplier = po.supplier;
-    const payments: PurchasePayment[] = invoice.payments || [];
+    const invoice: PurchaseInvoice = data?.data;
+    const po = invoice?.purchase_order;
+    const supplier = po?.supplier;
+    const payments: PurchasePayment[] = invoice?.payments || [];
 
     // Invoice Calculations
-    const subtotal = po.total_amount;
-    const tax = po.tax_amount ?? 0;
-    const discount = po.discount_amount ?? 0;
+    const subtotal = po?.total_amount;
+    const tax = po?.tax_amount ?? 0;
+    const discount = po?.discount_amount ?? 0;
     const total = subtotal + tax - discount;
-    const paid = invoice.paid_amount ?? 0; // No payments yet
+    const paid = invoice?.paid_amount ?? 0; // No payments yet
     const balance = total - paid;
     const isFullyPaid = balance <= 0;
-    const showMarkAsPaidButton = isFullyPaid && invoice.status !== "paid";
+    const showMarkAsPaidButton = isFullyPaid && invoice?.status !== "paid";
 
     const handleMarkAsPaid = async () => {
-        if (!isFullyPaid || invoice.status === "paid") return;
+        if (!isFullyPaid || invoice?.status === "paid") return;
         try {
             await markPaid({
-                invoiceId: invoice.id,
+                invoiceId: invoice?.id.toString() as string,
                 data: {
                     status: "paid",
                 },
@@ -57,7 +60,7 @@ export default function PurchaseInvoicesDetails() {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-wrap justify-between items-center gap-5">
-                <h1 className="text-3xl font-bold">Invoice {invoice.invoice_number}</h1>
+                <h1 className="text-3xl font-bold">Invoice {invoice?.invoice_number}</h1>
 
                 <div className="flex items-center gap-2">
                     <Link to="/dashboard/purchase-invoices">
@@ -65,7 +68,7 @@ export default function PurchaseInvoicesDetails() {
                     </Link>
 
                     <Link
-                        to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}
+                        to={`/dashboard/purchase-payments/create?pon=${invoice?.purchase_order.po_number}`}
                     >
                         <Button className="bg-blue-500 hover:bg-blue-600 text-white">
                             Record Payment
@@ -73,7 +76,7 @@ export default function PurchaseInvoicesDetails() {
                     </Link>
 
                     <Link
-                        to={`/dashboard/purchase-invoices/${invoice.id}/preview`}
+                        to={`/dashboard/purchase-invoices/${invoice?.id}/preview`}
                     >
                         <Button className="bg-blue-500 hover:bg-blue-600 text-white">
                             Print Preview
@@ -104,12 +107,12 @@ export default function PurchaseInvoicesDetails() {
                             <div className="space-y-5">
                                 <div className="space-y-1">
                                     <p className="font-semibold">From (Supplier):</p>
-                                    <p>{supplier.name}</p>
+                                    <p>{supplier?.name}</p>
                                     <p>
-                                        {supplier.email} | {supplier.phone}
+                                        {supplier?.email} | {supplier?.phone}
                                     </p>
-                                    {supplier.contact_person && (
-                                        <p>Contact Person: {supplier.contact_person}</p>
+                                    {supplier?.contact_person && (
+                                        <p>Contact Person: {supplier?.contact_person}</p>
                                     )}
                                 </div>
 
@@ -125,26 +128,26 @@ export default function PurchaseInvoicesDetails() {
                             {/* Invoice Numbers */}
                             <div className="space-y-2">
                                 <p>
-                                    <strong>Invoice #:</strong> {invoice.invoice_number}
+                                    <strong>Invoice #:</strong> {invoice?.invoice_number}
                                 </p>
                                 <p>
-                                    <strong>PO #:</strong> {po.po_number}
+                                    <strong>PO #:</strong> {po?.po_number}
                                 </p>
                                 <p>
                                     <strong>Invoice Date:</strong>{" "}
-                                    {invoice.invoice_date.split("T")[0]}
+                                    {invoice?.invoice_date.split("T")[0]}
                                 </p>
                                 <p>
-                                    <strong>Due Date:</strong> {invoice.due_date}
+                                    <strong>Due Date:</strong> {invoice?.due_date}
                                 </p>
                                 <p className="flex items-center gap-2">
                                     <strong>Status:</strong>
                                     <Badge className="bg-yellow-500 text-white capitalize">
-                                        {invoice.status}
+                                        {invoice?.status}
                                     </Badge>
                                 </p>
                                 <p>
-                                    <strong>Created By:</strong> User #{invoice.created_by}
+                                    <strong>Created By:</strong> User #{invoice?.created_by}
                                 </p>
                             </div>
                         </div>
@@ -154,7 +157,7 @@ export default function PurchaseInvoicesDetails() {
                     <div className="border rounded-md">
                         <div className="p-4 font-semibold text-lg">Invoice Items</div>
 
-                        {po.items.length === 0 ? (
+                        {po?.items.length === 0 ? (
                             <div className="p-4 text-gray-600">No items found.</div>
                         ) : (
                             <div className="overflow-x-auto">
@@ -170,7 +173,7 @@ export default function PurchaseInvoicesDetails() {
                                     </thead>
 
                                     <tbody>
-                                        {po.items.map((item: any) => (
+                                        {po?.items.map((item: any) => (
                                             <tr key={item.id} className="border-b">
                                                 {/* Product */}
                                                 <td className="p-3">
@@ -328,7 +331,7 @@ export default function PurchaseInvoicesDetails() {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span>Subtotal</span>
-                                <span className="font-semibold">RM {subtotal.toFixed(2)}</span>
+                                <span className="font-semibold">RM {subtotal?.toFixed(2)}</span>
                             </div>
 
                             <div className="flex justify-between">
@@ -359,7 +362,7 @@ export default function PurchaseInvoicesDetails() {
                             </div>
 
                             <Badge className="bg-yellow-500 text-white capitalize mt-1">
-                                {invoice.status}
+                                {invoice?.status}
                             </Badge>
                         </div>
                     </div>
@@ -368,9 +371,9 @@ export default function PurchaseInvoicesDetails() {
                     <div className="border rounded-md p-5">
                         <h3 className="font-semibold text-lg">Supplier</h3>
 
-                        <p className="mt-2 font-semibold">{supplier.name}</p>
-                        <p className="text-sm">{supplier.email}</p>
-                        <p className="text-sm">{supplier.phone}</p>
+                        <p className="mt-2 font-semibold">{supplier?.name}</p>
+                        <p className="text-sm">{supplier?.email}</p>
+                        <p className="text-sm">{supplier?.phone}</p>
                     </div>
                 </div>
             </div>
