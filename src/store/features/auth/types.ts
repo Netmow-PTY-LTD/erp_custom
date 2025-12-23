@@ -1,10 +1,12 @@
+import type { Role } from "@/types/users.types";
+
 // User details returned from the backend
 export interface User {
   id: number;
   name: string;
   email: string;
   role_id?: number;
-  role_name?: string;
+  role:Role
 }
 
 // Request payload for login
