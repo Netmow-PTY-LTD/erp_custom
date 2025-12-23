@@ -33,6 +33,7 @@ export interface PurchaseOrder {
   total_amount: number;
   tax_amount: number;
   discount_amount: number;
+  paid_amount: number;
   status: "pending" | "approved" | "rejected" | "delivered";
   created_at: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
