@@ -23,12 +23,14 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader } from "lucide-react";
+import { Loader, ShieldAlert } from "lucide-react";
 import {
   useGetDepartmentByIdQuery,
   useUpdateDepartmentMutation,
 } from "@/store/features/admin/departmentApiService";
 import { useEffect } from "react";
+import { useAppSelector } from "@/store/store";
+import { StaffPermission } from "@/config/permissions";
 
 interface Props {
   open: boolean;
@@ -42,6 +44,9 @@ export default function EditDepartmentForm({
   departmentId,
 }: Props) {
   const navigate = useNavigate();
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canEditDepartments = userPermissions.includes(StaffPermission.EDIT_DEPARTMENTS);
+
 
   const form = useForm<DepartmentFormValues>({
     resolver: zodResolver(DepartmentSchema),
@@ -67,7 +72,7 @@ export default function EditDepartmentForm({
       });
     }
   }, [departmentData, form]);
-  
+
   const [updateDepartment, { isLoading: isUpdating }] = useUpdateDepartmentMutation();
 
   const onSubmit = async (values: DepartmentFormValues) => {
@@ -100,7 +105,27 @@ export default function EditDepartmentForm({
         </SheetHeader>
 
         <div className="px-4">
-          <Form {...form}>
+          {!canEditDepartments ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to edit a Department. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) : (<Form {...form}>
             <form
               className="space-y-4 mt-6"
               onSubmit={form.handleSubmit(onSubmit)}
@@ -145,7 +170,7 @@ export default function EditDepartmentForm({
                 )}
               </Button>
             </form>
-          </Form>
+          </Form>)}
         </div>
       </SheetContent>
     </Sheet>
