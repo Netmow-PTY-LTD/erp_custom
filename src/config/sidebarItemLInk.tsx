@@ -55,7 +55,6 @@ import CustomerViewPage from "@/pages/customer/CustomerViewPage";
 import CustomersMapPage from "@/pages/customer/CustomersMapPage";
 import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import AccountSettings from "@/pages/Settings/pages/Account";
-import SalesRprots from "@/pages/reports/SalesRprots";
 import InventoryReports from "@/pages/reports/InventoryReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 import LeavesManagement from "@/pages/staffs/leaves";
@@ -100,6 +99,7 @@ import {
   SettingsPermission,
   ReportPermission,
 } from "./permissions";
+import SalesReportsPage from "@/pages/reports/SalesReports";
 
 
 
@@ -608,7 +608,7 @@ export const sidebarItemLink = [
       {
         title: "Sales Reports",
         url: "/dashboard/reports/sales",
-        element: <SalesRprots />,
+        element: <SalesReportsPage />,
         allowedPermissions: [ReportPermission.SALES],
       },
       {
@@ -1076,7 +1076,7 @@ export const _sidebarItemLink = [
       {
         title: "Sales Reports",
         url: "/dashboard/reports/sales",
-        element: <SalesRprots />
+        element: <SalesReportsPage />
       },
       {
         title: "Inventory Reports",
