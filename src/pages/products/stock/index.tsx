@@ -16,6 +16,7 @@ import type { Product } from "@/types/types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
+import { ProductPermission } from "@/config/permissions";
 
 export default function StockManagement() {
   const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
@@ -23,6 +24,12 @@ export default function StockManagement() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+const canCreateStock = userPermissions.includes(ProductPermission.CREATE_STOCK);
+const canEditStock = userPermissions.includes(ProductPermission.EDIT_STOCK);
+const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK);
+
+
 
   const {
     data: fetchedProducts,
@@ -144,7 +151,7 @@ export default function StockManagement() {
       <div className="flex">
         <h1 className="text-2xl font-bold">Stock Management</h1>
         <div className="ml-auto">
-          <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />
+         {canCreateStock&&  <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />}
         </div>
       </div>
 
