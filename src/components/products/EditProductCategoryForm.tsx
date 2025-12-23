@@ -27,9 +27,11 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "../ui/textarea";
 import { useGetCategoryByIdQuery, useUpdateCategoryMutation } from "@/store/features/admin/productsApiService";
-import { Loader } from "lucide-react";
+import { Loader, ShieldAlert } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { ProductPermission } from "@/config/permissions";
 
 const statusOptions = [
   { value: "true", label: "Active" },
@@ -51,6 +53,13 @@ export default function EditProductCategoryForm({
   setOpen: (open: boolean) => void;
   categoryId: number;
 }) {
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canEditCategory = userPermissions.includes(ProductPermission.Edit_CATEGORIES);
+
+
+
+
   const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
@@ -60,9 +69,8 @@ export default function EditProductCategoryForm({
     },
   });
 
-  const {data: fetchedCategory} = useGetCategoryByIdQuery(categoryId, {skip: !categoryId}); // Replace null with actual category data to edit
+  const { data: fetchedCategory } = useGetCategoryByIdQuery(categoryId, { skip: !categoryId }); // Replace null with actual category data to edit
 
-  console.log("Fetched Category for Edit: ", fetchedCategory);
 
   const category = fetchedCategory?.data;
 
@@ -108,81 +116,106 @@ export default function EditProductCategoryForm({
           <SheetTitle>Update Category</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleUpdateCategory)}
-              className="space-y-5"
-            >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter category name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter category description"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={Boolean(field.value).toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {statusOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader className="w-4 h-4 animate-spin" />
-                    Updating...
-                  </div>
-                ) : (
-                  "Update Category"
-                )}
+          {!canEditCategory ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to edit a category. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="mt-4"
+              >
+                Close
               </Button>
-            </form>
-          </Form>
+            </div>
+          ) :
+            (<Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleUpdateCategory)}
+                className="space-y-5"
+              >
+
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter category name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter category description"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={Boolean(field.value).toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {statusOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button className="w-full" type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader className="w-4 h-4 animate-spin" />
+                      Updating...
+                    </div>
+                  ) : (
+                    "Update Category"
+                  )}
+                </Button>
+              </form>
+            </Form>)
+          }
         </div>
       </SheetContent>
     </Sheet>

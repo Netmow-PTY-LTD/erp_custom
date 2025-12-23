@@ -21,8 +21,6 @@ export default function CategoryPage() {
   const [search, setSearch] = useState<string>("");
   const limit = 10;
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canCreateCategory = userPermissions.includes(ProductPermission.CREATE_CATEGORIES);
-  const canEditCategory = userPermissions.includes(ProductPermission.Edit_CATEGORIES);
   const canDeleteCategory = userPermissions.includes(ProductPermission.DELETE_CATEGORIES);
 
   const { data: fetchedCategories, isFetching } = useGetAllCategoriesQuery({
@@ -121,30 +119,28 @@ export default function CategoryPage() {
 
         return (
           <div className="flex items-center gap-2">
-            {
-              canEditCategory && <Button
-                variant="success"
-                size="sm"
-                onClick={() => {
-                  setCategoryId(categoryId);
-                  setOpenEditForm(true);
-                }}
-              >
-                Edit
-              </Button>
-            }
-            {
-              canDeleteCategory && <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDeleteCategory(categoryId)}
-              >
-                Delete
-              </Button>
-            }
-            {!canEditCategory && !canDeleteCategory && (
-              <span className="text-muted-foreground text-xs">No actions</span>
-            )}
+
+            <Button
+              variant="success"
+              size="sm"
+              onClick={() => {
+                setCategoryId(categoryId);
+                setOpenEditForm(true);
+              }}
+            >
+              Edit
+            </Button>
+
+
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => handleDeleteCategory(categoryId)}
+            >
+              Delete
+            </Button>
+
+
           </div>
         );
       },
@@ -158,9 +154,8 @@ export default function CategoryPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Product Categories</h1>
         {/* Add Category form */}
-        {
-          canCreateCategory && <AddProductCategoryForm open={sheetOpen} setOpen={setSheetOpen} />
-        }
+        <AddProductCategoryForm open={sheetOpen} setOpen={setSheetOpen} />
+
 
       </div>
 
