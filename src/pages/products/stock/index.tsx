@@ -24,9 +24,9 @@ export default function StockManagement() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
-//   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  //   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-// const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK);
+  // const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK);
 
 
 
@@ -150,7 +150,7 @@ export default function StockManagement() {
       <div className="flex">
         <h1 className="text-2xl font-bold">Stock Management</h1>
         <div className="ml-auto">
-         <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />
+          <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />
         </div>
       </div>
 
