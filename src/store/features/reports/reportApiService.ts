@@ -39,10 +39,11 @@ export const reportsApiService = baseApi.injectEndpoints({
     // ===================== SALES REPORTS =====================
 
     // GET /api/reports/sales/summary
-    getSalesSummary: builder.query<ReportResponse, void>({
-      query: () => ({
+    getSalesSummary: builder.query<ReportResponse, { start_date: string; end_date: string }>({
+      query: (params) => ({
         url: "/reports/sales/summary",
         method: "GET",
+        params,
       }),
       providesTags: ["Reports"],
     }),
@@ -66,10 +67,11 @@ export const reportsApiService = baseApi.injectEndpoints({
     }),
 
     
-    getSalesChartData: builder.query<RevenueChartResponse, void>({
-      query: () => ({
+    getSalesChartData: builder.query<RevenueChartResponse, { start_date: string; end_date: string }>({
+      query: (params) => ({
         url: "/sales/reports/charts",
         method: "GET",
+        params,
       }),
       providesTags: ["Reports"],
     }),
@@ -114,6 +116,37 @@ export const reportsApiService = baseApi.injectEndpoints({
       providesTags: ["Reports"],
     }),
 
+     // GET /api/reports/inventory/low-stock-list
+    getInventoryLowStockList: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({
+        url: "/reports/inventory/low-stock-list",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    // ===================== Customer Reports =====================
+
+    getSalesReportByCustomer: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({
+        url: "/reports/sales/by-customer",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    getAccountsReceivableReport: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({
+        url: "/reports/customers/account-receivables",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+
     // ===================== HR REPORTS =====================
 
     // GET /api/reports/hr/attendance
@@ -157,6 +190,9 @@ export const {
   useGetPurchaseBySupplierQuery,
   useGetInventoryStatusQuery,
   useGetInventoryValuationQuery,
+  useGetInventoryLowStockListQuery,
+  useGetSalesReportByCustomerQuery,
+  useGetAccountsReceivableReportQuery,
   useGetHrAttendanceQuery,
   useGetHrPayrollQuery,
   useGetProfitLossQuery,
