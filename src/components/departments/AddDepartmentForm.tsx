@@ -24,7 +24,9 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader } from "lucide-react";
+import { Loader, ShieldAlert } from "lucide-react";
+import { useAppSelector } from "@/store/store";
+import { StaffPermission } from "@/config/permissions";
 
 interface Props {
   open: boolean;
@@ -33,6 +35,12 @@ interface Props {
 
 export default function AddDepartmentForm({ open, onOpenChange }: Props) {
   const navigate = useNavigate();
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  const canCreateDepartments = userPermissions.includes(StaffPermission.CREATE_DEPARTMENTS);
+
+
 
   const form = useForm<DepartmentFormValues>({
     resolver: zodResolver(DepartmentSchema),
@@ -44,7 +52,7 @@ export default function AddDepartmentForm({ open, onOpenChange }: Props) {
 
   const [addDepartment, { isLoading }] = useAddDepartmentMutation();
   const onSubmit = async (values: DepartmentFormValues) => {
-   // console.log("Add Department: ", values);
+    // console.log("Add Department: ", values);
 
     const payload = {
       name: values.name,
@@ -73,7 +81,27 @@ export default function AddDepartmentForm({ open, onOpenChange }: Props) {
         </SheetHeader>
 
         <div className="px-4">
-          <Form {...form}>
+          {!canCreateDepartments ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to add a new Department. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) : (<Form {...form}>
             <form
               className="space-y-4 mt-6"
               onSubmit={form.handleSubmit(onSubmit)}
@@ -118,7 +146,7 @@ export default function AddDepartmentForm({ open, onOpenChange }: Props) {
                 )}
               </Button>
             </form>
-          </Form>
+          </Form>)}
         </div>
       </SheetContent>
     </Sheet>

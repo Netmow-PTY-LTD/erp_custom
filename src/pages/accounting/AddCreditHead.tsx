@@ -45,6 +45,14 @@ const creditHeadSchema = z.object({
 });
 export default function AddCreditHeadForm() {
   const [open, setOpen] = useState(false);
+
+//   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+// // Credit Heads
+// const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREATE_CREDIT_HEADS);
+
+
+
   const form = useForm({
     resolver: zodResolver(creditHeadSchema),
     defaultValues: {

@@ -13,6 +13,8 @@ import {
 } from "@/store/features/admin/departmentApiService";
 import type { Department } from "@/types/types";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { StaffPermission } from "@/config/permissions";
 
 export const DepartmentSchema = z.object({
   name: z.string().min(1, "Department name is required"),
@@ -29,6 +31,15 @@ export default function DepartmentsPage() {
   const [search, setSearch] = useState<string>("");
   const limit = 10;
 
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canDeleteDepartments = userPermissions.includes(StaffPermission.DELETE_DEPARTMENTS);
+
+
+
+
+
+
+
   const { data: fetchedDepartments, isFetching } = useGetAllDepartmentsQuery({
     page,
     limit,
@@ -44,6 +55,10 @@ export default function DepartmentsPage() {
   const handleDeleteDepartment = async (id: number) => {
     // Ask for confirmation using a simple toast with prompt
     const confirmed = await new Promise<boolean>((resolve) => {
+      if (!canDeleteDepartments) {
+        toast.error("You do not have permission to delete this department");
+        return; // Stop further execution
+      }
       toast("Are you sure you want to delete this department?", {
         action: {
           label: "Delete",
