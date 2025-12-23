@@ -151,7 +151,7 @@ const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK);
       <div className="flex">
         <h1 className="text-2xl font-bold">Stock Management</h1>
         <div className="ml-auto">
-         {canCreateStock&&  <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />}
+         <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />
         </div>
       </div>
 
