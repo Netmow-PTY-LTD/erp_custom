@@ -30,6 +30,7 @@ import {
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { selectCurrency } from "@/store/currencySlice";
+import { ProductPermission } from "@/config/permissions";
 
 const stats = [
   {
@@ -62,6 +63,10 @@ export default function Products() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canCreateProduct = userPermissions.includes(ProductPermission.CREATE);
+  
+
 
   const {
     data: fetchedProducts,
@@ -110,7 +115,7 @@ export default function Products() {
       console.error("Error deleting unit:", error);
       toast.error(
         "Failed to delete unit" +
-          (error instanceof Error ? ": " + error.message : "")
+        (error instanceof Error ? ": " + error.message : "")
       );
     }
   };
@@ -152,12 +157,12 @@ export default function Products() {
       header: `Selling Price ${currency ? `(${currency})` : ""}`,
       cell: ({ row }) => <span>{parseFloat(row.getValue("price")).toFixed(2)}</span>,
     },
-     {
+    {
       accessorKey: "purchase_tax",
       header: `Purchase Tax ${currency ? `(${currency})` : ""}`,
       cell: ({ row }) => <span>{parseFloat(row.getValue("purchase_tax")).toFixed(2)}</span>,
     },
-     {
+    {
       accessorKey: "sales_tax",
       header: `Sales Tax ${currency ? `(${currency})` : ""}`,
       cell: ({ row }) => <span>{parseFloat(row.getValue("sales_tax")).toFixed(2)}</span>,
@@ -263,12 +268,15 @@ export default function Products() {
             </button>
           </Link>
 
-          <Link to="/dashboard/products/create">
-            <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
-              <PackagePlus size={18} />
-              Add Product
-            </button>
-          </Link>
+          {
+            canCreateProduct && <Link to="/dashboard/products/create">
+              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
+                <PackagePlus size={18} />
+                Add Product
+              </button>
+            </Link>
+          }
+
         </div>
       </div>
 

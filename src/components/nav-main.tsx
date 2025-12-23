@@ -42,6 +42,7 @@ interface NavMainProps {
 
 export function NavMain({ items }: NavMainProps) {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  
 
   return (
     <SidebarGroup>

@@ -17,91 +17,221 @@ import {
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUp, ArrowDown, DollarSign, ShoppingCart } from "lucide-react";
-import { useGetSalesSummaryQuery } from "@/store/features/reports/reportApiService";
+import {
+  useGetSalesChartDataQuery,
+  useGetSalesSummaryQuery,
+  useGetTopCustomersQuery,
+  useGetTopProductsQuery,
+} from "@/store/features/reports/reportApiService";
+import { useAppSelector } from "@/store/store";
+import { useState } from "react";
+import { toast } from "sonner";
 
-const topProducts = [
-  { sku: "PRD-001", name: "Wireless Mouse", quantity: 120, sales: 3600.5 },
-  { sku: "PRD-002", name: "Mechanical Keyboard", quantity: 80, sales: 6400.0 },
-  { sku: "PRD-003", name: "HD Monitor 24\"", quantity: 45, sales: 13500.75 },
-  { sku: "PRD-004", name: "USB-C Hub", quantity: 150, sales: 4500.25 },
-  { sku: "PRD-005", name: "External SSD 1TB", quantity: 30, sales: 9000.0 },
-  { sku: "PRD-006", name: "Laptop Stand", quantity: 70, sales: 2800.0 },
-];
+// const topProducts = [
+//   { sku: "PRD-001", name: "Wireless Mouse", quantity: 120, sales: 3600.5 },
+//   { sku: "PRD-002", name: "Mechanical Keyboard", quantity: 80, sales: 6400.0 },
+//   { sku: "PRD-003", name: 'HD Monitor 24"', quantity: 45, sales: 13500.75 },
+//   { sku: "PRD-004", name: "USB-C Hub", quantity: 150, sales: 4500.25 },
+//   { sku: "PRD-005", name: "External SSD 1TB", quantity: 30, sales: 9000.0 },
+//   { sku: "PRD-006", name: "Laptop Stand", quantity: 70, sales: 2800.0 },
+// ];
 
-const topCustomers = [
-  { name: "John Doe", sales: 12500.75 },
-  { name: "Jane Smith", sales: 9800.0 },
-  { name: "Acme Corp", sales: 15200.5 },
-  { name: "Global Solutions", sales: 8700.25 },
-  { name: "Alice Johnson", sales: 6400.0 },
-  { name: "Tech Innovators", sales: 11200.0 },
-];
+// const topCustomers = [
+//   { name: "John Doe", sales: 12500.75 },
+//   { name: "Jane Smith", sales: 9800.0 },
+//   { name: "Acme Corp", sales: 15200.5 },
+//   { name: "Global Solutions", sales: 8700.25 },
+//   { name: "Alice Johnson", sales: 6400.0 },
+//   { name: "Tech Innovators", sales: 11200.0 },
+// ];
 
-const revenueData = [
-  { date: "2025-12-01", amount: 1200 },
-  { date: "2025-12-02", amount: 1500 },
-  { date: "2025-12-03", amount: 900 },
-  { date: "2025-12-04", amount: 1800 },
-  { date: "2025-12-05", amount: 2000 },
-  { date: "2025-12-06", amount: 1700 },
-  { date: "2025-12-07", amount: 2200 },
-  { date: "2025-12-08", amount: 1900 },
-  { date: "2025-12-09", amount: 2100 },
-  { date: "2025-12-10", amount: 2300 },
-  { date: "2025-12-11", amount: 2500 },
-  { date: "2025-12-12", amount: 2000 },
-  { date: "2025-12-13", amount: 2400 },
-  { date: "2025-12-14", amount: 2600 },
-  { date: "2025-12-15", amount: 2800 },
-  { date: "2025-12-16", amount: 3000 },
-  { date: "2025-12-17", amount: 3200 },
-  { date: "2025-12-18", amount: 3400 },
-  { date: "2025-12-19", amount: 3600 },
-];
+// const revenueData = [
+//   { date: "2025-12-01", amount: 1200 },
+//   { date: "2025-12-02", amount: 1500 },
+//   { date: "2025-12-03", amount: 900 },
+//   { date: "2025-12-04", amount: 1800 },
+//   { date: "2025-12-05", amount: 2000 },
+//   { date: "2025-12-06", amount: 1700 },
+//   { date: "2025-12-07", amount: 2200 },
+//   { date: "2025-12-08", amount: 1900 },
+//   { date: "2025-12-09", amount: 2100 },
+//   { date: "2025-12-10", amount: 2300 },
+//   { date: "2025-12-11", amount: 2500 },
+//   { date: "2025-12-12", amount: 2000 },
+//   { date: "2025-12-13", amount: 2400 },
+//   { date: "2025-12-14", amount: 2600 },
+//   { date: "2025-12-15", amount: 2800 },
+//   { date: "2025-12-16", amount: 3000 },
+//   { date: "2025-12-17", amount: 3200 },
+//   { date: "2025-12-18", amount: 3400 },
+//   { date: "2025-12-19", amount: 3600 },
+// ];
+
+function getStartOfCurrentMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1)
+    .toISOString()
+    .slice(0, 10);
+}
+
+function getEndOfCurrentMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    .toISOString()
+    .slice(0, 10);
+}
+
+function formatChartDate(date: string, period: string) {
+  switch (period) {
+    case "daily":
+      return new Date(date).toLocaleDateString(); // 12 Dec
+    case "weekly":
+      return date.replace("W", " Week ");
+    case "monthly":
+      return new Date(date + "-01").toLocaleString("default", {
+        month: "short",
+        year: "numeric",
+      });
+    case "quarterly":
+      return date; // 2025-Q4
+    case "yearly":
+      return date; // 2025
+    default:
+      return date;
+  }
+}
 
 export default function SalesReportsPage() {
+  const [startDate, setStartDate] = useState(getStartOfCurrentMonth());
+  const [endDate, setEndDate] = useState(getEndOfCurrentMonth());
+  const [tempStartDate, setTempStartDate] = useState(startDate);
+  const [tempEndDate, setTempEndDate] = useState(endDate);
 
-  const { data: salesSummary, isLoading: salesSummaryIsLoading } = useGetSalesSummaryQuery();
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [limit] = useState(10);
 
-  const summary = salesSummary?.data;
+  const [productsPage, setProductsPage] = useState(1);
+  const [productSearch, setProductSearch] = useState("");
+  const [productsLimit] = useState(10);
+
+  const currency = useAppSelector((state) => state.currency.value);
+
+  const { data: salesSummary, isLoading: salesSummaryIsLoading } =
+    useGetSalesSummaryQuery({
+      start_date: startDate,
+      end_date: endDate,
+    });
+
+  const summary = salesSummary?.data?.summary;
+
+  const { data: revenueChartData } = useGetSalesChartDataQuery({
+    start_date: startDate,
+    end_date: endDate,
+  });
+  console.log("revenueChartData ==>", revenueChartData);
+
+  const revenueData =
+    revenueChartData?.data.data.map((item) => ({
+      date: formatChartDate(item.date, revenueChartData.data.period),
+      amount: item.amount,
+      orders: item.order_count,
+    })) ?? [];
+
+  const { data: topProductsData, isFetching: topProductsIsFetching } =
+    useGetTopProductsQuery({
+      page: productsPage,
+      limit: productsLimit,
+      search: productSearch,
+    });
+  const topProducts = topProductsData?.data || [];
 
   const topProductsColumns: ColumnDef<any>[] = [
     { accessorKey: "sku", header: "SKU" },
     { accessorKey: "name", header: "Product" },
-    { accessorKey: "quantity", header: "Qty", cell: info => (info.getValue() as number).toLocaleString(), meta: { textAlign: "right" } },
-    { accessorKey: "sales", header: "Sales (RM)", cell: info => (info.getValue() as number).toFixed(2), meta: { textAlign: "right" } },
+    {
+      accessorKey: "total_quantity_sold",
+      header: "Qty",
+      cell: (info) => (info.getValue() as number).toLocaleString(),
+      meta: { textAlign: "right" },
+    },
+    {
+      accessorKey: "total_revenue",
+      header: `Sales (${currency})`,
+      cell: (info) => info.getValue() as number,
+      meta: { textAlign: "right" },
+    },
   ];
+
+  const { data: topCustomersData, isFetching: topCustomersIsFetching } =
+    useGetTopCustomersQuery({
+      page,
+      limit,
+      search,
+    });
+  const topCustomers = topCustomersData?.data || [];
 
   const topCustomersColumns: ColumnDef<any>[] = [
     { accessorKey: "name", header: "Customer" },
-    { accessorKey: "sales", header: "Sales (RM)", cell: info => (info.getValue() as number).toFixed(2), meta: { textAlign: "right" } },
+    { accessorKey: "email", header: "Email" },
+    {
+      accessorKey: "order_count",
+      header: "Orders",
+      cell: (row) => (row.getValue() as number).toLocaleString(),
+    },
+    {
+      accessorKey: "total_spent",
+      header: `Sales (${currency})`,
+      cell: (row) => row.getValue() as number,
+    },
   ];
 
-
   const formatCurrency = (value?: number) =>
-    `RM ${(value ?? 0).toLocaleString(undefined, {
+    `${currency} ${(value ?? 0).toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
-
-
-
 
   return (
     <div className="space-y-6 px-4 md:px-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold">Sales Reports</h1>
-        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+        <div className="flex flex-wrap gap-2 items-end">
           <div className="flex flex-col">
             <label className="text-sm text-muted-foreground">From</label>
-            <Input type="date" className="w-36" />
+            <Input
+              type="date"
+              className="w-36"
+              value={tempStartDate}
+              onChange={(e) => setTempStartDate(e.target.value)}
+            />
           </div>
+
           <div className="flex flex-col">
             <label className="text-sm text-muted-foreground">To</label>
-            <Input type="date" className="w-36" />
+            <Input
+              type="date"
+              className="w-36"
+              value={tempEndDate}
+              onChange={(e) => setTempEndDate(e.target.value)}
+            />
           </div>
-          <Button className="mt-2 sm:mt-6">Filter</Button>
+          <Button
+            onClick={() => {
+              if (!tempStartDate || !tempEndDate) return;
+
+              if (tempStartDate > tempEndDate) {
+                toast.info("From date cannot be after To date");
+                return;
+              }
+
+              setStartDate(tempStartDate);
+              setEndDate(tempEndDate);
+            }}
+          >
+            Filter
+          </Button>
         </div>
       </div>
 
@@ -109,25 +239,35 @@ export default function SalesReportsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Kpi
           title="Orders"
-          value={salesSummaryIsLoading ? "—" : String(summary?.total_orders ?? 0)}
+          value={
+            salesSummaryIsLoading ? "—" : String(summary?.total_orders ?? 0)
+          }
           icon={<ShoppingCart className="text-blue-500" />}
         />
 
         <Kpi
           title="Revenue"
-          value={salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_revenue)}
+          value={
+            salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_sales)
+          }
           icon={<DollarSign className="text-green-500" />}
         />
 
         <Kpi
           title="Tax"
-          value={salesSummaryIsLoading ? "—" : formatCurrency(summary?.totalTax)}
+          value={
+            salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_tax)
+          }
           icon={<ArrowUp className="text-yellow-500" />}
         />
 
         <Kpi
           title="Discounts"
-          value={salesSummaryIsLoading ? "—" : formatCurrency(summary?.totalDiscount)}
+          value={
+            salesSummaryIsLoading
+              ? "—"
+              : formatCurrency(summary?.total_discount)
+          }
           icon={<ArrowDown className="text-red-500" />}
         />
       </div>
@@ -138,22 +278,33 @@ export default function SalesReportsPage() {
         <Card className="lg:col-span-2">
           <CardHeader className="flex-row justify-between items-center">
             <CardTitle>Revenue by Day</CardTitle>
-            <span className="text-sm text-muted-foreground">2025-12-01 → 2025-12-19</span>
+            <span className="text-sm text-muted-foreground">
+              {startDate} → {endDate}
+            </span>
           </CardHeader>
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
+              <LineChart
+                data={revenueData}
+                margin={{ top: 10, right: 20, bottom: 10, left: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip formatter={(value: number) => `RM ${value.toFixed(2)}`} />
-                <Line type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+                <Tooltip
+                  formatter={(value: number) => `RM ${value.toFixed(2)}`}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-
-
       </div>
 
       {/* Top Customers */}
@@ -163,10 +314,24 @@ export default function SalesReportsPage() {
           <span className="text-sm text-muted-foreground">By sales</span>
         </CardHeader>
         <CardContent>
-          {topCustomers.length > 0 ? (
-            <DataTable data={topCustomers} columns={topCustomersColumns} pageSize={5} />
+          {topCustomers?.length > 0 ? (
+            <DataTable
+              data={topCustomers}
+              columns={topCustomersColumns}
+              pageIndex={page - 1}
+              pageSize={limit}
+              totalCount={topCustomersData?.pagination?.total || 0}
+              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onSearch={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+              isFetching={topCustomersIsFetching}
+            />
           ) : (
-            <div className="py-6 text-center text-muted-foreground">No data</div>
+            <div className="py-6 text-center text-muted-foreground">
+              No data
+            </div>
           )}
         </CardContent>
       </Card>
@@ -178,7 +343,18 @@ export default function SalesReportsPage() {
           <span className="text-sm text-muted-foreground">By sales</span>
         </CardHeader>
         <CardContent>
-          <DataTable data={topProducts} columns={topProductsColumns} pageSize={5} />
+          <DataTable
+            data={topProducts}
+            columns={topProductsColumns}
+            pageIndex={productsPage - 1}
+            totalCount={topProductsData?.pagination?.total || 0}
+            onPageChange={(newPageIndex) => setProductsPage(newPageIndex + 1)}
+            onSearch={(value) => {
+              setProductSearch(value);
+              setProductsPage(1);
+            }}
+            isFetching={topProductsIsFetching}
+          />
         </CardContent>
       </Card>
     </div>
@@ -186,27 +362,25 @@ export default function SalesReportsPage() {
 }
 
 /* KPI Component */
-function Kpi({ title, value, icon }: { title: string; value: string; icon?: React.ReactNode }) {
+function Kpi({
+  title,
+  value,
+  icon,
+}: {
+  title: string;
+  value: string;
+  icon?: React.ReactNode;
+}) {
   return (
     <Card className="flex items-center justify-between p-5">
       <div>
         <p className="text-sm text-muted-foreground">{title}</p>
         <p className="text-2xl font-semibold mt-1">{value}</p>
       </div>
-      {icon && <div className="ml-4">{icon}</div>}
+      {icon && <div className="">{icon}</div>}
     </Card>
   );
 }
-
-
-
-
-
-
-
-
-
-
 
 //   Privious code or design
 
@@ -297,8 +471,6 @@ function Kpi({ title, value, icon }: { title: string; value: string; icon?: Reac
 //           <Button className="h-10 mt-6">Export</Button>
 //         </CardHeader>
 
-
-
 //         {/* FILTERS */}
 //         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 //           {/* DATE RANGE */}
@@ -342,9 +514,6 @@ function Kpi({ title, value, icon }: { title: string; value: string; icon?: Reac
 //           </div>
 //         </div>
 
-
-
-
 //         {/* Table */}
 //         <div className="mt-6">
 //           <DataTable data={salesByDate} columns={salesColumns} pageSize={5} />
@@ -358,7 +527,6 @@ function Kpi({ title, value, icon }: { title: string; value: string; icon?: Reac
 
 //       {/* PURCHASE REPORTS */}
 //       <Card className="rounded-2xl shadow-sm p-6">
-
 
 //         <CardHeader className="px-0 flex  justify-between items-center ">
 //           <CardTitle>Purchase Reports</CardTitle>

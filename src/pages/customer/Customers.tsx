@@ -141,7 +141,7 @@ export default function Customers() {
       cell: ({ row }) => {
         const isActive = row.getValue("is_active") as boolean;
         const variant = isActive ? "success" : "destructive";
-        return <Badge variant={variant}>{isActive ? "Active" : "Inactive"}</Badge>;
+        return <Badge variant={variant} className="text-white">{isActive ? "Active" : "Inactive"}</Badge>;
       },
     },
 
