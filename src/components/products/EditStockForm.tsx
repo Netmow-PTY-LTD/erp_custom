@@ -33,6 +33,9 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { useAppSelector } from "@/store/store";
+import { ProductPermission } from "@/config/permissions";
+import { ShieldAlert } from "lucide-react";
 
 // 1️⃣ Define form schema using Zod
 const stockFormSchema = z.object({
@@ -58,6 +61,17 @@ export default function EditStockForm({
   productId: number;
   refetchStockMovements: () => void;
 }) {
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  const canEditStock = userPermissions.includes(ProductPermission.EDIT_STOCK);
+
+
+
+
+
+
+
   const form = useForm<StockFormValues>({
     resolver: zodResolver(stockFormSchema),
     defaultValues: {
@@ -132,7 +146,27 @@ export default function EditStockForm({
           <SheetTitle>Adjust Stock</SheetTitle>
         </SheetHeader>
         <div className="p-4">
-          <Form {...form}>
+          {!canEditStock ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to edit a Stock. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) : (<Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               {/* PRODUCT DROPDOWN */}
               {/* <Controller
@@ -272,7 +306,7 @@ export default function EditStockForm({
                 </Button>
               </div>
             </form>
-          </Form>
+          </Form>)}
         </div>
       </SheetContent>
     </Sheet>
