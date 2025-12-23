@@ -23,6 +23,8 @@ import { toast } from "sonner";
 import { Loader } from "lucide-react";
 import type { Unit } from "@/types/types";
 import { useEffect } from "react";
+import { useAppSelector } from "@/store/store";
+import { ProductPermission } from "@/config/permissions";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Unit name is required"),
@@ -43,6 +45,16 @@ export default function EditUnitForm({
   unitId,
   refetchUnits,
 }: Props) {
+
+ const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  // Units permissions
+ 
+  const canEditUnits = userPermissions.includes(ProductPermission.EDIT_UNITS);
+
+
+
+
   const form = useForm({
     resolver: zodResolver(unitSchema),
     defaultValues: {
