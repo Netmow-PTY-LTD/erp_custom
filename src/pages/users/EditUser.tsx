@@ -21,7 +21,7 @@ import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import { useGetUserByIdQuery, useUpdateUserMutation } from "@/store/features/users/usersApiService";
 
 import { toast } from "sonner";
-import React from "react";
+import React, { useState } from "react";
 
 // -------------------- ZOD SCHEMA --------------------
 const editUserSchema = z.object({
@@ -35,9 +35,14 @@ type EditUserFormValues = z.infer<typeof editUserSchema>;
 export default function EditUserPage() {
   const navigate = useNavigate();
   const { userId } = useParams();
-  console.log("Editing User ID:", userId);
+  const [page] = useState(1);
+    const [search] = useState("");
+    const limit = 10;
 
-  const { data: rolesData } = useGetAllRolesQuery();
+  const { data: rolesData } = useGetAllRolesQuery({
+    page,
+    limit,
+    search,});
   const { data: userData, isLoading: isUserLoading } = useGetUserByIdQuery(userId as string);
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
@@ -152,7 +157,7 @@ export default function EditUserPage() {
                       {Array.isArray(rolesData?.data) &&
                         rolesData.data.map((role) => (
                           <SelectItem key={role.id} value={String(role.id)}>
-                            {role.name}
+                            {role?.display_name}
                           </SelectItem>
                         ))}
                     </SelectContent>

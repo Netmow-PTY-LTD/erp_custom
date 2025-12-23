@@ -28,7 +28,7 @@ export default function UsersList() {
   // -------------------- DYNAMIC STATS --------------------
   const totalUsers = users.length;
   const activeUsers = users.filter(u => u.status?.toLowerCase() === "active").length;
-  const adminUsers = users.filter(u => u.role?.name === "Admin").length;
+  const adminUsers = users.filter(u => u.role?.display_name === "Admin").length;
 
   const stats = [
     {
