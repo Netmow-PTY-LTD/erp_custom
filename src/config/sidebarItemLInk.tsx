@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   LineChart,
   List,
+  Map,
   MapPin,
   Package,
   Pencil,
@@ -195,6 +196,7 @@ export const sidebarItemLink = [
         title: "List of Customers",
         url: "/dashboard/customers",
         element: <Customers />,
+        icon: List,
         allowedPermissions: [CustomerPermission.LIST],
       },
       {
@@ -231,6 +233,7 @@ export const sidebarItemLink = [
         title: "Customer Maps",
         url: "/dashboard/customers/map",
         element: <CustomersMapPage />,
+        icon: Map, // map view
         allowedPermissions: [CustomerPermission.VIEW_MAP],
       },
     ],
