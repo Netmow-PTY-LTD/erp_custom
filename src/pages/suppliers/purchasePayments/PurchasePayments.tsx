@@ -20,6 +20,8 @@ export default function PurchasePayments() {
     search,
   });
 
+  const payments = paymentData?.data;
+
   const columns: ColumnDef<PurchasePayment>[] = [
     {
       accessorKey: "id",
@@ -134,7 +136,7 @@ export default function PurchasePayments() {
 
       <DataTable
         columns={columns}
-        data={paymentData?.data ?? []}
+        data={payments ?? []}
         pageIndex={page - 1}
         pageSize={limit}
         totalCount={paymentData?.pagination?.total ?? 0}
