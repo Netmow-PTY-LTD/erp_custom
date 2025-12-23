@@ -32,14 +32,15 @@ import {
 
 import { z } from "zod";
 import { PERMISSION_GROUPS } from "@/config/permissions";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useGetRoleByIdQuery, useUpdateRoleMutation } from "@/store/features/role/roleApiService";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { ArrowLeft, Loader } from "lucide-react";
 
 
 const roleSchema = z.object({
- role: z.string().min(1, "Role code is required"),
+  role: z.string().min(1, "Role code is required"),
   display_name: z.string().min(1, "Display name is required"),
   description: z.string().min(1, "Description is required"),
   status: z.enum(["active", "inactive"]),
@@ -76,7 +77,7 @@ export default function PermissionsPage() {
   useEffect(() => {
     if (roleView && Object.keys(roleView).length) {
       form.reset({
-        role: roleView.role|| "",
+        role: roleView.role || "",
         display_name: roleView.display_name || "",
         description: roleView.description || "",
         status: roleView.status as "active" | "inactive",
@@ -144,13 +145,18 @@ export default function PermissionsPage() {
   };
 
 
-
   // Loading state
   if (isLoading) {
     return (
-      <div className="p-6 text-center text-gray-500">Loading role...</div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex items-center gap-3 text-muted-foreground">
+          <Loader className="h-5 w-5 animate-spin" />
+          <span className="text-sm font-medium">Loading role...</span>
+        </div>
+      </div>
     );
   }
+
 
   // Role not found
   if (!roleView) {
@@ -162,13 +168,27 @@ export default function PermissionsPage() {
   }
 
 
-
-
   return (
     <div className=" p-6 space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Edit Role & Permissions</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between gap-4 border-b pb-4">
+          {/* Title */}
+          <div className="flex flex-col">
+            <CardTitle className="text-lg font-semibold">
+              Edit Role & Permissions
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Update role details and manage permissions
+            </p>
+          </div>
+
+          {/* Back Button */}
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link to="/dashboard/roles">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Roles
+            </Link>
+          </Button>
         </CardHeader>
 
         <CardContent>
@@ -225,7 +245,7 @@ export default function PermissionsPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="block w-full">Status</FormLabel>
-                      <Select  key={field.value}   onValueChange={field.onChange} value={field.value}>
+                      <Select key={field.value} onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select status" />

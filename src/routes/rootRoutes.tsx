@@ -9,6 +9,7 @@ import RegisterPage from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ProtectedRoute from "@/routes/ProtectedRoute";
 import { sidebarItemLink } from "@/config/sidebarItemLInk";
+import UnauthorizedPage from "@/pages/UnauthorizedPage";
 
 // Generate dynamic dashboard routes (relative paths)
 const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
@@ -27,7 +28,7 @@ const rootRouter = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
-  { path: "/unauthorized", element: <div>Unauthorized</div> },
+  { path: "/unauthorized", element: <UnauthorizedPage/>},
 
   //  PROTECTED DASHBOARD
   {

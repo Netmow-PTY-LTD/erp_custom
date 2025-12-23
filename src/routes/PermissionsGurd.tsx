@@ -7,7 +7,7 @@ export const PermissionsGurd = ({ children, allowedPermissions }: { children: Re
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   if (allowedPermissions && !allowedPermissions.some(p => userPermissions.includes(p))) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return <>{children}</>;
