@@ -1,6 +1,7 @@
 import {
   BanknoteArrowDown,
   Box,
+  Boxes,
   CalendarCheck,
   Car,
   CreditCard,
@@ -20,6 +21,7 @@ import {
   Pencil,
   PieChart,
   PlusCircle,
+  Ruler,
   Settings,
   ShieldCheck,
   ShoppingBag,
@@ -144,6 +146,7 @@ export const sidebarItemLink = [
         title: "Products",
         url: "/dashboard/products",
         element: <Products />,
+        icon: List, // product list
         allowedPermissions: [ProductPermission.LIST],
       },
       {
@@ -156,6 +159,7 @@ export const sidebarItemLink = [
         title: "Add Product",
         url: "/dashboard/products/create",
         element: <CreateProduct />,
+        icon: PlusCircle, // add product
         allowedPermissions: [ProductPermission.CREATE],
       },
       {
@@ -168,18 +172,21 @@ export const sidebarItemLink = [
         title: "Categories",
         url: "/dashboard/products/categories",
         element: <ProductCategories />,
+        icon: Layers, // categories/groups
         allowedPermissions: [ProductPermission.VIEW_CATEGORIES],
       },
       {
         title: "Unit",
         url: "/dashboard/products/unit",
         element: <UnitsPage />,
+        icon: Ruler, // unit/measurement
         allowedPermissions: [ProductPermission.VIEW_UNITS],
       },
       {
         title: "Stock Management",
         url: "/dashboard/products/stock",
         element: <StockManagement />,
+        icon: Boxes, // inventory/stock
         allowedPermissions: [ProductPermission.MANAGE_STOCK],
       },
     ],
