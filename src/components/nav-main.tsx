@@ -14,7 +14,7 @@ import {
 } from "./ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import React, { type ReactNode } from "react";
-// import { useAppSelector } from "@/store/store";
+import { useAppSelector } from "@/store/store";
 
 // Type for sub-menu items
 export interface NavSubItem {
@@ -41,16 +41,16 @@ interface NavMainProps {
 }
 
 export function NavMain({ items }: NavMainProps) {
-  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>General</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          // const isHide = item.allowedPermissions && !item.allowedPermissions.some(p => userPermissions.includes(p))
+          const isHide = item.allowedPermissions && !item.allowedPermissions.some(p => userPermissions.includes(p))
           if (!item.title) return null; //  completely hide the item
-          // if (isHide) return null; //  completely hide the item
+          if (isHide) return null; //  completely hide the item
           const hasSubItems = Array.isArray(item.items) && item.items.length > 0;
 
 
@@ -92,9 +92,9 @@ export function NavMain({ items }: NavMainProps) {
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {item.items!.map((subItem) => {
-                        // const isHide = subItem.allowedPermissions && !subItem.allowedPermissions.some(p => userPermissions.includes(p));
+                        const isHide = subItem.allowedPermissions && !subItem.allowedPermissions.some(p => userPermissions.includes(p));
                         if (!subItem.title) return null; //  completely hide the item
-                        // if (isHide) return null; //  completely hide the item
+                        if (isHide) return null; //  completely hide the item
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton asChild>

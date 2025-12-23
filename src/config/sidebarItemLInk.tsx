@@ -93,7 +93,6 @@ import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
 import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
 import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
-
 import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayments";
 import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
 import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
