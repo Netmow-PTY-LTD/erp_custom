@@ -10,6 +10,8 @@ import {
 } from "@/store/features/admin/productsApiService";
 import type { Unit } from "@/types/types";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { ProductPermission } from "@/config/permissions";
 
 export default function UnitsPage() {
   const [addSheetOpen, setAddSheetOpen] = useState(false);
@@ -18,6 +20,15 @@ export default function UnitsPage() {
   const [page, setPage] = useState<number>(0);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  // Units permissions
+  const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS);
+
+
+
+
 
   const {
     data: fetchedUnits,
@@ -37,6 +48,14 @@ export default function UnitsPage() {
   const handleDeleteUnit = async (id: number) => {
     // Ask for confirmation using a simple toast with prompt
     const confirmed = await new Promise<boolean>((resolve) => {
+      if (!canDeleteUnits) {
+        toast.error("You do not have permission to delete this unit");
+        return; // Stop further execution
+      }
+
+      // Proceed with delete logic if permission exists
+      handleDeleteUnit(unitId);
+
       toast("Are you sure you want to delete this unit?", {
         action: {
           label: "Delete",
@@ -65,7 +84,7 @@ export default function UnitsPage() {
       console.error("Error deleting unit:", error);
       toast.error(
         "Failed to delete unit" +
-          (error instanceof Error ? ": " + error.message : "")
+        (error instanceof Error ? ": " + error.message : "")
       );
     }
   };
@@ -81,11 +100,10 @@ export default function UnitsPage() {
 
         return (
           <span
-            className={`px-2 py-1 text-xs rounded-full font-medium ${
-              isActive
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
+            className={`px-2 py-1 text-xs rounded-full font-medium ${isActive
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+              }`}
           >
             {isActive ? "Active" : "Inactive"}
           </span>

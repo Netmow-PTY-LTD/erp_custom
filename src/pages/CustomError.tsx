@@ -1,5 +1,3 @@
-import { Link } from "react-router";
-
 
 const CustomError = () => {
   return (
@@ -9,11 +7,11 @@ const CustomError = () => {
       <p className="text-gray-700 mb-6 text-center">
         Sorry, you are not authorized to access this page.
       </p>
-      <Link to="/">
-        <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-          Back Home
-        </button>
-      </Link>
+
+      <button onClick={() => window.history.back()} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+        Back Home
+      </button>
+
     </div>
   );
 };

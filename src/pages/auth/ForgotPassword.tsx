@@ -88,7 +88,7 @@ export default function ForgotPassword() {
         <div className="text-center text-sm text-muted-foreground">
           Remember your password?{" "}
           <Link to="/login" className="font-medium text-primary hover:underline">
-            Login here
+           Sign In here
           </Link>
         </div>
 

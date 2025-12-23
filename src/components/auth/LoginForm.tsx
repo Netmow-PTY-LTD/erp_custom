@@ -166,7 +166,7 @@ export function LoginForm({
                 )}
               />
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit">Sign In</Button>
               </Field>
             </FieldGroup>
           </form>
