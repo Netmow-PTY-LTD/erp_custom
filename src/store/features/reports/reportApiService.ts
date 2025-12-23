@@ -6,7 +6,32 @@ export type ReportResponse<T = any> = {
   status: boolean;
   message: string;
   data: T;
+  pagination:{
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  }
 };
+
+export type RevenuePoint = {
+  date: string;          // e.g. "2025-12", "2025-12-01", "2025-W50", "2025-Q4"
+  amount: number;
+  order_count: number;
+};
+
+export interface RevenueChartResponse {
+  status: boolean;
+  message: string;
+  data: {
+    period: "daily" | "weekly" | "monthly" | "quarterly" | "yearly";
+    year: number;
+    month: number | null;
+    quarter: number | null;
+    data: RevenuePoint[];
+  };
+}
+
 
 export const reportsApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -23,7 +48,7 @@ export const reportsApiService = baseApi.injectEndpoints({
     }),
 
     // GET /api/reports/sales/top-customers
-    getTopCustomers: builder.query<ReportResponse, void>({
+    getTopCustomers: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
       query: () => ({
         url: "/reports/sales/top-customers",
         method: "GET",
@@ -32,9 +57,18 @@ export const reportsApiService = baseApi.injectEndpoints({
     }),
 
     // GET /api/reports/sales/top-products
-    getTopProducts: builder.query<ReportResponse, void>({
+    getTopProducts: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
       query: () => ({
         url: "/reports/sales/top-products",
+        method: "GET",
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    
+    getSalesChartData: builder.query<RevenueChartResponse, void>({
+      query: () => ({
+        url: "/sales/reports/charts",
         method: "GET",
       }),
       providesTags: ["Reports"],
@@ -118,6 +152,7 @@ export const {
   useGetSalesSummaryQuery,
   useGetTopCustomersQuery,
   useGetTopProductsQuery,
+  useGetSalesChartDataQuery,
   useGetPurchaseSummaryQuery,
   useGetPurchaseBySupplierQuery,
   useGetInventoryStatusQuery,
