@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router";
 import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import { useAddUserMutation } from "@/store/features/users/usersApiService";
 import { toast } from "sonner";
+import { useState } from "react";
 
 // -------------------- ZOD SCHEMA --------------------
 const userSchema = z.object({
@@ -32,10 +33,17 @@ type UserFormValues = z.infer<typeof userSchema>;
 
 export default function AddUserPage() {
   const navigate = useNavigate();
-  const { data: rolesData, isLoading } = useGetAllRolesQuery();
+  const [page] = useState(1);
+  const [search] = useState("");
+  const limit = 10;
+  const { data: rolesData, isLoading } = useGetAllRolesQuery({
+    page,
+    limit,
+    search,
+  });
   const [addUser, { isLoading: isAdding }] = useAddUserMutation();
 
-
+  console.log("rolesData", rolesData);
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -51,18 +59,15 @@ export default function AddUserPage() {
   const { control, handleSubmit } = form;
 
   const onSubmit: SubmitHandler<UserFormValues> = async (values) => {
-
     try {
       const result = await addUser(values).unwrap();
       if (result.status) {
-
         toast.success(result.message || "User added successfully");
         form.reset();
         navigate("/dashboard/users/list");
       } else {
         toast.error("Failed to add user");
       }
-
     } catch (error) {
       console.error("Error adding user:", error);
       toast.error("An error occurred while adding the user");
@@ -111,7 +116,6 @@ export default function AddUserPage() {
               )}
             />
 
-
             <Controller
               control={control}
               name="password"
@@ -145,7 +149,7 @@ export default function AddUserPage() {
                       {Array.isArray(rolesData?.data) &&
                         rolesData.data.map((role) => (
                           <SelectItem key={role.id} value={String(role.id)}>
-                            {role.name}
+                            {role?.display_name}
                           </SelectItem>
                         ))}
                     </SelectContent>
@@ -155,7 +159,6 @@ export default function AddUserPage() {
                 </Field>
               )}
             />
-
 
             {/* STATUS */}
             {/* <Controller
@@ -181,7 +184,10 @@ export default function AddUserPage() {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isAdding}> {isAdding ? "Creating..." : "Create User"}</Button>
+          <Button type="submit" disabled={isAdding}>
+            {" "}
+            {isAdding ? "Creating..." : "Create User"}
+          </Button>
         </div>
       </form>
     </div>
