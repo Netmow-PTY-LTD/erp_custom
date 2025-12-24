@@ -323,7 +323,7 @@ export default function AddStockForm({
                 name="date"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Notes</FieldLabel>
+                    <FieldLabel>Date</FieldLabel>
                     <Input type="date" {...field} className="block" />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>

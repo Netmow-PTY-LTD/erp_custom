@@ -1,18 +1,33 @@
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface SalesRoute {
+  assignedCustomers: any;
+  assignedStaff: any;
   id: number;
-
   route_name: string;
-  description?: string | null;
-
-  assigned_sales_rep_id?: number | null;
-
-  start_location?: string | null;
-  end_location?: string | null;
-
+  description: string | null;
   is_active: boolean;
 
-  created_at: string;   // ISO date string
-  updated_at: string;   // ISO date string
+  // Geographic Details
+  country: string;
+  state: string;
+  city: string;
+  postal_code: string;
+
+  // Route Path
+  start_location: string;
+  end_location: string;
+
+  // Map & Technical Parameters
+  center_lat: number;
+  center_lng: number;
+  coverage_radius: number;
+  zoom_level: number;
+
+  // Assignments
+  assigned_sales_rep_id: number | null;
+
+  // Metadata
+  created_at: string; // ISO 8601 Date String
+  updated_at: string; // ISO 8601 Date String
 }

@@ -119,6 +119,7 @@ import {
   SuperAdminPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
+import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
 
 
 
@@ -493,6 +494,12 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/sales-routes/create",
         element: <CreateRoutePage />,
         allowedPermissions: [SalesPermission.CREATE_ROUTE,SuperAdminPermission.ACCESS_ALL],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/sales-routes/:id",
+        element: <SalesRouteDetails />,
+        allowedPermissions: [SalesPermission.DETAILS_SALES_ROUTES,SuperAdminPermission.ACCESS_ALL],
       },
       {
         title: "",
