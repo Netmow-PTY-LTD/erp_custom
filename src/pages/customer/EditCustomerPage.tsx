@@ -23,6 +23,7 @@ import {
   useUpdateCustomerMutation,
 } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
+import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
@@ -42,6 +43,7 @@ const customerSchema = z.object({
   credit_limit: z.number().min(0, "Credit limit must be 0 or more"),
   notes: z.string().optional(),
   is_active: z.boolean(),
+  salesRouteId: z.string().optional() // <-- string now
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -76,6 +78,7 @@ export default function EditCustomerPage() {
       credit_limit: 0,
       notes: "",
       is_active: true,
+      salesRouteId: '',
     },
   });
 
@@ -101,6 +104,7 @@ export default function EditCustomerPage() {
         credit_limit: customer.credit_limit || 0,
         notes: customer.notes || "",
         is_active: customer.is_active,
+        salesRouteId: String(customer.sales_route_id)
       });
     }
   }, [customer, reset]);
@@ -108,12 +112,23 @@ export default function EditCustomerPage() {
   /* ------------------ SUBMIT ------------------ */
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
     try {
-      await updateCustomer({
+      const payload = {
+        ...values,
+        salesRouteId: Number(values.salesRouteId)
+
+      }
+
+
+      const res = await updateCustomer({
         id: Number(customerId),
-        data: values,
+        data: payload,
       }).unwrap();
-      toast.success("Customer updated successfully");
-      navigate("/dashboard/customers");
+      if (res.status) {
+
+        toast.success(res.message || "Customer updated successfully");
+        navigate("/dashboard/customers");
+
+      }
     } catch (error) {
       toast.error("Failed to update customer");
       console.error("Failed to update customer:", error);
@@ -389,6 +404,17 @@ export default function EditCustomerPage() {
                   <Textarea placeholder="Additional notes..." {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="salesRouteId" // single route
+              rules={{ required: "Select a sales route" }}
+              render={({ field, fieldState }) => (
+                <SalesRouteSelectField
+                  field={field}
+                  error={fieldState.error?.message}
+                />
               )}
             />
           </CardContent>
