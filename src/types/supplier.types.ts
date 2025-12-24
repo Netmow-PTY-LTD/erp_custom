@@ -16,4 +16,7 @@ export type Supplier = {
   is_active: boolean;
   created_at?: string; // optional, usually returned from API
   updated_at?: string; // optional
+ longitude ?: number; // optional
+ latitude ?: number; // optional
+
 };

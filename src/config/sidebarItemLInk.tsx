@@ -216,6 +216,7 @@ export const sidebarItemLink = [
         title: "Add Customer",
         url: "/dashboard/customers/create",
         element: <AddCustomer />,
+        icon: UserPlus,
         allowedPermissions: [CustomerPermission.CREATE],
       },
       {
