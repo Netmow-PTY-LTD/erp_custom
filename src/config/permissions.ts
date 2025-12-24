@@ -3,6 +3,10 @@
 
 
 // --- Dashboard ---
+
+export const SuperAdminPermission = {
+ ACCESS_ALL: "*" as const,
+};
 export const DashboardPermission = {
   VIEW: "dashboard.view" as const,
 };
