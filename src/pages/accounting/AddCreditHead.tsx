@@ -50,8 +50,8 @@ export default function AddCreditHeadForm() {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-// Credit Heads
-const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREATE_CREDIT_HEADS);
+  // Credit Heads
+  const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREATE_CREDIT_HEADS);
 
 
 
@@ -108,7 +108,7 @@ const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREAT
           <SheetTitle>Add Credit Head</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-             {!canCreateCreditHeads? (
+          {!canCreateCreditHeads ? (
             <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
               <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
                 <ShieldAlert className="w-10 h-10 text-destructive" />
@@ -117,7 +117,7 @@ const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREAT
                 Access Denied
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                You do not have permission to add a new Unit. <br />
+                You do not have permission to add a new Credit Head. <br />
                 Please contact your administrator if you believe this is an error.
               </p>
               <Button
@@ -128,7 +128,7 @@ const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREAT
                 Close
               </Button>
             </div>
-          ) :(<Form {...form}>
+          ) : (<Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleAddCreditHead)}
               className="space-y-5"
@@ -147,7 +147,7 @@ const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREAT
                 )}
               />
 
-               <FormField
+              <FormField
                 control={form.control}
                 name="code"
                 render={({ field }) => (

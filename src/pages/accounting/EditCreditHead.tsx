@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader } from "lucide-react";
+import { Loader, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -34,6 +34,8 @@ import {
 } from "@/store/features/accounting/accoutntingApiService";
 import { useEffect } from "react";
 import type { CreditHead } from "@/types/accounting.types";
+import { useAppSelector } from "@/store/store";
+import { AccountingPermission } from "@/config/permissions";
 
 
 const statusOptions = [
@@ -58,10 +60,10 @@ export default function EditCreditHeadForm({
 }) {
 
 
-  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
 // Credit Heads
-// const canEditCreditHeads = userPermissions.includes(AccountingPermission.EDIT_CREDIT_HEADS);
+const canEditCreditHeads = userPermissions.includes(AccountingPermission.EDIT_CREDIT_HEADS);
 
 
   const form = useForm({
@@ -135,7 +137,27 @@ export default function EditCreditHeadForm({
           <SheetTitle>Edit Credit Head</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-          <Form {...form}>
+             {!canEditCreditHeads? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to edit a credit head. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() =>setOpen(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) :(<Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleAddCreditHead)}
               className="space-y-5"
@@ -220,7 +242,7 @@ export default function EditCreditHeadForm({
                 )}
               </Button>
             </form>
-          </Form>
+          </Form>)}
         </div>
       </SheetContent>
     </Sheet>
