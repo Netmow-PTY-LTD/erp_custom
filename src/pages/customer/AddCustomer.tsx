@@ -28,6 +28,7 @@ import { useCreateCustomerMutation } from "@/store/features/customers/customersA
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
+import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -48,6 +49,7 @@ const customerSchema = z.object({
   credit_limit: z.number().min(0, "Credit limit must be 0 or more").default(0),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),
+  salesRouteIds: z.any(),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -76,6 +78,7 @@ export default function AddCustomerPage() {
       credit_limit: 0,
       notes: "",
       is_active: true,
+      salesRouteIds: [],
     },
   });
 
@@ -121,6 +124,9 @@ export default function AddCustomerPage() {
     fetchLatLng();
   }, [address, city, state, postalCode, country, setValue]);
   */
+
+
+
 
 
 
@@ -416,6 +422,20 @@ export default function AddCustomerPage() {
                 </Field>
               )}
             />
+
+            <Controller
+              control={control}
+              name="salesRouteIds"
+              rules={{ required: "Select at least one route" }}
+              render={({ field, fieldState }) => (
+                <SalesRouteSelectField field={field} error={fieldState.error?.message} />
+              )}
+            />
+
+
+
+
+
           </CardContent>
         </Card>
 
@@ -438,7 +458,7 @@ export default function AddCustomerPage() {
 
 
 
-  // ------------------------- this is older code base ---------------------------
+// ------------------------- this is older code base ---------------------------
 
 // import {
 //   Controller,
