@@ -28,6 +28,9 @@ import {
 } from "@/components/ui/form";
 import { useAddRoleMutation } from "@/store/features/role/roleApiService";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { RolePermission } from "@/config/permissions";
+import { ShieldAlert } from "lucide-react";
 
 const statusOptions = [
   { value: "active", label: "Active" },
@@ -49,6 +52,16 @@ export default function AddNewRoleForm({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canCreateRole = userPermissions.includes(RolePermission.CREATE_ROLES);
+
+
+
+
+
+
 
   const [createRole] = useAddRoleMutation()
 
@@ -93,7 +106,27 @@ export default function AddNewRoleForm({
           <SheetTitle>Add Role</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-          <Form {...form}>
+          {!canCreateRole ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to add a new Role. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setOpen(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) : (<Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleAddRole)}
               className="space-y-5"
@@ -175,7 +208,7 @@ export default function AddNewRoleForm({
               />
               <Button type="submit">Add Role</Button>
             </form>
-          </Form>
+          </Form>)}
         </div>
       </SheetContent>
     </Sheet>
