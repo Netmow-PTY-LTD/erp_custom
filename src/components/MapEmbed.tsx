@@ -1,14 +1,26 @@
 import type React from "react";
 
 interface MapEmbedProps {
-  /** Location query for Google Maps (e.g., "Cyberjaya, Selangor, Malaysia") */
+  /** Accepts coordinates from your API */
+  center?: {
+    lat: number;
+    lng: number;
+  };
+  /** Fallback to a text-based location search */
   location?: string;
-  /** Zoom level for the map */
   zoom?: number;
-  /** Optional width and height (not required for responsive) */
+  /** Radius is not natively supported by basic iframe embeds, 
+      but we include it in props for future JS API integration */
+  radius?: number;
+  marker?: {
+    lat: number;
+    lng: number;
+  };
   width?: number;
   height?: number;
 }
+
+
 
 
 export const MapEmbed: React.FC<MapEmbedProps> = ({

@@ -99,6 +99,7 @@ export const SalesPermission = {
   CREATE_PAYMENT: "sales.payments.create" as const,
   DELIVERY: "sales.delivery.view" as const,
   SALES_ROUTES: "sales.routes.view" as const,
+  DETAILS_SALES_ROUTES: "sales.routes.details" as const,
   CREATE_ROUTE: "sales.routes.create" as const,
   ASSIGN_ROUTE: "sales.routes.assign" as const,
 };
