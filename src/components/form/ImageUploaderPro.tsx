@@ -72,7 +72,7 @@ export default function ImageUploaderPro({
 
   useEffect(() => {
     if (open) fetchLibrary(page);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, page]);
 
   // ---------------- HANDLE FILE SELECTION AND UPLOAD ----------------
@@ -156,7 +156,9 @@ export default function ImageUploaderPro({
       });
 
       toast.success("Image deleted");
-      setMediaLibrary((prev) => prev.filter((i) => `${API_URL}${i.url}` !== url));
+      setMediaLibrary((prev) =>
+        prev.filter((i) => `${API_URL}${i.url}` !== url)
+      );
 
       if (multiple) {
         onChange(selectedValues.filter((v) => v !== url));
@@ -178,6 +180,7 @@ export default function ImageUploaderPro({
             <img
               src={url}
               className="w-full h-full object-cover rounded-xl border"
+              onClick={() => !multiple && setOpen(true)}
             />
             <button
               onClick={() => removeSelected(url)}
@@ -189,113 +192,114 @@ export default function ImageUploaderPro({
         ))}
 
         {/* Add Button */}
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <div className="w-28 h-28 border border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100">
-              +
-            </div>
-          </DialogTrigger>
-          <DialogTitle className="hidden sr-only">Select Images</DialogTitle>
-          <DialogContent className="w-[800px]">
-            <h2 className="text-lg font-semibold mb-4">Select Images</h2>
+        {(multiple || selectedValues.length === 0) && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <div className="w-28 h-28 border border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100">
+                +
+              </div>
+            </DialogTrigger>
+            <DialogTitle className="hidden sr-only">Select Images</DialogTitle>
+            <DialogContent className="w-[800px]">
+              <h2 className="text-lg font-semibold mb-4">Select Images</h2>
 
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab as (v: string) => void}
-            >
-              <TabsList className="mb-4">
-                <TabsTrigger value="upload">Upload</TabsTrigger>
-                <TabsTrigger value="library">Media Library</TabsTrigger>
-              </TabsList>
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab as (v: string) => void}
+              >
+                <TabsList className="mb-4">
+                  <TabsTrigger value="upload">Upload</TabsTrigger>
+                  <TabsTrigger value="library">Media Library</TabsTrigger>
+                </TabsList>
 
-              {/* UPLOAD */}
-              <TabsContent value="upload">
-                <div
-                  onClick={() => inputRef.current?.click()}
-                  className="w-full h-40 border border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
-                >
-                  {uploading
-                    ? "Uploading..."
-                    : `Click to select ${multiple ? "images" : "image"}`}
-                  <input
-                    type="file"
-                    ref={inputRef}
-                    multiple={multiple}
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileSelect}
-                  />
-                </div>
-              </TabsContent>
+                {/* UPLOAD */}
+                <TabsContent value="upload">
+                  <div
+                    onClick={() => inputRef.current?.click()}
+                    className="w-full h-40 border border-dashed rounded-xl flex items-center justify-center cursor-pointer hover:bg-gray-100"
+                  >
+                    {uploading
+                      ? "Uploading..."
+                      : `Click to select ${multiple ? "images" : "image"}`}
+                    <input
+                      type="file"
+                      ref={inputRef}
+                      multiple={multiple}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                  </div>
+                </TabsContent>
 
-              {/* MEDIA LIBRARY */}
-              <TabsContent value="library">
-                <div className="grid grid-cols-4 gap-3 max-h-80 overflow-y-auto">
-                  {mediaLibrary.map((item) => {
-                    const fullUrl = `${API_URL}${item.url}`;
-                    const isSelected = selectedValues.includes(fullUrl);
-                    return (
-                      <div
-                        key={item.id}
-                        className={`relative border rounded-xl overflow-hidden cursor-pointer ${
-                          isSelected ? "ring-2 ring-blue-500" : ""
-                        }`}
-                      >
-                        <img
-                          src={fullUrl}
-                          className="w-full h-24 object-cover"
-                          onClick={() => toggleSelect(fullUrl)}
-                        />
-                        {isSelected && (
-                          <div className="absolute top-1 right-1 bg-blue-500 text-white p-1 rounded-full">
-                            <Check size={12} />
-                          </div>
-                        )}
-                        <button
-                          onClick={() => deleteImage(fullUrl)}
-                          className="absolute bottom-1 right-1 bg-red-600 p-1 text-white rounded-full"
+                {/* MEDIA LIBRARY */}
+                <TabsContent value="library">
+                  <div className="grid grid-cols-4 gap-3 max-h-80 overflow-y-auto">
+                    {mediaLibrary.map((item) => {
+                      const fullUrl = `${API_URL}${item.url}`;
+                      const isSelected = selectedValues.includes(fullUrl);
+                      return (
+                        <div
+                          key={item.id}
+                          className={`relative border rounded-xl overflow-hidden cursor-pointer ${
+                            isSelected ? "ring-2 ring-blue-500" : ""
+                          }`}
                         >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
+                          <img
+                            src={fullUrl}
+                            className="w-full h-24 object-cover"
+                            onClick={() => toggleSelect(fullUrl)}
+                          />
+                          {isSelected && (
+                            <div className="absolute top-1 right-1 bg-blue-500 text-white p-1 rounded-full">
+                              <Check size={12} />
+                            </div>
+                          )}
+                          <button
+                            onClick={() => deleteImage(fullUrl)}
+                            className="absolute bottom-1 right-1 bg-red-600 p-1 text-white rounded-full"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-                {/* Pagination */}
-                <div className="flex justify-between mt-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page <= 1}
-                    onClick={() => setPage((p) => p - 1)}
-                  >
-                    Previous
-                  </Button>
-                  <span>
-                    Page {page} / {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= totalPages}
-                    onClick={() => setPage((p) => p + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
+                  {/* Pagination */}
+                  <div className="flex justify-between mt-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page <= 1}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      Previous
+                    </Button>
+                    <span>
+                      Page {page} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
 
-            <div className="mt-4 flex justify-end">
-              <DialogClose asChild>
-                <Button variant="ghost">Close</Button>
-              </DialogClose>
-            </div>
-          </DialogContent>
-        </Dialog>
+              <div className="mt-4 flex justify-end">
+                <DialogClose asChild>
+                  <Button variant="ghost">Close</Button>
+                </DialogClose>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
 }
-

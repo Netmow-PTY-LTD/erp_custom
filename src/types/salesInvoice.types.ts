@@ -12,6 +12,11 @@ export interface SalesInvoice {
   total_amount: string; // numeric string
   status: string;
   created_by: number;
+  creator: {
+    id: number;
+    name: string;
+    email: string;
+  };
   created_at: string;
   updated_at: string;
   order: SalesOrder;

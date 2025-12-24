@@ -50,7 +50,6 @@ export function LoginForm({
 
   const { data: companyProfileSettings } = useGetSettingsInfoQuery();
 
-  console.log("companyProfileSettings", companyProfileSettings);
   const [authLogin] = useAuthLoginMutation();
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {

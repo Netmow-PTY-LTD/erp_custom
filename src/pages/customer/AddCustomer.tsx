@@ -28,6 +28,7 @@ import { useCreateCustomerMutation } from "@/store/features/customers/customersA
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
+import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -48,6 +49,7 @@ const customerSchema = z.object({
   credit_limit: z.number().min(0, "Credit limit must be 0 or more").default(0),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),
+  salesRouteId: z.string().optional() // <-- string now
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -76,6 +78,7 @@ export default function AddCustomerPage() {
       credit_limit: 0,
       notes: "",
       is_active: true,
+      salesRouteId: '',
     },
   });
 
@@ -128,10 +131,21 @@ export default function AddCustomerPage() {
 
 
 
+
+
+
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
+
     try {
-      await createCustomer(values).unwrap();
-      toast.success("Customer created successfully");
+      const payload = {
+        ...values,
+        salesRouteId: Number(values.salesRouteId)
+
+      }
+      const res = await createCustomer(payload).unwrap();
+      if (res.status) {
+        toast.success(res.message || "Customer created successfully");
+      }
       navigate("/dashboard/customers");
     } catch (error) {
       toast.error("Failed to create customer");
@@ -416,6 +430,19 @@ export default function AddCustomerPage() {
                 </Field>
               )}
             />
+
+            <Controller
+              control={control}
+              name="salesRouteId" // single route
+              rules={{ required: "Select a sales route" }}
+              render={({ field, fieldState }) => (
+                <SalesRouteSelectField
+                  field={field}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+
           </CardContent>
         </Card>
 
@@ -438,7 +465,7 @@ export default function AddCustomerPage() {
 
 
 
-  // ------------------------- this is older code base ---------------------------
+// ------------------------- this is older code base ---------------------------
 
 // import {
 //   Controller,

@@ -24,13 +24,19 @@ export default function InvoiceDetailsPage() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
+  const formatDate = (dateStr: string) => dateStr?.split("T")[0];
+
   const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
   const from = fetchedSettingsInfo?.data;
 
   const to = invoice?.order?.customer;
 
+  const netAmount = Number(invoice?.order?.total_amount) - Number(invoice?.order?.discount_amount);
+
   const total = (
-    Number(invoice?.order?.total_amount) + Number(invoice?.order?.tax_amount)
+    Number(invoice?.order?.total_amount) -
+    Number(invoice?.order?.discount_amount) +
+    Number(invoice?.order?.tax_amount)
   ).toFixed(2);
 
   const payableAmount = invoice?.payments
@@ -43,11 +49,11 @@ export default function InvoiceDetailsPage() {
   const handleUpdateInvoiceStatus = async (id: number) => {
     console.log("Invoice ID:", id);
 
-    if(!id) return;
+    if (!id) return;
     if (invoice?.payments?.length === 0) {
       toast.error(`No payments found for this invoice. Cannot mark as paid.`);
       return;
-    };
+    }
 
     const payload = {
       invoiceId: id,
@@ -91,13 +97,15 @@ export default function InvoiceDetailsPage() {
               Print Preview
             </Button>
           </Link>
-         {invoice?.status !== "paid" &&  <Button
-            variant="default"
-            className="bg-green-600 hover:bg-green-700 text-white"
-            onClick={() => handleUpdateInvoiceStatus(Number(invoice?.id))}
-          >
-            ✔ Mark as Paid
-          </Button>}
+          {invoice?.status !== "paid" && (
+            <Button
+              variant="default"
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={() => handleUpdateInvoiceStatus(Number(invoice?.id))}
+            >
+              ✔ Mark as Paid
+            </Button>
+          )}
         </div>
       </div>
 
@@ -140,10 +148,12 @@ export default function InvoiceDetailsPage() {
                   <strong>Order #:</strong> {invoice?.order?.order_number}
                 </p>
                 <p>
-                  <strong>Invoice Date:</strong> {invoice?.invoice_date}
+                  <strong>Invoice Date:</strong>{" "}
+                  {formatDate(invoice?.invoice_date as string)}
                 </p>
                 <p>
-                  <strong>Due Date:</strong> {invoice?.due_date}
+                  <strong>Due Date:</strong>{" "}
+                  {formatDate(invoice?.due_date as string)}
                 </p>
                 <p>
                   <strong>Status:</strong>{" "}
@@ -159,7 +169,7 @@ export default function InvoiceDetailsPage() {
                   </Badge>
                 </p>
                 <p>
-                  <strong>Created By:</strong> —
+                  <strong>Created By:</strong> {invoice?.creator?.name || "-"}
                 </p>
               </div>
             </div>
@@ -176,8 +186,9 @@ export default function InvoiceDetailsPage() {
                     <th className="p-3">SKU</th>
                     <th className="p-3">Unit Price ({currency})</th>
                     <th className="p-3">Qty</th>
-                    <th className="p-3">Total Discount</th>
-                    <th className="p-3">Line Total (RM)</th>
+                    <th className="p-3">Total Price ({currency})</th>
+                    <th className="p-3">Total Discount ({currency})</th>
+                    <th className="p-3">Line Total ({currency})</th>
                   </tr>
                 </thead>
 
@@ -190,9 +201,12 @@ export default function InvoiceDetailsPage() {
                         {Number(item?.unit_price)?.toFixed(2)}
                       </td>
                       <td className="p-3">{item?.quantity}</td>
-                      <td className="p-3">{Number(item?.discount)}</td>
                       <td className="p-3">
                         {Number(item?.total_price)?.toFixed(2)}
+                      </td>
+                      <td className="p-3">{Number(item?.discount)}</td>
+                      <td className="p-3">
+                        {Number(item?.line_total)?.toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -245,7 +259,7 @@ export default function InvoiceDetailsPage() {
                           ).toFixed(2)}
                         </td>
                         <td className="p-3">{item?.reference_number || "-"}</td>
-                        <td className="p-3">{item?.created_by || "-"}</td>
+                        <td className="p-3">{item?.creator?.name || "-"}</td>
                       </tr>
                     ))
                   ) : (
@@ -273,12 +287,26 @@ export default function InvoiceDetailsPage() {
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="font-semibold">
-                  {currency} {Number(invoice?.total_amount)?.toFixed(2)}
+                  {currency} {Number(invoice?.order?.total_amount)?.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total Discount</span>
+                <span className="font-semibold">
+                  {currency}{" "}
+                  {Number(invoice?.order?.discount_amount)?.toFixed(2)}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex justify-between">
+                <span>Net Amount</span>
+                <span className="font-semibold">
+                  {currency} {Number(netAmount)?.toFixed(2)}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span>Tax</span>
+                <span>Total Tax</span>
                 <span className="font-semibold">
                   {currency} {Number(invoice?.order?.tax_amount)?.toFixed(2)}
                 </span>
