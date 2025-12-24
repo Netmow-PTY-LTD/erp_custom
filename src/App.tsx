@@ -1,10 +1,11 @@
 import { Link } from "react-router";
 import { useAuthUserQuery } from "./store/features/auth/authApiService";
+import { Loader } from "lucide-react";
 
 
 const APP = () => {
   const { data: user, isLoading } = useAuthUserQuery();
-  const isLoggedIn = user?.data?.email;
+  const isLoggedIn = user?.data?.user?.email;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -18,7 +19,7 @@ const APP = () => {
         </p>
         <div className="flex gap-4">
           {isLoading ? (
-            <div className="px-8 py-3 text-white">Loading...</div>
+            <div className="px-8 py-3 text-white"><Loader/></div>
           ) : isLoggedIn ? (
             <Link
               to="/dashboard"

@@ -29,7 +29,9 @@ export interface LoginResponse {
 export interface AuthUserResponse {
   status: boolean;
   message: string;
-  data: User
+  data: {
+    user:User
+  }
 }
 
 
