@@ -72,12 +72,6 @@ export default function Staffs() {
   const onLeaveStaff = staffsList?.filter((s) => s.status.toLowerCase() === "On Leave").length;
   // If your DB uses "leave" or "onLeave", update the string.
 
-
-
-
-
-
-
   const stats = [
     {
       label: "Total Staffs",

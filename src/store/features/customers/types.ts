@@ -16,6 +16,7 @@ export interface Customer {
     tax_id?: string;
     credit_limit?: number;
     outstanding_balance?: number;
+    total_sales?: number;
     customer_type: "individual" | "business";
     sales_route_id?: number;
     notes?: string;

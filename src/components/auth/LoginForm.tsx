@@ -23,6 +23,9 @@ import { useAppDispatch } from "@/store/store";
 import { setCredentials } from "@/store/features/auth/authSlice";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { setCurrency } from "@/store/currencySlice";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -45,6 +48,9 @@ export function LoginForm({
     },
   });
 
+  const { data: companyProfileSettings } = useGetSettingsInfoQuery();
+
+  console.log("companyProfileSettings", companyProfileSettings);
   const [authLogin] = useAuthLoginMutation();
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
@@ -58,14 +64,23 @@ export function LoginForm({
       console.log("Login successful:", res);
       // Handle successful login (e.g., redirect, show message)
       if (res) {
+        toast.success(res?.message || "Login successful!");
         dispatch(
           setCredentials({ user: res?.data?.user, token: res.data?.token })
         );
 
+        dispatch(setCurrency(companyProfileSettings?.data?.currency || "RM"));
+
         navigate("/dashboard");
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      const err = error as {
+        data?: { message?: string };
+      };
+
+      toast.error(
+        err?.data?.message || "Login failed. Please check your credentials."
+      );
     }
   };
   return (
@@ -138,17 +153,19 @@ export function LoginForm({
                       </a>
                     </div>
                     <div className="relative">
-                      <Input 
-                        type={showPassword ? "text" : "password"} 
+                      <Input
+                        type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                         className="pr-10"
-                        {...field} 
+                        {...field}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors focus:outline-none"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                       >
                         {showPassword ? (
                           <EyeOff className="w-4 h-4" />

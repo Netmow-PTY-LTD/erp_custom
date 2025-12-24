@@ -11,26 +11,38 @@ import type {
 
 export const customersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    getCustomerStats: builder.query({
+      query: () => ({
+        url: "/customers/stats",
+        method: "GET",
+      }),
 
-    // ------------------------------------------
+      providesTags: [{ type: "Customers", id: "STATS" }],
+    }),
+    // -----------------------------------------
     // GET ALL CUSTOMERS (direct params)
     // ------------------------------------------
-   getCustomers: builder.query<GetCustomersResponse, GetCustomersParams | void>({
-  query: (params) => ({
-    url: "/customers",
-    method: "GET",
-    params: params || {},   // 👈 FIX: always object, never undefined
-  }),
+    getCustomers: builder.query<
+      GetCustomersResponse,
+      GetCustomersParams | void
+    >({
+      query: (params) => ({
+        url: "/customers",
+        method: "GET",
+        params: params || {}, // 👈 FIX: always object, never undefined
+      }),
 
-  providesTags: (result) =>
-    result
-      ? [
-          ...result.data.map(({ id }) => ({ type: "Customers" as const, id })),
-          { type: "Customers", id: "LIST" },
-        ]
-      : [{ type: "Customers", id: "LIST" }],
-}),
-
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "Customers" as const,
+                id,
+              })),
+              { type: "Customers", id: "LIST" },
+            ]
+          : [{ type: "Customers", id: "LIST" }],
+    }),
 
     // ------------------------------------------
     // GET SINGLE CUSTOMER
@@ -98,6 +110,7 @@ export const customersApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetCustomerStatsQuery,
   useGetCustomersQuery,
   useGetCustomerByIdQuery,
   useCreateCustomerMutation,

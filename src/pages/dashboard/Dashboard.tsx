@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   useGetDashboardStatsQuery,
   type DashboardStats,
@@ -27,18 +27,18 @@ export default function Dashboard() {
   const currency = useAppSelector((state) => state.currency.value);
   return (
     <>
-      <div className="mb-2 flex items-center justify-between space-y-2">
+      <div className="mb-6 flex items-center justify-between space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <Button>Download</Button>
-        </div>
+        </div> */}
       </div>
       <Tabs
         orientation="vertical"
         defaultValue="overview"
         className="space-y-4"
       >
-        <div className="w-full overflow-x-auto pb-2">
+        {/* <div className="w-full overflow-x-auto pb-2">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="analytics" disabled>
@@ -51,8 +51,8 @@ export default function Dashboard() {
               Notifications
             </TabsTrigger>
           </TabsList>
-        </div>
-        <TabsContent value="overview" className="space-y-4">
+        </div> */}
+        <TabsContent value="overview" className="space-y-8">
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -159,7 +159,7 @@ export default function Dashboard() {
                 <CardTitle className="text-sm font-medium">
                   Active Staffs
                 </CardTitle>
-                <ShoppingCart className="w-4 h-4" />
+                <Users className="w-4 h-4" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -174,7 +174,8 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
             <Card className="col-span-1 lg:col-span-4">
               <CardHeader>
-                <CardTitle>Overview</CardTitle>
+                <CardTitle>Sales Overview</CardTitle>
+                <CardDescription>January - December {new Date().getFullYear()}</CardDescription>
               </CardHeader>
               <CardContent className="ps-2">
                 <Overview />

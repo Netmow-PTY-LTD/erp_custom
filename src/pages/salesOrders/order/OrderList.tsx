@@ -204,7 +204,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useGetAllSalesOrdersQuery } from "@/store/features/salesOrder/salesOrder";
+import { useGetAllSalesOrdersQuery, useGetSalesOrdersStatsQuery } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
 import type { SalesOrder } from "@/types/salesOrder.types";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -220,32 +220,7 @@ import {
 import { useState } from "react";
 import { Link } from "react-router";
 
-const orderStats = [
-  {
-    label: "Total Orders",
-    value: 22,
-    color: "bg-blue-600",
-    icon: <ShoppingCart className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Pending Orders",
-    value: 12,
-    color: "bg-yellow-500",
-    icon: <Clock className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Delivered Orders",
-    value: 8,
-    color: "bg-green-600",
-    icon: <CheckCircle className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Total Value",
-    value: "RM 81,643",
-    color: "bg-cyan-400",
-    icon: <DollarSign className="w-10 h-10 opacity-80" />,
-  },
-];
+
 
 export default function Orders() {
   const [search, setSearch] = useState("");
@@ -262,6 +237,41 @@ export default function Orders() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
+  const {data: fetchedOrdersStats} = useGetSalesOrdersStatsQuery(undefined);
+  console.log("fetchedOrdersStats", fetchedOrdersStats);
+
+  const totalOrdersCount = fetchedOrdersStats?.data?.total_orders || 0;
+  const pendingOrdersCount = fetchedOrdersStats?.data?.pending_orders || 0;
+  const deliveredOrdersCount = fetchedOrdersStats?.data?.delivered_orders || 0;
+  const totalOrdersValue = fetchedOrdersStats?.data?.total_value || "RM 0";
+
+  const orderStats = [
+  {
+    label: "Total Orders",
+    value: totalOrdersCount,
+    color: "bg-blue-600",
+    icon: <ShoppingCart className="w-10 h-10 opacity-80" />,
+  },
+  {
+    label: "Pending Orders",
+    value: pendingOrdersCount,
+    color: "bg-yellow-500",
+    icon: <Clock className="w-10 h-10 opacity-80" />,
+  },
+  {
+    label: "Delivered Orders",
+    value: deliveredOrdersCount,
+    color: "bg-green-600",
+    icon: <CheckCircle className="w-10 h-10 opacity-80" />,
+  },
+  {
+    label: "Total Value",
+    value: `${currency} ${totalOrdersValue}`,
+    color: "bg-cyan-400",
+    icon: <DollarSign className="w-10 h-10 opacity-80" />,
+  },
+];
+
   const OrderColumns: ColumnDef<SalesOrder>[] = [
     {
       accessorKey: "order_number",
@@ -272,12 +282,12 @@ export default function Orders() {
     },
 
     {
-      accessorKey: "customer_id",
+      accessorKey: "customer",
       header: "Customer",
       cell: ({ row }) => (
         <div>
           <div className="font-semibold">
-            Customer #{row.original.customer_id}
+            {row.original.customer?.name}
           </div>
           <div className="text-xs text-muted-foreground">
             ID: {row.original.customer_id}

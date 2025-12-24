@@ -1,4 +1,3 @@
-
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,29 +5,25 @@ import { useGetAllUsersQuery } from "@/store/features/users/usersApiService";
 import type { User } from "@/types/users.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  Users,
-  UserPlus,
-  UserCheck,
-  Eye,
-  Pencil,
-} from "lucide-react";
+import { Users, UserPlus, UserCheck, Eye, Pencil } from "lucide-react";
 
 import { useState } from "react";
 import { Link } from "react-router";
-
 
 export default function UsersList() {
   const [pageIndex, setPageIndex] = useState(0);
   const { data: usersData } = useGetAllUsersQuery();
 
-  const users = usersData?.data as User[] || [];
-
+  const users = (usersData?.data as User[]) || [];
 
   // -------------------- DYNAMIC STATS --------------------
   const totalUsers = users.length;
-  const activeUsers = users.filter(u => u.status?.toLowerCase() === "active").length;
-  const adminUsers = users.filter(u => u.role?.display_name === "Admin").length;
+  const activeUsers = users.filter(
+    (u) => u.status?.toLowerCase() === "active"
+  ).length;
+  const adminUsers = users.filter(
+    (u) => u.role?.display_name === "Admin"
+  ).length;
 
   const stats = [
     {
@@ -50,9 +45,6 @@ export default function UsersList() {
       icon: <UserPlus className="w-10 h-10 opacity-80" />,
     },
   ];
-
-
-
 
   // -------------------- TABLE COLUMNS --------------------
   const userColumns: ColumnDef<User>[] = [
