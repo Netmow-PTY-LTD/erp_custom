@@ -11,6 +11,8 @@ import AddNewRoleForm from "@/components/roles/AddRoleForm";
 import { useDeleteRoleMutation, useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import type { Role } from "@/types/users.types";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { RolePermission } from "@/config/permissions";
 
 
 // Simple confirmation modal
@@ -59,6 +61,13 @@ export default function Roles() {
   const [search, setSearch] = useState<string>("");
   const limit = 10;
 
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canDeleteRole = userPermissions.includes(RolePermission.DELETE_ROLES);
+
+
+
+
   // Fetch roles from backend using RTK Query
   const { data, isFetching } = useGetAllRolesQuery({
     page,
@@ -86,6 +95,11 @@ export default function Roles() {
   };
 
   const handleConfirmDelete = async () => {
+    if (!canDeleteRole) {
+      toast.error("You don't have permission to delete roles.");
+      setModalOpen(false);
+      return;
+    }
     if (!selectRoleId) return;
 
     try {
