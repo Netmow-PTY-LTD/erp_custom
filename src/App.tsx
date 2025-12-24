@@ -5,7 +5,6 @@ import { Loader } from "lucide-react";
 
 const APP = () => {
   const { data: user, isLoading } = useAuthUserQuery();
-  console.log('data: user',user)
   const isLoggedIn = user?.data?.user?.email;
 
   return (

@@ -36,13 +36,14 @@ export default function EditUserPage() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const [page] = useState(1);
-    const [search] = useState("");
-    const limit = 10;
+  const [search] = useState("");
+  const limit = 10;
 
   const { data: rolesData } = useGetAllRolesQuery({
     page,
     limit,
-    search,});
+    search,
+  });
   const { data: userData, isLoading: isUserLoading } = useGetUserByIdQuery(userId as string);
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
@@ -145,6 +146,7 @@ export default function EditUserPage() {
                   <FieldLabel>Role</FieldLabel>
 
                   <Select
+                    key={field.value}
                     value={field.value ? String(field.value) : undefined}
                     onValueChange={(val) => field.onChange(Number(val))}
                     disabled={!rolesData}
