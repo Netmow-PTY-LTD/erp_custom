@@ -34,7 +34,7 @@ import {
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
 import { useAppSelector } from "@/store/store";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 import { ShieldAlert } from "lucide-react";
 
 // 1️⃣ Define form schema using Zod
@@ -64,7 +64,7 @@ export default function EditStockForm({
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  const canEditStock = userPermissions.includes(ProductPermission.EDIT_STOCK);
+  const canEditStock = userPermissions.includes(ProductPermission.EDIT_STOCK)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

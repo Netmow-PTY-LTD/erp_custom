@@ -24,7 +24,7 @@ import { Loader, ShieldAlert } from "lucide-react";
 import type { Unit } from "@/types/types";
 import { useEffect } from "react";
 import { useAppSelector } from "@/store/store";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Unit name is required"),
@@ -50,7 +50,7 @@ export default function EditUnitForm({
 
   // Units permissions
  
-  const canEditUnits = userPermissions.includes(ProductPermission.EDIT_UNITS);
+  const canEditUnits = userPermissions.includes(ProductPermission.EDIT_UNITS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

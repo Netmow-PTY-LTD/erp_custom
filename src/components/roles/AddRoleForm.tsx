@@ -29,7 +29,7 @@ import {
 import { useAddRoleMutation } from "@/store/features/role/roleApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
-import { RolePermission } from "@/config/permissions";
+import { RolePermission, SuperAdminPermission } from "@/config/permissions";
 import { ShieldAlert } from "lucide-react";
 
 const statusOptions = [
@@ -55,7 +55,7 @@ export default function AddNewRoleForm({
 
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canCreateRole = userPermissions.includes(RolePermission.CREATE_ROLES);
+  const canCreateRole = userPermissions.includes(RolePermission.CREATE_ROLES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

@@ -11,7 +11,7 @@ import {
 import type { Unit } from "@/types/types";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function UnitsPage() {
   const [addSheetOpen, setAddSheetOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function UnitsPage() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // Units permissions
-  const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS);
+  const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
