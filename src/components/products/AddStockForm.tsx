@@ -35,7 +35,7 @@ import {
 } from "../ui/select";
 import z from "zod";
 import { Textarea } from "../ui/textarea";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 import { useAppSelector } from "@/store/store";
 
 // 1️⃣ Define form schema using Zod
@@ -69,7 +69,7 @@ export default function AddStockForm({
   const [popoverOpen, setPopoverOpen] = useState(false);
 
     const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canCreateStock = userPermissions.includes(ProductPermission.CREATE_STOCK);
+  const canCreateStock = userPermissions.includes(ProductPermission.CREATE_STOCK)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
   
@@ -323,7 +323,7 @@ export default function AddStockForm({
                 name="date"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Notes</FieldLabel>
+                    <FieldLabel>Date</FieldLabel>
                     <Input type="date" {...field} className="block" />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>

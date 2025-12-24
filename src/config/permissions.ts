@@ -3,6 +3,10 @@
 
 
 // --- Dashboard ---
+
+export const SuperAdminPermission = {
+ ACCESS_ALL: "*" as const,
+};
 export const DashboardPermission = {
   VIEW: "dashboard.view" as const,
 };
@@ -95,6 +99,7 @@ export const SalesPermission = {
   CREATE_PAYMENT: "sales.payments.create" as const,
   DELIVERY: "sales.delivery.view" as const,
   SALES_ROUTES: "sales.routes.view" as const,
+  DETAILS_SALES_ROUTES: "sales.routes.details" as const,
   CREATE_ROUTE: "sales.routes.create" as const,
   ASSIGN_ROUTE: "sales.routes.assign" as const,
 };
@@ -161,6 +166,7 @@ export const ReportPermission = {
 
 //   for sidebar
 export const PERMISSION_GROUPS = {
+  
   Dashboard: DashboardPermission,
   Products: ProductPermission,
   Customers: CustomerPermission,

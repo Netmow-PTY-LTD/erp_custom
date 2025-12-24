@@ -26,7 +26,7 @@ export default function StockManagement() {
   const limit = 10;
   //   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  // const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK);
+  // const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

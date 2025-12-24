@@ -12,7 +12,7 @@ import { useDeleteRoleMutation, useGetAllRolesQuery } from "@/store/features/rol
 import type { Role } from "@/types/users.types";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
-import { RolePermission } from "@/config/permissions";
+import { RolePermission, SuperAdminPermission } from "@/config/permissions";
 
 
 // Simple confirmation modal
@@ -63,7 +63,8 @@ export default function Roles() {
 
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canDeleteRole = userPermissions.includes(RolePermission.DELETE_ROLES);
+const canDeleteRole =
+  userPermissions.includes(RolePermission.DELETE_ROLES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

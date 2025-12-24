@@ -35,7 +35,7 @@ import {
 import { useEffect } from "react";
 import type { DebitHead } from "@/types/accounting.types";
 import { useAppSelector } from "@/store/store";
-import { AccountingPermission } from "@/config/permissions";
+import { AccountingPermission, SuperAdminPermission } from "@/config/permissions";
 
 const statusOptions = [
   { value: "true", label: "Active" },
@@ -61,7 +61,7 @@ export default function EditDebitHeadForm({
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // Debit Heads
-  const canEditDebitHeads = userPermissions.includes(AccountingPermission.EDIT_DEBIT_HEADS);
+  const canEditDebitHeads = userPermissions.includes(AccountingPermission.EDIT_DEBIT_HEADS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
   const form = useForm({

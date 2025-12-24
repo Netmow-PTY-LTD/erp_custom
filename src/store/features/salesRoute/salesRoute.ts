@@ -12,18 +12,14 @@ export interface SalesRoutePagination {
   totalPage: number;
 }
 
-export interface SalesRouteListResponse {
+export interface SalesRouteResponse<T> {
   status: boolean;
   message: string;
-  pagination: SalesRoutePagination;
-  data: SalesRoute[];
+  pagination?: SalesRoutePagination;
+  data: T;
 }
 
-export interface SalesRouteSingleResponse {
-  status: boolean;
-  message: string;
-  data: SalesRoute;
-}
+
 
 // ----------------------
 // RTK Query Service
@@ -34,7 +30,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
 
     // GET ALL SALES ROUTES
     getAllSalesRoute: builder.query<
-      SalesRouteListResponse,
+      SalesRouteResponse<SalesRoute[]>,
       { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({
@@ -47,7 +43,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
 
     // CREATE SALES ROUTE
     addSalesRoute: builder.mutation<
-      SalesRouteSingleResponse,
+      SalesRouteResponse<SalesRoute>,
       Partial<SalesRoute>
     >({
       query: (body) => ({
@@ -60,7 +56,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
 
     // GET SINGLE SALES ROUTE
     getSalesRouteById: builder.query<
-      SalesRouteSingleResponse,
+      SalesRouteResponse<SalesRoute>,
       string | number
     >({
       query: (id) => ({
@@ -72,7 +68,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
 
     // UPDATE SALES ROUTE
     updateSalesRoute: builder.mutation<
-      SalesRouteSingleResponse,
+      SalesRouteResponse<SalesRoute>,
       { id: string | number; body: Partial<SalesRoute> }
     >({
       query: ({ id, body }) => ({
@@ -85,7 +81,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
 
     // DELETE SALES ROUTE
     deleteSalesRoute: builder.mutation<
-      SalesRouteSingleResponse,
+      SalesRouteResponse<SalesRoute>,
       string | number
     >({
       query: (id) => ({
