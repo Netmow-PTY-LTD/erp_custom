@@ -216,6 +216,7 @@ export const sidebarItemLink = [
         title: "Add Customer",
         url: "/dashboard/customers/create",
         element: <AddCustomer />,
+        icon: UserPlus,
         allowedPermissions: [CustomerPermission.CREATE],
       },
       {
@@ -520,14 +521,14 @@ export const sidebarItemLink = [
         url: "/dashboard/accounting/credit-head",
         element: <CreditHead />,
         icon: CreditCard,
-        allowedPermissions: [AccountingPermission.CREDIT_HEADS],
+        allowedPermissions: [AccountingPermission.VIEW_CREDIT_HEADS],
       },
       {
         title: "Debit Heads",
         url: "/dashboard/accounting/debit-head",
         element: <DebitHead />,
         icon: FileMinus,
-        allowedPermissions: [AccountingPermission.DEBIT_HEADS],
+        allowedPermissions: [AccountingPermission.VIEW_DEBIT_HEADS],
       },
       {
         title: "Incomes",

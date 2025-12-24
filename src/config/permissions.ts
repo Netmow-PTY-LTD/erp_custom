@@ -72,6 +72,9 @@ export const StaffPermission = {
   CREATE: "staffs.create" as const,
   EDIT: "staffs.edit" as const,
   VIEW_DEPARTMENTS: "departments.view" as const,
+  CREATE_DEPARTMENTS: "departments.create" as const,
+  EDIT_DEPARTMENTS: "departments.edit" as const,
+  DELETE_DEPARTMENTS: "departments.delete" as const,
   VIEW_ATTENDANCE: "attendance.view" as const,
   MANAGE_LEAVES: "leaves.manage" as const,
   VIEW_STAFF_MAP: "staffs.map.view" as const,
@@ -100,12 +103,22 @@ export const SalesPermission = {
 export const AccountingPermission = {
   VIEW: "accounting.view" as const,
   OVERVIEW: "accounting.overview.view" as const,
-  CREDIT_HEADS: "accounting.credit_heads.view" as const,
-  DEBIT_HEADS: "accounting.debit_heads.view" as const,
   INCOMES: "accounting.incomes.view" as const,
   EXPENSES: "accounting.expenses.view" as const,
   CREATE_INCOME: "accounting.incomes.create" as const,
   CREATE_EXPENSE: "accounting.expenses.create" as const,
+
+   // Credit Heads
+  VIEW_CREDIT_HEADS: "accounting.credit_heads.view" as const,
+  CREATE_CREDIT_HEADS: "accounting.credit_heads.create" as const,
+  EDIT_CREDIT_HEADS: "accounting.credit_heads.edit" as const,
+  DELETE_CREDIT_HEADS: "accounting.credit_heads.delete" as const,
+
+  // Debit Heads
+  VIEW_DEBIT_HEADS: "accounting.debit_heads.view" as const,
+  CREATE_DEBIT_HEADS: "accounting.debit_heads.create" as const,
+  EDIT_DEBIT_HEADS: "accounting.debit_heads.edit" as const,
+  DELETE_DEBIT_HEADS: "accounting.debit_heads.delete" as const,
 };
 
 // --- Users ---
@@ -120,10 +133,12 @@ export const UserPermission = {
 // --- Roles & Permissions ---
 export const RolePermission = {
   CREATE_ROLES: "roles.create" as const,
+  DELETE_ROLES: "roles.delete" as const,
   VIEW_ROLES: "roles.view" as const,
   VIEW_PERMISSIONS: "permissions.view" as const,
   VIEW_ROLES_PERMISSIONS: "roles_permissions.view" as const,
   EDIT_ROLES_PERMISSIONS: "roles_permissions.edit" as const,
+ 
 };
 
 // --- Settings ---
