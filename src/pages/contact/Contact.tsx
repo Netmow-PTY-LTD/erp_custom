@@ -52,7 +52,7 @@ export default function Contact() {
           </ul>
 
           <p className="text-gray-600 mt-4 text-sm">
-            Support hours: Sunday – Thursday, 10:00 AM – 6:00 PM (BST)
+            Support hours: Sunday – Friday, 09:00 AM – 6:00 PM (BST)
           </p>
         </div>
       </div>

@@ -5,7 +5,8 @@ import { Loader } from "lucide-react";
 
 const APP = () => {
   const { data: user, isLoading } = useAuthUserQuery();
-  const isLoggedIn = user?.data?.email;
+  console.log('data: user',user)
+  const isLoggedIn = user?.data?.user?.email;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
