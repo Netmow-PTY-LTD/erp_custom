@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -11,6 +12,7 @@ export const useGoogleMapsScript = () => {
 
     useEffect(() => {
         if ((window as any).google?.maps?.places) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsLoaded(true);
             return;
         }
@@ -18,6 +20,7 @@ export const useGoogleMapsScript = () => {
         if (!loadScriptPromise) {
             loadScriptPromise = new Promise<void>((resolve, reject) => {
                 const callbackName = "initGoogleMapsCallback";
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 window[callbackName] = () => resolve();
 

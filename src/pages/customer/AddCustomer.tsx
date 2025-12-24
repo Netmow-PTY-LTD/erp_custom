@@ -1,9 +1,9 @@
+
 import {
   Controller,
   useForm,
   type SubmitHandler,
   type Resolver,
-  useWatch,
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
+
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -26,8 +27,8 @@ import { Link, useNavigate } from "react-router";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
-import { useEffect } from "react";
-import { geocodeAddress } from "@/config/geocodeAddress";
+import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
+
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
@@ -80,14 +81,19 @@ export default function AddCustomerPage() {
 
   const { control, handleSubmit, setValue } = form;
 
-  const address = useWatch({ control, name: "address" });
-  const city = useWatch({ control, name: "city" });
-  const state = useWatch({ control, name: "state" });
-  const country = useWatch({ control, name: "country" });
-  const postalCode = useWatch({ control, name: "postal_code" });
+  // const address = useWatch({ control, name: "address" });
+  // const city = useWatch({ control, name: "city" });
+  // const state = useWatch({ control, name: "state" });
+  // const country = useWatch({ control, name: "country" });
+  // const postalCode = useWatch({ control, name: "postal_code" });
 
 
 
+  // EFFECT: Auto-fetch lat/lng based on manual address inputs (OPTIONAL / LEGACY)
+  // Since we are using AddressAutocomplete, this might be redundant or conflicting.
+  // We can keep a simplified version or just rely on Autocomplete.
+  // For now, disabling to prioritize Autocomplete values.
+  /*
   useEffect(() => {
     const fetchLatLng = async () => {
       const fullAddress = [
@@ -114,6 +120,7 @@ export default function AddCustomerPage() {
 
     fetchLatLng();
   }, [address, city, state, postalCode, country, setValue]);
+  */
 
 
 
@@ -238,7 +245,19 @@ export default function AddCustomerPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Address</FieldLabel>
-                    <Textarea placeholder="Street address" {...field} />
+                    <AddressAutocomplete
+                      {...field}
+                      placeholder="Search address"
+                      onAddressSelect={(details) => {
+                        field.onChange(details.address);
+                        setValue("city", details.city);
+                        setValue("state", details.state);
+                        setValue("postal_code", details.postalCode);
+                        setValue("country", details.country);
+                        setValue("latitude", details.latitude);
+                        setValue("longitude", details.longitude);
+                      }}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -410,6 +429,11 @@ export default function AddCustomerPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 
