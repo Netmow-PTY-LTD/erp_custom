@@ -14,7 +14,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-import { useGetCustomersQuery, useDeleteCustomerMutation } from "@/store/features/customers/customersApi";
+import {
+  useGetCustomersQuery,
+  useDeleteCustomerMutation,
+  useGetCustomerStatsQuery,
+} from "@/store/features/customers/customersApi";
 import type { Customer } from "@/store/features/customers/types";
 import { toast } from "sonner";
 import {
@@ -37,6 +41,8 @@ export default function Customers() {
   const pageSize = 10;
   const currentPage = pageIndex + 1;
 
+  const currency = useAppSelector((state) => state.currency.value); 
+
   // Fetch customers with pagination and search
   const { data, isLoading, error } = useGetCustomersQuery({
     page: currentPage,
@@ -44,7 +50,8 @@ export default function Customers() {
     search: searchTerm || undefined,
   });
 
-  const [deleteCustomer, { isLoading: isDeleting }] = useDeleteCustomerMutation();
+  const [deleteCustomer, { isLoading: isDeleting }] =
+    useDeleteCustomerMutation();
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -64,7 +71,22 @@ export default function Customers() {
   const totalCustomers = data?.pagination.total || 0;
 
   // Calculate stats from customers
-  const activeCustomers = customers.filter((c) => c.is_active).length;
+
+  const { data: customerStats } = useGetCustomerStatsQuery(undefined);
+
+  const activeCustomers = customerStats?.data?.filter(
+    (c: { label: string; value: number }) => c.label === "Active Customers"
+  )?.[0]?.value || 0;
+
+  console.log("activeCustomers", activeCustomers);
+
+  const totalRevenue = customerStats?.data?.filter(
+    (c: { label: string; value: number }) => c.label === "Total Revenue"
+  )?.[0]?.value || 0;
+
+  const totalNewCustomers = customerStats?.data?.filter(
+    (c: { label: string; value: number }) => c.label === "New Customers"
+  )?.[0]?.value || 0;
 
   const stats = [
     {
@@ -81,21 +103,18 @@ export default function Customers() {
     },
     {
       label: "Total Revenue",
-      value: "RM 82,400",
+      value: `${currency} ${totalRevenue?.toLocaleString() || 0}`,
       color: "bg-yellow-600",
       icon: <DollarSign className="w-10 h-10 opacity-80" />,
     },
     {
       label: "New Customers",
-      value: 12,
+      value: totalNewCustomers,
       color: "bg-purple-600",
       icon: <UserPlus className="w-10 h-10 opacity-80" />,
     },
   ];
 
-  const currency = useAppSelector((state) => state.currency.value);
-
-  console.log('test ==>',currency)
 
   const customerColumns: ColumnDef<Customer>[] = [
     { accessorKey: "id", header: "ID" },
@@ -115,7 +134,9 @@ export default function Customers() {
       header: "Address",
       cell: ({ row }) => {
         const customer = row.original;
-        const parts = [customer.address, customer.city, customer.state].filter(Boolean);
+        const parts = [customer.address, customer.city, customer.state].filter(
+          Boolean
+        );
         return parts.join(", ") || "-";
       },
     },
@@ -132,7 +153,9 @@ export default function Customers() {
       header: `Balance (${currency})`,
       cell: ({ row }) => {
         const balance = row.getValue("outstanding_balance") as number;
-        return balance ? `${currency} ${balance.toLocaleString()}` : `${currency} 0`;
+        return balance
+          ? `${currency} ${balance.toLocaleString()}`
+          : `${currency} 0`;
       },
     },
     {
@@ -141,7 +164,11 @@ export default function Customers() {
       cell: ({ row }) => {
         const isActive = row.getValue("is_active") as boolean;
         const variant = isActive ? "success" : "destructive";
-        return <Badge variant={variant} className="text-white">{isActive ? "Active" : "Inactive"}</Badge>;
+        return (
+          <Badge variant={variant} className="text-white">
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        );
       },
     },
 
@@ -182,7 +209,9 @@ export default function Customers() {
   if (error) {
     return (
       <div className="w-full p-6">
-        <div className="text-red-600">Error loading customers. Please try again.</div>
+        <div className="text-red-600">
+          Error loading customers. Please try again.
+        </div>
       </div>
     );
   }
@@ -225,9 +254,6 @@ export default function Customers() {
         ))}
       </div>
 
-
-
-
       <Card>
         <CardHeader>
           <CardTitle>All Customers</CardTitle>
@@ -245,7 +271,6 @@ export default function Customers() {
               onPageChange={setPageIndex}
               onSearch={(value) => {
                 setSearchTerm(value);
-               
               }}
             />
           )}
@@ -253,13 +278,16 @@ export default function Customers() {
       </Card>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
+      <AlertDialog
+        open={deleteId !== null}
+        onOpenChange={() => setDeleteId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the customer
-              and remove their data from the server.
+              This action cannot be undone. This will permanently delete the
+              customer and remove their data from the server.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

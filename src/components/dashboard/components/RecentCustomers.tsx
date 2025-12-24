@@ -1,10 +1,13 @@
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import type { Customer } from "@/store/features/customers/types";
+import { useAppSelector } from "@/store/store";
 import { useState } from "react";
 
 export default function RecentCustomers() {
   const [page] = useState(1);
   const limit = 6;
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const { data, isLoading, error } = useGetCustomersQuery({
     page,
@@ -53,11 +56,8 @@ export default function RecentCustomers() {
 
             {/* Right Amount */}
             <div className="text-sm font-medium">
-              +$
-              {Number(customer.credit_limit).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {currency} {''}
+              {Number(customer?.total_sales).toFixed(2)}
             </div>
           </div>
         );
