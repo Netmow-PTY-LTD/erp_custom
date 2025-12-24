@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -88,6 +89,11 @@ export default function AddCustomerPage() {
 
 
 
+  // EFFECT: Auto-fetch lat/lng based on manual address inputs (OPTIONAL / LEGACY)
+  // Since we are using AddressAutocomplete, this might be redundant or conflicting.
+  // We can keep a simplified version or just rely on Autocomplete.
+  // For now, disabling to prioritize Autocomplete values.
+  /*
   useEffect(() => {
     const fetchLatLng = async () => {
       const fullAddress = [
@@ -114,6 +120,7 @@ export default function AddCustomerPage() {
 
     fetchLatLng();
   }, [address, city, state, postalCode, country, setValue]);
+  */
 
 
 
@@ -238,7 +245,19 @@ export default function AddCustomerPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Address</FieldLabel>
-                    <Textarea placeholder="Street address" {...field} />
+                    <AddressAutocomplete
+                      {...field}
+                      placeholder="Search address"
+                      onAddressSelect={(details) => {
+                        field.onChange(details.address);
+                        setValue("city", details.city);
+                        setValue("state", details.state);
+                        setValue("postal_code", details.postalCode);
+                        setValue("country", details.country);
+                        setValue("latitude", details.latitude);
+                        setValue("longitude", details.longitude);
+                      }}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -414,7 +433,7 @@ export default function AddCustomerPage() {
 
 
 
-  // ------------------------- this is older code base ---------------------------
+// ------------------------- this is older code base ---------------------------
 
 // import {
 //   Controller,
