@@ -25,6 +25,14 @@ export interface UpdateInvoiceStatusPayload {
 
 export const salesApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+       // GET ALL SALES ORDERS
+    getSalesOrdersStats: builder.query({
+      query: () => ({
+        url: "/sales/orders/stats",
+        method: "GET",
+      }),
+      providesTags: ["SalesOrders"],
+    }),
     // ============================
     // SALES ORDERS
     // ============================
@@ -250,6 +258,7 @@ export const salesApiService = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetSalesOrdersStatsQuery,
   useGetAllSalesOrdersQuery,
   useAddSalesOrderMutation,
   useGetSalesOrderByIdQuery,

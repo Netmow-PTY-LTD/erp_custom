@@ -87,6 +87,14 @@ type StockMovementResponse = {
 
 export const productsApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    //product stats
+      getProductStats: builder.query({
+      query: () => ({
+        url: "/products/stats",
+        method: "GET",
+      }),
+      providesTags: ["Product", "Stats"],
+    }),
     //products apis
 
     addProduct: builder.mutation({
@@ -267,6 +275,7 @@ export const productsApiService = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetProductStatsQuery,
   useAddProductMutation,
   useGetAllProductsQuery,
   useGetProductByIdQuery,

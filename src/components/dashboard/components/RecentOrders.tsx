@@ -33,15 +33,15 @@ export default function RecentOrders() {
     },
 
     {
-      accessorKey: "customer_id",
+      accessorKey: "customer",
       header: "Customer",
       cell: ({ row }) => (
         <div>
           <div className="font-semibold">
-            Customer #{row.original.customer_id}
+           {row.original.customer?.name}
           </div>
           <div className="text-xs text-muted-foreground">
-            ID: {row.original.customer_id}
+            ID: {row.original.customer?.id}
           </div>
         </div>
       ),
