@@ -1,7 +1,8 @@
-import { useEffect, useRef, forwardRef } from "react";
+import { useEffect, useRef, useState, forwardRef } from "react";
 import { Input } from "@/components/ui/input";
 import { useGoogleMapsScript } from "@/hooks/useGoogleMapsScript";
 import { cn } from "@/lib/utils";
+import { Loader2, MapPin } from "lucide-react";
 
 interface AddressAutocompleteProps extends React.InputHTMLAttributes<HTMLInputElement> {
     onAddressSelect: (details: {
@@ -16,122 +17,317 @@ interface AddressAutocompleteProps extends React.InputHTMLAttributes<HTMLInputEl
 }
 
 export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompleteProps>(
-    ({ className, onAddressSelect, ...props }, ref) => {
+    ({ className, onAddressSelect, value, onChange, ...props }, ref) => {
         const { isLoaded, loadError } = useGoogleMapsScript();
-        const internalRef = useRef<HTMLInputElement>(null);
+        const [inputValue, setInputValue] = useState(value as string || "");
+        const [predictions, setPredictions] = useState<any[]>([]);
+        const [isOpen, setIsOpen] = useState(false);
+        const [isLoading, setIsLoading] = useState(false);
 
-        // Initialize Autocomplete
+        const autocompleteService = useRef<any>(null);
+        const placesService = useRef<any>(null);
+        const containerRef = useRef<HTMLDivElement>(null);
+
+        // Sync input value with prop value if it changes externally
         useEffect(() => {
-            if (!isLoaded || !internalRef.current) return;
+            setInputValue((value as string) || "");
+        }, [value]);
 
-            try {
-                const autocomplete = new window.google.maps.places.Autocomplete(internalRef.current, {
-                    fields: ["address_components", "formatted_address", "geometry", "name"],
-                    types: ["address"],
-                });
+        useEffect(() => {
+            const initServices = async () => {
+                if (isLoaded && !autocompleteService.current) {
+                    try {
+                        let lib: any = {};
 
-                const listener = autocomplete.addListener("place_changed", () => {
-                    const place = autocomplete.getPlace();
+                        // 1. Try modern importLibrary
+                        if ((window as any).google?.maps?.importLibrary) {
+                            lib = await (window as any).google.maps.importLibrary("places");
+                        }
 
-                    if (!place || !place.address_components || !place.geometry) {
-                        return;
+                        // 2. Fallback or merge with global legacy namespace
+                        if ((window as any).google?.maps?.places) {
+                            lib = { ...(window as any).google.maps.places, ...lib };
+                        }
+
+                        // Initialize AutocompleteService (for predictions)
+                        if (lib.AutocompleteService) {
+                            autocompleteService.current = new lib.AutocompleteService();
+                        } else {
+                            console.warn("AutocompleteService not found in Google Maps library.");
+                        }
+
+                        // Initialize PlacesService (for details) OR prepare to use Place class
+                        if (lib.PlacesService) {
+                            placesService.current = new lib.PlacesService(document.createElement("div"));
+                        } else {
+                            // If PlacesService is missing, we will use the new Place class directly in the handleSelect logic if available
+                            console.warn("PlacesService not found, will attempt to use Place class.");
+                        }
+
+                    } catch (err) {
+                        console.error("Google Maps Places Service initialization error", err);
                     }
+                }
+            };
 
-                    let address = "";
-                    let streetNumber = "";
-                    let route = "";
-                    let city = "";
-                    let state = "";
-                    let postalCode = "";
-                    let country = "";
+            initServices();
+        }, [isLoaded]);
 
-                    // Extract address components
-                    place.address_components.forEach((component: any) => {
-                        const types = component.types;
+        useEffect(() => {
+            const fetchPredictions = async () => {
+                if (!inputValue || !autocompleteService.current) {
+                    setPredictions([]);
+                    setIsOpen(false);
+                    return;
+                }
 
-                        if (types.includes("street_number")) {
-                            streetNumber = component.long_name;
-                        }
-                        if (types.includes("route")) {
-                            route = component.long_name;
-                        }
-                        if (types.includes("locality")) {
-                            city = component.long_name;
-                        }
-                        // Fallback for city if locality is missing
-                        if (!city && types.includes("sublocality_level_1")) {
-                            city = component.long_name;
-                        }
+                // Don't search if we just selected something (basic heuristic: exact match might be tricky, usually we just let it search or use a flag)
+                // For simplicity, we search always on type.
 
-                        if (types.includes("administrative_area_level_1")) {
-                            state = component.long_name;
-                        }
-                        if (types.includes("postal_code")) {
-                            postalCode = component.long_name;
-                        }
-                        if (types.includes("country")) {
-                            country = component.long_name;
-                        }
+                setIsLoading(true);
+                try {
+                    const response = await autocompleteService.current.getPlacePredictions({
+                        input: inputValue,
+                        types: ["address"],
                     });
+                    setPredictions(response.predictions);
+                    setIsOpen(true);
+                } catch (error) {
+                    console.error("Error fetching predictions", error);
+                    setPredictions([]);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
 
-                    address = `${streetNumber} ${route}`.trim();
-                    // If no specific street used, fall back toFormatted address or name
-                    if (!address && place.name) {
-                        address = place.name;
+            const debounceTimer = setTimeout(() => {
+                // Only search if input has length > 2
+                if (inputValue.length > 2) {
+                    fetchPredictions();
+                } else {
+                    setPredictions([]);
+                    setIsOpen(false);
+                }
+            }, 400);
+
+            return () => clearTimeout(debounceTimer);
+        }, [inputValue, isLoaded]);
+
+        const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+            setInputValue(e.target.value);
+            if (onChange) onChange(e);
+            // Re-open if closed manually?
+        };
+
+        const handleSelectPrediction = async (placeId: string, description: string) => {
+            // 1. Update text immediately
+            setInputValue(description);
+            setIsOpen(false);
+
+            // 2. Get details
+            // STRATEGY A: Legacy PlacesService
+            if (placesService.current) {
+                placesService.current.getDetails({
+                    placeId: placeId,
+                    fields: ["address_components", "geometry", "name", "formatted_address"]
+                }, (place: any, status: any) => {
+                    if (status === (window as any).google.maps.places.PlacesServiceStatus.OK && place && place.address_components && place.geometry) {
+                        processPlaceDetails(place, description);
+                    } else {
+                        console.error("Places details failed status:", status);
                     }
-
-                    onAddressSelect({
-                        address,
-                        city,
-                        state,
-                        postalCode,
-                        country,
-                        latitude: place.geometry.location?.lat() || 0,
-                        longitude: place.geometry.location?.lng() || 0,
-                    });
                 });
-
-                // Cleanup
-                return () => {
-                    google.maps.event.removeListener(listener);
-                    // google.maps.event.clearInstanceListeners(autocomplete);
-                };
-            } catch (error) {
-                console.error("Error initializing Google Maps Autocomplete", error);
             }
-        }, [isLoaded, onAddressSelect]);
+            // STRATEGY B: Modern 'Place' Class (New API)
+            else if ((window as any).google?.maps?.places?.Place) {
+                try {
+                    const place = new (window as any).google.maps.places.Place({
+                        id: placeId,
+                    });
 
-        // Forward ref handling
-        useEffect(() => {
-            if (!ref) return;
+                    // Fetch fields
+                    // Note: The structure of result might differ slightly, but usually fields map 1:1 for basic data.
+                    const result = await place.fetchFields({
+                        fields: ['addressComponents', 'location', 'displayName', 'formattedAddress']
+                    });
 
-            if (typeof ref === 'function') {
-                ref(internalRef.current);
+                    const placeData = result.place;
+
+                    // Map new API data to our format
+                    // addressComponents -> address_components
+                    // location -> geometry.location
+                    // displayName -> name
+
+                    const formattedPlace = {
+                        address_components: placeData.addressComponents,
+                        geometry: {
+                            location: placeData.location
+                        },
+                        name: placeData.displayName,
+                        formatted_address: placeData.formattedAddress
+                    };
+
+                    processPlaceDetails(formattedPlace, description);
+
+                } catch (error) {
+                    console.error("Failed to fetch details using new Place API", error);
+                }
             } else {
-                // Safe cast for mutable ref
-                (ref as React.MutableRefObject<HTMLInputElement | null>).current = internalRef.current;
+                console.error("No Places Service available to fetch details.");
             }
-        }, [ref]);
+        };
+
+        const processPlaceDetails = (place: any, description: string) => {
+            let address = "";
+            let streetNumber = "";
+            let route = "";
+            let city = "";
+            let state = "";
+            let postalCode = "";
+            let country = "";
+
+            // Extract address components
+            // Handle both snake_case (Legacy) and camelCase (New) if needed, 
+            // but we normalized to legacy structure in Strategy B adapter above theoretically.
+            // Actually, new API returns specialized objects, let's just be safe.
+
+            const components = place.address_components || place.addressComponents;
+
+            if (components) {
+                components.forEach((component: any) => {
+                    const types = component.types;
+
+                    if (types.includes("street_number")) {
+                        streetNumber = component.longText || component.long_name;
+                    }
+                    if (types.includes("route")) {
+                        route = component.longText || component.long_name;
+                    }
+                    if (types.includes("locality")) {
+                        city = component.longText || component.long_name;
+                    }
+                    // Fallback for city if locality is missing
+                    if (!city && types.includes("sublocality_level_1")) {
+                        city = component.longText || component.long_name;
+                    }
+
+                    if (types.includes("administrative_area_level_1")) {
+                        state = component.longText || component.long_name;
+                    }
+                    if (types.includes("postal_code")) {
+                        postalCode = component.longText || component.long_name;
+                    }
+                    if (types.includes("country")) {
+                        country = component.longText || component.long_name;
+                    }
+                });
+            }
+
+            address = `${streetNumber} ${route}`.trim();
+            if (!address && place.name) {
+                address = typeof place.name === 'string' ? place.name : place.displayName;
+            }
+            if (!address) {
+                address = description;
+            }
+
+            // Normalize location
+            let lat = 0;
+            let lng = 0;
+
+            if (place.geometry?.location) {
+                if (typeof place.geometry.location.lat === 'function') {
+                    lat = place.geometry.location.lat();
+                    lng = place.geometry.location.lng();
+                } else {
+                    // New API might return simple numbers?
+                    // Actually New API Place.location is a LatLng object usually.
+                    lat = place.geometry.location.lat;
+                    lng = place.geometry.location.lng;
+                    // If they are functions in new API:
+                    if (typeof lat === 'function') lat = (place.geometry.location as any).lat();
+                    if (typeof lng === 'function') lng = (place.geometry.location as any).lng();
+                }
+            }
+
+            onAddressSelect({
+                address,
+                city,
+                state,
+                postalCode,
+                country,
+                latitude: lat,
+                longitude: lng,
+            });
+        };
+
+        // Close on click outside
+        useEffect(() => {
+            const handleClickOutside = (event: MouseEvent) => {
+                if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                    setIsOpen(false);
+                }
+            };
+
+            document.addEventListener("mousedown", handleClickOutside);
+            return () => {
+                document.removeEventListener("mousedown", handleClickOutside);
+            };
+        }, []);
 
         if (loadError) {
             return (
                 <Input
-                    ref={internalRef}
+                    ref={ref}
                     placeholder="Error loading maps"
                     disabled
                     className={cn("border-red-500", className)}
+                    value={inputValue}
+                    onChange={handleInput}
                     {...props}
                 />
             );
         }
 
         return (
-            <Input
-                ref={internalRef}
-                placeholder={props.placeholder || "Start typing address..."}
-                className={className}
-                {...props}
-            />
+            <div className="relative w-full" ref={containerRef}>
+                <div className="relative">
+                    <Input
+                        ref={ref}
+                        placeholder={props.placeholder || "Start typing address..."}
+                        className={className}
+                        value={inputValue}
+                        onChange={handleInput}
+                        autoComplete="off"
+                        {...props}
+                    />
+                    {isLoading && (
+                        <div className="absolute right-3 top-2.5">
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        </div>
+                    )}
+                </div>
+
+                {isOpen && predictions.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-zinc-950 border rounded-md shadow-lg max-h-60 overflow-auto">
+                        <ul className="py-1">
+                            {predictions.map((prediction) => (
+                                <li
+                                    key={prediction.place_id}
+                                    className="px-4 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer flex items-start gap-2 text-sm"
+                                    onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)}
+                                >
+                                    <MapPin className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+                                    <span>{prediction.description}</span>
+                                </li>
+                            ))}
+                            <li className="px-4 py-2 border-t text-[10px] text-right text-gray-400">
+                                Powered by Google
+                            </li>
+                        </ul>
+                    </div>
+                )}
+            </div>
         );
     }
 );
