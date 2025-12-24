@@ -32,7 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {useAddDebitHeadMutation } from "@/store/features/accounting/accoutntingApiService";
 import { useState } from "react";
 import { useAppSelector } from "@/store/store";
-import { AccountingPermission } from "@/config/permissions";
+import { AccountingPermission, SuperAdminPermission } from "@/config/permissions";
 
 const statusOptions = [
   { value: "true", label: "Active" },
@@ -52,7 +52,7 @@ export default function AddDebitHeadForm() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
 // Debit Heads
-const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE_DEBIT_HEADS);
+const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE_DEBIT_HEADS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

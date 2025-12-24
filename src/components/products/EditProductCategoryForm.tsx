@@ -31,7 +31,7 @@ import { Loader, ShieldAlert } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 const statusOptions = [
   { value: "true", label: "Active" },
@@ -55,7 +55,7 @@ export default function EditProductCategoryForm({
 }) {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canEditCategory = userPermissions.includes(ProductPermission.Edit_CATEGORIES);
+  const canEditCategory = userPermissions.includes(ProductPermission.Edit_CATEGORIES)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

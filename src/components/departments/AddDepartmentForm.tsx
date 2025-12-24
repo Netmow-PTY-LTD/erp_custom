@@ -26,7 +26,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, ShieldAlert } from "lucide-react";
 import { useAppSelector } from "@/store/store";
-import { StaffPermission } from "@/config/permissions";
+import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 
 interface Props {
   open: boolean;
@@ -38,7 +38,7 @@ export default function AddDepartmentForm({ open, onOpenChange }: Props) {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  const canCreateDepartments = userPermissions.includes(StaffPermission.CREATE_DEPARTMENTS);
+  const canCreateDepartments = userPermissions.includes(StaffPermission.CREATE_DEPARTMENTS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

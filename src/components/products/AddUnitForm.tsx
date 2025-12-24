@@ -22,7 +22,7 @@ import { useAddUnitMutation } from "@/store/features/admin/productsApiService";
 import { toast } from "sonner";
 import { Loader, ShieldAlert } from "lucide-react";
 import { useAppSelector } from "@/store/store";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Unit name is required"),
@@ -43,7 +43,7 @@ export default function AddUnitForm({ open, onOpenChange, refetchUnits }: Props)
   
     // Units permissions
 
-    const canCreateUnits = userPermissions.includes(ProductPermission.CREATE_UNITS);
+    const canCreateUnits = userPermissions.includes(ProductPermission.CREATE_UNITS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
     
 
 

@@ -14,7 +14,7 @@ import {
 import type { Department } from "@/types/types";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
-import { StaffPermission } from "@/config/permissions";
+import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 
 export const DepartmentSchema = z.object({
   name: z.string().min(1, "Department name is required"),
@@ -32,7 +32,7 @@ export default function DepartmentsPage() {
   const limit = 10;
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canDeleteDepartments = userPermissions.includes(StaffPermission.DELETE_DEPARTMENTS);
+  const canDeleteDepartments = userPermissions.includes(StaffPermission.DELETE_DEPARTMENTS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 

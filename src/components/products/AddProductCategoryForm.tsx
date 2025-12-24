@@ -30,7 +30,7 @@ import { useAddProductCategoryMutation } from "@/store/features/admin/productsAp
 import { Loader, ShieldAlert } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 import { useAppSelector } from "@/store/store";
 
 const statusOptions = [
@@ -52,7 +52,7 @@ export default function AddProductCategoryForm({
 }) {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canCreateCategory = userPermissions.includes(ProductPermission.CREATE_CATEGORIES);
+  const canCreateCategory = userPermissions.includes(ProductPermission.CREATE_CATEGORIES)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
