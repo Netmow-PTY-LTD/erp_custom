@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { useAuthUserQuery } from "./store/features/auth/authApiService";
+import { Loader } from "lucide-react";
 
 
 const APP = () => {
@@ -18,7 +19,7 @@ const APP = () => {
         </p>
         <div className="flex gap-4">
           {isLoading ? (
-            <div className="px-8 py-3 text-white">Loading...</div>
+            <div className="px-8 py-3 text-white"><Loader/></div>
           ) : isLoggedIn ? (
             <Link
               to="/dashboard"
