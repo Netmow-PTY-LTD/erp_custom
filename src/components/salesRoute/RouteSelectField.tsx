@@ -14,12 +14,11 @@ import { useGetAllSalesRouteQuery } from "@/store/features/salesRoute/salesRoute
 import type { SalesRoute } from "@/types/salesRoute.types";
 import { Check } from "lucide-react";
 
-
 export function SalesRouteSelectField({
     field,
     error,
 }: {
-    field: { value?: string[]; onChange: (v: string[]) => void };
+    field: { value?: string; onChange: (v: string) => void };
     error?: string;
 }) {
     const [open, setOpen] = useState(false);
@@ -31,28 +30,23 @@ export function SalesRouteSelectField({
     });
 
     const list: SalesRoute[] = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.filter((r) => field.value?.includes(r.id as any));
+    const selected = list.find((r) => String(r.id) === field.value);
 
-    const toggleRoute = (id: string) => {
-        if (field.value?.includes(id)) {
-            field.onChange(field.value.filter((v) => v !== id));
-        } else {
-            field.onChange([...(field.value || []), id]);
-        }
+
+    const selectRoute = (id: string) => {
+        field.onChange(id); // set the selected route directly
+        setOpen(false); // close the popover after selection
     };
 
     return (
         <div className="flex flex-col gap-1">
-            <label className="font-medium">Assign Sales Routes</label>
+            <label className="font-medium">Assign Sales Route</label>
 
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                        {selected.length > 0
-                            ? selected.map(r => r.route_name).join(", ")  // show route names
-                            : "Select Sales Routes..."}
+                        {selected ? selected.route_name : "Select Sales Route..."}
                     </Button>
-
                 </PopoverTrigger>
 
                 <PopoverContent className="w-[320px] p-0">
@@ -73,10 +67,12 @@ export function SalesRouteSelectField({
                                     list.map((route) => (
                                         <CommandItem
                                             key={route.id}
-                                            onSelect={() => toggleRoute(route.id as any)}
+                                            onSelect={() => selectRoute(String(route.id))}
+                                            className="flex justify-between items-center"
                                         >
-                                            {route.route_name}
-                                            {field.value?.includes(route.id as any) && <Check className="w-4 h-4 text-green-500" />}
+                                            <span>{route.route_name}</span>
+                                            {field.value === String(route.id) && <Check className="w-4 h-4 text-green-500" />}
+
                                         </CommandItem>
                                     ))}
                             </CommandGroup>
