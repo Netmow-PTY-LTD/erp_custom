@@ -17,6 +17,11 @@ export interface SalesPayment {
   reference_number: string;
   status: string;
   created_by: number;
+  creator:{
+    id: number;
+    name: string;
+    email: string
+  };
   created_at: string;
   updated_at: string;
   order: SalesOrder;

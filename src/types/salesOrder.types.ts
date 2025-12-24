@@ -12,6 +12,7 @@ export interface SalesOrderItem {
   quantity: number;
   unit_price: string;      // decimal return as string
   total_price: string;     // decimal return as string
+  line_total: number;     // decimal
   discount: number;
   sales_tax: number;
   created_at: string;      // ISO date
@@ -33,6 +34,7 @@ export interface SalesOrder {
   total_amount: string;        // decimal
   tax_amount: string;          // decimal
   discount_amount: string;     // decimal
+  net_amount: string;          // decimal
   shipping_address: string;
   billing_address: string | null;
   payment_status: "unpaid" | "partial" | "paid" | string;

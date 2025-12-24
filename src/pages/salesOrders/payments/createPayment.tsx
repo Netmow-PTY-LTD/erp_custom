@@ -59,7 +59,6 @@ const paymentSchema = z.object({
 type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 export default function CreatePaymentPage() {
-
   const navigate = useNavigate();
 
   const currency = useAppSelector((state) => state.currency.value);
@@ -102,7 +101,7 @@ export default function CreatePaymentPage() {
             {selected ? selected.name : "Select Customer..."}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0">
+        <PopoverContent className="w-[300px] p-0 shadow-md rounded-lg bg-white z-[1000]">
           <Command>
             <CommandInput
               placeholder="Search customers..."
@@ -157,7 +156,9 @@ export default function CreatePaymentPage() {
 
     const unpaidInvoices = Array.isArray(data?.data) ? data.data : [];
     //console.log("Invoice List:", unpaidInvoices);
-    const selected = unpaidInvoices.find((inv) => Number(inv.id) === Number(field.value));
+    const selected = unpaidInvoices.find(
+      (inv) => Number(inv.id) === Number(field.value)
+    );
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -190,25 +191,31 @@ export default function CreatePaymentPage() {
                   </div>
                 )}
                 {!isLoading &&
-                  unpaidInvoices?.map((invoice) => (
-                    <CommandItem
-                      key={invoice?.id}
-                      onSelect={() => {
-                        field.onChange(invoice?.id);
-                        setOpen(false);
-                      }}
-                    >
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          {invoice?.invoice_number}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          Amount: {currency}{" "}
-                          {Number(invoice?.total_amount).toFixed(2)}
-                        </span>
-                      </div>
-                    </CommandItem>
-                  ))}
+                  unpaidInvoices?.map((invoice) => {
+                    const amount =
+                      (Number(invoice?.order?.total_amount) || 0) -
+                      (Number(invoice?.order?.discount_amount) || 0) +
+                      (Number(invoice?.order?.tax_amount) || 0);
+
+                    return (
+                      <CommandItem
+                        key={invoice?.id}
+                        onSelect={() => {
+                          field.onChange(invoice?.id);
+                          setOpen(false);
+                        }}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium">
+                            {invoice?.invoice_number}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            Amount: {currency} {amount.toFixed(2)}
+                          </span>
+                        </div>
+                      </CommandItem>
+                    );
+                  })}
               </CommandGroup>
             </CommandList>
           </Command>
@@ -273,6 +280,12 @@ export default function CreatePaymentPage() {
       }
     } catch (error) {
       console.error("Payment Error:", error);
+
+      const err = error as {
+        data?: { message?: string };
+      };
+
+      toast.error(err?.data?.message || "Error Adding Payment");
     }
   }
 
@@ -486,17 +499,27 @@ export default function CreatePaymentPage() {
                 )}
               </p>
 
-              {invoice && (
-                <p>
-                  <strong>Invoice Total:</strong> RM{" "}
-                  {Number(invoice.total_amount).toFixed(2)}
-                </p>
-              )}
+              {invoice &&
+                (() => {
+                  const invoiceTotal =
+                    (Number(invoice?.order?.total_amount) || 0) -
+                    (Number(invoice?.order?.discount_amount) || 0) +
+                    (Number(invoice?.order?.tax_amount) || 0);
+
+                  return (
+                    <p>
+                      <strong>Invoice Total:</strong> {currency}{" "}
+                      {invoiceTotal.toFixed(2)}
+                    </p>
+                  );
+                })()}
 
               <p>
                 <strong>Payment Amount:</strong>{" "}
                 {watchAmount ? (
-                  <span>RM {Number(watchAmount).toFixed(2)}</span>
+                  <span>
+                    {currency} {Number(watchAmount).toFixed(2)}
+                  </span>
                 ) : (
                   <span className="text-gray-400">Not Entered</span>
                 )}
@@ -517,14 +540,22 @@ export default function CreatePaymentPage() {
                 <strong>Date:</strong> {watchDate}
               </p>
 
-              {invoice && watchAmount && (
-                <p className="font-semibold text-blue-600">
-                  Remaining Balance: RM{" "}
-                  {(
-                    Number(invoice?.total_amount) - Number(watchAmount)
-                  ).toFixed(2)}
-                </p>
-              )}
+              {invoice &&
+                watchAmount &&
+                (() => {
+                  const invoiceTotal =
+                    (Number(invoice?.order?.total_amount) || 0) -
+                    (Number(invoice?.order?.discount_amount) || 0) +
+                    (Number(invoice?.order?.tax_amount) || 0);
+
+                  const remaining = invoiceTotal - Number(watchAmount || 0);
+
+                  return (
+                    <p className="font-semibold text-blue-600">
+                      Remaining Balance: RM {remaining.toFixed(2)}
+                    </p>
+                  );
+                })()}
             </div>
           </div>
         </div>

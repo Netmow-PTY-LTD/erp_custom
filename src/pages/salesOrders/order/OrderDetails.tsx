@@ -69,8 +69,11 @@ export default function OrderDetails() {
                     <th className="p-3 text-left">SKU</th>
                     <th className="p-3 text-center">Quantity</th>
                     <th className="p-3 text-center">Unit Price ({currency})</th>
+                    <th className="p-3 text-center">
+                      Total Price ({currency})
+                    </th>
                     <th className="p-3 text-center">Discount ({currency})</th>
-                    <th className="p-3 text-center">Total Price ({currency})</th>
+                    <th className="p-3 text-center">Line Total ({currency})</th>
                   </tr>
                 </thead>
 
@@ -86,11 +89,14 @@ export default function OrderDetails() {
                       <td className="p-3 text-center">
                         {Number(item.unit_price).toFixed(2)}
                       </td>
-                       <td className="p-3 text-center">
+                      <td className="p-3 text-center font-medium">
+                        {Number(item.total_price).toFixed(2)}
+                      </td>
+                      <td className="p-3 text-center">
                         {Number(item?.discount).toFixed(2)}
                       </td>
                       <td className="p-3 text-center font-medium">
-                        {Number(item.total_price).toFixed(2)}
+                        {Number(item.line_total).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -124,7 +130,15 @@ export default function OrderDetails() {
 
               <p>
                 <span className="font-medium">Payment Status: </span>
-                <span className={`${order.payment_status === 'paid' ? 'bg-green-600': 'bg-red-500'} px-2 py-0.5 rounded-full text-white`}>{order.payment_status}</span>
+                <span
+                  className={`${
+                    order.payment_status === "paid"
+                      ? "bg-green-600"
+                      : "bg-red-500"
+                  } px-2 py-0.5 rounded-full text-white`}
+                >
+                  {order.payment_status}
+                </span>
               </p>
             </div>
           </Card>
@@ -136,30 +150,43 @@ export default function OrderDetails() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-medium">{currency} {Number(order?.total_amount)?.toFixed(2)}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Tax</span>
                 <span className="font-medium">
-                  {currency} {Number(order.tax_amount).toFixed(2)}
+                  {currency} {Number(order?.total_amount)?.toFixed(2)}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span>Discount</span>
+                <span>Total Discount</span>
                 <span className="font-medium text-red-600">
                   {currency} {Number(order?.discount_amount).toFixed(2)}
                 </span>
               </div>
 
+              <div className="flex justify-between text-sm border-t pt-3">
+                <span>Net Amount</span>
+                <span className="font-medium">
+                  {currency} {Number(order?.net_amount).toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Total Tax</span>
+                <span className="font-medium">
+                  {currency} {Number(order?.tax_amount).toFixed(2)}
+                </span>
+              </div>
+
               <div className="flex justify-between text-lg font-bold border-t pt-3">
                 <span>Total</span>
-                <span>{currency} {Number(order?.total_payable_amount).toFixed(2)}</span>
+                <span>
+                  {currency} {Number(order?.total_payable_amount).toFixed(2)}
+                </span>
               </div>
               <div className="flex justify-between text-md">
                 <span>Paid</span>
-                <span className="font-medium">{currency} {Number(order?.total_paid_amount).toFixed(2)}</span>
+                <span className="font-medium">
+                  {currency} {Number(order?.total_paid_amount).toFixed(2)}
+                </span>
               </div>
             </div>
           </Card>
