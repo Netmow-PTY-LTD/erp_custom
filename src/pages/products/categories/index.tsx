@@ -11,7 +11,7 @@ import type { Category } from "@/types/types";
 import { useDeleteCategoryMutation, useGetAllCategoriesQuery } from "@/store/features/admin/productsApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
-import { ProductPermission } from "@/config/permissions";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function CategoryPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -21,7 +21,7 @@ export default function CategoryPage() {
   const [search, setSearch] = useState<string>("");
   const limit = 10;
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canDeleteCategory = userPermissions.includes(ProductPermission.DELETE_CATEGORIES);
+  const canDeleteCategory = userPermissions.includes(ProductPermission.DELETE_CATEGORIES)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: fetchedCategories, isFetching } = useGetAllCategoriesQuery({
     page,

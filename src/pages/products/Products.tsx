@@ -38,7 +38,7 @@ export default function Products() {
   const [search, setSearch] = useState<string>("");
   const limit = 10;
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE);
+  // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 const {data: productStatsData} = useGetProductStatsQuery(undefined);
 

@@ -35,7 +35,7 @@ import {
 import { useEffect } from "react";
 import type { CreditHead } from "@/types/accounting.types";
 import { useAppSelector } from "@/store/store";
-import { AccountingPermission } from "@/config/permissions";
+import { AccountingPermission, SuperAdminPermission } from "@/config/permissions";
 
 
 const statusOptions = [
@@ -63,7 +63,7 @@ export default function EditCreditHeadForm({
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
 // Credit Heads
-const canEditCreditHeads = userPermissions.includes(AccountingPermission.EDIT_CREDIT_HEADS);
+const canEditCreditHeads = userPermissions.includes(AccountingPermission.EDIT_CREDIT_HEADS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
   const form = useForm({

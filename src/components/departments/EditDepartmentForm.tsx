@@ -30,7 +30,7 @@ import {
 } from "@/store/features/admin/departmentApiService";
 import { useEffect } from "react";
 import { useAppSelector } from "@/store/store";
-import { StaffPermission } from "@/config/permissions";
+import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 
 interface Props {
   open: boolean;
@@ -45,7 +45,7 @@ export default function EditDepartmentForm({
 }: Props) {
   const navigate = useNavigate();
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canEditDepartments = userPermissions.includes(StaffPermission.EDIT_DEPARTMENTS);
+  const canEditDepartments = userPermissions.includes(StaffPermission.EDIT_DEPARTMENTS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
   const form = useForm<DepartmentFormValues>({
