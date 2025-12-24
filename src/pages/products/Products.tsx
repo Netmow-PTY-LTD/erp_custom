@@ -26,38 +26,12 @@ import { useState } from "react";
 import {
   useDeleteProductMutation,
   useGetAllProductsQuery,
+  useGetProductStatsQuery,
 } from "@/store/features/admin/productsApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { selectCurrency } from "@/store/currencySlice";
 // import { ProductPermission } from "@/config/permissions";
-
-const stats = [
-  {
-    label: "Total Products",
-    value: 11,
-    color: "bg-blue-600",
-    icon: <Boxes className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Active Products",
-    value: 11,
-    color: "bg-green-700",
-    icon: <CheckCircle className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Low Stock",
-    value: 2,
-    color: "bg-red-600",
-    icon: <AlertTriangle className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Total Stock",
-    value: 1449,
-    color: "bg-cyan-500",
-    icon: <Boxes className="w-10 h-10 opacity-80" />,
-  },
-];
 
 export default function Products() {
   const [page, setPage] = useState<number>(1);
@@ -66,7 +40,53 @@ export default function Products() {
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE);
 
+const {data: productStatsData} = useGetProductStatsQuery(undefined);
 
+//const productStats = productStatsData?.data;
+console.log("productStats", productStatsData);
+
+const totalProductsCount = productStatsData?.data?.filter(
+  (p: { label: string; value: number }) => p.label === "Total Products"
+)?.[0]?.value || 0;
+
+const activeProductsCount = productStatsData?.data?.filter(
+  (p: { label: string; value: number }) => p.label === "Active Products"
+)?.[0]?.value || 0;
+
+const lowStockCount = productStatsData?.data?.filter(
+  (p: { label: string; value: number }) => p.label === "Low Stock"
+)?.[0]?.value || 0;
+
+const totalStockCount = productStatsData?.data?.filter(
+  (p: { label: string; value: number }) => p.label === "Total Stock"
+)?.[0]?.value || 0;
+
+const stats = [
+  {
+    label: "Total Products",
+    value: totalProductsCount,
+    color: "bg-blue-600",
+    icon: <Boxes className="w-10 h-10 opacity-80" />,
+  },
+  {
+    label: "Active Products",
+    value: activeProductsCount,
+    color: "bg-green-700",
+    icon: <CheckCircle className="w-10 h-10 opacity-80" />,
+  },
+  {
+    label: "Low Stock",
+    value: lowStockCount,
+    color: "bg-red-600",
+    icon: <AlertTriangle className="w-10 h-10 opacity-80" />,
+  },
+  {
+    label: "Total Stock",
+    value: totalStockCount,
+    color: "bg-cyan-500",
+    icon: <Boxes className="w-10 h-10 opacity-80" />,
+  },
+];
 
   const {
     data: fetchedProducts,
@@ -75,7 +95,7 @@ export default function Products() {
   } = useGetAllProductsQuery({ page, limit, search });
 
   const products: Product[] = fetchedProducts?.data || [];
-  console.log("Fetched Products: ", fetchedProducts);
+  //console.log("Fetched Products: ", fetchedProducts);
   const pagination = fetchedProducts?.pagination ?? {
     total: 0,
     page: 1,

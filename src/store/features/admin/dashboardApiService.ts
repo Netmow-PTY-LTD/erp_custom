@@ -24,10 +24,18 @@ export const dashboardApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Stats"],
     }),
-    
+    getDashboardCharts: builder.query({
+      query: () => ({
+        url: `/dashboard/charts`,
+        method: "GET",
+      }),
+      providesTags: ["Stats"],
+    }),
   }),
 });
 
 export const {
-  useGetDashboardStatsQuery
+  useGetDashboardStatsQuery,
+  useGetDashboardChartsQuery
+
 } = dashboardApiService;

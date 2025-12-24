@@ -9,6 +9,7 @@ import {
   useGetInventoryValuationQuery,
 } from "@/store/features/reports/reportApiService";
 import { useState } from "react";
+import { useAppSelector } from "@/store/store";
 
 export type LowStockRow = {
   sku: string;
@@ -37,7 +38,7 @@ export default function InventoryReports() {
       limit,
       search,
     });
-  console.log("Low Stock Items:", lowStockItems);
+  //console.log("Low Stock Items:", lowStockItems);
 
   const columns: ColumnDef<LowStockRow>[] = [
     { accessorKey: "sku", header: "SKU" },
@@ -45,6 +46,8 @@ export default function InventoryReports() {
     { accessorKey: "stock", header: "Stock" },
     { accessorKey: "minLevel", header: "Min Level" },
   ];
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   return (
     <div className="space-y-6">
@@ -58,7 +61,7 @@ export default function InventoryReports() {
             Stock Valuation
           </CardTitle>
           <CardContent className="p-0 mt-2">
-            <p className="text-2xl font-bold">RM {totalValuation}</p>
+            <p className="text-2xl font-bold">{currency} {totalValuation}</p>
             <p className="text-gray-500 text-sm">Total Units: {totalUnits}</p>
           </CardContent>
         </Card>

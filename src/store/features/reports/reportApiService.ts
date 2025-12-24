@@ -1,21 +1,20 @@
 import { baseApi } from "@/store/baseApi";
 
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ReportResponse<T = any> = {
   status: boolean;
   message: string;
   data: T;
-  pagination:{
+  pagination: {
     total: number;
     page: number;
     limit: number;
     totalPage: number;
-  }
+  };
 };
 
 export type RevenuePoint = {
-  date: string;          // e.g. "2025-12", "2025-12-01", "2025-W50", "2025-Q4"
+  date: string; // e.g. "2025-12", "2025-12-01", "2025-W50", "2025-Q4"
   amount: number;
   order_count: number;
 };
@@ -32,14 +31,15 @@ export interface RevenueChartResponse {
   };
 }
 
-
 export const reportsApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-
     // ===================== SALES REPORTS =====================
 
     // GET /api/reports/sales/summary
-    getSalesSummary: builder.query<ReportResponse, { start_date: string; end_date: string }>({
+    getSalesSummary: builder.query<
+      ReportResponse,
+      { start_date: string; end_date: string }
+    >({
       query: (params) => ({
         url: "/reports/sales/summary",
         method: "GET",
@@ -49,7 +49,10 @@ export const reportsApiService = baseApi.injectEndpoints({
     }),
 
     // GET /api/reports/sales/top-customers
-    getTopCustomers: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+    getTopCustomers: builder.query<
+      ReportResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
       query: () => ({
         url: "/reports/sales/top-customers",
         method: "GET",
@@ -58,7 +61,10 @@ export const reportsApiService = baseApi.injectEndpoints({
     }),
 
     // GET /api/reports/sales/top-products
-    getTopProducts: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+    getTopProducts: builder.query<
+      ReportResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
       query: () => ({
         url: "/reports/sales/top-products",
         method: "GET",
@@ -66,8 +72,10 @@ export const reportsApiService = baseApi.injectEndpoints({
       providesTags: ["Reports"],
     }),
 
-    
-    getSalesChartData: builder.query<RevenueChartResponse, { start_date: string; end_date: string }>({
+    getSalesChartData: builder.query<
+      RevenueChartResponse,
+      { start_date: string; end_date: string }
+    >({
       query: (params) => ({
         url: "/sales/reports/charts",
         method: "GET",
@@ -116,8 +124,11 @@ export const reportsApiService = baseApi.injectEndpoints({
       providesTags: ["Reports"],
     }),
 
-     // GET /api/reports/inventory/low-stock-list
-    getInventoryLowStockList: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+    // GET /api/reports/inventory/low-stock-list
+    getInventoryLowStockList: builder.query<
+      ReportResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
       query: (params) => ({
         url: "/reports/inventory/low-stock-list",
         method: "GET",
@@ -128,7 +139,10 @@ export const reportsApiService = baseApi.injectEndpoints({
 
     // ===================== Customer Reports =====================
 
-    getSalesReportByCustomer: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+    getSalesReportByCustomer: builder.query<
+      ReportResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
       query: (params) => ({
         url: "/reports/sales/by-customer",
         method: "GET",
@@ -137,7 +151,10 @@ export const reportsApiService = baseApi.injectEndpoints({
       providesTags: ["Reports"],
     }),
 
-    getAccountsReceivableReport: builder.query<ReportResponse, { page?: number; limit?: number; search?: string }>({
+    getAccountsReceivableReport: builder.query<
+      ReportResponse,
+      { page?: number; limit?: number; search?: string }
+    >({
       query: (params) => ({
         url: "/reports/customers/account-receivables",
         method: "GET",
@@ -145,7 +162,6 @@ export const reportsApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Reports"],
     }),
-
 
     // ===================== HR REPORTS =====================
 
@@ -177,7 +193,6 @@ export const reportsApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Reports"],
     }),
-
   }),
 });
 

@@ -35,6 +35,8 @@ export default function AttendancePage() {
 
   const attendances = attendancesData?.data as Attendance[] | [];
 
+  console.log("attendances", attendances);
+
 
   const staffAttendance = attendances?.find(item => item.staff_id === staff?.id);
 
@@ -130,7 +132,7 @@ export default function AttendancePage() {
                           {staff.first_name} {staff.last_name}
                         </p>
                         <p className="text-sm text-gray-500">
-                          {staff.department?.name || "No Department"}
+                          {staff.department?.name || "N/A"}
                         </p>
                         {staffAttendance?.id && (
                           <div className="mt-1 text-xs text-gray-600 space-y-1">

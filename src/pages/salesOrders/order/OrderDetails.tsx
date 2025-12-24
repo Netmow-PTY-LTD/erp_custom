@@ -149,7 +149,7 @@ export default function OrderDetails() {
               <div className="flex justify-between">
                 <span>Discount</span>
                 <span className="font-medium text-red-600">
-                  {currency} {Number(order?.total_discount).toFixed(2)}
+                  {currency} {Number(order?.discount_amount).toFixed(2)}
                 </span>
               </div>
 
