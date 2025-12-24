@@ -26,11 +26,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader } from "lucide-react";
+import { Loader, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import {useAddDebitHeadMutation } from "@/store/features/accounting/accoutntingApiService";
 import { useState } from "react";
+import { useAppSelector } from "@/store/store";
+import { AccountingPermission } from "@/config/permissions";
 
 const statusOptions = [
   { value: "true", label: "Active" },
@@ -45,6 +47,22 @@ const debitHeadSchema = z.object({
 });
 export default function AddDebitHeadForm() {
   const [open, setOpen] = useState(false);
+
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+// Debit Heads
+const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE_DEBIT_HEADS);
+
+
+
+
+
+
+
+
+
+
   const form = useForm({
     resolver: zodResolver(debitHeadSchema),
     defaultValues: {
@@ -98,7 +116,27 @@ export default function AddDebitHeadForm() {
           <SheetTitle>Add Debit Head</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-          <Form {...form}>
+           {!canCreateDebitHeads? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to edit a debit head. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() =>setOpen(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) :(<Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleAddCreditHead)}
               className="space-y-5"
@@ -186,7 +224,7 @@ export default function AddDebitHeadForm() {
                 )}
               </Button>
             </form>
-          </Form>
+          </Form>)}
         </div>
       </SheetContent>
     </Sheet>
