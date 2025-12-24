@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -21,7 +22,8 @@ import { useGetSalesRouteByIdQuery } from "@/store/features/salesRoute/salesRout
 export default function SalesRouteDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { data: route, isLoading, isError } = useGetSalesRouteByIdQuery(id as string);
+  const { data, isLoading, isError } = useGetSalesRouteByIdQuery(id as string);
+  const route=data?.data
 
   if (isLoading) return <div className="p-8 text-center animate-pulse">Loading route details...</div>;
   if (isError || !route) return <div className="p-8 text-center text-red-500">Failed to load route details.</div>;
@@ -40,7 +42,7 @@ export default function SalesRouteDetails() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{route.routeName}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{route.route_name}</h1>
             <p className="text-muted-foreground flex items-center gap-1 text-sm">
               <MapPin className="h-3 w-3" /> {route.city}, {route.state}
             </p>
@@ -58,10 +60,10 @@ export default function SalesRouteDetails() {
           <Card className="overflow-hidden border-none shadow-lg">
             <div className="h-[400px] w-full bg-muted">
               <MapEmbed
-                center={{ lat: route.centerLat, lng: route.centerLng }}
-                zoom={route.zoomLevel}
-                marker={{ lat: route.centerLat, lng: route.centerLng }}
-                radius={route.coverageRadius}
+                center={{ lat: route.center_lat, lng: route.center_lng}}
+                zoom={route.zoom_level}
+                marker={{ lat: route.center_lat, lng: route.center_lng }}
+                radius={route.coverage_radius}
               />
             </div>
             <CardContent className="p-6">
@@ -113,7 +115,7 @@ export default function SalesRouteDetails() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <DetailItem label="Country" value={route.country} />
-                <DetailItem label="Postal Code" value={route.postalCode} />
+                <DetailItem label="Postal Code" value={route.postal_code} />
               </div>
               <Separator />
               <div className="space-y-3">
@@ -122,13 +124,13 @@ export default function SalesRouteDetails() {
                  </h5>
                  <div className="grid grid-cols-2 gap-y-3 text-sm">
                     <span className="text-muted-foreground">Radius:</span>
-                    <span className="font-mono font-medium text-right">{route.coverageRadius} km</span>
+                    <span className="font-mono font-medium text-right">{route.coverage_radius} km</span>
                     <span className="text-muted-foreground">Lat:</span>
-                    <span className="font-mono font-medium text-right">{route.centerLat}</span>
+                    <span className="font-mono font-medium text-right">{route.center_lat}</span>
                     <span className="text-muted-foreground">Lng:</span>
-                    <span className="font-mono font-medium text-right">{route.centerLng}</span>
+                    <span className="font-mono font-medium text-right">{route.center_lng}</span>
                     <span className="text-muted-foreground">Zoom:</span>
-                    <span className="font-mono font-medium text-right">{route.zoomLevel}</span>
+                    <span className="font-mono font-medium text-right">{route.zoom_level}</span>
                  </div>
               </div>
             </CardContent>
@@ -144,7 +146,7 @@ export default function SalesRouteDetails() {
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {route.assignedStaff && route.assignedStaff.length > 0 ? (
-                  route.assignedStaff.map((staff) => (
+                  route.assignedStaff.map((staff:any) => (
                     <Badge key={staff} variant="secondary" className="px-3 py-1 gap-1 font-normal">
                       <User className="h-3 w-3" /> {staff}
                     </Badge>
@@ -166,7 +168,7 @@ export default function SalesRouteDetails() {
             <CardContent>
               <div className="space-y-2">
                 {route.assignedCustomers && route.assignedCustomers.length > 0 ? (
-                  route.assignedCustomers.map((c) => (
+                  route?.assignedCustomers?.map((c:any) => (
                     <div key={c.name} className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
                       <span className="text-sm font-medium">{c.name}</span>
                       <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">
