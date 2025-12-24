@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectTrigger,
@@ -20,18 +19,21 @@ import { Button } from "@/components/ui/button";
 import { useAddSupplierMutation } from "@/store/features/suppliers/supplierApiService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
   name: z.string().min(1, "Name is required"),
   code: z.string().optional(),
-  email: z.string().email("Invalid email").optional(),
+  email: z.email("Invalid email").optional(),
   phone: z.string().optional(),
   contactPerson: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
-  postalCode: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  postal_code: z.string().optional(),
   country: z.string().min(1, "Country is required"),
   paymentTerms: z.string().optional(),
   status: z.enum(["Active", "Inactive"], "Status is required"),
@@ -55,35 +57,43 @@ export default function AddSupplierPage() {
       address: "",
       city: "",
       state: "",
-      postalCode: "",
+      postal_code: "",
       country: "Malaysia",
       paymentTerms: "",
       status: "Active",
+      longitude: 0,
+      latitude: 0,
     },
   });
 
-  const { control, handleSubmit, reset } = form;
+  const { control, handleSubmit, reset, setValue } = form;
 
   const onSubmit: SubmitHandler<SupplierFormValues> = async (values) => {
     try {
+
       // Map form values to API payload
       const payload = {
         name: values.name,
+        code: values.code,
         contact_person: values.contactPerson,
         email: values.email,
         phone: values.phone,
         address: values.address,
         city: values.city,
+        state: values.state,
+        postal_code: values.postal_code,
         country: values.country,
         payment_terms: values.paymentTerms,
+        latitude: values.latitude,
+        longitude: values.longitude,
         is_active: values.status === "Active",
       };
 
-     const res= await addSupplier(payload).unwrap();
-     if(res?.status){
-      toast.success("Supplier added successfully");
-      reset(); // reset form after successful submission
-      navigate("/dashboard/suppliers");
+      const res = await addSupplier(payload).unwrap();
+      if (res?.status) {
+        toast.success("Supplier added successfully");
+        reset(); // reset form after successful submission
+        navigate("/dashboard/suppliers");
       }
     } catch (error) {
       console.error(error);
@@ -179,16 +189,55 @@ export default function AddSupplierPage() {
         {/* ADDRESS */}
         <Card>
           <CardHeader>
-            <CardTitle>Address</CardTitle>
+            <CardTitle>Address Details</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
+
             <Controller
               control={control}
               name="address"
               render={({ field, fieldState }) => (
                 <Field className="md:col-span-2">
                   <FieldLabel>Address</FieldLabel>
-                  <Textarea rows={3} placeholder="Street, Building, etc." {...field} />
+                  <AddressAutocomplete
+                    {...field}
+                    placeholder="Search address"
+                    onAddressSelect={(details) => {
+                      field.onChange(details.address);
+                      setValue("city", details.city);
+                      setValue("state", details.state);
+                      setValue("postal_code", details.postalCode);
+                      setValue("country", details.country);
+                      setValue("latitude", details.latitude);
+                      setValue("longitude", details.longitude);
+                    }}
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+
+
+            <Controller
+              control={control}
+              name="state"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>State / Province</FieldLabel>
+                  <Input placeholder="State" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="postal_code"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Postal Code</FieldLabel>
+                  <Input placeholder="Postal code" {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -216,6 +265,53 @@ export default function AddSupplierPage() {
                 </Field>
               )}
             />
+
+
+            <Controller
+              control={control}
+              name="latitude"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Latitude (Optional)</FieldLabel>
+                  <Input
+                    type="number"
+                    step="any"
+                    placeholder="e.g. 40.7128"
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined
+                      )
+                    }
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="longitude"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Longitude (Optional)</FieldLabel>
+                  <Input
+                    type="number"
+                    step="any"
+                    placeholder="e.g. -74.0060"
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined
+                      )
+                    }
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+
 
           </CardContent>
         </Card>
