@@ -204,7 +204,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useGetAllSalesOrdersQuery, useGetSalesOrdersStatsQuery } from "@/store/features/salesOrder/salesOrder";
+import {
+  useGetAllSalesOrdersQuery,
+  useGetSalesOrdersStatsQuery,
+} from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
 import type { SalesOrder } from "@/types/salesOrder.types";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -219,8 +222,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-
-
 
 export default function Orders() {
   const [search, setSearch] = useState("");
@@ -237,7 +238,7 @@ export default function Orders() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
-  const {data: fetchedOrdersStats} = useGetSalesOrdersStatsQuery(undefined);
+  const { data: fetchedOrdersStats } = useGetSalesOrdersStatsQuery(undefined);
   console.log("fetchedOrdersStats", fetchedOrdersStats);
 
   const totalOrdersCount = fetchedOrdersStats?.data?.total_orders || 0;
@@ -246,31 +247,31 @@ export default function Orders() {
   const totalOrdersValue = fetchedOrdersStats?.data?.total_value || "RM 0";
 
   const orderStats = [
-  {
-    label: "Total Orders",
-    value: totalOrdersCount,
-    color: "bg-blue-600",
-    icon: <ShoppingCart className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Pending Orders",
-    value: pendingOrdersCount,
-    color: "bg-yellow-500",
-    icon: <Clock className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Delivered Orders",
-    value: deliveredOrdersCount,
-    color: "bg-green-600",
-    icon: <CheckCircle className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Total Value",
-    value: `${currency} ${totalOrdersValue}`,
-    color: "bg-cyan-400",
-    icon: <DollarSign className="w-10 h-10 opacity-80" />,
-  },
-];
+    {
+      label: "Total Orders",
+      value: totalOrdersCount,
+      color: "bg-blue-600",
+      icon: <ShoppingCart className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Pending Orders",
+      value: pendingOrdersCount,
+      color: "bg-yellow-500",
+      icon: <Clock className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Delivered Orders",
+      value: deliveredOrdersCount,
+      color: "bg-green-600",
+      icon: <CheckCircle className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Total Value",
+      value: `${currency} ${totalOrdersValue}`,
+      color: "bg-cyan-400",
+      icon: <DollarSign className="w-10 h-10 opacity-80" />,
+    },
+  ];
 
   const OrderColumns: ColumnDef<SalesOrder>[] = [
     {
@@ -286,9 +287,7 @@ export default function Orders() {
       header: "Customer",
       cell: ({ row }) => (
         <div>
-          <div className="font-semibold">
-            {row.original.customer?.name}
-          </div>
+          <div className="font-semibold">{row.original.customer?.name}</div>
           <div className="text-xs text-muted-foreground">
             ID: {row.original.customer_id}
           </div>
@@ -334,11 +333,36 @@ export default function Orders() {
 
     {
       accessorKey: "total_amount",
-      header: `Amount (${currency})`,
+      header: `Total Price (${currency})`,
       cell: ({ row }) =>
         `${currency} ${parseFloat(row.original.total_amount).toFixed(2)}`,
     },
 
+    {
+      accessorKey: "discount_amount",
+      header: `Total Discount (${currency})`,
+      cell: ({ row }) =>
+        `${currency} ${parseFloat(row.original.discount_amount).toFixed(2)}`,
+    },
+    {
+      accessorKey: "tax_amount",
+      header: `Total Tax (${currency})`,
+      cell: ({ row }) =>
+        `${currency} ${parseFloat(row.original.tax_amount).toFixed(2)}`,
+    },
+    {
+      id: "total_payable", // 👈 use a custom id, not accessorKey
+      header: `Total Payable (${currency})`,
+      cell: ({ row }) => {
+        const totalAmount = parseFloat(row.original.total_amount) || 0;
+        const discountAmount = parseFloat(row.original.discount_amount) || 0;
+        const taxAmount = parseFloat(row.original.tax_amount) || 0;
+
+        const totalPayable = totalAmount - discountAmount + taxAmount;
+
+        return `${currency} ${totalPayable.toFixed(2)}`;
+      },
+    },
     // {
     //   accessorKey: "created_by",
     //   header: "Staff",
@@ -371,7 +395,9 @@ export default function Orders() {
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Sales Orders Management</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Sales Orders Management
+        </h1>
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/sales/invoices">
             <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">

@@ -254,7 +254,7 @@ export default function InvoiceDetailsPage() {
                         </td>
                         <td className="p-3">
                           {(
-                            Number(invoice?.total_amount || 0) -
+                            Number(invoice?.total_payable || 0) -
                             Number(item?.amount || 0)
                           ).toFixed(2)}
                         </td>

@@ -17,9 +17,9 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
   console.log("invoice", invoice);
 
   const total =
-  Number(invoice?.purchase_order?.total_amount ?? 0) +
-  Number(invoice?.purchase_order?.tax_amount ?? 0) -
-  Number(invoice?.purchase_order?.discount_amount ?? 0);
+    Number(invoice?.purchase_order?.total_amount ?? 0) +
+    Number(invoice?.purchase_order?.tax_amount ?? 0) -
+    Number(invoice?.purchase_order?.discount_amount ?? 0);
 
   const payableAmount = invoice?.payments
     ?.reduce((acc, cur) => acc + Number(cur.amount), 0)
@@ -50,7 +50,10 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
           {/* Company Info */}
           <div className="text-right flex flex-col items-end">
             <img
-              src={to?.logo_url || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} // <-- Replace with your logo
+              src={
+                to?.logo_url ||
+                "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"
+              } // <-- Replace with your logo
               alt="Company Logo"
               className="h-16 w-auto object-contain inline-block"
             />
@@ -80,7 +83,7 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
             </p>
             <p>
               <strong>Status:</strong>{" "}
-              <Badge className="bg-yellow-500 text-white">
+              <Badge className={`${invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"} text-white capitalize`}>
                 {invoice?.status}
               </Badge>
             </p>
@@ -99,7 +102,8 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
                 <th className="p-3">SKU</th>
                 <th className="p-3">Unit Price ({currency})</th>
                 <th className="p-3">Qty</th>
-                <th className="p-3">Discount %</th>
+                <th className="p-3">Total Price ({currency})</th>
+                <th className="p-3">Discount ({currency})</th>
                 <th className="p-3 text-right">Line Total ({currency})</th>
               </tr>
             </thead>
@@ -109,10 +113,11 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
                 <tr key={item?.id} className="border-b">
                   <td className="p-3">{item?.product?.name}</td>
                   <td className="p-3">{item?.product?.sku}</td>
-                  <td className="p-3">
-                    {Number(item?.unit_cost).toFixed(2)}
-                  </td>
+                  <td className="p-3">{Number(item?.unit_cost).toFixed(2)}</td>
                   <td className="p-3">{item?.quantity}</td>
+                  <td className="p-3">
+                    {Number(item?.total_price).toFixed(2)}
+                  </td>
                   <td className="p-3">{item?.discount?.toFixed(2)}</td>
                   <td className="p-3 text-right">
                     {Number(item?.line_total)?.toFixed(2)}
@@ -124,58 +129,79 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
         </div>
 
         {/* Summary */}
-        <div className="w-64 ml-auto space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>Subtotal</span>
-            <span className="font-semibold">
-              {currency} {Number(invoice?.total_amount)?.toFixed(2)}
-            </span>
-          </div>
+        <div className="flex justify-between items-center">
+          {/* LEFT: PAID badge */}
+          {invoice?.status === "paid" && (
+            <div className="flex justify-center items-center gap-2 w-full sm:w-1/2">
+              <div className="px-6 py-3 border-2 border-green-600 text-green-700 font-bold text-xl rounded-lg rotate-[-6deg]">
+                PAID
+              </div>
+            </div>
+          )}
+          <div className="w-64 ml-auto space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span className="font-semibold">
+                {currency} {Number(invoice?.total_amount)?.toFixed(2)}
+              </span>
+            </div>
 
-          <div className="flex justify-between">
-            <span>Tax</span>
-            <span className="font-semibold">
-              {currency} {Number(invoice?.purchase_order?.tax_amount)?.toFixed(2)}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span>Discount</span>
-            <span className="font-semibold">
-              {currency} {Number(invoice?.purchase_order?.discount_amount)?.toFixed(2)}
-            </span>
-          </div>
+            <div className="flex justify-between">
+              <span>Total Discount</span>
+              <span className="font-semibold">
+                {currency}{" "}
+                {Number(invoice?.purchase_order?.discount_amount)?.toFixed(2)}
+              </span>
+            </div>
 
-          <div className="flex justify-between">
-            <span>Total</span>
-            <span className="font-semibold">
-              {currency} {Number(total)?.toFixed(2)}
-            </span>
-          </div>
+            <Separator />
 
-          <Separator />
+            <div className="flex justify-between">
+              <span>Net Amount</span>
+              <span className="font-semibold">
+                {currency}{" "}
+                {Number(invoice?.purchase_order?.net_amount)?.toFixed(2)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Tax</span>
+              <span className="font-semibold">
+                {currency}{" "}
+                {Number(invoice?.purchase_order?.tax_amount)?.toFixed(2)}
+              </span>
+            </div>
 
-          <div className="flex justify-between">
-            <span>Paid</span>
-            <span className="font-semibold">
-              {currency} {Number(payableAmount)?.toFixed(2)}
-            </span>
-          </div>
+            <Separator />
 
-          <div className="flex justify-between text-lg font-bold">
-            <span>Balance</span>
-            <span>
-              {currency} {Number(balance)?.toFixed(2)}
-            </span>
-          </div>
+            <div className="flex justify-between">
+              <span>Total</span>
+              <span className="font-semibold">
+                {currency} {Number(total)?.toFixed(2)}
+              </span>
+            </div>
 
-          {/* Print Button */}
-          <div className="mt-10 print:hidden text-right">
-            <Button onClick={handlePrint} variant="outline">
-              Print Invoice
-            </Button>
+            <div className="flex justify-between">
+              <span>Paid</span>
+              <span className="font-semibold">
+                {currency} {Number(payableAmount)?.toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-lg font-bold">
+              <span>Balance</span>
+              <span>
+                {currency} {Number(balance)?.toFixed(2)}
+              </span>
+            </div>
+
+            {/* Print Button */}
+            <div className="mt-10 print:hidden text-right">
+              <Button onClick={handlePrint} variant="outline">
+                Print Invoice
+              </Button>
+            </div>
           </div>
         </div>
-
         <div className="text-center text-xs mt-16 text-gray-500">
           Thank you for being with us.
         </div>
