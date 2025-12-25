@@ -98,25 +98,25 @@ export default function SalesRoutesPage() {
       cell: ({ row }) =>
         new Date(row.original.created_at).toLocaleDateString(),
     },
-    {
-      accessorKey: "sataff",
-      header: "Staff",
-      cell: () => {
+    // {
+    //   accessorKey: "sataff",
+    //   header: "Staff",
+    //   cell: () => {
 
 
-        return 0
-      }
+    //     return 0
+    //   }
 
-    },
-    {
-      accessorKey: "customers",
-      header: "Customers",
-      cell: () => {
+    // },
+    // {
+    //   accessorKey: "customers",
+    //   header: "Customers",
+    //   cell: () => {
 
-        return 0
-      }
+    //     return 0
+    //   }
 
-    },
+    // },
 
     {
       id: "actions",
