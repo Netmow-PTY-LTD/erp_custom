@@ -10,7 +10,7 @@ import {
   useUpdateSettingsInfoMutation,
 } from "@/store/features/admin/settingsApiService";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { setCurrency } from "@/store/currencySlice";
 import { useAppDispatch } from "@/store/store";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
@@ -30,7 +30,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function EditProfilePage() {
-  const [logo, setLogo] = useState<string>('');
+ // const [logo, setLogo] = useState<string>('');
 
   const dispatch = useAppDispatch();
 
@@ -89,7 +89,7 @@ export default function EditProfilePage() {
       if (res.status) {
         toast.success(res.message || "Profile updated successfully");
         dispatch(setCurrency(res.data.currency));
-        setLogo(res.data.logo_url);
+       // setLogo(res.data.logo_url);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -114,7 +114,7 @@ export default function EditProfilePage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {/* Logo Preview */}
 
-        {logo && <img src={logo} alt="Logo Preview" />}
+        {/* {logo && <img src={logo} alt="Logo Preview" />} */}
 
         {/* LOGO */}
         <Controller
