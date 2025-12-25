@@ -5,17 +5,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Search, Users, CheckCircle2, Loader2 } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import type { Staff } from "@/types/staff.types";
+import { useAssignStaffMutation } from "@/store/features/salesRoute/salesRoute";
+import { toast } from "sonner";
 
-export default function AssignStaffPage() {
+export default function AssignRoutePag() {
+  const { routeId } = useParams()
   const [selectedStaffIds, setSelectedStaffIds] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [allStaff, setAllStaff] = useState<Staff[]>([]);
   const limit = 15;
 
+  console.log('check route id ==>', routeId)
   // 1. API Call with corrected param names
   const { data, isLoading, isFetching } = useGetAllStaffsQuery({
     page,
@@ -24,6 +28,7 @@ export default function AssignStaffPage() {
     status: "active" // Optional: only show active staff for assignment
   });
 
+  const [assignStaff] = useAssignStaffMutation()
   // 2. Sync data to local state for infinite scrolling
   useEffect(() => {
     if (data?.data) {
@@ -53,6 +58,29 @@ export default function AssignStaffPage() {
 
   // 4. Pagination Check (matches your StaffResponse type)
   const hasMore = (data?.pagination?.total ?? 0) > allStaff.length;
+
+
+
+  const handleAssignStaffs = async () => {
+
+    if (!routeId) return null
+
+    try {
+      const res = await assignStaff({ routeId, body: { staff: selectedStaffIds } }).unwrap()
+      if (res.status) {
+        console.log('respose of assign staff ==>', res)
+        toast.success(res.message || 'Staff assign successfully');
+
+      }
+    } catch (error) {
+      console.log('check error of assign staff ==>', error)
+    }
+
+  }
+
+
+
+
 
 
   return (
@@ -170,7 +198,7 @@ export default function AssignStaffPage() {
           <Button
             className="flex-2 bg-blue-600 hover:bg-blue-700 h-10 rounded-xl shadow-lg shadow-blue-100"
             disabled={selectedStaffIds.length === 0}
-            onClick={() => console.log("Assigned IDs:", selectedStaffIds)}
+            onClick={() => handleAssignStaffs()}
           >
             <CheckCircle2 className="mr-2 h-4 w-4" />
             Save Assignments

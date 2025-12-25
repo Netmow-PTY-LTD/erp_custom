@@ -20,6 +20,9 @@ export interface SalesRouteResponse<T> {
 }
 
 
+interface AssignStaffRequestBody {
+  staff: number[];
+}
 
 // ----------------------
 // RTK Query Service
@@ -79,6 +82,19 @@ export const salesRouteApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesRoute"],
     }),
 
+    // UPDATE SALES ROUTE
+    assignStaff: builder.mutation<
+      SalesRouteResponse<void>,
+      { routeId: string | number; body: AssignStaffRequestBody }
+    >({
+      query: ({ routeId, body }) => ({
+        url: `/sales/sales-route/${routeId}/assign`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["SalesRoute"],
+    }),
+
     // DELETE SALES ROUTE
     deleteSalesRoute: builder.mutation<
       SalesRouteResponse<SalesRoute>,
@@ -104,4 +120,5 @@ export const {
   useGetSalesRouteByIdQuery,
   useUpdateSalesRouteMutation,
   useDeleteSalesRouteMutation,
+  useAssignStaffMutation
 } = salesRouteApiService;
