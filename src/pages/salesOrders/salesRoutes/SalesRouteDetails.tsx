@@ -5,13 +5,13 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Users, 
-  User, 
-  Settings, 
-  Navigation, 
+import {
+  ArrowLeft,
+  MapPin,
+  Users,
+  User,
+  Settings,
+  Navigation,
   Info,
   Edit2
 } from "lucide-react";
@@ -23,8 +23,9 @@ export default function SalesRouteDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { data, isLoading, isError } = useGetSalesRouteByIdQuery(id as string);
-  const route=data?.data
+  const route = data?.data
 
+  console.log('route ===>', route)
   if (isLoading) return <div className="p-8 text-center animate-pulse">Loading route details...</div>;
   if (isError || !route) return <div className="p-8 text-center text-red-500">Failed to load route details.</div>;
 
@@ -60,30 +61,30 @@ export default function SalesRouteDetails() {
           <Card className="overflow-hidden border-none shadow-lg">
             <div className="h-[400px] w-full bg-muted">
               <MapEmbed
-                center={{ lat: route.center_lat, lng: route.center_lng}}
+                center={{ lat: route.center_lat, lng: route.center_lng }}
                 zoom={route.zoom_level}
                 marker={{ lat: route.center_lat, lng: route.center_lng }}
                 radius={route.coverage_radius}
               />
             </div>
             <CardContent className="p-6">
-               <div className="flex items-center gap-2 mb-4">
-                  <Navigation className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-lg">Route Path</h3>
-               </div>
-               <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="text-center flex-1">
-                    <p className="text-xs uppercase text-muted-foreground font-semibold">Start Point</p>
-                    <p className="font-medium">{route.start_location}</p>
-                  </div>
-                  <div className="h-px flex-1 bg-border relative mx-4">
-                     <div className="absolute -top-1 right-0 w-2 h-2 rounded-full bg-primary" />
-                  </div>
-                  <div className="text-center flex-1">
-                    <p className="text-xs uppercase text-muted-foreground font-semibold">End Point</p>
-                    <p className="font-medium">{route.end_location}</p>
-                  </div>
-               </div>
+              <div className="flex items-center gap-2 mb-4">
+                <Navigation className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-lg">Route Path</h3>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                <div className="text-center flex-1">
+                  <p className="text-xs uppercase text-muted-foreground font-semibold">Start Point</p>
+                  <p className="font-medium">{route.start_location}</p>
+                </div>
+                <div className="h-px flex-1 bg-border relative mx-4">
+                  <div className="absolute -top-1 right-0 w-2 h-2 rounded-full bg-primary" />
+                </div>
+                <div className="text-center flex-1">
+                  <p className="text-xs uppercase text-muted-foreground font-semibold">End Point</p>
+                  <p className="font-medium">{route.end_location}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -119,19 +120,19 @@ export default function SalesRouteDetails() {
               </div>
               <Separator />
               <div className="space-y-3">
-                 <h5 className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
-                   <Settings className="h-3 w-3" /> Technical Specs
-                 </h5>
-                 <div className="grid grid-cols-2 gap-y-3 text-sm">
-                    <span className="text-muted-foreground">Radius:</span>
-                    <span className="font-mono font-medium text-right">{route.coverage_radius} km</span>
-                    <span className="text-muted-foreground">Lat:</span>
-                    <span className="font-mono font-medium text-right">{route.center_lat}</span>
-                    <span className="text-muted-foreground">Lng:</span>
-                    <span className="font-mono font-medium text-right">{route.center_lng}</span>
-                    <span className="text-muted-foreground">Zoom:</span>
-                    <span className="font-mono font-medium text-right">{route.zoom_level}</span>
-                 </div>
+                <h5 className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+                  <Settings className="h-3 w-3" /> Technical Specs
+                </h5>
+                <div className="grid grid-cols-2 gap-y-3 text-sm">
+                  <span className="text-muted-foreground">Radius:</span>
+                  <span className="font-mono font-medium text-right">{route.coverage_radius} km</span>
+                  <span className="text-muted-foreground">Lat:</span>
+                  <span className="font-mono font-medium text-right">{route.center_lat}</span>
+                  <span className="text-muted-foreground">Lng:</span>
+                  <span className="font-mono font-medium text-right">{route.center_lng}</span>
+                  <span className="text-muted-foreground">Zoom:</span>
+                  <span className="font-mono font-medium text-right">{route.zoom_level}</span>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -146,7 +147,7 @@ export default function SalesRouteDetails() {
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {route.assignedStaff && route.assignedStaff.length > 0 ? (
-                  route.assignedStaff.map((staff:any) => (
+                  route.assignedStaff.map((staff: any) => (
                     <Badge key={staff} variant="secondary" className="px-3 py-1 gap-1 font-normal">
                       <User className="h-3 w-3" /> {staff}
                     </Badge>
@@ -162,17 +163,17 @@ export default function SalesRouteDetails() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> Customers ({route.assignedCustomers?.length || 0})
+                <MapPin className="h-4 w-4" /> Customers ({route?.customers?.length || 0})
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {route.assignedCustomers && route.assignedCustomers.length > 0 ? (
-                  route?.assignedCustomers?.map((c:any) => (
+                {route?.customers && route?.customers.length > 0 ? (
+                  route?.customers?.map((c: any) => (
                     <div key={c.name} className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
                       <span className="text-sm font-medium">{c.name}</span>
                       <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">
-                        {c.coordinates[0]}, {c.coordinates[1]}
+                        {c.latitude ?? 0}, {c.longitude ?? 0}
                       </span>
                     </div>
                   ))

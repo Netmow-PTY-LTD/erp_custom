@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface SalesRoute {
-  assignedCustomers: any;
+  customers: any;
   assignedStaff: any;
   id: number;
   route_name: string;
