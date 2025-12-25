@@ -19,9 +19,9 @@ import {
   User,
 
 } from "lucide-react";
-import { MapEmbed } from "@/components/MapEmbed";
 import { useNavigate, useParams } from "react-router";
 import { useGetSalesRouteByIdQuery } from "@/store/features/salesRoute/salesRoute";
+import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 
 export default function SalesRouteDetails() {
   const navigate = useNavigate();
@@ -72,11 +72,24 @@ export default function SalesRouteDetails() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="overflow-hidden border-none shadow-md">
             <div className="h-[400px] w-full bg-muted">
-              <MapEmbed
+              <GoogleMapEmbed
                 center={{ lat: route.center_lat, lng: route.center_lng }}
                 zoom={route.zoom_level}
-                marker={{ lat: route.center_lat, lng: route.center_lng }}
-                radius={route.coverage_radius}
+                startLocation={{
+                  lat: route.center_lat, // Or specific start_lat if you have it
+                  lng: route.center_lng,
+                  name: route.start_location
+                }}
+                endLocation={{
+                  lat: route.end_lat || route.center_lat,
+                  lng: route.end_lng || route.center_lng,
+                  name: route.end_location
+                }}
+                customerMarkers={route.customers?.map((c: any) => ({
+                  lat: c.latitude,
+                  lng: c.longitude,
+                  name: c.name
+                }))}
               />
             </div>
             <CardContent className="p-6">
