@@ -63,7 +63,6 @@ import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersLi
 import EditSupplierPage from "@/pages/suppliers/supplier/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseOrderPage";
-import RouteDetails from "@/pages/salesOrders/salesRoutes/RouteDetails";
 import AssignRoutePage from "@/pages/salesOrders/salesRoutes/AssignRoute";
 import Staffs from "@/pages/staffs";
 import StaffDetails from "@/pages/staffs/StaffDetails";
@@ -120,6 +119,7 @@ import {
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
+import RouteDetails from "@/pages/salesOrders/salesRoutes/RouteDetails";
 
 
 

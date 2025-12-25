@@ -2,10 +2,10 @@ import { baseApi } from "@/store/baseApi";
 import type { Staff } from "@/types/staff.types";
 
 
-export type StaffResponse = {
+export type StaffResponse<T> = {
   status: boolean;
   message: string;
-  data: Staff | Staff[];
+  data: T;
    pagination?: {
     total: number;
     page: number;
@@ -25,12 +25,6 @@ export type StaffQueryParams = {
 };
 
 
-interface GetStaffByIdResponse {
-  status: boolean;
-  message: string;
-  data: Staff; 
-}
-
 
 
 
@@ -38,7 +32,7 @@ export const staffApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL STAFFS
-    getAllStaffs: builder.query<StaffResponse, StaffQueryParams>({
+    getAllStaffs: builder.query<StaffResponse<Staff[]>, StaffQueryParams>({
       query: (params) => ({
         url: "/staffs",
         method: "GET",
@@ -48,7 +42,7 @@ export const staffApiService = baseApi.injectEndpoints({
     }),
 
     // ADD STAFF
-    addStaff: builder.mutation<StaffResponse, Partial<Staff>>({
+    addStaff: builder.mutation<StaffResponse<Staff>, Partial<Staff>>({
       query: (body) => ({
         url: "/staffs",
         method: "POST",
@@ -58,7 +52,7 @@ export const staffApiService = baseApi.injectEndpoints({
     }),
 
     // GET SINGLE STAFF BY ID
-    getStaffById: builder.query< GetStaffByIdResponse, string | number>({
+    getStaffById: builder.query< StaffResponse<Staff>, string | number>({
       query: (id) => ({
         url: `/staffs/${id}`,
         method: "GET",
@@ -67,7 +61,7 @@ export const staffApiService = baseApi.injectEndpoints({
     }),
 
     // UPDATE STAFF
-    updateStaff: builder.mutation<StaffResponse, { id: string | number; body: Partial<Staff> }>({
+    updateStaff: builder.mutation<StaffResponse<Staff>, { id: string | number; body: Partial<Staff> }>({
       query: ({ id, body }) => ({
         url: `/staffs/${id}`,
         method: "PUT",
@@ -77,7 +71,7 @@ export const staffApiService = baseApi.injectEndpoints({
     }),
 
     // DELETE STAFF
-    deleteStaff: builder.mutation<StaffResponse, string | number>({
+    deleteStaff: builder.mutation<StaffResponse<Staff>, string | number>({
       query: (id) => ({
         url: `/staffs/${id}`,
         method: "DELETE",
