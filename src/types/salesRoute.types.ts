@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface SalesRoute {
+  end_lng: number;
+  end_lat: number;
   customers: any;
   assignedStaff: any;
   id: number;
