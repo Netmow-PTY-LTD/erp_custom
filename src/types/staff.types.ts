@@ -1,6 +1,8 @@
 
 import type { Department } from "./types";
 
+export type StaffStatus = "active" | "inactive" | "terminated" | "on_leave";
+
 export interface Staff {
   id: number;
   first_name: string;
@@ -11,7 +13,7 @@ export interface Staff {
   position: string;
   department_id: number;
   hire_date: string; // or Date if you transform it
-  status: "active" | "inactive" | string; // Restricted to known statuses
+  status: StaffStatus; // Restricted to known statuses
   thumb_url: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gallery_items: string[] | any[]; 

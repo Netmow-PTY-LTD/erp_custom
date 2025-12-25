@@ -40,7 +40,14 @@ import { useEffect, useState } from "react";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import type { Staff } from "@/types/staff.types";
 import { useGetAllDepartmentsQuery } from "@/store/features/admin/departmentApiService";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 // =====================================================
 //  FORM SCHEMA
@@ -106,8 +113,6 @@ export default function EditStaffPage() {
 
   useEffect(() => {
     if (staff) {
-      
-
       form.reset({
         first_name: staff?.first_name,
         last_name: staff?.last_name,
@@ -117,7 +122,7 @@ export default function EditStaffPage() {
         position: staff?.position,
         hire_date: staff?.hire_date,
         salary: staff?.salary || 0,
-        status: staff?.status,
+        status: staff.status === "inactive" ? "terminated" : staff.status,
         image: staff?.thumb_url,
         gallery_items: staff?.gallery_items,
       });
@@ -128,7 +133,7 @@ export default function EditStaffPage() {
   //  SUBMIT HANDLER
   // =====================================================
   const onSubmit = async (values: StaffFormValues) => {
-     const payload = {
+    const payload = {
       first_name: values.first_name,
       last_name: values.last_name,
       email: values.email,
@@ -283,7 +288,7 @@ export default function EditStaffPage() {
                       const selected = fetchedDepartments?.data?.find(
                         (dept) => Number(dept.id) === Number(field.value)
                       );
-                      
+
                       return (
                         <FormItem>
                           <FormLabel>Department</FormLabel>
