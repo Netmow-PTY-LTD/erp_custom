@@ -11,15 +11,13 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchaseInvoicesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useAppSelector } from "@/store/store";
 import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 
-
 import type { ColumnDef } from "@tanstack/react-table";
-import { CreditCard, Eye, } from "lucide-react";
+import { CreditCard, Eye } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-
-
 
 export default function PurchaseInvoicesList() {
   const [page, setPage] = useState<number>(1);
@@ -42,8 +40,7 @@ export default function PurchaseInvoicesList() {
     totalPage: 1,
   };
 
-
-
+  const currency = useAppSelector((state) => state.currency.value);
 
   // Table Columns
   const invoiceColumns: ColumnDef<PurchaseInvoice>[] = [
@@ -52,9 +49,9 @@ export default function PurchaseInvoicesList() {
       header: "Invoice #",
     },
     {
-      accessorKey: "purchase_order_id",
+      accessorKey: "purchase_order",
       header: "PO Number",
-      cell: ({ row }) => `PO #${row.original.purchase_order_id}`,
+      cell: ({ row }) => `PO #${row.original.purchase_order.po_number}`,
     },
     // Only include supplier if you have supplier_id in the invoice or via PO relation
     // {
@@ -62,20 +59,25 @@ export default function PurchaseInvoicesList() {
     //   header: "Supplier",
     //   cell: ({ row }) => `Supplier #${row.original.supplier_id}`,
     // },
+     {
+      accessorKey: "purchase_order",
+      header: "Supplier",
+      cell: ({ row }) => `${row.original.purchase_order.supplier?.name}`,
+    },
     {
-      accessorKey: "total_amount",
-      header: "Total Amount",
-      cell: ({ row }) => `RM ${row.original.total_amount}`,
+      accessorKey: "total_payable_amount",
+      header: `Total Payable Amount (${currency})`,
+      cell: ({ row }) => `${row.original.total_payable_amount.toFixed(2)}`,
     },
     {
       accessorKey: "paid_amount",
-      header: "Paid Amount",
-      cell: ({ row }) => `RM ${row.original.paid_amount}`,
+      header: `Paid Amount (${currency})`,
+      cell: ({ row }) => `${row.original.paid_amount.toFixed(2)}`,
     },
     {
       accessorKey: "due_amount",
-      header: "Due Amount",
-      cell: ({ row }) => `RM ${row.original.due_amount}`,
+      header: `Due Amount (${currency})`,
+      cell: ({ row }) => ` ${row.original.due_amount.toFixed(2)}`,
     },
 
     {
@@ -87,21 +89,23 @@ export default function PurchaseInvoicesList() {
           status === "draft"
             ? "bg-yellow-500"
             : status === "paid"
-              ? "bg-green-600"
-              : status === "overdue"
-                ? "bg-red-600"
-                : "bg-gray-400";
+            ? "bg-green-600"
+            : status === "overdue"
+            ? "bg-red-600"
+            : "bg-gray-400";
 
-        return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
+        return (
+          <Badge className={`${color} text-white capitalize`}>{status}</Badge>
+        );
       },
     },
-    
+
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const invoice = row.original;
-       
+
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/purchase-invoices/${invoice.id}`}>
@@ -109,24 +113,27 @@ export default function PurchaseInvoicesList() {
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
-            <Link to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}>
-              <Button size="sm" variant="outline"  className="flex items-center gap-1.5 px-3">
+            <Link
+              to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}
+            >
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex items-center gap-1.5 px-3"
+              >
                 <CreditCard className="w-4 h-4" /> Pay
               </Button>
             </Link>
-
           </div>
         );
       },
     },
   ];
 
-
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Purchase Invoices</h1>
-
       </div>
 
       <Card>
@@ -150,8 +157,6 @@ export default function PurchaseInvoicesList() {
           />
         </CardContent>
       </Card>
-
-
     </div>
   );
 }

@@ -12,6 +12,11 @@ export interface PurchasePayment {
   status: "pending" | "completed" | "failed";
 
   created_by: number;
+  creator:{
+    id: number;
+    name: string;
+    email: string;
+  }
   created_at: string;
   updated_at: string;
 

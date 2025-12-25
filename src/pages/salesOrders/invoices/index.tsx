@@ -48,11 +48,6 @@ export default function Invoices() {
       cell: ({ row }) => row.original?.order?.customer.name,
     },
     {
-      accessorKey: "order.customer_id",
-      header: "Customer ID",
-      cell: ({ row }) => row.original?.order?.customer_id,
-    },
-    {
       accessorKey: "order.order_number",
       header: "Order #",
       cell: ({ row }) => row.original?.order?.order_number,
@@ -71,6 +66,11 @@ export default function Invoices() {
       accessorKey: "total_amount",
       header: `Total Amount (${currency})`,
       cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_amount")).toFixed(2)}</span>,
+    },
+     {
+      accessorKey: "total_payable",
+      header: `Total Payable (${currency})`,
+      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_payable")).toFixed(2)}</span>,
     },
      {
       accessorKey: "paid_amount",
