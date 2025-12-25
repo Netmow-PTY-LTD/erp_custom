@@ -1,4 +1,3 @@
-
 "use client";
 import { useFieldArray, useForm, type UseFormSetValue } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -64,7 +63,6 @@ export default function CreatePurchaseOrderPage() {
   const currency = useAppSelector((state) => state.currency.value);
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
 
-
   const form = useForm<PurchaseOrderFormValues>({
     defaultValues: {
       supplierId: "",
@@ -92,8 +90,6 @@ export default function CreatePurchaseOrderPage() {
   const items = watch("items");
 
   /* ---------------- Searchable select components ---------------- */
-
-
 
   function SupplierSelectField({
     field,
@@ -161,11 +157,6 @@ export default function CreatePurchaseOrderPage() {
     );
   }
 
-
-
-
-
-
   // function ProductSelectField({
   //   field,
   // }: {
@@ -181,7 +172,6 @@ export default function CreatePurchaseOrderPage() {
   //   });
 
   //   const list = Array.isArray(data?.data) ? data.data : [];
-
 
   //   const selected = list.find(
   //     (p) => String(p.id) === String(field.value)
@@ -235,7 +225,6 @@ export default function CreatePurchaseOrderPage() {
   //   );
   // }
 
-
   function ProductSelectField({
     field,
     index,
@@ -272,7 +261,9 @@ export default function CreatePurchaseOrderPage() {
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
             {selected
-              ? `${selected.name} (SKU: ${selected.sku}) (${selected.unit?.name || "-"})`
+              ? `${selected.name} (SKU: ${selected.sku}) (${
+                  selected.unit?.name || "-"
+                })`
               : "Select Product..."}
           </Button>
         </PopoverTrigger>
@@ -289,7 +280,9 @@ export default function CreatePurchaseOrderPage() {
 
               <CommandGroup>
                 {isLoading && (
-                  <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
                 )}
 
                 {!isLoading &&
@@ -298,7 +291,8 @@ export default function CreatePurchaseOrderPage() {
                       key={product.id}
                       onSelect={() => handleSelect(String(product.id))}
                     >
-                      {product.name} (SKU: {product.sku}) ({product.unit?.name || "-"})
+                      {product.name} (SKU: {product.sku}) (
+                      {product.unit?.name || "-"})
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -308,10 +302,6 @@ export default function CreatePurchaseOrderPage() {
       </Popover>
     );
   }
-
-
-
-
 
   // const subtotal = items.reduce(
   //   (sum, item) =>
@@ -332,8 +322,6 @@ export default function CreatePurchaseOrderPage() {
 
   // const grandTotal = subtotal + taxAmount;
 
-
-
   // Subtotal = sum of (unit_cost * quantity - discount)
   const subtotal = items.reduce(
     (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
@@ -341,22 +329,24 @@ export default function CreatePurchaseOrderPage() {
   );
 
   // Total Discount
-  const totalDiscount = items.reduce((sum, item) => sum + Number(item.discount || 0), 0);
+  const totalDiscount = items.reduce(
+    (sum, item) => sum + Number(item.discount || 0),
+    0
+  );
 
   // Total Tax = sum of each item's tax
   const totalTax = items.reduce(
     (sum, item) =>
-      sum + ((Number(item.unit_cost) * Number(item.quantity) - Number(item.discount || 0)) * (Number(item.purchase_tax) || 0)) / 100,
+      sum +
+      ((Number(item.unit_cost) * Number(item.quantity) -
+        Number(item.discount || 0)) *
+        (Number(item.purchase_tax) || 0)) /
+        100,
     0
   );
 
   // Grand Total
   const grandTotal = subtotal - totalDiscount + totalTax;
-
-
-
-
-
 
   /* ---------------- ON SUBMIT ---------------- */
   const onSubmit = async (values: PurchaseOrderFormValues) => {
@@ -481,7 +471,6 @@ export default function CreatePurchaseOrderPage() {
                     unit_cost: 0,
                     discount: 0,
                     purchase_tax: 0,
-
                   })
                 }
               >
@@ -493,7 +482,7 @@ export default function CreatePurchaseOrderPage() {
               {fields.map((item, index) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded"
+                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded"
                 >
                   {/* Product */}
                   {/* <FormField
@@ -515,7 +504,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Product required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-3">
+                      <FormItem className="sm:col-span-4">
                         <FormLabel>Product</FormLabel>
                         <FormControl>
                           <ProductSelectField
@@ -529,16 +518,13 @@ export default function CreatePurchaseOrderPage() {
                     )}
                   />
 
-
-
-
                   {/* Unit Price */}
                   <FormField
                     name={`items.${index}.unit_cost`}
                     control={control}
                     rules={{ required: "Price required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-2">
+                      <FormItem className="sm:col-span-2">
                         <FormLabel>Unit Price</FormLabel>
                         <FormControl>
                           <Input type="number" step="0.01" {...field} />
@@ -554,7 +540,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Quantity required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-2">
+                      <FormItem className="sm:col-span-1">
                         <FormLabel>Quantity</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
@@ -570,7 +556,7 @@ export default function CreatePurchaseOrderPage() {
                     control={control}
                     rules={{ required: "Discount required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-2">
+                      <FormItem className="sm:col-span-1">
                         <FormLabel>Discount</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
@@ -583,7 +569,7 @@ export default function CreatePurchaseOrderPage() {
                     name={`items.${index}.purchase_tax`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="col-span-1">
+                      <FormItem className="sm:col-span-1">
                         <FormLabel>Tax</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} readOnly />
@@ -592,6 +578,22 @@ export default function CreatePurchaseOrderPage() {
                     )}
                   />
 
+                  <div className="sm:col-span-1">
+                    <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">
+                      Tax Amount
+                    </label>
+                    <Input
+                      type="number"
+                      value={
+                        ((items[index].quantity * items[index].unit_cost -
+                          items[index].discount) *
+                          (items[index].purchase_tax || 0)) /
+                        100
+                      }
+                      readOnly
+                      className="bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
 
                   {/* Line Total */}
                   {/* <div className="col-span-1">
@@ -606,16 +608,20 @@ export default function CreatePurchaseOrderPage() {
                   </div> */}
 
                   {/* Line Total */}
-                  <div className="col-span-1">
+                  <div className="sm:col-span-1">
                     <FormLabel>Total</FormLabel>
                     <div className="font-semibold">
-                      {currency} {(
-                        items[index].quantity * items[index].unit_cost - items[index].discount +
-                        ((items[index].quantity * items[index].unit_cost - items[index].discount) * (items[index].purchase_tax || 0) / 100)
+                      {currency}{" "}
+                      {(
+                        items[index].quantity * items[index].unit_cost -
+                        items[index].discount +
+                        ((items[index].quantity * items[index].unit_cost -
+                          items[index].discount) *
+                          (items[index].purchase_tax || 0)) /
+                          100
                       ).toFixed(2)}
                     </div>
                   </div>
-
 
                   {/* Remove */}
                   <div className="col-span-1 flex justify-end">
@@ -652,14 +658,19 @@ export default function CreatePurchaseOrderPage() {
             </div> */}
 
             <div className="mt-4 text-right pr-2 space-y-1 text-sm">
-              <div>Subtotal: {currency} {subtotal.toFixed(2)}</div>
-              <div className="text-red-600">Discount: - {currency} {totalDiscount.toFixed(2)}</div>
-              <div>Tax: {currency} {totalTax.toFixed(2)}</div>
-              <div className="font-bold text-lg border-t pt-2">Total: {currency} {grandTotal.toFixed(2)}</div>
+              <div>
+                Subtotal: {currency} {subtotal.toFixed(2)}
+              </div>
+              <div className="text-red-600">
+                Discount: - {currency} {totalDiscount.toFixed(2)}
+              </div>
+              <div>
+                Tax: {currency} {totalTax.toFixed(2)}
+              </div>
+              <div className="font-bold text-lg border-t pt-2">
+                Total: {currency} {grandTotal.toFixed(2)}
+              </div>
             </div>
-
-
-
           </div>
 
           {/* Submit */}
@@ -673,4 +684,3 @@ export default function CreatePurchaseOrderPage() {
     </div>
   );
 }
-

@@ -12,6 +12,7 @@ export interface POItem {
   line_total: number;
   product: Product;
   discount: number;
+  total_price: number;
   created_at: string;
   updated_at: string;
   purchase_tax:number
@@ -33,6 +34,8 @@ export interface PurchaseOrder {
   total_amount: number;
   tax_amount: number;
   discount_amount: number;
+  net_amount: number;
+  total_payable_amount: number;
   paid_amount: number;
   status: "pending" | "approved" | "rejected" | "delivered";
   created_at: string;

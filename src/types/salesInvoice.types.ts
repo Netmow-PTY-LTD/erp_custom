@@ -10,6 +10,7 @@ export interface SalesInvoice {
   invoice_date: string; // ISO date string
   due_date: string; // ISO date string
   total_amount: string; // numeric string
+  total_payable: string; // numeric string
   status: string;
   created_by: number;
   creator: {
