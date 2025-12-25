@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -9,11 +10,14 @@ import {
   ArrowLeft,
   MapPin,
   Users,
-  User,
   Settings,
   Navigation,
   Info,
-  Edit2
+  Edit2,
+  ShoppingCart,
+  DollarSign,
+  User,
+
 } from "lucide-react";
 import { MapEmbed } from "@/components/MapEmbed";
 import { useNavigate, useParams } from "react-router";
@@ -23,33 +27,41 @@ export default function SalesRouteDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { data, isLoading, isError } = useGetSalesRouteByIdQuery(id as string);
-  const route = data?.data
+  const route = data?.data;
 
-  console.log('route ===>', route)
   if (isLoading) return <div className="p-8 text-center animate-pulse">Loading route details...</div>;
   if (isError || !route) return <div className="p-8 text-center text-red-500">Failed to load route details.</div>;
+
+  // Helper to determine status badge color
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'completed': return 'bg-green-100 text-green-700 border-green-200';
+      default: return 'bg-slate-100 text-slate-700';
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-4 lg:p-6 space-y-6">
       {/* Header Actions */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate(-1)}
-            className="rounded-full"
+            className="rounded-full shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{route.route_name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">{route.route_name}</h1>
             <p className="text-muted-foreground flex items-center gap-1 text-sm">
               <MapPin className="h-3 w-3" /> {route.city}, {route.state}
             </p>
           </div>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2 shadow-sm">
           <Edit2 className="h-4 w-4" />
           Edit Route
         </Button>
@@ -58,7 +70,7 @@ export default function SalesRouteDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Map & Main Details */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="overflow-hidden border-none shadow-lg">
+          <Card className="overflow-hidden border-none shadow-md">
             <div className="h-[400px] w-full bg-muted">
               <MapEmbed
                 center={{ lat: route.center_lat, lng: route.center_lng }}
@@ -72,31 +84,30 @@ export default function SalesRouteDetails() {
                 <Navigation className="h-5 w-5 text-primary" />
                 <h3 className="font-semibold text-lg">Route Path</h3>
               </div>
-              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
                 <div className="text-center flex-1">
-                  <p className="text-xs uppercase text-muted-foreground font-semibold">Start Point</p>
-                  <p className="font-medium">{route.start_location}</p>
+                  <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest">Start Point</p>
+                  <p className="font-medium text-sm">{route.start_location}</p>
                 </div>
-                <div className="h-px flex-1 bg-border relative mx-4">
-                  <div className="absolute -top-1 right-0 w-2 h-2 rounded-full bg-primary" />
+                <div className="h-px flex-1 bg-linear-to-r from-transparent via-border to-transparent relative mx-4">
+                  <div className="absolute -top-1 right-0 w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
                 </div>
                 <div className="text-center flex-1">
-                  <p className="text-xs uppercase text-muted-foreground font-semibold">End Point</p>
-                  <p className="font-medium">{route.end_location}</p>
+                  <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-widest">End Point</p>
+                  <p className="font-medium text-sm">{route.end_location}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Description Section */}
           {route.description && (
-            <Card>
+            <Card className="shadow-sm">
               <CardContent className="p-6">
-                <h4 className="font-semibold flex items-center gap-2 mb-2">
+                <h4 className="font-semibold flex items-center gap-2 mb-3 text-sm">
                   <Info className="h-4 w-4 text-primary" />
                   Route Description
                 </h4>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-sm">
                   {route.description}
                 </p>
               </CardContent>
@@ -107,9 +118,9 @@ export default function SalesRouteDetails() {
         {/* Right Column: Metadata & Assignments */}
         <div className="space-y-6">
           {/* Geographic Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Location Details
               </CardTitle>
             </CardHeader>
@@ -118,26 +129,28 @@ export default function SalesRouteDetails() {
                 <DetailItem label="Country" value={route.country} />
                 <DetailItem label="Postal Code" value={route.postal_code} />
               </div>
-              <Separator />
+              <Separator className="opacity-50" />
               <div className="space-y-3">
-                <h5 className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+                <h5 className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-2">
                   <Settings className="h-3 w-3" /> Technical Specs
                 </h5>
-                <div className="grid grid-cols-2 gap-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-y-2 text-xs">
                   <span className="text-muted-foreground">Radius:</span>
                   <span className="font-mono font-medium text-right">{route.coverage_radius} km</span>
-                  <span className="text-muted-foreground">Lat:</span>
-                  <span className="font-mono font-medium text-right">{route.center_lat}</span>
-                  <span className="text-muted-foreground">Lng:</span>
-                  <span className="font-mono font-medium text-right">{route.center_lng}</span>
+                  <span className="text-muted-foreground">Coordinates:</span>
+                  <span className="font-mono font-medium text-right text-[10px]">
+                    {route.center_lat}, {route.center_lng}
+                  </span>
                   <span className="text-muted-foreground">Zoom:</span>
-                  <span className="font-mono font-medium text-right">{route.zoom_level}</span>
+                  <span className="font-mono font-medium text-right text-[10px]">
+                    {route.zoom_level}
+                  </span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Staff Assignment */}
+
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
@@ -158,27 +171,56 @@ export default function SalesRouteDetails() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Customer Assignment */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> Customers ({route?.customers?.length || 0})
+          {/* Customer & Orders Section */}
+          <Card className="shadow-sm overflow-hidden">
+            <CardHeader className="pb-3 border-b bg-muted/20">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                <span className="flex items-center gap-2"><Users className="h-4 w-4" /> Customers</span>
+                <Badge variant="outline" className="font-mono">{route?.customers?.length || 0}</Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="p-0">
+              <div className="divide-y divide-border">
                 {route?.customers && route?.customers.length > 0 ? (
-                  route?.customers?.map((c: any) => (
-                    <div key={c.name} className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                      <span className="text-sm font-medium">{c.name}</span>
-                      <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 py-0.5 rounded">
-                        {c.latitude ?? 0}, {c.longitude ?? 0}
-                      </span>
-                    </div>
-                  ))
+                  route?.customers?.map((c: any) => {
+                    const totalSpent = c.orders?.reduce((acc: number, curr: any) => acc + curr.total_amount, 0) || 0;
+                    const lastOrder = c.orders?.[0];
+
+                    return (
+                      <div key={c.id} className="p-4 hover:bg-muted/30 transition-colors space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-0.5">
+                            <p className="text-sm font-semibold leading-none">{c.name}</p>
+                            <p className="text-[11px] text-muted-foreground truncate max-w-[150px]">{c.address}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] font-mono text-muted-foreground">
+                              {c.latitude?.toFixed(4)}, {c.longitude?.toFixed(4)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Order Insights Row */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1 text-[11px] font-medium text-primary">
+                            <ShoppingCart className="h-3 w-3" /> {c.orders?.length || 0} Orders
+                          </div>
+                          <div className="flex items-center gap-1 text-[11px] font-medium text-green-600">
+                            <DollarSign className="h-3 w-3" /> ${totalSpent.toLocaleString()}
+                          </div>
+                          {lastOrder && (
+                            <Badge variant="outline" className={`ml-auto text-[9px] px-1.5 h-5 capitalize ${getStatusColor(lastOrder.status)}`}>
+                              {lastOrder.status}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
-                  <p className="text-sm text-muted-foreground italic">No customers assigned</p>
+                  <div className="p-8 text-center">
+                    <p className="text-sm text-muted-foreground italic">No customers assigned</p>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -189,12 +231,12 @@ export default function SalesRouteDetails() {
   );
 }
 
-// Small helper component for consistent labeling
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <h4 className="text-xs font-semibold text-muted-foreground uppercase">{label}</h4>
+    <div className="space-y-1">
+      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">{label}</h4>
       <p className="text-sm font-medium">{value}</p>
     </div>
   );
 }
+
