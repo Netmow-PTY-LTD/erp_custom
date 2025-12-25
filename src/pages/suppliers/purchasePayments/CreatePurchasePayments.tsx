@@ -96,7 +96,7 @@ export default function CreatePurchasePayments() {
                 {!isLoading &&
                   list.map((po) => (
                     <CommandItem key={po.id} onSelect={() => { field.onChange(po.id); setOpen(false); }}>
-                      {po.po_number} - {currency} {po.total_amount}
+                      {po.po_number} - {currency} {po.total_payable_amount}
                     </CommandItem>
                   ))}
               </CommandGroup>

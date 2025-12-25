@@ -12,6 +12,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
@@ -76,6 +77,8 @@ export default function PurchaseOrdersList() {
     totalPage: 1,
   };
 
+  const currency = useAppSelector((state) => state.currency.value);
+
   const [deletePurchaseOrder, { isLoading: isDeleting }] =
     useDeletePurchaseOrderMutation();
 
@@ -114,16 +117,20 @@ export default function PurchaseOrdersList() {
       header: "PO Number",
     },
     {
-      accessorKey: "supplier_id",
+      accessorKey: "supplier",
       header: "Supplier",
-      cell: ({ row }) => `Supplier #${row.original.supplier_id}`,
+      cell: ({ row }) => `${row.original.supplier?.name || "N/A"}`,
     },
     {
-      accessorKey: "created_at",
-      header: "Date",
-      cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
+      accessorKey: "order_date",
+      header: "Order Date",
+      cell: ({ row }) => new Date(row.original.order_date as string).toLocaleDateString(),
     },
-    
+    {
+      accessorKey: "expected_delivery_date",
+      header: "Expected Delivery Date",
+      cell: ({ row }) => new Date(row.original.expected_delivery_date as string).toLocaleDateString(),
+    },
     {
       accessorKey: "status",
       header: "Status",
@@ -144,9 +151,27 @@ export default function PurchaseOrdersList() {
     },
     {
       accessorKey: "total_amount",
-      header: "Total",
+      header: `Total Price (${currency})`,
       cell: ({ row }) =>
-        `RM ${row.original.total_amount.toFixed(2)}`,
+        `${row.original.total_amount.toFixed(2)}`,
+    },
+    {
+      accessorKey: "discount_amount",
+      header: `Total Discount (${currency})`,
+      cell: ({ row }) =>
+        `${row.original.discount_amount.toFixed(2)}`,
+    },
+     {
+      accessorKey: "tax_amount",
+      header: `Tax Amount (${currency})`,
+      cell: ({ row }) =>
+        `${row.original.tax_amount.toFixed(2)}`,
+    },
+     {
+      accessorKey: "total_payable_amount",
+      header: `Total Payable (${currency})`,
+      cell: ({ row }) =>
+        `${row.original.total_payable_amount.toFixed(2)}`,
     },
     {
       id: "actions",

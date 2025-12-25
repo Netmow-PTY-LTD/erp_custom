@@ -1,16 +1,10 @@
-
 "use client";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router";
-import {
-  ArrowLeft,
-  Check,
-  Eye,
-  FilePlus,
-} from "lucide-react";
+import { ArrowLeft, Check, Eye, FilePlus } from "lucide-react";
 import {
   useAddPurchaseInvoiceMutation,
   useGetPurchaseOrderByIdQuery,
@@ -18,6 +12,7 @@ import {
 } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { toast } from "sonner";
 import type { POItem } from "@/types/purchaseOrder.types";
+import { useAppSelector } from "@/store/store";
 
 /* ================= STATUS COLOR ================= */
 const statusColorMap: Record<string, string> = {
@@ -31,13 +26,11 @@ const statusColorMap: Record<string, string> = {
 export default function PurchaseOrderView() {
   const { purchaseId } = useParams();
 
-  const { data, isLoading } = useGetPurchaseOrderByIdQuery(
-    Number(purchaseId)
-  );
+  const currency = useAppSelector((state) => state.currency.value);
 
-  const purchase = Array.isArray(data?.data)
-    ? data?.data[0]
-    : data?.data;
+  const { data, isLoading } = useGetPurchaseOrderByIdQuery(Number(purchaseId));
+
+  const purchase = Array.isArray(data?.data) ? data?.data[0] : data?.data;
 
   const [updatePurchaseOrder, { isLoading: isUpdating }] =
     useUpdatePurchaseOrderMutation();
@@ -56,19 +49,16 @@ export default function PurchaseOrderView() {
   if (!purchase) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <p className="text-muted-foreground text-lg">
-          No purchase order found
-        </p>
+        <p className="text-muted-foreground text-lg">No purchase order found</p>
       </div>
     );
   }
 
-
   /* ================= CALCULATIONS ================= */
-  const subtotal =
-    purchase.total_amount +
-    purchase.discount_amount -
-    purchase.tax_amount;
+  // const subtotal =
+  //   purchase.total_amount +
+  //   purchase.discount_amount -
+  //   purchase.tax_amount;
 
   /* ================= ACTIONS ================= */
   const handleApprove = async () => {
@@ -95,7 +85,6 @@ export default function PurchaseOrderView() {
       }).unwrap();
 
       if (res.status) {
-
         toast.success(res.message || "Invoice created successfully");
       }
     } catch {
@@ -105,7 +94,6 @@ export default function PurchaseOrderView() {
 
   return (
     <div className="space-y-10">
-
       {/* ================= PAGE HEADER ================= */}
       <div className="flex flex-wrap justify-between items-center gap-4">
         <h1 className="text-2xl font-bold">
@@ -119,32 +107,23 @@ export default function PurchaseOrderView() {
             </Button>
           </Link>
 
-          {!["approved", "received", "delivered"].includes(
-            purchase.status
-          ) && (
-              <Button onClick={handleApprove} disabled={isUpdating}>
-                <Check className="h-4 w-4 mr-1" />
-                {isUpdating ? "Approving..." : "Approve"}
-              </Button>
-            )}
+          {!["approved", "received", "delivered"].includes(purchase.status) && (
+            <Button onClick={handleApprove} disabled={isUpdating}>
+              <Check className="h-4 w-4 mr-1" />
+              {isUpdating ? "Approving..." : "Approve"}
+            </Button>
+          )}
 
-          {["approved", "received", "delivered"].includes(
-            purchase.status
-          ) &&
+          {["approved", "received", "delivered"].includes(purchase.status) &&
             (purchase.invoice ? (
-              <Link
-                to={`/dashboard/purchase-invoices/${purchase.invoice.id}`}
-              >
+              <Link to={`/dashboard/purchase-invoices/${purchase.invoice.id}`}>
                 <Button variant="secondary">
                   <Eye className="h-4 w-4 mr-1" />
                   View Invoice
                 </Button>
               </Link>
             ) : (
-              <Button
-                onClick={handleCreateInvoice}
-                disabled={isCreating}
-              >
+              <Button onClick={handleCreateInvoice} disabled={isCreating}>
                 <FilePlus className="h-4 w-4 mr-1" />
                 {isCreating ? "Creating..." : "Create Invoice"}
               </Button>
@@ -154,12 +133,9 @@ export default function PurchaseOrderView() {
 
       {/* ================= 2 COLUMN LAYOUT ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
         {/* ================= LEFT — ITEMS ================= */}
         <div className="lg:col-span-8">
-          <h2 className="text-lg font-semibold mb-3">
-            Purchase Items
-          </h2>
+          <h2 className="text-lg font-semibold mb-3">Purchase Items</h2>
 
           <Card className="p-4">
             <div className="overflow-x-auto border rounded-md">
@@ -169,10 +145,13 @@ export default function PurchaseOrderView() {
                     <th className="p-3 text-left">Product</th>
                     <th className="p-3 text-left">SKU</th>
                     <th className="p-3 text-center">Qty</th>
-                    <th className="p-3 text-center">Unit Cost</th>
-                    <th className="p-3 text-center">Discount</th>
-                    <th className="p-3 text-center">Purchase Tax</th>
-                    <th className="p-3 text-center">Line Total</th>
+                    <th className="p-3 text-center">Unit Cost ({currency})</th>
+                    <th className="p-3 text-center">
+                      Total Price ({currency})
+                    </th>
+                    <th className="p-3 text-center">Discount ({currency})</th>
+                    {/* <th className="p-3 text-center">Purchase Tax ({currency})</th> */}
+                    <th className="p-3 text-center">Line Total ({currency})</th>
                   </tr>
                 </thead>
 
@@ -184,18 +163,18 @@ export default function PurchaseOrderView() {
                     >
                       <td className="p-3">{item.product.name}</td>
                       <td className="p-3">{item.product.sku}</td>
+                      <td className="p-3 text-center">{item.quantity}</td>
                       <td className="p-3 text-center">
-                        {item.quantity}
+                        {Number(item.unit_cost).toFixed(2)}
                       </td>
+
                       <td className="p-3 text-center">
-                        RM {Number(item.unit_cost).toFixed(2)}
+                        {Number(item.total_price).toFixed(2)}
                       </td>
-                      <td className="p-3 text-center">
-                        {item.discount ?? 0}
-                      </td>
-                      <td className="p-3 text-center">
+                      <td className="p-3 text-center">{item.discount ?? 0}</td>
+                      {/* <td className="p-3 text-center">
                         {item.purchase_tax ?? 0}
-                      </td>
+                      </td> */}
                       <td className="p-3 text-center font-medium">
                         RM {Number(item.line_total).toFixed(2)}
                       </td>
@@ -209,20 +188,16 @@ export default function PurchaseOrderView() {
 
         {/* ================= RIGHT — INFO & SUMMARY ================= */}
         <div className="lg:col-span-4 space-y-5">
-
           {/* ORDER INFO */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold">
-              Purchase Info
-            </h3>
+            <h3 className="text-lg font-semibold">Purchase Info</h3>
 
             <div className="space-y-2 text-sm">
               <p>
                 <span className="font-medium">Status: </span>
                 <Badge
                   className={
-                    statusColorMap[purchase.status] ||
-                    "bg-gray-500 text-white"
+                    statusColorMap[purchase.status] || "bg-gray-500 text-white"
                   }
                 >
                   {purchase.status}
@@ -235,55 +210,49 @@ export default function PurchaseOrderView() {
               </p>
 
               <p>
-                <span className="font-medium">
-                  Expected Delivery:{" "}
-                </span>
-                {purchase.expected_delivery_date?.split("T")[0] ||
-                  "-"}
+                <span className="font-medium">Expected Delivery: </span>
+                {purchase.expected_delivery_date?.split("T")[0] || "-"}
               </p>
             </div>
           </Card>
 
           {/* SUMMARY */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold">
-              Summary
-            </h3>
+            <h3 className="text-lg font-semibold">Summary</h3>
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>RM {subtotal.toFixed(2)}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Tax</span>
                 <span>
-                  RM {Number(purchase.tax_amount).toFixed(2)}
+                  {currency} {Number(purchase.total_amount).toFixed(2)}
                 </span>
               </div>
-
               <div className="flex justify-between text-red-600">
-                <span>Discount</span>
+                <span>Total Discount</span>
+                <span>RM {Number(purchase.discount_amount).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between border-t pt-3">
+                <span>Net Amount</span>
                 <span>
-                  RM {Number(purchase.discount_amount).toFixed(2)}
+                  {currency} {Number(purchase.net_amount).toFixed(2)}
                 </span>
               </div>
-
+              <div className="flex justify-between">
+                <span>Total Tax</span>
+                <span>
+                  {currency} {Number(purchase.tax_amount).toFixed(2)}
+                </span>
+              </div>
               <div className="flex justify-between text-lg font-bold border-t pt-3">
                 <span>Total</span>
-                <span>
-                  RM {Number(purchase.total_amount).toFixed(2)}
-                </span>
+                <span>RM {Number(purchase.total_payable_amount).toFixed(2)}</span>
               </div>
             </div>
           </Card>
 
           {/* SUPPLIER INFO */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold">
-              Supplier Details
-            </h3>
+            <h3 className="text-lg font-semibold">Supplier Details</h3>
 
             <div className="space-y-2 text-sm">
               <p>
@@ -301,7 +270,6 @@ export default function PurchaseOrderView() {
             </div>
           </Card>
 
-
           {/* NOTES */}
           {purchase.notes && (
             <Card className="p-6">
@@ -309,21 +277,11 @@ export default function PurchaseOrderView() {
               <p className="text-sm">{purchase.notes}</p>
             </Card>
           )}
-
         </div>
       </div>
-
-
     </div>
   );
 }
-
-
-
-
-
-
-
 
 // "use client";
 
@@ -341,7 +299,6 @@ export default function PurchaseOrderView() {
 // import { toast } from "sonner";
 // import type { POItem } from "@/types/purchaseOrder.types";
 
-
 // // === STATUS BADGE ===
 // const renderStatusBadge = (status: string) => {
 //   const classes: Record<string, string> = {
@@ -352,8 +309,6 @@ export default function PurchaseOrderView() {
 
 //   return <Badge className={classes[status] || "bg-gray-500 text-white"}>{status}</Badge>;
 // };
-
-
 
 // export default function PurchaseOrderView() {
 //   const { purchaseId } = useParams();
@@ -368,11 +323,9 @@ export default function PurchaseOrderView() {
 //   const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 //   const [addInvoice, { isLoading: isCreating }] = useAddPurchaseInvoiceMutation();
 
-
 //   if (isLoading || !purchase) {
 //     return <div>Loading Purchase Order...</div>;
 //   }
-
 
 //   // === CREATE INVOICE ===
 //   const handleCreateInvoice = async () => {
@@ -388,7 +341,6 @@ export default function PurchaseOrderView() {
 //       toast.error("Failed to create invoice");
 //     }
 //   };
-
 
 //   // === APPROVE PURCHASE ORDER ===
 //   const handleApprove = async () => {
@@ -406,8 +358,6 @@ export default function PurchaseOrderView() {
 //       toast.error(error?.data?.message || "Failed to approve");
 //     }
 //   };
-
-
 
 //   return (
 //     <div className="space-y-6 max-w-6xl mx-auto py-6">
@@ -465,9 +415,6 @@ export default function PurchaseOrderView() {
 //         </div>
 //       </div>
 
-
-
-
 //       {/* SUMMARY */}
 //       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 bg-white rounded-lg shadow p-4">
 //         <div>
@@ -502,8 +449,6 @@ export default function PurchaseOrderView() {
 //           </div>
 //         </div>
 //       </div>
-
-
 
 //       {/* ITEMS TABLE */}
 //       <Card>
@@ -545,8 +490,6 @@ export default function PurchaseOrderView() {
 //         </CardContent>
 //       </Card>
 
-
-
 //       {/* NOTES */}
 //       {purchase.notes && (
 //         <Card>
@@ -559,4 +502,3 @@ export default function PurchaseOrderView() {
 //     </div>
 //   );
 // }
-
