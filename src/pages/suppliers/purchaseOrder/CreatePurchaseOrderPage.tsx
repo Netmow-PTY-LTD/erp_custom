@@ -26,17 +26,18 @@ import {
   CommandGroup,
 } from "@/components/ui/command";
 
-import { ArrowLeft } from "lucide-react";
+
 
 import { toast } from "sonner";
 
 import { useAddPurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
-import { Link, useNavigate } from "react-router";
+import {  useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import { useState } from "react";
 import { useAppSelector } from "@/store/store";
+import { BackButton } from "@/components/BackButton";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -381,14 +382,10 @@ export default function CreatePurchaseOrderPage() {
   /* ---------------------------------------- */
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center">
+      <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Create Purchase Order</h1>
 
-        <Link to="/dashboard/suppliers/purchase-orders" className="ml-auto">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4" /> Back to POs
-          </Button>
-        </Link>
+        <BackButton/>
       </div>
 
       <Form {...form}>
