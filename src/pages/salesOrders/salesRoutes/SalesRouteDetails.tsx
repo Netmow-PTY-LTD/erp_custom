@@ -13,15 +13,16 @@ import {
   Settings,
   Navigation,
   Info,
-  Edit2,
+  // Edit2,
   ShoppingCart,
   DollarSign,
   User,
 
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useGetSalesRouteByIdQuery } from "@/store/features/salesRoute/salesRoute";
 import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
+import type { Staff } from "@/types/staff.types";
 
 export default function SalesRouteDetails() {
   const navigate = useNavigate();
@@ -61,10 +62,10 @@ export default function SalesRouteDetails() {
             </p>
           </div>
         </div>
-        <Button className="gap-2 shadow-sm">
+        {/* <Button className="gap-2 shadow-sm">
           <Edit2 className="h-4 w-4" />
           Edit Route
-        </Button>
+        </Button> */}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -172,11 +173,14 @@ export default function SalesRouteDetails() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {route.assignedStaff && route.assignedStaff.length > 0 ? (
-                  route.assignedStaff.map((staff: any) => (
-                    <Badge key={staff} variant="secondary" className="px-3 py-1 gap-1 font-normal">
-                      <User className="h-3 w-3" /> {staff}
+                {route.assignedStaffMembers && route.assignedStaffMembers.length > 0 ? (
+                  route.assignedStaffMembers.map((staff: Staff) => (
+                    <Link to={`/dashboard/staffs/${staff.id}`} >
+                     <Badge key={staff.id} variant="secondary" className="px-3 py-1 gap-1 font-normal">
+                      <User className="h-3 w-3" /> {staff.first_name + " " + staff.last_name}
                     </Badge>
+                    </Link>
+                   
                   ))
                 ) : (
                   <p className="text-sm text-muted-foreground italic">No staff assigned</p>

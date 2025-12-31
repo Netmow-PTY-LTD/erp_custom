@@ -54,15 +54,15 @@ export default function SalesRoutesPage() {
       ),
     },
 
-    {
-      accessorKey: "assigned_sales_rep_id",
-      header: "Sales Rep",
-      cell: ({ row }) => (
-        <span className="font-medium">
-          Rep #{row.original.assigned_sales_rep_id ?? "-"}
-        </span>
-      ),
-    },
+    // {
+    //   accessorKey: "assigned_sales_rep_id",
+    //   header: "Sales Rep",
+    //   cell: ({ row }) => (
+    //     <span className="font-medium">
+    //       Rep #{row.original.assigned_sales_rep_id ?? "-"}
+    //     </span>
+    //   ),
+    // },
 
     {
       accessorKey: "start_location",

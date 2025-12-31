@@ -19,7 +19,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CalendarIcon, ArrowLeft, ChevronDown, Check } from "lucide-react";
+import { CalendarIcon, ChevronDown, Check } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -32,7 +32,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 //import { ImageUploader } from "@/components/form/ImageUploader";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useAddStaffMutation } from "@/store/features/staffs/staffApiService";
 import { toast } from "sonner";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
@@ -47,6 +47,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useAppSelector } from "@/store/store";
+import { BackButton } from "@/components/BackButton";
 
 // =====================================================
 //  FORM SCHEMA (PAYLOAD READY)
@@ -167,12 +168,7 @@ export default function AddStaffPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-semibold">Add New Staff Member</h1>
 
-        <Link to="/dashboard/staffs">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Staffs
-          </Button>
-        </Link>
+         <BackButton/>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

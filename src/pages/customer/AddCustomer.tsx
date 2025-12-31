@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router";
+import {  useNavigate } from "react-router";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
+import { BackButton } from "@/components/BackButton";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -157,9 +158,7 @@ export default function AddCustomerPage() {
     <div className="space-y-6 max-w-4xl mx-auto py-6">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
         <h1 className="text-3xl font-bold">Add Customer</h1>
-        <Link to="/dashboard/customers">
-          <Button variant="outline">← Back to Customers</Button>
-        </Link>
+         <BackButton/>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
