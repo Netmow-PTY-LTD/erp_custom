@@ -19,7 +19,7 @@ import {
   User,
 
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useGetSalesRouteByIdQuery } from "@/store/features/salesRoute/salesRoute";
 import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import type { Staff } from "@/types/staff.types";
@@ -175,9 +175,12 @@ export default function SalesRouteDetails() {
               <div className="flex flex-wrap gap-2">
                 {route.assignedStaffMembers && route.assignedStaffMembers.length > 0 ? (
                   route.assignedStaffMembers.map((staff: Staff) => (
-                    <Badge key={staff.id} variant="secondary" className="px-3 py-1 gap-1 font-normal">
+                    <Link to={`/dashboard/staffs/${staff.id}`} >
+                     <Badge key={staff.id} variant="secondary" className="px-3 py-1 gap-1 font-normal">
                       <User className="h-3 w-3" /> {staff.first_name + " " + staff.last_name}
                     </Badge>
+                    </Link>
+                   
                   ))
                 ) : (
                   <p className="text-sm text-muted-foreground italic">No staff assigned</p>
