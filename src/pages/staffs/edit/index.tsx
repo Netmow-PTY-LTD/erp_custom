@@ -18,7 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CalendarIcon, ArrowLeft, ChevronDown, Check } from "lucide-react";
+import { CalendarIcon, ChevronDown, Check } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate, useParams } from "react-router";
+import {  useNavigate, useParams } from "react-router";
 import {
   useGetStaffByIdQuery,
   useUpdateStaffMutation,
@@ -48,6 +48,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { BackButton } from "@/components/BackButton";
 
 // =====================================================
 //  FORM SCHEMA
@@ -178,12 +179,7 @@ export default function EditStaffPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-semibold">Edit Staff Member</h1>
 
-        <Link to="/dashboard/staffs">
-          <Button variant="outline">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Staffs
-          </Button>
-        </Link>
+          <BackButton/>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

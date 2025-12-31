@@ -3,11 +3,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useGetStaffByIdQuery } from "@/store/features/staffs/staffApiService";
+import { BackButton } from "@/components/BackButton";
 
 
 // =========================
@@ -83,11 +84,7 @@ export default function StaffDetails() {
         <h1 className="text-3xl font-semibold">Staff: {staff?.first_name} {staff?.last_name}</h1>
 
         <div className="flex gap-3">
-          <Link to="/dashboard/staffs">
-            <Button variant="outline" className="flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" /> Back to staffs
-            </Button>
-          </Link>
+          <BackButton/>
 
           <Link to={`/dashboard/staffs/${staffId}/edit`}>
             <Button className="flex items-center gap-2">
