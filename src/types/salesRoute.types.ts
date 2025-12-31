@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import type { Staff } from "./staff.types";
+
 export interface SalesRoute {
   end_lng: number;
   end_lat: number;
@@ -28,6 +30,7 @@ export interface SalesRoute {
 
   // Assignments
   assigned_sales_rep_id: number | null;
+  assignedStaffMembers:Staff[]
 
   // Metadata
   created_at: string; // ISO 8601 Date String
