@@ -50,8 +50,8 @@ function ConfirmModal({
 
 
 export default function Staffs() {
-  const [page, setPage] = useState(0)
-  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
   const [limit] = useState(10);
   const { data: staffsData, isLoading } = useGetAllStaffsQuery({ page, limit, search });
   const staffsList = staffsData?.data as Staff[] | [];

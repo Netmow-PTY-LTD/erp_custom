@@ -12,6 +12,7 @@ import type {
 
 export type OverviewResponse = {
   status: boolean;
+  message: string;
   data: Overview;
 };
 
@@ -57,11 +58,25 @@ export type DebitHeadByIdResponse = {
 
 export type PayrollResponse = ListResponse<Payroll>;
 
+// -------------------- CHART DATA --------------------
+
+export type ChartDataPoint = {
+  date: string;
+  income: number;
+  expense: number;
+};
+
+export type ChartResponse = {
+  status: boolean;
+  message: string;
+  data: ChartDataPoint[];
+};
+
 // -------------------- RTK QUERY SERVICE --------------------
 export const accountingApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // GET ACCOUNTING OVERVIEW
-    getOverview: builder.query<OverviewResponse, void>({
+    getAccountingOverview: builder.query<OverviewResponse, void>({
       query: () => ({ url: "/accounting/overview", method: "GET" }),
       providesTags: ["Accounting"],
     }),
@@ -206,6 +221,13 @@ export const accountingApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Accounting"],
     }),
 
+    //GET chart data
+
+    getAccountingChartData: builder.query<ChartResponse, void>({
+      query: () => ({ url: "/accounting/charts", method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
     // GET PAYROLL
     getPayroll: builder.query<PayrollResponse, void>({
       query: () => ({ url: "/accounting/payroll", method: "GET" }),
@@ -221,7 +243,7 @@ export const accountingApiService = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetOverviewQuery,
+  useGetAccountingOverviewQuery,
   useGetIncomesQuery,
   useAddIncomeMutation,
   useGetExpensesQuery,
@@ -236,6 +258,7 @@ export const {
   useGetSingleDebitHeadQuery,
   useUpdateDebitHeadMutation,
   useDeleteDebitHeadMutation,
+  useGetAccountingChartDataQuery,
   useGetPayrollQuery,
   useAddPayrollMutation,
 } = accountingApiService;
