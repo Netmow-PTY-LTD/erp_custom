@@ -19,13 +19,11 @@ const companyName = companyProfileSettings?.data?.company_name;
     name: companyName || "Inleads IT",
     plan: "Free",
     logo: () => (
-      <div className="w-6 h-6 object-contain rounded-full">
-        <img src={logo || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} alt={activeTeam.name} className="w-6 h-6 object-contain" />
+      <div className="flex items-center justify-center">
+        <img src={logo || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} alt={activeTeam.name} className="w-12 h-12 object-contain rounded-full" />
       </div>
     ),
   };
-
-
 
 
   return (
@@ -35,7 +33,7 @@ const companyName = companyProfileSettings?.data?.company_name;
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
-          <div className="text-sidebar-primary-foreground flex aspect-square size-8 justify-center rounded-lg">
+          <div className="text-sidebar-primary-foreground flex aspect-square justify-center rounded-lg">
             <activeTeam.logo />
           </div>
           <div className="grid flex-1 text-start text-sm leading-tight">
