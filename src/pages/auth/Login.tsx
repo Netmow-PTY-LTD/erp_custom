@@ -22,7 +22,7 @@ export default function Login() {
           <div className="flex size-6 items-center justify-center rounded-md">
             <img src={logo || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} alt="Logo" className="w-6 h-6 object-contain" />
           </div>
-          Inleads IT
+          {companyProfileSettings?.data?.company_name || "Inleads IT"}
         </Link>
         <LoginForm />
       </div>

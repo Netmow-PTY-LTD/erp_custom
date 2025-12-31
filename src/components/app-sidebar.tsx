@@ -3,6 +3,7 @@
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenuButton } from "./ui/sidebar";
 import { NavMain } from "./nav-main";
 import { sidebarItemLink } from "@/config/sidebarItemLInk";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 
 
 
@@ -10,14 +11,16 @@ import { sidebarItemLink } from "@/config/sidebarItemLInk";
 
 export function AppSidebar({ ...props }) {
 
-
+const { data: companyProfileSettings } = useGetSettingsInfoQuery(); 
+const logo = companyProfileSettings?.data?.logo_url;
+const companyName = companyProfileSettings?.data?.company_name;
   // Dummy team data
   const activeTeam = {
-    name: "Inleads IT",
+    name: companyName || "Inleads IT",
     plan: "Free",
     logo: () => (
       <div className="w-6 h-6 object-contain rounded-full">
-        <img src="https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png" alt="" />
+        <img src={logo || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} alt={activeTeam.name} className="w-6 h-6 object-contain" />
       </div>
     ),
   };
@@ -37,7 +40,7 @@ export function AppSidebar({ ...props }) {
           </div>
           <div className="grid flex-1 text-start text-sm leading-tight">
             <span className="truncate font-semibold">{activeTeam.name}</span>
-            <span className="truncate text-xs">{activeTeam.plan}</span>
+            {/* <span className="truncate text-xs">{activeTeam.plan}</span> */}
           </div>
         </SidebarMenuButton>
       </SidebarHeader>
