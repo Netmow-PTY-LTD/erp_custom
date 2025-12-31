@@ -13,6 +13,7 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { useState } from "react";
 import EditStockForm from "@/components/products/EditStockForm";
 import { useAppSelector } from "@/store/store";
+import { BackButton } from "@/components/BackButton";
 
 export default function ProductDetailsPage() {
   const [open, setOpen] = useState<boolean>(false);
@@ -88,9 +89,7 @@ export default function ProductDetailsPage() {
           <Link to={`/dashboard/products/${product?.id}/edit`}>
             <Button variant="outline-info">✏️ Edit</Button>
           </Link>
-          <Link to="/dashboard/products">
-            <Button variant="outline">← Back to Product List</Button>
-          </Link>
+          <BackButton/>
         </div>
       </div>
 

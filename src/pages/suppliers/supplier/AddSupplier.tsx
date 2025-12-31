@@ -20,6 +20,7 @@ import { useAddSupplierMutation } from "@/store/features/suppliers/supplierApiSe
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
+import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
@@ -103,7 +104,10 @@ export default function AddSupplierPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <h1 className="text-3xl font-bold">Add Supplier</h1>
+     <div className="flex justify-between items-center">
+       <h1 className="text-3xl font-bold">Add Supplier</h1>
+       <BackButton/>
+     </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFORMATION */}
