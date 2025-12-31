@@ -6,13 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import {
     ShoppingCart,
     Pencil,
-    ArrowLeft,
     Mail,
     Phone,
     MapPin,
 } from "lucide-react";
 import { useGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import { useAppSelector } from "@/store/store";
+import { BackButton } from "@/components/BackButton";
 
 export default function CustomerViewPage() {
     const { customerId } = useParams();
@@ -62,11 +62,7 @@ export default function CustomerViewPage() {
                         </Button>
                     </Link>
 
-                    <Link to="/dashboard/customers">
-                        <Button variant="outline" className="flex items-center gap-2">
-                            <ArrowLeft size={16} /> Back
-                        </Button>
-                    </Link>
+                     <BackButton/>
                 </div>
             </div>
 

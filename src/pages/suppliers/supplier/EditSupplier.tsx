@@ -24,6 +24,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
@@ -131,7 +132,11 @@ export default function EditSupplierPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <h1 className="text-3xl font-bold">Update Supplier</h1>
+     
+        <div className="flex justify-between items-center">
+             <h1 className="text-3xl font-bold">Update Supplier</h1>
+             <BackButton/>
+           </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFORMATION */}

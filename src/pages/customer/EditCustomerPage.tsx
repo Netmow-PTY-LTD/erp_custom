@@ -17,13 +17,14 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { Link, useParams, useNavigate } from "react-router";
+import {  useParams, useNavigate } from "react-router";
 import {
   useGetCustomerByIdQuery,
   useUpdateCustomerMutation,
 } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
 import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
+import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
@@ -147,9 +148,7 @@ export default function EditCustomerPage() {
     <div className="space-y-6 max-w-4xl mx-auto py-6">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-5">
         <h1 className="text-3xl font-bold">Edit Customer</h1>
-        <Link to="/dashboard/customers">
-          <Button variant="outline">← Back to Customers</Button>
-        </Link>
+         <BackButton/>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

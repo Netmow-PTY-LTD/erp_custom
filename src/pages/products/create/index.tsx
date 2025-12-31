@@ -19,8 +19,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 //import { ImageUploader } from "@/components/form/ImageUploader";
-import { Link, useNavigate } from "react-router";
-import { ArrowLeft, Check, ChevronDown, Loader } from "lucide-react";
+import { useNavigate } from "react-router";
+import {  Check, ChevronDown, Loader } from "lucide-react";
 import {
   useAddProductMutation,
   useGetAllCategoriesQuery,
@@ -45,6 +45,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import { useAppSelector } from "@/store/store";
+import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const productSchema = z.object({
@@ -177,11 +178,7 @@ export default function AddProductPage() {
     <div className="space-y-6 max-w-4xl mx-auto py-6">
       <div className="flex flex-wrap justify-between items-center gap-4">
         <h1 className="text-3xl font-bold">Add Product</h1>
-        <Link to="/dashboard/products">
-          <Button variant="outline">
-            <ArrowLeft className="h-4 w-4" /> Back to Products
-          </Button>
-        </Link>
+        <BackButton/>
       </div>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
