@@ -1,10 +1,22 @@
 
 // -------------------- OVERVIEW --------------------
 export type Overview = {
-  total_income: number;
-  total_expense: number;
-  total_payroll: number;
-  net_profit: number;
+    daily: {
+      income: number;
+      expense: number;
+    },
+    weekly: {
+      income: number;
+      expense: number;  
+    },
+    monthly: {
+      income: number;
+      expense: number;  
+    },
+    yearly: {
+      income: number;
+      expense: number;  
+    },
 };
 
 

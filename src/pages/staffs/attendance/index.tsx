@@ -12,11 +12,35 @@ import {
 } from "@/store/features/attendence/attendenceApiService";
 import { toast } from "sonner";
 import type { Attendance } from "@/types/Attendence.types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function AttendancePage() {
   //const [isChecked, setIsChecked] = useState(false);
-  const [checkInTime, setCheckInTime] = useState<string | null>(null);
-  const [checkOutTime, setCheckOutTime] = useState<string | null>(null);
+  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
+
+  const [checkInDate, setCheckInDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  const [checkInTime, setCheckInTime] = useState(
+    new Date().toLocaleTimeString("en-GB")
+  );
+
+  const [checkOutDate, setCheckOutDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [checkOutTime, setCheckOutTime] = useState(
+    new Date().toLocaleTimeString("en-GB")
+  );
+
   const [staff, setStaff] = useState<Staff | null>(null);
   const [page, setPage] = useState<number>(1);
   const [search] = useState<string>("");
@@ -31,14 +55,19 @@ export default function AttendancePage() {
   const pageSize: number = staffsData?.pagination?.limit || 10;
   const pageIndex = page - 1;
 
-  const {data: attendancesData} = useGetAllAttendanceQuery({page, limit, search});
+  const { data: attendancesData } = useGetAllAttendanceQuery({
+    page,
+    limit,
+    search,
+  });
 
   const attendances = attendancesData?.data as Attendance[] | [];
 
   console.log("attendances", attendances);
 
-
-  const staffAttendance = attendances?.find(item => item.staff_id === staff?.id);
+  const staffAttendance = attendances?.find(
+    (item) => item.staff_id === staff?.id
+  );
 
   console.log("staffAttendance", staffAttendance);
 
@@ -52,130 +81,138 @@ export default function AttendancePage() {
   const [checkIn, { isLoading: isCheckingIn }] = useCheckInMutation();
   const [checkOut, { isLoading: isCheckingOut }] = useCheckOutMutation();
 
-  const handleCheckIn = async (staff: Staff) => {
-    setStaff(staff);
+  const handleCheckIn = async () => {
+    if (!staff) return;
 
-    const now = new Date().toLocaleTimeString("en-GB"); // HH:MM:SS
     try {
-      const res = await checkIn({
+      await checkIn({
         staff_id: staff.id,
-        date: new Date().toISOString().split("T")[0],
-        check_in: now,
+        date: checkInDate,
+        check_in: checkInTime || "",
         status: "present",
       }).unwrap();
-      console.log("Check-in successful", res);
-      if (res) {
-        // setIsChecked(true);
-        toast.success("Check-in successful");
-      }
+
+      toast.success("Check-in successful");
     } catch (err) {
       console.error("Check-in failed:", err);
-      // setIsChecked(false);
-      setCheckInTime(null);
-      //toast.error(err.data?.message || "Check-in failed");
+
+      const error = err as {
+        data?: { message?: string };
+      };
+
+      toast.error(error.data?.message || "Check-in failed");
     }
   };
 
-  const handleCheckOut = async (staff: Staff) => {
-    setStaff(staff);
-
-    const now = new Date().toLocaleTimeString("en-GB");
-    setCheckOutTime(now);
+  const handleCheckOut = async () => {
+    if (!staff) return;
 
     try {
       await checkOut({
         staff_id: staff.id,
-        date: new Date().toISOString().split("T")[0],
-        check_out: now,
+        date: checkOutDate,
+        check_out: checkOutTime || "",
         status: "present",
       });
     } catch (err) {
       console.error("Check-out failed:", err);
-      //toast.error(err?.data?.message || "Check-out failed");
+
+      const error = err as {
+        data?: { message?: string };
+      };
+
+      toast.error(error.data?.message || "Check-out failed");
     }
   };
 
-  console.log("staff", staff);
+  //console.log("staff", staff);
 
   return (
-    <div className="w-full">
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Today's Attendance</h1>
+    <>
+      <div className="w-full">
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+          <h1 className="text-3xl font-bold">Today's Attendance</h1>
 
-        <Link to="/dashboard/staffs">
-          <Button variant="outline">
-            <ArrowLeft />
-            Back to Staffs
-          </Button>
-        </Link>
-      </div>
+          <Link to="/dashboard/staffs">
+            <Button variant="outline">
+              <ArrowLeft />
+              Back to Staffs
+            </Button>
+          </Link>
+        </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        {/* CHECKED-IN SECTION */}
-        <Card className="h-full">
-          <CardHeader>
-            <CardTitle>All Staffs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {staffsList?.length === 0 ? (
-              <p className="text-gray-500">No check-ins yet today.</p>
-            ) : (
-              <ul className="space-y-4">
-                {staffsList?.map((staff) => {
-                  return (
-                    <li
-                      key={staff.id}
-                      className="flex justify-between p-4 border rounded-lg items-center"
-                    >
-                      <div>
-                        <p className="font-semibold">
-                          {staff.first_name} {staff.last_name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {staff.department?.name || "N/A"}
-                        </p>
-                        {staffAttendance?.id && (
-                          <div className="mt-1 text-xs text-gray-600 space-y-1">
-                            {checkInTime && (
-                              <p className="text-green-600">
-                                ✔ Checked In: {checkInTime}
-                              </p>
-                            )}
-                            {checkOutTime && (
-                              <p className="text-blue-600">
-                                ✔ Checked Out: {checkOutTime}
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
+        <div className="grid grid-cols-1 gap-6">
+          {/* CHECKED-IN SECTION */}
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>All Staffs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {staffsList?.length === 0 ? (
+                <p className="text-gray-500">No check-ins yet today.</p>
+              ) : (
+                <ul className="space-y-4">
+                  {staffsList?.map((staff) => {
+                    return (
+                      <li
+                        key={staff.id}
+                        className="flex justify-between p-4 border rounded-lg items-center"
+                      >
+                        <div>
+                          <p className="font-semibold">
+                            {staff?.first_name} {staff?.last_name}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {staff?.department?.name || "N/A"}
+                          </p>
+                          {staffAttendance?.id && (
+                            <div className="mt-1 text-xs text-gray-600 space-y-1">
+                              {checkInTime && (
+                                <p className="text-green-600">
+                                  ✔ Checked In: {checkInTime}
+                                </p>
+                              )}
+                              {checkOutTime && (
+                                <p className="text-blue-600">
+                                  ✔ Checked Out: {checkOutTime}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
 
-                      <div className="flex gap-3 mt-4">
-                        <Button
-                          onClick={() => handleCheckIn(staff)}
-                          disabled={!staff.id || isCheckingIn}
-                        >
-                          Check In
-                        </Button>
+                        <div className="flex gap-3 mt-4">
+                          <Button
+                            onClick={() => {
+                              setStaff(staff);
+                              setIsCheckInOpen(true);
+                            }}
+                            disabled={!staff.id || isCheckingIn}
+                          >
+                            Check In
+                          </Button>
 
-                        <Button
-                          onClick={() => handleCheckOut(staff)}
-                          variant="outline"
-                          disabled={!staff.id || isCheckingOut}
-                        >
-                          Check Out
-                        </Button>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+                          <Button
+                            onClick={() => {
+                              setStaff(staff);
+                              setIsCheckOutOpen(true);
+                            }}
+                            variant="outline"
+                            disabled={!staff.id || isCheckingOut}
+                          >
+                            Check Out
+                          </Button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
 
-        {/* ABSENT SECTION */}
-        {/* <Card className="h-full">
+          {/* ABSENT SECTION */}
+          {/* <Card className="h-full">
           <CardHeader>
             <CardTitle>Absent (No Check-in)</CardTitle>
           </CardHeader>
@@ -201,52 +238,135 @@ export default function AttendancePage() {
             </ul>
           </CardContent>
         </Card> */}
-        <div className="flex items-center justify-between py-4">
-          <div className="text-sm">
-            Showing {pageIndex * pageSize + 1}–
-            {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
-            results
-          </div>
-
-          <div className="space-x-2 flex items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page - 1)}
-              disabled={page <= 1}
-            >
-              Previous
-            </Button>
-
-            <div className="flex items-center gap-1 text-sm">
-              <span>Page</span>
-              <select
-                value={page}
-                onChange={(e) => setPage(Number(e.target.value))}
-                className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
-              >
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  )
-                )}
-              </select>
-              <span>of {totalPages}</span>
+          <div className="flex items-center justify-between py-4">
+            <div className="text-sm">
+              Showing {pageIndex * pageSize + 1}–
+              {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
+              results
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page + 1)}
-              disabled={page >= totalPages}
-            >
-              Next
-            </Button>
+            <div className="space-x-2 flex items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+              >
+                Previous
+              </Button>
+
+              <div className="flex items-center gap-1 text-sm">
+                <span>Page</span>
+                <select
+                  value={page}
+                  onChange={(e) => setPage(Number(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+                >
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    )
+                  )}
+                </select>
+                <span>of {totalPages}</span>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={page >= totalPages}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      {isCheckInOpen && (
+        <Dialog open={isCheckInOpen} onOpenChange={setIsCheckInOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Check In</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <Label>Date</Label>
+                <Input
+                  type="date"
+                  value={checkInDate}
+                  onChange={(e) => setCheckInDate(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Time</Label>
+                <Input
+                  type="time"
+                  value={checkInTime.slice(0, 5)}
+                  onChange={(e) => setCheckInTime(`${e.target.value}:00`)}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCheckInOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleCheckIn} disabled={isCheckingIn}>
+                  Confirm Check In
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      {isCheckOutOpen && (
+        <Dialog open={isCheckOutOpen} onOpenChange={setIsCheckOutOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Check In</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <Label>Date</Label>
+                <Input
+                  type="date"
+                  value={checkOutDate}
+                  onChange={(e) => setCheckOutDate(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Time</Label>
+                <Input
+                  type="time"
+                  value={checkOutTime.slice(0, 5)}
+                  onChange={(e) => setCheckOutTime(`${e.target.value}:00`)}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCheckOutOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleCheckOut} disabled={isCheckingOut}>
+                  Confirm Check Out
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }

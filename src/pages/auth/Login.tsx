@@ -17,12 +17,12 @@ export default function Login() {
         <ArrowLeft className="w-4 h-4" />
         Back
       </button>
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <Link to="/" className="flex items-center gap-2 self-center font-medium text-xl">
-          <div className="flex size-6 items-center justify-center rounded-md">
-            <img src={logo || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} alt="Logo" className="w-6 h-6 object-contain" />
+      <div className="flex w-full max-w-sm flex-col gap-4">
+        <Link to="/" className="flex flex-col items-center gap-2 self-center font-medium text-xl">
+          <div className="flex items-center justify-center rounded-md">
+            <img src={logo || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} alt="Logo" className="w-20 h-20 object-contain rounded-full" />
           </div>
-          {companyProfileSettings?.data?.company_name || "Inleads IT"}
+          {/* {companyProfileSettings?.data?.company_name || "Inleads IT"} */}
         </Link>
         <LoginForm />
       </div>
