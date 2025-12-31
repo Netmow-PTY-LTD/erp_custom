@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 import { useAddSalesRouteMutation } from "@/store/features/salesRoute/salesRoute";
+import { Textarea } from "@/components/ui/textarea";
 
 // ---------------- Schema ----------------
 const FormSchema = z.object({
@@ -42,7 +43,7 @@ const FormSchema = z.object({
 export default function CreateRoutePage() {
   const navigate = useNavigate();
   const [addRoute] = useAddSalesRouteMutation();
-  
+
   const mapRef = useRef<HTMLDivElement>(null);
   const markerRef = useRef<any>(null);
   const circleRef = useRef<any>(null); // Ref for the visual radius circle
@@ -120,7 +121,7 @@ export default function CreateRoutePage() {
     markerRef.current = marker;
     circleRef.current = circle;
     setMap(mapInstance);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
 
   // ---------------- 2. Update Map on Form Changes ----------------
@@ -132,24 +133,24 @@ export default function CreateRoutePage() {
       circleRef.current.setRadius(watchRadius * 1000); // meters
       map.panTo(newPos);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchLat, watchLng, watchRadius]);
 
   useEffect(() => {
     if (map) map.setZoom(watchZoom);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchZoom]);
 
   // ---------------- 3. Handlers ----------------
   const handleAddressSelection = (details: any, fieldName: string) => {
     form.setValue(fieldName as any, details.address);
-    
+
     // Auto-fill geo-data
     if (details.city) form.setValue("city", details.city);
     if (details.state) form.setValue("state", details.state);
     if (details.country) form.setValue("country", details.country);
     if (details.postalCode) form.setValue("postalCode", details.postalCode);
-    
+
     // If start location is picked, set center of the route
     if (fieldName === "start_location") {
       form.setValue("centerLat", details.latitude);
@@ -200,10 +201,10 @@ export default function CreateRoutePage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                
+
                 {/* LEFT: FORM INPUTS */}
                 <div className="lg:col-span-5 space-y-6">
-                  
+
                   {/* Basic Info */}
                   <div className="space-y-4">
                     <FormField
@@ -228,7 +229,7 @@ export default function CreateRoutePage() {
                         <FormItem>
                           <FormLabel className="flex items-center gap-2 text-blue-700"><Navigation className="w-4 h-4" /> Start Point (Sets Geofence Center)</FormLabel>
                           <FormControl>
-                            <AddressAutocomplete 
+                            <AddressAutocomplete
                               {...field}
                               onAddressSelect={(d) => handleAddressSelection(d, "start_location")}
                               placeholder="Search address for start..."
@@ -245,7 +246,7 @@ export default function CreateRoutePage() {
                         <FormItem>
                           <FormLabel className="flex items-center gap-2 text-slate-700"><MapPin className="w-4 h-4" /> Destination Point</FormLabel>
                           <FormControl>
-                            <AddressAutocomplete 
+                            <AddressAutocomplete
                               {...field}
                               onAddressSelect={(d) => handleAddressSelection(d, "end_location")}
                               placeholder="Search address for end..."
@@ -323,6 +324,22 @@ export default function CreateRoutePage() {
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-semibold">Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Enter description"
+                              rows={4}
+                              {...field}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
 
@@ -336,10 +353,10 @@ export default function CreateRoutePage() {
                       <Maximize className="w-3 h-3 mr-1" /> Fit Radius to Map
                     </Button>
                   </div>
-                  
+
                   <div className="relative group">
-                    <div 
-                      ref={mapRef} 
+                    <div
+                      ref={mapRef}
                       className="w-full h-[550px] rounded-2xl border-4 border-white shadow-2xl bg-slate-100"
                     />
                     <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg text-[10px] border shadow-sm">
