@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router";
-import { ArrowLeft, Check, Eye, FilePlus } from "lucide-react";
+import {  Check, Eye, FilePlus } from "lucide-react";
 import {
   useAddPurchaseInvoiceMutation,
   useGetPurchaseOrderByIdQuery,
@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import type { POItem } from "@/types/purchaseOrder.types";
 import { useAppSelector } from "@/store/store";
+import { BackButton } from "@/components/BackButton";
 
 /* ================= STATUS COLOR ================= */
 const statusColorMap: Record<string, string> = {
@@ -101,11 +102,7 @@ export default function PurchaseOrderView() {
         </h1>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Link to="/dashboard/suppliers/purchase-orders">
-            <Button variant="outline">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Button>
-          </Link>
+          <BackButton/>
 
           {!["approved", "received", "delivered"].includes(purchase.status) && (
             <Button onClick={handleApprove} disabled={isUpdating}>
