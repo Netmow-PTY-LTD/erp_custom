@@ -61,10 +61,10 @@ export default function SalesRouteDetails() {
             </p>
           </div>
         </div>
-        <Button className="gap-2 shadow-sm">
+        {/* <Button className="gap-2 shadow-sm">
           <Edit2 className="h-4 w-4" />
           Edit Route
-        </Button>
+        </Button> */}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
