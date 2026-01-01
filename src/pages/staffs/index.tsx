@@ -1,17 +1,25 @@
-
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDeleteStaffMutation, useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
+import {
+  useDeleteStaffMutation,
+  useGetAllStaffsQuery,
+} from "@/store/features/staffs/staffApiService";
 import type { Department, Staff } from "@/types/types";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CalendarX2, Clock, PlusCircle, Trash, Users, XCircle } from "lucide-react";
+import {
+  CalendarX2,
+  Clock,
+  PlusCircle,
+  Trash,
+  Users,
+  XCircle,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
-
 
 // Simple modal
 function ConfirmModal({
@@ -44,19 +52,17 @@ function ConfirmModal({
   );
 }
 
-
-
-
-
-
 export default function Staffs() {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [limit] = useState(10);
-  const { data: staffsData, isLoading } = useGetAllStaffsQuery({ page, limit, search });
+  const { data: staffsData, isLoading } = useGetAllStaffsQuery({
+    page,
+    limit,
+    search,
+  });
   const staffsList = staffsData?.data as Staff[] | [];
   const [deleteStaff] = useDeleteStaffMutation();
-
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
@@ -65,11 +71,17 @@ export default function Staffs() {
   // -----------------------------------------
   const totalStaff = staffsList?.length;
 
-  const activeStaff = staffsList?.filter((s: Staff) => s.status.toLowerCase() === "Active").length;
+  const activeStaff = staffsList?.filter(
+    (s: Staff) => s.status.toLowerCase() === "Active"
+  ).length;
 
-  const inactiveStaff = staffsList?.filter((s: Staff) => s.status.toLowerCase() === "Inactive").length;
+  const inactiveStaff = staffsList?.filter(
+    (s: Staff) => s.status.toLowerCase() === "Inactive"
+  ).length;
 
-  const onLeaveStaff = staffsList?.filter((s) => s.status.toLowerCase() === "On Leave").length;
+  const onLeaveStaff = staffsList?.filter(
+    (s) => s.status.toLowerCase() === "On Leave"
+  ).length;
   // If your DB uses "leave" or "onLeave", update the string.
 
   const stats = [
@@ -99,12 +111,6 @@ export default function Staffs() {
     },
   ];
 
-
-
-
-
-
-
   // -----------------------
   // DELETE HANDLER
   // -----------------------
@@ -126,7 +132,6 @@ export default function Staffs() {
     }
   };
 
-
   const staffColumns: ColumnDef<Staff>[] = [
     {
       accessorKey: "id",
@@ -145,7 +150,7 @@ export default function Staffs() {
         </div>
       ),
     },
- {
+    {
       accessorKey: "thumb_url",
       header: "Image",
       cell: ({ row }) => {
@@ -169,10 +174,8 @@ export default function Staffs() {
       header: "Department",
       cell: ({ row }) => {
         const department = row.getValue("department") as Department | null;
-        return (
-          <div className="font-normal">{department?.name}</div>
-        );
-      }
+        return <div className="font-normal">{department?.name}</div>;
+      },
     },
 
     {
@@ -190,8 +193,8 @@ export default function Staffs() {
           status === "Active"
             ? "bg-green-600"
             : status === "Inactive"
-              ? "bg-red-500"
-              : "bg-gray-500";
+            ? "bg-red-500"
+            : "bg-gray-500";
 
         return <Badge className={`${color} text-white`}>{status}</Badge>;
       },
@@ -222,9 +225,12 @@ export default function Staffs() {
               <Button size="sm" variant="outline">
                 Edit
               </Button>
-
             </Link>
-            <Button size="sm" variant="destructive" onClick={() => handleDeleteClick(item)}>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => handleDeleteClick(item)}
+            >
               <Trash className="w-4 h-4 mr-1" />
             </Button>
           </div>
@@ -232,16 +238,6 @@ export default function Staffs() {
       },
     },
   ];
-
-
-
-
-
-
-
-
-
-
 
   return (
     <div className="w-full">
@@ -280,12 +276,9 @@ export default function Staffs() {
           {isLoading ? (
             <p>Loading...</p>
           ) : (
-
-
-
-
             <DataTable
-              columns={staffColumns} data={staffsList ?? []}
+              columns={staffColumns}
+              data={staffsList ?? []}
               pageIndex={page - 1}
               pageSize={limit}
               totalCount={staffsData?.pagination?.total}
@@ -296,10 +289,6 @@ export default function Staffs() {
               }}
               isFetching={isLoading}
             />
-
-
-
-
           )}
         </CardContent>
       </Card>
@@ -311,7 +300,6 @@ export default function Staffs() {
         onConfirm={confirmDelete}
         message={`Are you sure you want to delete ${selectedStaff?.first_name} ${selectedStaff?.last_name}?`}
       />
-
     </div>
   );
 }
