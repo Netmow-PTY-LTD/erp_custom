@@ -13,9 +13,9 @@ export const attendanceApiService = baseApi.injectEndpoints({
     // CHECK-IN
     checkIn: builder.mutation<AttendanceResponse, any>({
       query: (body) => ({
-        url: "/attendance/check-in",
+        url: `/attendance/staff/${body.staff_id}`,
         method: "POST",
-        body,
+        body: body.data,
       }),
       invalidatesTags: ["Attendance"],
     }),
