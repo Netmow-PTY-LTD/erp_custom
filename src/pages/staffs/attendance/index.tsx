@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -77,12 +78,15 @@ const attendances: Attendance[] = (attendanceData?.data as Attendance[]) ?? [];
     }
   };
 
-  const getStaffAttendance = (staffId: string) =>
-    attendances?.find(
-      (att) =>
-        att.staff_id === staffId &&
-        att.date === format(selectedDate, "yyyy-MM-dd")
-    );
+const getStaffAttendance = (staffId: string) => {
+  if (!selectedDate) return undefined; // avoid formatting undefined
+  return attendances?.find(
+    (att) =>
+      String(att.staff_id) === staffId && // convert number to string
+      att.date === format(selectedDate, "yyyy-MM-dd")
+  );
+};
+
 
   return (
     <div className="space-y-6">
@@ -121,7 +125,7 @@ const attendances: Attendance[] = (attendanceData?.data as Attendance[]) ?? [];
           ) : (
             <ul className="space-y-4">
               {staffsList.map((staff) => {
-                const attendance = getStaffAttendance(staff.id);
+                const attendance = getStaffAttendance(staff.id as any);
                 return (
                   <li
                     key={staff.id}
