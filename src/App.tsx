@@ -4,11 +4,16 @@ import { Loader } from "lucide-react";
 import { useGetSettingsInfoQuery } from "./store/features/admin/settingsApiService";
 import { useAppSettings } from "./hooks/useAppSettings";
 
+import { useAppSelector } from "./store/store";
+
+
 
 const APP = () => {
+  const token = useAppSelector((state) => state.auth.token);
+  const { data: user, isLoading } = useAuthUserQuery(undefined, {
+    skip: !token,
+  });
 
-
-  const { data: user, isLoading } = useAuthUserQuery();
   const { data: settings } = useGetSettingsInfoQuery();
   const isLoggedIn = user?.data?.user?.email;
 
@@ -28,7 +33,7 @@ const APP = () => {
         </p>
         <div className="flex gap-4">
           {isLoading ? (
-            <div className="px-8 py-3 text-white"><Loader/></div>
+            <div className="px-8 py-3 text-white"><Loader /></div>
           ) : isLoggedIn ? (
             <Link
               to="/dashboard"
