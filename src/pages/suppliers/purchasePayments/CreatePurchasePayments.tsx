@@ -271,22 +271,7 @@ export default function CreatePurchasePayments() {
           </Form>
         </div>
 
-        {/* SUMMARY */}
-        {/* <div className="rounded-lg border p-6 bg-white">
-          <h2 className="text-lg font-semibold mb-4">Payment Summary</h2>
-          <div className="space-y-2 text-sm">
-            <p>
-              <strong>Purchase Order:</strong> {watchPO ? `PO-${watchPO}` : "Not Selected"}
-            </p>
-            <p>
-              <strong>Amount:</strong> {watchAmount ? `৳ ${Number(watchAmount).toFixed(2)}` : "Not Entered"}
-            </p>
-            <p>
-              <strong>Method:</strong>{" "}
-              {watchMethod ? watchMethod.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()) : "Not Selected"}
-            </p>
-          </div>
-        </div> */}
+
         {/* SUMMARY PANEL */}
         <div className="rounded-lg border p-6 bg-white space-y-4">
           <h2 className="text-lg font-semibold mb-4">Summary</h2>
@@ -304,10 +289,10 @@ export default function CreatePurchasePayments() {
                   <strong>Total:</strong>{" "}
                   {currency} {((purchaseOrderDetails.total_amount ?? 0) + (purchaseOrderDetails.tax_amount ?? 0) - (purchaseOrderDetails.discount_amount ?? 0)).toFixed(2)}
                 </p>
-                <p><strong>Paid:</strong> {currency} {(purchaseOrderDetails.paid_amount ?? 0).toFixed(2)}</p>
+                <p><strong>Paid:</strong> {currency} {(purchaseOrderDetails.total_paid_amount ?? 0).toFixed(2)}</p>
                 <p>
                   <strong>Balance:</strong>{" "}
-                  {currency} {(((purchaseOrderDetails.total_amount ?? 0) + (purchaseOrderDetails.tax_amount ?? 0) - (purchaseOrderDetails.discount_amount ?? 0)) - (purchaseOrderDetails.paid_amount ?? 0)).toFixed(2)}
+                  {currency} {(((purchaseOrderDetails.total_amount ?? 0) + (purchaseOrderDetails.tax_amount ?? 0) - (purchaseOrderDetails.discount_amount ?? 0)) - (purchaseOrderDetails.total_paid_amount ?? 0)).toFixed(2)}
                 </p>
               </>
             ) : (
