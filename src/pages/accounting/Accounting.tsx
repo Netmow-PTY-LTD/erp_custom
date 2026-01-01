@@ -38,7 +38,7 @@ const generateTrendData = () => {
 
 const trendData = generateTrendData();
 
-console.log("trendData", trendData);
+
 
 export default function AccountingOverview() {
   const { data: accountingOverview } = useGetAccountingOverviewQuery();

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowLeft, Check, MoreHorizontal, X } from "lucide-react";
+import {  CalendarPlus, Check, MoreHorizontal, X } from "lucide-react";
 import { Link } from "react-router";
 import {
   DropdownMenu,
@@ -76,10 +76,10 @@ export default function LeavesManagement() {
           status.toLowerCase() === "approved"
             ? "bg-green-600"
             : status.toLowerCase() === "pending"
-            ? "bg-yellow-600"
-            : status.toLowerCase() === "rejected"
-            ? "bg-red-600"
-            : "bg-gray-500";
+              ? "bg-yellow-600"
+              : status.toLowerCase() === "rejected"
+                ? "bg-red-600"
+                : "bg-gray-500";
 
         return <Badge className={`${color} text-white`}>{status}</Badge>;
       },
@@ -141,12 +141,13 @@ export default function LeavesManagement() {
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Leaves Management</h1>
         <div className="flex flex-wrap items-center gap-4">
-          <Link to="/dashboard/staffs">
-            <Button variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Staffs
+          <Link to="/dashboard/staffs/leaves/request">
+            <Button variant="outline" className="flex items-center gap-2">
+              <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+              <span>Request Leave</span>
             </Button>
           </Link>
+
         </div>
       </div>
       <Card>
