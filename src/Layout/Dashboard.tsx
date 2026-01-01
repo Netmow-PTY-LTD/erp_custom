@@ -9,8 +9,16 @@ import { ProfileDropdown } from "../components/dashboard/components/ProfileDropd
 
 import { ThemeSwitch } from "../components/theme-switch";
 import { Link, Outlet } from "react-router";
+import { useAppSettings } from "@/hooks/useAppSettings";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 
 export default function DashboardLayout() {
+  const { data: settings} = useGetSettingsInfoQuery();
+  useAppSettings(settings?.data);
+
+
+
+
   return (
     <SidebarProvider className={`bg-white`}>
       <AppSidebar className="print:hidden" />
