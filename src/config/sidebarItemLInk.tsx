@@ -407,6 +407,7 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/staffs/leaves/request",
         element: <LeaveRequest />,
+        allowedPermissions: [StaffPermission.MANAGE_LEAVES, SuperAdminPermission.ACCESS_ALL],
       }
 
 
