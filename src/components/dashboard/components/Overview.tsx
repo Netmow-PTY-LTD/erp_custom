@@ -36,7 +36,7 @@ export function Overview() {
 
         {/* 👇 Tooltip */}
         <Tooltip
-          formatter={(value: number) => [`${currency} ${value}`, "Total"]}
+          formatter={(value: number) => [`${currency} ${value ?? 0}`, "Total"]}
         />
 
         <Bar

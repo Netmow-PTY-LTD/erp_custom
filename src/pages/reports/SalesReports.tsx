@@ -292,7 +292,7 @@ export default function SalesReportsPage() {
                 <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip
-                  formatter={(value: number) => `RM ${value.toFixed(2)}`}
+                  formatter={(value: number) => `${currency} ${value.toFixed(2) || 0}`}
                 />
                 <Line
                   type="monotone"
