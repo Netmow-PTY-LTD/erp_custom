@@ -1,11 +1,20 @@
 import { Link } from "react-router";
 import { useAuthUserQuery } from "./store/features/auth/authApiService";
 import { Loader } from "lucide-react";
+import { useGetSettingsInfoQuery } from "./store/features/admin/settingsApiService";
+import { useAppSettings } from "./hooks/useAppSettings";
 
 
 const APP = () => {
+
+
   const { data: user, isLoading } = useAuthUserQuery();
+  const { data: settings } = useGetSettingsInfoQuery();
   const isLoggedIn = user?.data?.user?.email;
+
+  useAppSettings(settings?.data);
+
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
