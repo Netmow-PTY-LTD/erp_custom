@@ -1,17 +1,15 @@
+"use client";
+
+import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
-import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
-import type { Staff } from "@/types/staff.types";
-import {
-  useCheckInMutation,
-  useCheckOutMutation,
-  useGetAllAttendanceQuery,
-} from "@/store/features/attendence/attendenceApiService";
+import { useGetAllAttendanceQuery, useCheckInMutation } from "@/store/features/attendence/attendenceApiService";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import type { Staff } from "@/types/staff.types";
 import type { Attendance } from "@/types/Attendence.types";
+
 import {
   Dialog,
   DialogContent,
@@ -20,353 +18,628 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from "@/components/ui/dropdown-menu";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function AttendancePage() {
-  //const [isChecked, setIsChecked] = useState(false);
-  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
-  const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
+  const today = new Date();
+  const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("18:00");
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
-  const [checkInDate, setCheckInDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const { data: staffsData } = useGetAllStaffsQuery({ page, limit, search: "" });
+  const { data: attendanceData } = useGetAllAttendanceQuery({ page, limit, search: "" });
 
-  const [checkInTime, setCheckInTime] = useState(
-    new Date().toLocaleTimeString("en-GB")
-  );
+  const [checkInMutation, { isLoading: isCheckingIn }] = useCheckInMutation();
 
-  const [checkOutDate, setCheckOutDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [checkOutTime, setCheckOutTime] = useState(
-    new Date().toLocaleTimeString("en-GB")
-  );
+const staffsList: Staff[] = (staffsData?.data as Staff[]) ?? [];
+const attendances: Attendance[] = (attendanceData?.data as Attendance[]) ?? [];
 
-  const [staff, setStaff] = useState<Staff | null>(null);
-  const [page, setPage] = useState<number>(1);
-  const [search] = useState<string>("");
-  const [limit] = useState(10);
-  const { data: staffsData } = useGetAllStaffsQuery({ page, limit, search });
+  const totalCount = staffsData?.pagination?.total || 0;
+  const totalPages = staffsData?.pagination?.totalPage || 1;
 
-  //console.log("staffsData", staffsData);
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    setSelectedDate(date);
+  };
 
-  const staffsList = staffsData?.data as Staff[] | [];
-  const totalCount: number = staffsData?.pagination?.total || 0;
-  const totalPages: number = staffsData?.pagination?.totalPage || 1;
-  const pageSize: number = staffsData?.pagination?.limit || 10;
-  const pageIndex = page - 1;
+  const handleOpenModal = (staff: Staff) => {
+    setCurrentStaff(staff);
+    setModalOpen(true);
+    setStartTime("09:00");
+    setEndTime("18:00");
+  };
 
-  const { data: attendancesData } = useGetAllAttendanceQuery({
-    page,
-    limit,
-    search,
-  });
-
-  const attendances = attendancesData?.data as Attendance[] | [];
-
-  console.log("attendances", attendances);
-
-  const staffAttendance = attendances?.find(
-    (item) => item.staff_id === staff?.id
-  );
-
-  console.log("staffAttendance", staffAttendance);
-
-  // useEffect(() => {
-  //   if (staffAttendance) {
-  //     setCheckInTime(staffAttendance?.check_in);
-  //     setCheckOutTime(staffAttendance?.check_out);
-  //   }
-  // }, [staffAttendance]);
-
-  const [checkIn, { isLoading: isCheckingIn }] = useCheckInMutation();
-  const [checkOut, { isLoading: isCheckingOut }] = useCheckOutMutation();
-
-  const handleCheckIn = async () => {
-    if (!staff) return;
+  const handleConfirmAttendance = async () => {
+    if (!currentStaff) return;
 
     try {
-      await checkIn({
-        staff_id: staff.id,
-        date: checkInDate,
-        check_in: checkInTime || "",
+      await checkInMutation({
+        staff_id: currentStaff.id,
+        date: format(selectedDate, "yyyy-MM-dd"),
+        check_in: startTime + ":00",
+        check_out: endTime + ":00",
         status: "present",
       }).unwrap();
 
-      toast.success("Check-in successful");
-    } catch (err) {
-      console.error("Check-in failed:", err);
-
-      const error = err as {
-        data?: { message?: string };
-      };
-
-      toast.error(error.data?.message || "Check-in failed");
+      toast.success(`${currentStaff.first_name} attendance logged successfully`);
+      setModalOpen(false);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Attendance logging failed");
     }
   };
 
-  const handleCheckOut = async () => {
-    if (!staff) return;
-
-    try {
-      await checkOut({
-        staff_id: staff.id,
-        date: checkOutDate,
-        check_out: checkOutTime || "",
-        status: "present",
-      });
-    } catch (err) {
-      console.error("Check-out failed:", err);
-
-      const error = err as {
-        data?: { message?: string };
-      };
-
-      toast.error(error.data?.message || "Check-out failed");
-    }
-  };
-
-  //console.log("staff", staff);
+  const getStaffAttendance = (staffId: string) =>
+    attendances?.find(
+      (att) =>
+        att.staff_id === staffId &&
+        att.date === format(selectedDate, "yyyy-MM-dd")
+    );
 
   return (
-    <>
-      <div className="w-full">
-        <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-          <h1 className="text-3xl font-bold">Today's Attendance</h1>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <h1 className="text-3xl font-bold">
+          Attendance - {format(selectedDate, "PPP")}
+        </h1>
 
-          <Link to="/dashboard/staffs">
+        {/* Date picker from header */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button variant="outline">
-              <ArrowLeft />
-              Back to Staffs
+              {format(selectedDate, "PPP")}
             </Button>
-          </Link>
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="p-2 w-auto">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              autoFocus
+            />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
-        <div className="grid grid-cols-1 gap-6">
-          {/* CHECKED-IN SECTION */}
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>All Staffs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {staffsList?.length === 0 ? (
-                <p className="text-gray-500">No check-ins yet today.</p>
-              ) : (
-                <ul className="space-y-4">
-                  {staffsList?.map((staff) => {
-                    return (
-                      <li
-                        key={staff.id}
-                        className="flex justify-between p-4 border rounded-lg items-center"
-                      >
-                        <div>
-                          <p className="font-semibold">
-                            {staff?.first_name} {staff?.last_name}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {staff?.department?.name || "N/A"}
-                          </p>
-                          {staffAttendance?.id && (
-                            <div className="mt-1 text-xs text-gray-600 space-y-1">
-                              {checkInTime && (
-                                <p className="text-green-600">
-                                  ✔ Checked In: {checkInTime}
-                                </p>
-                              )}
-                              {checkOutTime && (
-                                <p className="text-blue-600">
-                                  ✔ Checked Out: {checkOutTime}
-                                </p>
-                              )}
-                            </div>
+      {/* Staff list */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Staff Attendance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {staffsList?.length === 0 ? (
+            <p className="text-gray-500">No staff records found.</p>
+          ) : (
+            <ul className="space-y-4">
+              {staffsList.map((staff) => {
+                const attendance = getStaffAttendance(staff.id);
+                return (
+                  <li
+                    key={staff.id}
+                    className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border rounded-lg hover:shadow transition"
+                  >
+                    <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                      <div>
+                        <p className="font-semibold">
+                          {staff.first_name} {staff.last_name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {staff.department?.name || "N/A"}
+                        </p>
+                      </div>
+
+                      {attendance && (
+                        <div className="flex flex-col text-sm text-gray-600 space-y-1">
+                          {attendance.check_in && (
+                            <p className="text-green-600">
+                              ✔ Arrival: {attendance.check_in.slice(0, 5)}
+                            </p>
+                          )}
+                          {attendance.check_out && (
+                            <p className="text-blue-600">
+                              ✔ Leaving: {attendance.check_out.slice(0, 5)}
+                            </p>
                           )}
                         </div>
+                      )}
+                    </div>
 
-                        <div className="flex gap-3 mt-4">
-                          <Button
-                            onClick={() => {
-                              setStaff(staff);
-                              setIsCheckInOpen(true);
-                            }}
-                            disabled={!staff.id || isCheckingIn}
-                          >
-                            Check In
-                          </Button>
-
-                          <Button
-                            onClick={() => {
-                              setStaff(staff);
-                              setIsCheckOutOpen(true);
-                            }}
-                            variant="outline"
-                            disabled={!staff.id || isCheckingOut}
-                          >
-                            Check Out
-                          </Button>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* ABSENT SECTION */}
-          {/* <Card className="h-full">
-          <CardHeader>
-            <CardTitle>Absent (No Check-in)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-4">
-              {absent.map((staff, idx) => (
-                <li
-                  key={idx}
-                  className="border rounded-lg p-4 flex justify-between items-center"
-                >
-                  <div>
-                    <p className="font-semibold">{staff.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {staff.id} · {staff.dept}
-                    </p>
-                  </div>
-
-                  <Button variant="secondary" className="bg-gray-200">
-                    Absent
-                  </Button>
-                </li>
-              ))}
+                    {!attendance?.check_in && (
+                      <Button
+                        onClick={() => handleOpenModal(staff)}
+                        disabled={isCheckingIn}
+                      >
+                        Mark Arrival
+                      </Button>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
-          </CardContent>
-        </Card> */}
-          <div className="flex items-center justify-between py-4">
-            <div className="text-sm">
-              Showing {pageIndex * pageSize + 1}–
-              {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
-              results
-            </div>
+          )}
+        </CardContent>
+      </Card>
 
-            <div className="space-x-2 flex items-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(page - 1)}
-                disabled={page <= 1}
-              >
-                Previous
-              </Button>
+      {/* Pagination */}
+      <div className="flex items-center justify-between py-2">
+        <p className="text-sm">
+          Showing {(page - 1) * limit + 1}–{Math.min(page * limit, totalCount)} of {totalCount} results
+        </p>
 
-              <div className="flex items-center gap-1 text-sm">
-                <span>Page</span>
-                <select
-                  value={page}
-                  onChange={(e) => setPage(Number(e.target.value))}
-                  className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
-                >
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (p) => (
-                      <option key={p} value={p}>
-                        {p}
-                      </option>
-                    )
-                  )}
-                </select>
-                <span>of {totalPages}</span>
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(page + 1)}
-                disabled={page >= totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+        <div className="flex gap-2 items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page - 1)}
+            disabled={page <= 1}
+          >
+            Previous
+          </Button>
+          <select
+            value={page}
+            onChange={(e) => setPage(Number(e.target.value))}
+            className="border rounded px-2 py-1 text-sm focus:outline-none"
+          >
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page + 1)}
+            disabled={page >= totalPages}
+          >
+            Next
+          </Button>
         </div>
       </div>
-      {isCheckInOpen && (
-        <Dialog open={isCheckInOpen} onOpenChange={setIsCheckInOpen}>
+
+      {/* Modal for selecting start & end time */}
+      {modalOpen && (
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Check In</DialogTitle>
+              <DialogTitle>
+                Log Attendance - {currentStaff?.first_name} {currentStaff?.last_name}
+              </DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-4">
+            <div className="space-y-4 mt-2">
               <div>
-                <Label>Date</Label>
-                <Input
-                  type="date"
-                  value={checkInDate}
-                  onChange={(e) => setCheckInDate(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label>Time</Label>
+                <Label>Start Time</Label>
                 <Input
                   type="time"
-                  value={checkInTime.slice(0, 5)}
-                  onChange={(e) => setCheckInTime(`${e.target.value}:00`)}
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>End Time</Label>
+                <Input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsCheckInOpen(false)}
-                >
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" onClick={() => setModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleCheckIn} disabled={isCheckingIn}>
-                  Confirm Check In
+                <Button onClick={handleConfirmAttendance} disabled={isCheckingIn}>
+                  Save
                 </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
       )}
-      {isCheckOutOpen && (
-        <Dialog open={isCheckOutOpen} onOpenChange={setIsCheckOutOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Check In</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div>
-                <Label>Date</Label>
-                <Input
-                  type="date"
-                  value={checkOutDate}
-                  onChange={(e) => setCheckOutDate(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label>Time</Label>
-                <Input
-                  type="time"
-                  value={checkOutTime.slice(0, 5)}
-                  onChange={(e) => setCheckOutTime(`${e.target.value}:00`)}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsCheckOutOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleCheckOut} disabled={isCheckingOut}>
-                  Confirm Check Out
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+    </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   ---------------------------------- previous code base ----------------
+
+// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import { Link } from "react-router";
+// import { ArrowLeft } from "lucide-react";
+// import { useState } from "react";
+// import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
+// import type { Staff } from "@/types/staff.types";
+// import {
+//   useCheckInMutation,
+//   useCheckOutMutation,
+//   useGetAllAttendanceQuery,
+// } from "@/store/features/attendence/attendenceApiService";
+// import { toast } from "sonner";
+// import type { Attendance } from "@/types/Attendence.types";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+// } from "@/components/ui/dialog";
+// import { Label } from "@/components/ui/label";
+// import { Input } from "@/components/ui/input";
+
+// export default function AttendancePage() {
+//   //const [isChecked, setIsChecked] = useState(false);
+//   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+//   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
+
+//   const [checkInDate, setCheckInDate] = useState(
+//     new Date().toISOString().split("T")[0]
+//   );
+
+//   const [checkInTime, setCheckInTime] = useState(
+//     new Date().toLocaleTimeString("en-GB")
+//   );
+
+//   const [checkOutDate, setCheckOutDate] = useState(
+//     new Date().toISOString().split("T")[0]
+//   );
+//   const [checkOutTime, setCheckOutTime] = useState(
+//     new Date().toLocaleTimeString("en-GB")
+//   );
+
+//   const [staff, setStaff] = useState<Staff | null>(null);
+//   const [page, setPage] = useState<number>(1);
+//   const [search] = useState<string>("");
+//   const [limit] = useState(10);
+//   const { data: staffsData } = useGetAllStaffsQuery({ page, limit, search });
+
+//   //console.log("staffsData", staffsData);
+
+//   const staffsList = staffsData?.data as Staff[] | [];
+//   const totalCount: number = staffsData?.pagination?.total || 0;
+//   const totalPages: number = staffsData?.pagination?.totalPage || 1;
+//   const pageSize: number = staffsData?.pagination?.limit || 10;
+//   const pageIndex = page - 1;
+
+//   const { data: attendancesData } = useGetAllAttendanceQuery({
+//     page,
+//     limit,
+//     search,
+//   });
+
+//   const attendances = attendancesData?.data as Attendance[] | [];
+
+//   console.log("attendances", attendances);
+
+//   const staffAttendance = attendances?.find(
+//     (item) => item.staff_id === staff?.id
+//   );
+
+//   console.log("staffAttendance", staffAttendance);
+
+//   // useEffect(() => {
+//   //   if (staffAttendance) {
+//   //     setCheckInTime(staffAttendance?.check_in);
+//   //     setCheckOutTime(staffAttendance?.check_out);
+//   //   }
+//   // }, [staffAttendance]);
+
+//   const [checkIn, { isLoading: isCheckingIn }] = useCheckInMutation();
+//   const [checkOut, { isLoading: isCheckingOut }] = useCheckOutMutation();
+
+//   const handleCheckIn = async () => {
+//     if (!staff) return;
+
+//     try {
+//       await checkIn({
+//         staff_id: staff.id,
+//         date: checkInDate,
+//         check_in: checkInTime || "",
+//         status: "present",
+//       }).unwrap();
+
+//       toast.success("Check-in successful");
+//     } catch (err) {
+//       console.error("Check-in failed:", err);
+
+//       const error = err as {
+//         data?: { message?: string };
+//       };
+
+//       toast.error(error.data?.message || "Check-in failed");
+//     }
+//   };
+
+//   const handleCheckOut = async () => {
+//     if (!staff) return;
+
+//     try {
+//       await checkOut({
+//         staff_id: staff.id,
+//         date: checkOutDate,
+//         check_out: checkOutTime || "",
+//         status: "present",
+//       });
+//     } catch (err) {
+//       console.error("Check-out failed:", err);
+
+//       const error = err as {
+//         data?: { message?: string };
+//       };
+
+//       toast.error(error.data?.message || "Check-out failed");
+//     }
+//   };
+
+//   //console.log("staff", staff);
+
+//   return (
+//     <>
+//       <div className="w-full">
+//         <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+//           <h1 className="text-3xl font-bold">Today's Attendance</h1>
+
+//           <Link to="/dashboard/staffs">
+//             <Button variant="outline">
+//               <ArrowLeft />
+//               Back to Staffs
+//             </Button>
+//           </Link>
+//         </div>
+
+//         <div className="grid grid-cols-1 gap-6">
+//           {/* CHECKED-IN SECTION */}
+//           <Card className="h-full">
+//             <CardHeader>
+//               <CardTitle>All Staffs</CardTitle>
+//             </CardHeader>
+//             <CardContent>
+//               {staffsList?.length === 0 ? (
+//                 <p className="text-gray-500">No check-ins yet today.</p>
+//               ) : (
+//                 <ul className="space-y-4">
+//                   {staffsList?.map((staff) => {
+//                     return (
+//                       <li
+//                         key={staff.id}
+//                         className="flex justify-between p-4 border rounded-lg items-center"
+//                       >
+//                         <div>
+//                           <p className="font-semibold">
+//                             {staff?.first_name} {staff?.last_name}
+//                           </p>
+//                           <p className="text-sm text-gray-500">
+//                             {staff?.department?.name || "N/A"}
+//                           </p>
+//                           {staffAttendance?.id && (
+//                             <div className="mt-1 text-xs text-gray-600 space-y-1">
+//                               {checkInTime && (
+//                                 <p className="text-green-600">
+//                                   ✔ Checked In: {checkInTime}
+//                                 </p>
+//                               )}
+//                               {checkOutTime && (
+//                                 <p className="text-blue-600">
+//                                   ✔ Checked Out: {checkOutTime}
+//                                 </p>
+//                               )}
+//                             </div>
+//                           )}
+//                         </div>
+
+//                         <div className="flex gap-3 mt-4">
+//                           <Button
+//                             onClick={() => {
+//                               setStaff(staff);
+//                               setIsCheckInOpen(true);
+//                             }}
+//                             disabled={!staff.id || isCheckingIn}
+//                           >
+//                             Check In
+//                           </Button>
+
+//                           <Button
+//                             onClick={() => {
+//                               setStaff(staff);
+//                               setIsCheckOutOpen(true);
+//                             }}
+//                             variant="outline"
+//                             disabled={!staff.id || isCheckingOut}
+//                           >
+//                             Check Out
+//                           </Button>
+//                         </div>
+//                       </li>
+//                     );
+//                   })}
+//                 </ul>
+//               )}
+//             </CardContent>
+//           </Card>
+
+//           {/* ABSENT SECTION */}
+//           {/* <Card className="h-full">
+//           <CardHeader>
+//             <CardTitle>Absent (No Check-in)</CardTitle>
+//           </CardHeader>
+//           <CardContent>
+//             <ul className="space-y-4">
+//               {absent.map((staff, idx) => (
+//                 <li
+//                   key={idx}
+//                   className="border rounded-lg p-4 flex justify-between items-center"
+//                 >
+//                   <div>
+//                     <p className="font-semibold">{staff.name}</p>
+//                     <p className="text-sm text-gray-500">
+//                       {staff.id} · {staff.dept}
+//                     </p>
+//                   </div>
+
+//                   <Button variant="secondary" className="bg-gray-200">
+//                     Absent
+//                   </Button>
+//                 </li>
+//               ))}
+//             </ul>
+//           </CardContent>
+//         </Card> */}
+//           <div className="flex items-center justify-between py-4">
+//             <div className="text-sm">
+//               Showing {pageIndex * pageSize + 1}–
+//               {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
+//               results
+//             </div>
+
+//             <div className="space-x-2 flex items-center">
+//               <Button
+//                 variant="outline"
+//                 size="sm"
+//                 onClick={() => setPage(page - 1)}
+//                 disabled={page <= 1}
+//               >
+//                 Previous
+//               </Button>
+
+//               <div className="flex items-center gap-1 text-sm">
+//                 <span>Page</span>
+//                 <select
+//                   value={page}
+//                   onChange={(e) => setPage(Number(e.target.value))}
+//                   className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+//                 >
+//                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+//                     (p) => (
+//                       <option key={p} value={p}>
+//                         {p}
+//                       </option>
+//                     )
+//                   )}
+//                 </select>
+//                 <span>of {totalPages}</span>
+//               </div>
+
+//               <Button
+//                 variant="outline"
+//                 size="sm"
+//                 onClick={() => setPage(page + 1)}
+//                 disabled={page >= totalPages}
+//               >
+//                 Next
+//               </Button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//       {isCheckInOpen && (
+//         <Dialog open={isCheckInOpen} onOpenChange={setIsCheckInOpen}>
+//           <DialogContent>
+//             <DialogHeader>
+//               <DialogTitle>Check In</DialogTitle>
+//             </DialogHeader>
+
+//             <div className="space-y-4">
+//               <div>
+//                 <Label>Date</Label>
+//                 <Input
+//                   type="date"
+//                   value={checkInDate}
+//                   onChange={(e) => setCheckInDate(e.target.value)}
+//                 />
+//               </div>
+
+//               <div>
+//                 <Label>Time</Label>
+//                 <Input
+//                   type="time"
+//                   value={checkInTime.slice(0, 5)}
+//                   onChange={(e) => setCheckInTime(`${e.target.value}:00`)}
+//                 />
+//               </div>
+
+//               <div className="flex justify-end gap-2">
+//                 <Button
+//                   variant="outline"
+//                   onClick={() => setIsCheckInOpen(false)}
+//                 >
+//                   Cancel
+//                 </Button>
+//                 <Button onClick={handleCheckIn} disabled={isCheckingIn}>
+//                   Confirm Check In
+//                 </Button>
+//               </div>
+//             </div>
+//           </DialogContent>
+//         </Dialog>
+//       )}
+//       {isCheckOutOpen && (
+//         <Dialog open={isCheckOutOpen} onOpenChange={setIsCheckOutOpen}>
+//           <DialogContent>
+//             <DialogHeader>
+//               <DialogTitle>Check In</DialogTitle>
+//             </DialogHeader>
+
+//             <div className="space-y-4">
+//               <div>
+//                 <Label>Date</Label>
+//                 <Input
+//                   type="date"
+//                   value={checkOutDate}
+//                   onChange={(e) => setCheckOutDate(e.target.value)}
+//                 />
+//               </div>
+
+//               <div>
+//                 <Label>Time</Label>
+//                 <Input
+//                   type="time"
+//                   value={checkOutTime.slice(0, 5)}
+//                   onChange={(e) => setCheckOutTime(`${e.target.value}:00`)}
+//                 />
+//               </div>
+
+//               <div className="flex justify-end gap-2">
+//                 <Button
+//                   variant="outline"
+//                   onClick={() => setIsCheckOutOpen(false)}
+//                 >
+//                   Cancel
+//                 </Button>
+//                 <Button onClick={handleCheckOut} disabled={isCheckingOut}>
+//                   Confirm Check Out
+//                 </Button>
+//               </div>
+//             </div>
+//           </DialogContent>
+//         </Dialog>
+//       )}
+//     </>
+//   );
+// }
