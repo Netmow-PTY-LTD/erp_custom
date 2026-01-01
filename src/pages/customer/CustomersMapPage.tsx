@@ -76,7 +76,7 @@ const CustomersMapPage: React.FC = () => {
                 center={center}
                 zoom={6}
                 scrollWheelZoom={true}
-                className="w-full h-[600px] rounded-lg shadow"
+                className="w-full h-[600px] z-0 rounded-lg shadow"
             >
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
