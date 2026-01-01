@@ -5,7 +5,10 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
-import { useGetAllAttendanceQuery, useCheckInMutation } from "@/store/features/attendence/attendenceApiService";
+import {
+  useGetAllAttendanceQuery,
+  useCheckInMutation,
+} from "@/store/features/attendence/attendenceApiService";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { Staff } from "@/types/staff.types";
@@ -36,13 +39,22 @@ export default function AttendancePage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data: staffsData } = useGetAllStaffsQuery({ page, limit, search: "" });
-  const { data: attendanceData } = useGetAllAttendanceQuery({ page, limit, search: "" });
+  const { data: staffsData } = useGetAllStaffsQuery({
+    page,
+    limit,
+    search: "",
+  });
+  const { data: attendanceData } = useGetAllAttendanceQuery({
+    page,
+    limit,
+    search: "",
+  });
 
   const [checkInMutation, { isLoading: isCheckingIn }] = useCheckInMutation();
 
-const staffsList: Staff[] = (staffsData?.data as Staff[]) ?? [];
-const attendances: Attendance[] = (attendanceData?.data as Attendance[]) ?? [];
+  const staffsList: Staff[] = (staffsData?.data as Staff[]) ?? [];
+  const attendances: Attendance[] =
+    (attendanceData?.data as Attendance[]) ?? [];
 
   const totalCount = staffsData?.pagination?.total || 0;
   const totalPages = staffsData?.pagination?.totalPage || 1;
@@ -62,31 +74,39 @@ const attendances: Attendance[] = (attendanceData?.data as Attendance[]) ?? [];
   const handleConfirmAttendance = async () => {
     if (!currentStaff) return;
 
+    const payload = {
+      date: format(selectedDate, "yyyy-MM-dd"),
+      start_at: startTime + ":00",
+      end_at: endTime + ":00",
+      total_hour:
+        (Number(endTime.split(":")[0]) - Number(startTime.split(":")[0])) / 8,
+    };
+
+    console.log("Attendance Payload:", payload);
+
     try {
-      await checkInMutation({
+      const res = await checkInMutation({
         staff_id: currentStaff.id,
-        date: format(selectedDate, "yyyy-MM-dd"),
-        check_in: startTime + ":00",
-        check_out: endTime + ":00",
-        status: "present",
+        data: payload,
       }).unwrap();
 
-      toast.success(`${currentStaff.first_name} attendance logged successfully`);
-      setModalOpen(false);
+      if (res) {
+        toast.success("Attendance recorded successfully");
+        setModalOpen(false);
+      }
     } catch (err: any) {
       toast.error(err?.data?.message || "Attendance logging failed");
     }
   };
 
-const getStaffAttendance = (staffId: string) => {
-  if (!selectedDate) return undefined; // avoid formatting undefined
-  return attendances?.find(
-    (att) =>
-      String(att.staff_id) === staffId && // convert number to string
-      att.date === format(selectedDate, "yyyy-MM-dd")
-  );
-};
-
+  const getStaffAttendance = (staffId: string) => {
+    if (!selectedDate) return undefined; // avoid formatting undefined
+    return attendances?.find(
+      (att) =>
+        String(att.staff_id) === staffId && // convert number to string
+        att.date === format(selectedDate, "yyyy-MM-dd")
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -99,9 +119,7 @@ const getStaffAttendance = (staffId: string) => {
         {/* Date picker from header */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              {format(selectedDate, "PPP")}
-            </Button>
+            <Button variant="outline">{format(selectedDate, "PPP")}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="p-2 w-auto">
             <Calendar
@@ -176,7 +194,8 @@ const getStaffAttendance = (staffId: string) => {
       {/* Pagination */}
       <div className="flex items-center justify-between py-2">
         <p className="text-sm">
-          Showing {(page - 1) * limit + 1}–{Math.min(page * limit, totalCount)} of {totalCount} results
+          Showing {(page - 1) * limit + 1}–{Math.min(page * limit, totalCount)}{" "}
+          of {totalCount} results
         </p>
 
         <div className="flex gap-2 items-center">
@@ -216,7 +235,8 @@ const getStaffAttendance = (staffId: string) => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                Log Attendance - {currentStaff?.first_name} {currentStaff?.last_name}
+                Log Attendance - {currentStaff?.first_name}{" "}
+                {currentStaff?.last_name}
               </DialogTitle>
             </DialogHeader>
 
@@ -242,7 +262,10 @@ const getStaffAttendance = (staffId: string) => {
                 <Button variant="outline" onClick={() => setModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleConfirmAttendance} disabled={isCheckingIn}>
+                <Button
+                  onClick={handleConfirmAttendance}
+                  disabled={isCheckingIn}
+                >
                   Save
                 </Button>
               </div>
@@ -253,25 +276,6 @@ const getStaffAttendance = (staffId: string) => {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //   ---------------------------------- previous code base ----------------
 
