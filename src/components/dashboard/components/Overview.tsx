@@ -36,7 +36,10 @@ export function Overview() {
 
         {/* 👇 Tooltip */}
         <Tooltip
-          formatter={(value: number) => [`${currency} ${value ?? 0}`, "Total"]}
+          formatter={(value) => {
+            const num = typeof value === "number" ? value : 0;
+            return [`${currency} ${num.toFixed(2)}`, "Total"];
+          }}
         />
 
         <Bar
