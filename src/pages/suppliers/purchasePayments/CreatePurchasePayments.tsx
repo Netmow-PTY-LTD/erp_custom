@@ -142,6 +142,19 @@ export default function CreatePurchasePayments() {
 
 
 
+
+
+  //  ------------  calculation variable of purchase order invoices ----
+
+  const subtotal = purchaseOrderDetails?.total_amount ?? 0;
+  const tax = purchaseOrderDetails?.tax_amount ?? 0;
+  const discount = purchaseOrderDetails?.discount_amount ?? 0;
+
+  const total = subtotal + tax - discount;
+  const paid = purchaseOrderDetails?.total_paid_amount ?? 0;
+  const balance = total - paid;
+
+
   return (
     <div className="w-full">
       {/* BACK BUTTON */}
@@ -179,7 +192,7 @@ export default function CreatePurchasePayments() {
                 />
 
                 {/* AMOUNT */}
-                <FormField
+                {/* <FormField
                   name="amount"
                   control={form.control}
                   render={({ field }) => (
@@ -199,7 +212,62 @@ export default function CreatePurchasePayments() {
                       <FormMessage />
                     </FormItem>
                   )}
+
+                /> */}
+
+
+                <FormField
+                  name="amount"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount ({currency})</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Enter amount"
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+
+                            if (raw === "") {
+                              form.clearErrors("amount");
+                              field.onChange("");
+                              return;
+                            }
+
+                            const value = Number(raw);
+                            if (isNaN(value)) return;
+
+                            if (purchaseOrderDetails) {
+                              const max =
+                                (purchaseOrderDetails.total_amount ?? 0) +
+                                (purchaseOrderDetails.tax_amount ?? 0) -
+                                (purchaseOrderDetails.discount_amount ?? 0) -
+                                (purchaseOrderDetails.total_paid_amount ?? 0);
+
+                              if (value > max) {
+                                form.setError("amount", {
+                                  type: "manual",
+                                  message: `Amount cannot exceed due (${currency} ${max.toFixed(2)})`,
+                                });
+                              } else {
+                                form.clearErrors("amount");
+                              }
+                            }
+
+                            field.onChange(raw); // store string, not number
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
+
+
+
 
 
                 {/* PAYMENT METHOD */}
@@ -260,7 +328,16 @@ export default function CreatePurchasePayments() {
               </div>
 
               <div className="flex gap-4">
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                <Button disabled={
+                  !watchPO ||
+                  !watchAmount ||
+                  (purchaseOrderDetails &&
+                    watchAmount >
+                    (purchaseOrderDetails.total_amount +
+                      purchaseOrderDetails.tax_amount -
+                      purchaseOrderDetails.discount_amount -
+                      purchaseOrderDetails.total_paid_amount))
+                } type="submit" className="bg-blue-600 hover:bg-blue-700">
                   Record Payment
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => form.reset()}>
@@ -272,6 +349,7 @@ export default function CreatePurchasePayments() {
         </div>
 
 
+
         {/* SUMMARY PANEL */}
         <div className="rounded-lg border p-6 bg-white space-y-4">
           <h2 className="text-lg font-semibold mb-4">Summary</h2>
@@ -279,21 +357,16 @@ export default function CreatePurchasePayments() {
           {/* PURCHASE ORDER SUMMARY */}
           <div className="space-y-1 text-sm">
             <h3 className="font-medium">Purchase Order Details</h3>
+
             {purchaseOrderDetails ? (
               <>
                 <p><strong>PO Number:</strong> {purchaseOrderDetails.po_number}</p>
-                <p><strong>Subtotal:</strong> {currency} {purchaseOrderDetails.total_amount?.toFixed(2)}</p>
-                <p><strong>Tax:</strong> {currency} {(purchaseOrderDetails.tax_amount ?? 0).toFixed(2)}</p>
-                <p><strong>Discount:</strong> {currency} {(purchaseOrderDetails.discount_amount ?? 0).toFixed(2)}</p>
-                <p>
-                  <strong>Total:</strong>{" "}
-                  {currency} {((purchaseOrderDetails.total_amount ?? 0) + (purchaseOrderDetails.tax_amount ?? 0) - (purchaseOrderDetails.discount_amount ?? 0)).toFixed(2)}
-                </p>
-                <p><strong>Paid:</strong> {currency} {(purchaseOrderDetails.total_paid_amount ?? 0).toFixed(2)}</p>
-                <p>
-                  <strong>Balance:</strong>{" "}
-                  {currency} {(((purchaseOrderDetails.total_amount ?? 0) + (purchaseOrderDetails.tax_amount ?? 0) - (purchaseOrderDetails.discount_amount ?? 0)) - (purchaseOrderDetails.total_paid_amount ?? 0)).toFixed(2)}
-                </p>
+                <p><strong>Subtotal:</strong> {currency} {subtotal.toFixed(2)}</p>
+                <p><strong>Tax:</strong> {currency} {tax.toFixed(2)}</p>
+                <p><strong>Discount:</strong> {currency} {discount.toFixed(2)}</p>
+                <p><strong>Total:</strong> {currency} {total.toFixed(2)}</p>
+                <p><strong>Paid:</strong> {currency} {paid.toFixed(2)}</p>
+                <p><strong>Balance:</strong> {currency} {balance.toFixed(2)}</p>
               </>
             ) : (
               <p>No Purchase Order Selected</p>
@@ -303,10 +376,12 @@ export default function CreatePurchasePayments() {
           {/* PAYMENT SUMMARY */}
           <div className="space-y-1 text-sm mt-4">
             <h3 className="font-medium">Payment Details</h3>
+
             <p>
               <strong>Amount:</strong>{" "}
               {watchAmount ? `${currency} ${Number(watchAmount).toFixed(2)}` : "Not Entered"}
             </p>
+
             <p>
               <strong>Method:</strong>{" "}
               {watchMethod
@@ -315,6 +390,7 @@ export default function CreatePurchasePayments() {
             </p>
           </div>
         </div>
+
 
       </div>
     </div>
