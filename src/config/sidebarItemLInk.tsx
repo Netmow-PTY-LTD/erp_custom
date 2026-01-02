@@ -121,12 +121,7 @@ import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
 import RouteDetails from "@/pages/salesOrders/salesRoutes/RouteDetails";
 import LeaveRequest from "@/pages/staffs/leaves/LeaveRequest";
-
-
-
-
-
-
+import AttendanceDetailsPage from "@/pages/staffs/attendance/attendanceDetails";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -135,7 +130,10 @@ export const sidebarItemLink = [
     url: "/dashboard",
     icon: LayoutDashboard,
     element: <Dashboard />,
-    allowedPermissions: [DashboardPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      DashboardPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
   },
 
   // PRODUCTS
@@ -143,54 +141,78 @@ export const sidebarItemLink = [
     title: "Products",
     url: "#",
     icon: Package,
-    allowedPermissions: [ProductPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      ProductPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "Products",
         url: "/dashboard/products",
         element: <Products />,
         icon: List, // product list
-        allowedPermissions: [ProductPermission.LIST, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ProductPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/products/:productId",
         element: <ProductDetailsPage />,
-        allowedPermissions: [ProductPermission.DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ProductPermission.DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Add Product",
         url: "/dashboard/products/create",
         element: <CreateProduct />,
         icon: PlusCircle, // add product
-        allowedPermissions: [ProductPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ProductPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/products/:productId/edit",
         element: <EditProductPage />,
-        allowedPermissions: [ProductPermission.EDIT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ProductPermission.EDIT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Categories",
         url: "/dashboard/products/categories",
         element: <ProductCategories />,
         icon: Layers, // categories/groups
-        allowedPermissions: [ProductPermission.VIEW_CATEGORIES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ProductPermission.VIEW_CATEGORIES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Unit",
         url: "/dashboard/products/unit",
         element: <UnitsPage />,
         icon: Ruler, // unit/measurement
-        allowedPermissions: [ProductPermission.VIEW_UNITS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ProductPermission.VIEW_UNITS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Stock Management",
         url: "/dashboard/products/stock",
         element: <StockManagement />,
         icon: Boxes, // inventory/stock
-        allowedPermissions: [ProductPermission.MANAGE_STOCK, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ProductPermission.MANAGE_STOCK,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -200,52 +222,76 @@ export const sidebarItemLink = [
     title: "Customers",
     url: "#",
     icon: Users,
-    allowedPermissions: [CustomerPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      CustomerPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "List of Customers",
         url: "/dashboard/customers",
         element: <Customers />,
         icon: List,
-        allowedPermissions: [CustomerPermission.LIST, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          CustomerPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/customers/:customerId",
         element: <CustomerViewPage />,
-        allowedPermissions: [CustomerPermission.DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          CustomerPermission.DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Add Customer",
         url: "/dashboard/customers/create",
         element: <AddCustomer />,
         icon: UserPlus,
-        allowedPermissions: [CustomerPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          CustomerPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/customers/:customerId/edit",
         element: <EditCustomerPage />,
-        allowedPermissions: [CustomerPermission.EDIT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          CustomerPermission.EDIT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/customers/sales-routes/:routeId",
         element: <RouteDetails />,
-        allowedPermissions: [CustomerPermission.VIEW_ROUTE_DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          CustomerPermission.VIEW_ROUTE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/customers/sales-routes/:routeId/assign",
         element: <AssignRoutePage />,
-        allowedPermissions: [CustomerPermission.ASSIGN_ROUTE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          CustomerPermission.ASSIGN_ROUTE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Customer Maps",
         url: "/dashboard/customers/map",
         element: <CustomersMapPage />,
         icon: Map, // map view
-        allowedPermissions: [CustomerPermission.VIEW_MAP, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          CustomerPermission.VIEW_MAP,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -255,97 +301,142 @@ export const sidebarItemLink = [
     title: "Suppliers",
     url: "#",
     icon: Car,
-    allowedPermissions: [SupplierPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      SupplierPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "List of Suppliers",
         url: "/dashboard/suppliers",
         element: <SuppliersList />,
         icon: List,
-        allowedPermissions: [SupplierPermission.LIST, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Add Supplier",
         url: "/dashboard/suppliers/create",
         element: <AddSupplierPage />,
         icon: UserPlus,
-        allowedPermissions: [SupplierPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/suppliers/:supplierId/edit",
         element: <EditSupplierPage />,
-        allowedPermissions: [SupplierPermission.EDIT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.EDIT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Purchase Orders",
         url: "/dashboard/suppliers/purchase-orders",
         element: <PurchaseOrdersList />,
         icon: ShoppingBag,
-        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId",
         element: <ViewPurchaseOrderPage />,
-        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId/edit",
         element: <EditPurchaseOrderPage />,
-        allowedPermissions: [SupplierPermission.EDIT_PURCHASE_ORDER, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.EDIT_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
-        allowedPermissions: [SupplierPermission.CREATE_PURCHASE_ORDER, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Purchase Invoices",
         url: "/dashboard/purchase-invoices",
         element: <PurchaseInvoicesList />,
         icon: FileText,
-        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_INVOICES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/purchase-invoices/:id",
         element: <PurchaseInvoicesDetails />,
-        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_INVOICE_DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/purchase-invoices/:id/preview",
         element: <PurchaseInvoicePrintPreview />,
-        allowedPermissions: [SupplierPermission.PREVIEW_PURCHASE_INVOICE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.PREVIEW_PURCHASE_INVOICE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/purchase-payments/create",
         element: <CreatePurchasePayments />,
-        allowedPermissions: [SupplierPermission.CREATE_PURCHASE_PAYMENT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Purchase Payments",
         url: "/dashboard/purchase-payments",
         element: <PurchasePayments />,
         icon: CreditCard,
-        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_PAYMENTS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/purchase-payments/:id",
         element: <PurchasePaymentsDetails />,
-        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Purchase Orders Map",
         url: "/dashboard/purchase-orders-map",
         element: <PurchaseOrdersMapPage />,
         icon: MapPin,
-        allowedPermissions: [SupplierPermission.VIEW_PURCHASE_ORDERS_MAP, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_ORDERS_MAP,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -362,55 +453,86 @@ export const sidebarItemLink = [
         url: "/dashboard/staffs",
         element: <Staffs />,
         icon: List,
-        allowedPermissions: [StaffPermission.LIST, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          StaffPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/staffs/:staffId",
         element: <StaffDetails />,
-        allowedPermissions: [StaffPermission.DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          StaffPermission.DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/staffs/add",
         element: <AddStaffPage />,
-        allowedPermissions: [StaffPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          StaffPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/staffs/:staffId/edit",
         element: <EditStaff />,
-        allowedPermissions: [StaffPermission.EDIT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          StaffPermission.EDIT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Departments",
         url: "/dashboard/departments",
         element: <DepartmentsPage />,
         icon: Layers,
-        allowedPermissions: [StaffPermission.VIEW_DEPARTMENTS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          StaffPermission.VIEW_DEPARTMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Attendance",
         url: "/dashboard/staffs/attendance",
         element: <AttendancePage />,
         icon: CalendarCheck,
-        allowedPermissions: [StaffPermission.VIEW_ATTENDANCE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          StaffPermission.VIEW_ATTENDANCE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/staffs/attendance/:staffId",
+        element: <AttendanceDetailsPage />,
+        allowedPermissions: [
+          StaffPermission.VIEW_ATTENDANCE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Leave Management",
         url: "/dashboard/staffs/leaves",
         element: <LeavesManagement />,
         icon: FileMinus,
-        allowedPermissions: [StaffPermission.MANAGE_LEAVES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          StaffPermission.MANAGE_LEAVES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/staffs/leaves/request",
         element: <LeaveRequest />,
-        allowedPermissions: [StaffPermission.MANAGE_LEAVES, SuperAdminPermission.ACCESS_ALL],
-      }
-
-
+        allowedPermissions: [
+          StaffPermission.MANAGE_LEAVES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
     ],
   },
 
@@ -426,95 +548,140 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/orders",
         element: <Orders />,
         icon: List,
-        allowedPermissions: [SalesPermission.ORDERS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/orders/:orderId",
         element: <OrderDetails />,
-        allowedPermissions: [SalesPermission.ORDER_DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.ORDER_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/orders/create",
         element: <CreateOrderPage />,
-        allowedPermissions: [SalesPermission.CREATE_ORDER, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.CREATE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/orders/:orderId/edit",
         element: <EditOrderPage />,
-        allowedPermissions: [SalesPermission.EDIT_ORDER, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.EDIT_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Invoices",
         url: "/dashboard/sales/invoices",
         element: <Invoices />,
         icon: FileText,
-        allowedPermissions: [SalesPermission.INVOICES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/invoices/:invoiceId",
         element: <InvoiceDetailsPage />,
-        allowedPermissions: [SalesPermission.INVOICE_DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/invoices/:invoiceId/preview",
         element: <InvoicePrintPreview />,
-        allowedPermissions: [SalesPermission.INVOICE_PREVIEW, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Payments",
         url: "/dashboard/sales/payments",
         element: <Payments />,
         icon: CreditCard,
-        allowedPermissions: [SalesPermission.PAYMENTS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/payments/:paymentId",
         element: <PaymentDetails />,
-        allowedPermissions: [SalesPermission.PAYMENT_DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/payments/create",
         element: <CreatePaymentPage />,
-        allowedPermissions: [SalesPermission.CREATE_PAYMENT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.CREATE_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Delivery",
         url: "/dashboard/sales/delivery",
         element: <DeliveryPage />,
         icon: Truck,
-        allowedPermissions: [SalesPermission.DELIVERY, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.DELIVERY,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Sales Routes",
         url: "/dashboard/sales/sales-routes",
         element: <SalesRoutesPage />,
         icon: MapPin,
-        allowedPermissions: [SalesPermission.SALES_ROUTES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.SALES_ROUTES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/sales-routes/create",
         element: <CreateRoutePage />,
-        allowedPermissions: [SalesPermission.CREATE_ROUTE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.CREATE_ROUTE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/sales-routes/:id",
         element: <SalesRouteDetails />,
-        allowedPermissions: [SalesPermission.DETAILS_SALES_ROUTES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.DETAILS_SALES_ROUTES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/sales/sales-routes/:routeId/assign",
         element: <AssignRoutePage />,
-        allowedPermissions: [SalesPermission.ASSIGN_ROUTE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SalesPermission.ASSIGN_ROUTE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -524,56 +691,80 @@ export const sidebarItemLink = [
     title: "Accounting",
     url: "#",
     icon: HandCoins,
-    allowedPermissions: [AccountingPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      AccountingPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "Overview",
         url: "/dashboard/accounting",
         element: <AccountingOverview />,
         icon: PieChart,
-        allowedPermissions: [AccountingPermission.OVERVIEW, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          AccountingPermission.OVERVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Credit Heads",
         url: "/dashboard/accounting/credit-head",
         element: <CreditHead />,
         icon: CreditCard,
-        allowedPermissions: [AccountingPermission.VIEW_CREDIT_HEADS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          AccountingPermission.VIEW_CREDIT_HEADS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Debit Heads",
         url: "/dashboard/accounting/debit-head",
         element: <DebitHead />,
         icon: FileMinus,
-        allowedPermissions: [AccountingPermission.VIEW_DEBIT_HEADS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          AccountingPermission.VIEW_DEBIT_HEADS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Incomes",
         url: "/dashboard/accounting/incomes",
         element: <IncomePage />,
         icon: DollarSignIcon,
-        allowedPermissions: [AccountingPermission.INCOMES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          AccountingPermission.INCOMES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Expenses",
         url: "/dashboard/accounting/expenses",
         element: <Expenses />,
         icon: BanknoteArrowDown,
-        allowedPermissions: [AccountingPermission.EXPENSES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          AccountingPermission.EXPENSES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/accounting/add-income",
         element: <AddIncomePage />,
         icon: PlusCircle,
-        allowedPermissions: [AccountingPermission.CREATE_INCOME, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          AccountingPermission.CREATE_INCOME,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/accounting/add-expanse",
         element: <AddExpensePage />,
         icon: PlusCircle,
-        allowedPermissions: [AccountingPermission.CREATE_EXPENSE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          AccountingPermission.CREATE_EXPENSE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -590,26 +781,38 @@ export const sidebarItemLink = [
         url: "/dashboard/users/list",
         element: <UsersList />,
         icon: List,
-        allowedPermissions: [UserPermission.LIST, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          UserPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Add Users",
         url: "/dashboard/users/add",
         element: <AddUserPage />,
         icon: UserPlus,
-        allowedPermissions: [UserPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          UserPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/users/:userId/edit",
         element: <EditUserPage />,
-        allowedPermissions: [UserPermission.EDIT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          UserPermission.EDIT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "",
         url: "/dashboard/users/:userId",
         element: <UserDetails />,
-        allowedPermissions: [UserPermission.DETAILS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          UserPermission.DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -619,14 +822,20 @@ export const sidebarItemLink = [
     title: "Roles & Permissions",
     url: "#",
     icon: ShieldCheck,
-    allowedPermissions: [RolePermission.VIEW_ROLES_PERMISSIONS, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      RolePermission.VIEW_ROLES_PERMISSIONS,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "Roles",
         url: "/dashboard/roles",
         element: <Roles />,
         icon: Users,
-        allowedPermissions: [RolePermission.VIEW_ROLES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          RolePermission.VIEW_ROLES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       // {
       //   title: "Permissions",
@@ -638,7 +847,10 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/permissions/:roleId/edit",
         element: <PermissionsPage />,
-        allowedPermissions: [RolePermission.EDIT_ROLES_PERMISSIONS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          RolePermission.EDIT_ROLES_PERMISSIONS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -649,19 +861,28 @@ export const sidebarItemLink = [
     url: "/dashboard/settings",
     icon: Settings,
     layout: <SettingsSidebarLayout />,
-    allowedPermissions: [SettingsPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      SettingsPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "Profile",
         url: "/dashboard/settings/profile",
         element: <UserProfilePage />,
-        allowedPermissions: [SettingsPermission.PROFILE, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SettingsPermission.PROFILE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Account",
         url: "/dashboard/settings/account",
         element: <AccountSettings />,
-        allowedPermissions: [SettingsPermission.ACCOUNT, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          SettingsPermission.ACCOUNT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -671,53 +892,54 @@ export const sidebarItemLink = [
     title: "Reports",
     url: "#",
     icon: LineChart,
-    allowedPermissions: [ReportPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      ReportPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "Sales Reports",
         url: "/dashboard/reports/sales",
         element: <SalesReportsPage />,
         icon: DollarSign,
-        allowedPermissions: [ReportPermission.SALES, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ReportPermission.SALES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Inventory Reports",
         url: "/dashboard/reports/inventory",
         element: <InventoryReports />,
         icon: Box,
-        allowedPermissions: [ReportPermission.INVENTORY, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ReportPermission.INVENTORY,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Customer Reports",
         url: "/dashboard/reports/customers",
         element: <CustomerReports />,
         icon: Users,
-        allowedPermissions: [ReportPermission.CUSTOMERS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ReportPermission.CUSTOMERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Staff Reports",
         url: "/dashboard/reports/staffs",
         element: <StaffReports />,
         icon: UserCheck,
-        allowedPermissions: [ReportPermission.STAFFS, SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          ReportPermission.STAFFS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
 ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // This is sample data. of old manual sidebar
 export const _sidebarItemLink = [
@@ -830,22 +1052,22 @@ export const _sidebarItemLink = [
       {
         title: "",
         url: "/dashboard/suppliers/:supplierId/edit",
-        element: <EditSupplierPage />
+        element: <EditSupplierPage />,
       },
       {
         title: "Purchase Orders",
         url: "/dashboard/suppliers/purchase-orders",
-        element: <PurchaseOrdersList />
+        element: <PurchaseOrdersList />,
       },
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId",
-        element: <ViewPurchaseOrderPage />
+        element: <ViewPurchaseOrderPage />,
       },
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId/edit",
-        element: <EditPurchaseOrderPage />
+        element: <EditPurchaseOrderPage />,
       },
       {
         title: "",
@@ -890,8 +1112,6 @@ export const _sidebarItemLink = [
         url: "/dashboard/purchase-orders-map",
         element: <PurchaseOrdersMapPage />,
       },
-
-
     ],
   },
   {
@@ -923,6 +1143,11 @@ export const _sidebarItemLink = [
         title: "Departments",
         url: "/dashboard/departments",
         element: <DepartmentsPage />,
+      },
+      {
+        title: "Attendance",
+        url: "/dashboard/staffs/attendance",
+        element: <AttendancePage />,
       },
       {
         title: "Attendance",
@@ -1090,20 +1315,19 @@ export const _sidebarItemLink = [
         title: "Add Users",
         url: "/dashboard/users/add",
         icon: UserPlus,
-        element: <AddUserPage />
+        element: <AddUserPage />,
       },
       {
         title: "",
         url: "/dashboard/users/:userId/edit",
         icon: Pencil,
-        element: <EditUserPage />
+        element: <EditUserPage />,
       },
       {
         title: "",
         url: "/dashboard/users/:userId",
-        element: <UserDetails />
+        element: <UserDetails />,
       },
-
     ],
   },
   {
@@ -1135,15 +1359,14 @@ export const _sidebarItemLink = [
         title: "Profile",
         url: "/dashboard/settings/profile",
         icon: UserPlus,
-        element: <UserProfilePage />
+        element: <UserProfilePage />,
       },
       {
         title: "Account",
         url: "/dashboard/settings/account",
         icon: Wrench,
-        element: <AccountSettings />
+        element: <AccountSettings />,
       },
-
     ],
   },
   {
@@ -1154,35 +1377,25 @@ export const _sidebarItemLink = [
       {
         title: "Sales Reports",
         url: "/dashboard/reports/sales",
-        element: <SalesReportsPage />
+        element: <SalesReportsPage />,
       },
       {
         title: "Inventory Reports",
         url: "/dashboard/reports/inventory",
-        element: <InventoryReports />
+        element: <InventoryReports />,
       },
 
       {
         title: "Customer Reports",
         url: "/dashboard/reports/customers",
-        element: <CustomerReports />
+        element: <CustomerReports />,
       },
 
       {
         title: "Staff Reports",
         url: "/dashboard/reports/staffs",
-        element: <StaffReports />
+        element: <StaffReports />,
       },
-
     ],
   },
 ];
-
-
-
-
-
-
-
-
-
