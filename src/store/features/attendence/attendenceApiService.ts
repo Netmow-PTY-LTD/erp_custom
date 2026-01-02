@@ -106,6 +106,21 @@ export const attendanceApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Attendance"],
     }),
+
+    staffWiseFullDayLeaveApplication: builder.mutation<any, { staff_id: number; body: any }>({
+      query: ({ staff_id, body }) => ({
+        url: `/attendance/staff/${staff_id}/leave/full-day`,
+        method: "POST",
+        body,
+      }),
+    }),
+    staffWiseShortLeaveApplication: builder.mutation<any, { staff_id: number; body: any }>({
+      query: ({ staff_id, body }) => ({
+        url: `/attendance/staff/${staff_id}/leave/short`,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -117,4 +132,6 @@ export const {
   useGetStaffAttendanceByIdQuery,
   useUpdateAttendanceMutation,
   useDeleteAttendanceMutation,
+  useStaffWiseFullDayLeaveApplicationMutation,
+  useStaffWiseShortLeaveApplicationMutation,
 } = attendanceApiService;
