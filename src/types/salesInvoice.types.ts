@@ -4,6 +4,8 @@ import type { Payment } from "./types";
 
 
 export interface SalesInvoice {
+  paid_amount: number;
+  remaining_balance: number;
   id: number;
   invoice_number: string;
   order_id: number;
