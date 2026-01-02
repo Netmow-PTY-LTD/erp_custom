@@ -54,8 +54,6 @@ export default function UnitsPage() {
       }
 
       // Proceed with delete logic if permission exists
-      handleDeleteUnit(unitId);
-
       toast("Are you sure you want to delete this unit?", {
         action: {
           label: "Delete",
