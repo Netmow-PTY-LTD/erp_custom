@@ -4,5 +4,6 @@ export type Attendance = {
   date: string;       // "2025-12-02"
   check_in: string;   // "09:00:00"
   check_out: string;  // "18:00:00"
+  notes: string;
   status: "present" | "absent" | "late" | "leave" | string;
 };
