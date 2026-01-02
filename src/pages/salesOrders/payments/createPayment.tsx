@@ -101,7 +101,7 @@ export default function CreatePaymentPage() {
             {selected ? selected.name : "Select Customer..."}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0 shadow-md rounded-lg bg-white z-[1000]">
+        <PopoverContent className="w-[300px] p-0 shadow-md rounded-lg bg-white z-1000">
           <Command>
             <CommandInput
               placeholder="Search customers..."
@@ -251,6 +251,9 @@ export default function CreatePaymentPage() {
   const allInvoices = Array.isArray(invoiceData?.data) ? invoiceData?.data : [];
   const invoice = allInvoices?.find((inv) => inv.id === watchInvoice);
 
+
+  
+
   console.log("INVOICE:", invoice);
 
   async function onSubmit(values: PaymentFormValues) {
@@ -288,6 +291,16 @@ export default function CreatePaymentPage() {
       toast.error(err?.data?.message || "Error Adding Payment");
     }
   }
+
+
+
+const isAmountInvalid =
+  !invoice ||
+  !watchAmount ||
+  isNaN(Number(watchAmount)) ||
+  Number(watchAmount) <= 0 ||
+  Number(watchAmount) > Number(invoice?.remaining_balance ?? 0);
+
 
   return (
     <div className="w-full">
@@ -347,7 +360,7 @@ export default function CreatePaymentPage() {
                 />
 
                 {/* AMOUNT */}
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="amount"
                   render={({ field }) => (
@@ -367,8 +380,66 @@ export default function CreatePaymentPage() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
+              <FormField
+  name="amount"
+  control={form.control}
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>
+        Amount ({currency}) <span className="text-red-500">*</span>
+      </FormLabel>
 
+      <FormControl>
+        <Input
+          type="number"
+          step="0.01"
+          placeholder="Enter amount"
+          value={field.value ?? ""}
+          onChange={(e) => {
+            const raw = e.target.value;
+
+            // Allow clearing input
+            if (raw === "") {
+              form.clearErrors("amount");
+              field.onChange("");
+              return;
+            }
+
+            const value = Number(raw);
+            if (isNaN(value)) return;
+
+            if (invoice) {
+              const max = Number(
+                invoice.remaining_balance ??
+                  (Number(invoice.total_payable || 0) -
+                    Number(invoice.paid_amount || 0))
+              );
+
+              if (value > max) {
+                form.setError("amount", {
+                  type: "manual",
+                  message: `Amount cannot exceed remaining balance (${currency} ${max.toFixed(
+                    2
+                  )})`,
+                });
+              } else {
+                form.clearErrors("amount");
+              }
+            }
+
+            // Keep string for RHF (important!)
+            field.onChange(raw);
+          }}
+        />
+      </FormControl>
+
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+                
                 {/* METHOD */}
                 <FormField
                   control={form.control}
@@ -463,7 +534,7 @@ export default function CreatePaymentPage() {
 
               {/* BUTTONS */}
               <div className="flex items-center gap-4">
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                <Button disabled={isAmountInvalid} type="submit" className="bg-blue-600 hover:bg-blue-700">
                   Record Payment
                 </Button>
                 <Button type="button" variant="secondary">
@@ -563,3 +634,10 @@ export default function CreatePaymentPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
