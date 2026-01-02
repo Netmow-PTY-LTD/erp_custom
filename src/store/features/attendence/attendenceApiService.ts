@@ -8,6 +8,18 @@ type AttendanceResponse = {
   data: Attendance | Attendance[];
 };
 
+type StaffAttendanceResponse = {
+  status: boolean;
+  message: string;
+  data: Attendance[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPage: number;
+  };
+};
+
 export const attendanceApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // CHECK-IN
@@ -51,6 +63,28 @@ export const attendanceApiService = baseApi.injectEndpoints({
       providesTags: ["Attendance"],
     }),
 
+    // GET SINGLE ATTENDANCE BY ID
+    getStaffAttendanceById: builder.query<
+      StaffAttendanceResponse,
+      {
+        staffId: number;
+        page?: number;
+        limit?: number;
+        search?: string;
+      }
+    >({
+      query: ({ staffId, page = 1, limit = 10, search = "" }) => ({
+        url: `/attendance/staff/${staffId}`,
+        method: "GET",
+        params: {
+          page,
+          limit,
+          search,
+        },
+      }),
+      providesTags: ["Attendance"],
+    }),
+
     // UPDATE ATTENDANCE
     updateAttendance: builder.mutation<
       AttendanceResponse,
@@ -80,6 +114,7 @@ export const {
   useCheckOutMutation,
   useGetAllAttendanceQuery,
   useGetAttendanceByIdQuery,
+  useGetStaffAttendanceByIdQuery,
   useUpdateAttendanceMutation,
   useDeleteAttendanceMutation,
 } = attendanceApiService;
