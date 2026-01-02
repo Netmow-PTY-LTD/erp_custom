@@ -31,6 +31,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Link } from "react-router";
 import { CalendarPlus } from "lucide-react";
 import LeaveRequestModal from "../leaves/LeaveRequestModal";
+import ShortLeaveRequestModal from "../leaves/ShortLeaveModal";
 
 export default function AttendancePage() {
   const today = new Date();
@@ -38,6 +39,7 @@ export default function AttendancePage() {
   const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [leaveRequestModalOpen, setLeaveRequestModalOpen] = useState(false);
+  const [shortLeaveRequestModalOpen, setShortLeaveRequestModalOpen] = useState(false);
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("18:00");
   const [page, setPage] = useState(1);
@@ -74,6 +76,8 @@ export default function AttendancePage() {
     setStartTime("09:00");
     setEndTime("18:00");
   };
+
+  console.log("Current Staff:", currentStaff?.id);
 
   const handleConfirmAttendance = async () => {
     if (!currentStaff) return;
@@ -179,21 +183,35 @@ export default function AttendancePage() {
                       )}
                     </div>
 
-                    <div className="flex gap-2 mt-3 md:mt-0">
+                    <div className="flex flex-wrap gap-2 mt-3 md:mt-0">
                       <Button
                         variant="outline"
                         className="flex items-center gap-2"
-                        onClick={() => setLeaveRequestModalOpen(true)}
+                        onClick={() => {
+                          setCurrentStaff(staff);
+                          setLeaveRequestModalOpen(true);
+                        }}
                       >
                         <CalendarPlus className="h-4 w-4 text-muted-foreground" />
-                        <span>Leave</span>
+                        <span>Full Day Leave</span>
+                      </Button>
+                       <Button
+                        variant="outline"
+                        className="flex items-center gap-2"
+                        onClick={() => {
+                          setCurrentStaff(staff);
+                          setShortLeaveRequestModalOpen(true);
+                        }}
+                      >
+                        <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+                        <span>Short Leave</span>
                       </Button>
                       {!attendance?.check_in && (
                         <Button
                           onClick={() => handleOpenModal(staff)}
                           disabled={isCheckingIn}
                         >
-                          Mark Arrival
+                          Mark Attendance
                         </Button>
                       )}
 
@@ -296,7 +314,8 @@ export default function AttendancePage() {
           </DialogContent>
         </Dialog>
       )}
-      <LeaveRequestModal modalOpen={leaveRequestModalOpen} setModalOpen={setLeaveRequestModalOpen} />
+      <LeaveRequestModal modalOpen={leaveRequestModalOpen} setModalOpen={setLeaveRequestModalOpen} staffId={Number(currentStaff?.id)} />
+      <ShortLeaveRequestModal modalOpen={shortLeaveRequestModalOpen} setModalOpen={setShortLeaveRequestModalOpen} staffId={Number(currentStaff?.id)} />
     </div>
   );
 }

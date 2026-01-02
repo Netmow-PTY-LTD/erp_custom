@@ -190,13 +190,13 @@ export default function Staffs() {
         const status = row.getValue("status") as string;
 
         const color =
-          status === "Active"
+          status.toLowerCase() === "active"
             ? "bg-green-600"
-            : status === "Inactive"
+            : status.toLowerCase() === "inactive"
             ? "bg-red-500"
             : "bg-gray-500";
 
-        return <Badge className={`${color} text-white`}>{status}</Badge>;
+        return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
       },
     },
 

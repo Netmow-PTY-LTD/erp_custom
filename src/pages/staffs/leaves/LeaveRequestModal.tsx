@@ -6,96 +6,75 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+//import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { useStaffWiseFullDayLeaveApplicationMutation } from "@/store/features/attendence/attendenceApiService";
 import { format } from "date-fns";
 import { CalendarIcon, CheckCircle2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function LeaveRequestModal({
   modalOpen,
   setModalOpen,
+  staffId,
 }: {
   modalOpen: boolean;
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  staffId: number;
 }) {
-  const [leaveType, setLeaveType] = useState("annual");
-  const [durationType, setDurationType] = useState("days"); // "days" or "hours"
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [reason, setReason] = useState("");
 
-  // States for short leave logic
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("11:00");
-  const [daysCount, setDaysCount] = useState("1");
+  const [fullDayLeaveRequest] = useStaffWiseFullDayLeaveApplicationMutation();
 
-  // Mock ERP Data
-  const leaveBalances = { annual: 14.5, sick: 8, personal: 5, unpaid: 99 };
-  const currentBalance = leaveBalances[leaveType as keyof typeof leaveBalances];
+  const handleFullDayLeaveSubmit = async () => {
+    const payload = {
+      staff_id: staffId, // Replace with actual staff ID
+      body: {
+        date: format(date || new Date(), "yyyy-MM-dd"),
+        reason,
+      },
+    };
 
-  // Logic to calculate deduction
-  const deduction = useMemo(() => {
-    if (durationType === "days") return parseFloat(daysCount) || 0;
+    console.log("Submitting Full Day Leave Request:", payload);
+    // Implement submission logic here
 
-    // Simple hourly calculation (adjust for your company policy)
-    const [startH, startM] = startTime.split(":").map(Number);
-    const [endH, endM] = endTime.split(":").map(Number);
-    const totalHours = endH + endM / 60 - (startH + startM / 60);
-    return totalHours > 0 ? parseFloat((totalHours / 8).toFixed(2)) : 0; // Assuming 8hr work day
-  }, [durationType, daysCount, startTime, endTime]);
+    try {
+      const res = await fullDayLeaveRequest(payload).unwrap();
+      console.log("Leave request successful:", res);
+      if (res) {
+        toast.success(res.message || "Leave request submitted successfully");
+        setModalOpen(false);
+      }
+      // Optionally show a success message to the user
+    } catch (err) {
+      console.error("Leave request failed:", err);
+      // Optionally show an error message to the user
+      const error = err as { data?: { message: string } };
+      toast.error(error?.data?.message || "Failed to submit leave request");
+    }
+  };
 
-  const remainingBalance = (currentBalance - deduction).toFixed(2);
   return (
     <Dialog open={modalOpen} onOpenChange={setModalOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-2xl">Leave Application</DialogTitle>
+          <DialogTitle className="text-2xl">
+            Full Day Leave Application
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-6 mt-5">
           <div className="space-y-5 w-full">
-            {/* Duration Type Toggle */}
-            <Tabs
-              defaultValue="days"
-              className="w-full"
-              onValueChange={setDurationType}
-            >
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="days">Full/Multi Day</TabsTrigger>
-                <TabsTrigger value="hours">Short Leave (Hourly)</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 sm:col-span-2">
-                <Label>Leave Type</Label>
-                <Select value={leaveType} onValueChange={setLeaveType}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="annual">Annual Leave</SelectItem>
-                    <SelectItem value="sick">Sick Leave</SelectItem>
-                    <SelectItem value="personal">Personal Leave</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
+            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
-                <Label>From</Label>
+                <Label>Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -103,29 +82,15 @@ export default function LeaveRequestModal({
                       className="w-full justify-start font-normal"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-                <div className="space-y-2">
-                <Label>To</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick date</span>}
+                      {date ? (
+                        date.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      ) : (
+                        <span>Select date</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -141,95 +106,38 @@ export default function LeaveRequestModal({
             </div>
 
             {/* Conditional Rendering based on Short Leave vs Day Leave */}
-            {durationType === "days" ? (
-              <div className="space-y-2">
-                <Label>Number of Days</Label>
-                <Input
-                  type="number"
-                  value={daysCount}
-                  onChange={(e) => setDaysCount(e.target.value)}
-                  step="0.5"
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                <div className="space-y-2">
-                  <Label className="text-xs uppercase text-slate-500">
-                    Start Time
-                  </Label>
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs uppercase text-slate-500">
-                    End Time
-                  </Label>
-                  <Input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
+            {/* <div className="space-y-2">
+              <Label>Number of Days</Label>
+              <Input
+                type="number"
+                value={daysCount}
+                onChange={(e) => setDaysCount(e.target.value)}
+                step="0.5"
+              />
+            </div> */}
 
             <div className="space-y-2">
               <Label>Reason</Label>
               <Textarea
                 placeholder="Explain the reason for leave..."
                 className="resize-none"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
               />
-            </div>
-
-            {/* Balance Logic Display */}
-            <div className="grid grid-cols-3 gap-2 py-3 border-y">
-              <div className="text-center">
-                <p className="text-[10px] uppercase text-slate-500">
-                  Available
-                </p>
-                <p className="text-lg font-bold text-slate-700">
-                  {currentBalance}d
-                </p>
-              </div>
-              <div className="text-center border-x border-slate-100">
-                <p className="text-[10px] uppercase text-slate-500">
-                  Deduction
-                </p>
-                <p className="text-lg font-bold text-amber-600">
-                  -{deduction}d
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-[10px] uppercase text-slate-500">
-                  Remaining
-                </p>
-                <p
-                  className={cn(
-                    "text-lg font-bold",
-                    Number(remainingBalance) < 0
-                      ? "text-red-600"
-                      : "text-emerald-600"
-                  )}
-                >
-                  {remainingBalance}d
-                </p>
-              </div>
             </div>
           </div>
 
-          <div className="flex justify-between">
-            <Button variant="outline">Save Draft</Button>
+          <div className="flex justify-between mt-4 gap-2">
+            {/* <Button variant="outline">Save Draft</Button> */}
+            <Button variant="outline" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
             <Button
               className="bg-indigo-600 hover:bg-indigo-700"
-              disabled={Number(remainingBalance) < 0}
+              onClick={handleFullDayLeaveSubmit}
             >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              {Number(remainingBalance) < 0
-                ? "Insufficient Balance"
-                : "Submit Request"}
+              <CheckCircle2 className="h-4 w-4" />
+              Submit Application
             </Button>
           </div>
         </div>
