@@ -176,7 +176,7 @@ export function DataTable<TData>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between py-4">
+      <div className="flex flex-wrap items-center justify-between py-4 gap-4">
         {/* Showing X–Y of Z */}
         <div className="text-sm">
           Showing {pageIndex * pageSize + 1}–

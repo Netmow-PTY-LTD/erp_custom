@@ -28,10 +28,10 @@ import {
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
-import { Link } from "react-router";
 import { CalendarPlus } from "lucide-react";
 import LeaveRequestModal from "../leaves/LeaveRequestModal";
 import ShortLeaveRequestModal from "../leaves/ShortLeaveModal";
+import AttendanceDetailsModal from "./AttendanceDetailsModal";
 
 export default function AttendancePage() {
   const today = new Date();
@@ -40,6 +40,7 @@ export default function AttendancePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [leaveRequestModalOpen, setLeaveRequestModalOpen] = useState(false);
   const [shortLeaveRequestModalOpen, setShortLeaveRequestModalOpen] = useState(false);
+  const [showAttendanceDetailsModal, setShowAttendanceDetailsModal] = useState(false);
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("18:00");
   const [page, setPage] = useState(1);
@@ -77,8 +78,6 @@ export default function AttendancePage() {
     setEndTime("18:00");
   };
 
-  console.log("Current Staff:", currentStaff?.id);
-
   const handleConfirmAttendance = async () => {
     if (!currentStaff) return;
 
@@ -90,7 +89,7 @@ export default function AttendancePage() {
         (Number(endTime.split(":")[0]) - Number(startTime.split(":")[0])) / 8,
     };
 
-    console.log("Attendance Payload:", payload);
+    //console.log("Attendance Payload:", payload);
 
     try {
       const res = await checkInMutation({
@@ -216,11 +215,12 @@ export default function AttendancePage() {
                       )}
 
                       {/* 👇 View button */}
-                      <Link to={`/dashboard/staffs/${staff.id}`}>
-                        <Button variant="outline">
+                        <Button variant="outline" onClick={() => {
+                          setCurrentStaff(staff);
+                          setShowAttendanceDetailsModal(true);
+                        }}>
                           View Attendances
                         </Button>
-                      </Link>
                     </div>
                   </li>
                 );
@@ -316,6 +316,7 @@ export default function AttendancePage() {
       )}
       <LeaveRequestModal modalOpen={leaveRequestModalOpen} setModalOpen={setLeaveRequestModalOpen} staffId={Number(currentStaff?.id)} />
       <ShortLeaveRequestModal modalOpen={shortLeaveRequestModalOpen} setModalOpen={setShortLeaveRequestModalOpen} staffId={Number(currentStaff?.id)} />
+      <AttendanceDetailsModal modalOpen={showAttendanceDetailsModal} setModalOpen={setShowAttendanceDetailsModal} staff={currentStaff} />
     </div>
   );
 }

@@ -395,7 +395,9 @@ export default function AddProductPage() {
                               <CommandEmpty>No units found.</CommandEmpty>
 
                               <CommandGroup>
-                                {fetchedUnits?.data?.map((unit) => (
+                                {fetchedUnits?.data?.map((unit) => {
+                                  if(!unit.is_active)return
+                                    return (
                                   <CommandItem
                                     key={unit.id}
                                     value={unit.name} // for built-in filtering
@@ -410,7 +412,8 @@ export default function AddProductPage() {
                                       <Check className="ml-auto h-4 w-4" />
                                     )}
                                   </CommandItem>
-                                ))}
+                                )
+                                })}
                               </CommandGroup>
                             </CommandList>
                           </Command>
