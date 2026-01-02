@@ -1,9 +1,8 @@
-
 export type Department = {
   id: number;
   name: string;
   description: string;
-}
+};
 
 export type Category = {
   id: number;
@@ -11,14 +10,14 @@ export type Category = {
   description?: string;
   parent_id?: number | null;
   is_active: boolean;
-}
+};
 
 export type Unit = {
   id: number;
   name: string;
   symbol: string;
   is_active: boolean;
-}
+};
 
 export type Product = {
   id: number;
@@ -27,9 +26,9 @@ export type Product = {
   description: string;
   category_id: number;
   unit_id: number;
-  price: number;            // API returns "1500.00" → string
+  price: number; // API returns "1500.00" → string
   cost: number;
-  initial_stock: number;          // API returns "1000.00" → string
+  initial_stock: number; // API returns "1000.00" → string
   stock_quantity: number;
   min_stock_level: number;
   max_stock_level: number;
@@ -44,9 +43,8 @@ export type Product = {
   gallery_items: string[];
   is_active: boolean;
   // Nested relationship
-  category: Category; 
+  category: Category;
   unit: Unit; // In case category is missing
- 
 };
 
 export type Stock = {
@@ -68,7 +66,6 @@ export type StockMovement = {
   created_at: string;
   updated_at: string;
 };
-
 
 export type Order = {
   id: number;
@@ -103,7 +100,7 @@ export type Payment = {
     id: number;
     name: string;
     email: string;
-  }
+  };
   created_at: string;
   updated_at: string;
 };
@@ -143,7 +140,6 @@ export type Payment = {
 //   status: "Paid" | "Sent" | "Draft";
 // };
 
-
 // // Payment type
 // export type Payment = {
 //   id: number;
@@ -156,10 +152,6 @@ export type Payment = {
 //   amount: number;
 //   reference: string;
 // };
-
-
-
-
 
 export type WarehouseOrder = {
   orderId: string;
@@ -178,19 +170,19 @@ export interface Staff {
   phone?: string;
   department: string | null;
   position: string;
-  status: "active" | "inactive" | "on_leave"; 
-  hire_date: string; 
+  status: "active" | "inactive" | "on_leave";
+  hire_date: string;
   salary: number;
   thumb_url?: string;
   gallery_items?: string[];
 }
 
 export type Settings = {
-    company_name: string;
-    email: string;
-    phone: string;
-    description: string;
-    address: string;
-    currency: string;
-    logo_url: string;
-}
+  company_name: string;
+  email: string;
+  phone: string;
+  description: string;
+  address: string;
+  currency: string;
+  logo_url: string;
+};
