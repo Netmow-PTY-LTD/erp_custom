@@ -10,7 +10,7 @@ export type TUserPath = {
     items?: TUserPath[];
     element?: React.ReactNode;
     layout?: React.ReactNode;
-    allowedPermissions:string[]
+    allowedPermissions?:string[]
 };
 
 export type TRoute = {
