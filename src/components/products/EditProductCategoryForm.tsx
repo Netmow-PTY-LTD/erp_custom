@@ -183,8 +183,10 @@ export default function EditProductCategoryForm({
                     <FormItem>
                       <FormLabel>Status</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        value={Boolean(field.value).toString()}
+                        // onValueChange={field.onChange}
+                        // value={Boolean(field.value).toString()}
+                        value={field.value === true ? "true" : "false"}
+                        onValueChange={(value) => field.onChange(value === "true")}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
