@@ -19,20 +19,15 @@ interface AttendanceRecord {
   date: string;
   check_in: string | null;
   check_out: string | null;
+  notes: string;
   status: "present" | "absent" | "late" | "leave" | string;
 }
 
-interface LeaveRequest {
+export type LeaveRequest = {
   date: string;
   type: string;
-  status: "Approved" | "Pending" | "Rejected";
-}
-
-const leaveRequests: LeaveRequest[] = [
-  { date: "2025-11-18", type: "Annual Leave", status: "Approved" },
-  { date: "2025-11-10", type: "Medical Leave", status: "Rejected" },
-  { date: "2025-11-05", type: "Emergency Leave", status: "Pending" },
-];
+  status: "approved" | "pending" | "rejected";
+};
 
 export default function StaffDetails() {
   const [page, setPage] = useState(1);
@@ -43,14 +38,30 @@ export default function StaffDetails() {
 
   const staff = data?.data;
 
-  const { data: attendanceByStaff, isFetching: isFetchingAttendance } = useGetStaffAttendanceByIdQuery({
-    staffId: Number(staffId),
-    page,
-    limit,
-    search,
-  });
+  const { data: attendanceByStaff, isFetching: isFetchingAttendance } =
+    useGetStaffAttendanceByIdQuery({
+      staffId: Number(staffId),
+      page,
+      limit,
+      search,
+    });
 
   const attendanceData: AttendanceRecord[] = attendanceByStaff?.data || [];
+
+  const leaveRequests: LeaveRequest[] = attendanceData
+  .filter((item) => item.status === "on_leave")
+  .map((item) => ({
+    date: item.date,
+    type: item.notes || "N/A",
+    status: "approved", // or "pending" based on backend logic
+  }));
+
+  const formatStatusLabel = (status: string) =>
+  status
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
 
   const attendanceColumns: ColumnDef<AttendanceRecord>[] = [
     {
@@ -76,16 +87,23 @@ export default function StaffDetails() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
+        const rawStatus = row.getValue("status") as string;
+        const status = rawStatus.toLowerCase();
+
         const color =
-          status.toLowerCase() === "present"
+          status === "present"
             ? "bg-green-600"
-            : status.toLowerCase() === "late"
-            ? "bg-yellow-600"
-            : status.toLowerCase() === "absent"
+            : status === "late"
             ? "bg-red-600"
+            : status === "absent"
+            ? "bg-red-600"
+            : status === "on_leave"
+            ? "bg-yellow-600"
+            : status === "half_day"
+            ? "bg-blue-600"
             : "bg-gray-500";
-        return <Badge className={`${color} text-white`}>{status}</Badge>;
+
+        return <Badge className={`${color} text-white`}>{formatStatusLabel(rawStatus)}</Badge>;
       },
     },
   ];
@@ -251,7 +269,7 @@ export default function StaffDetails() {
                 pageSize={limit}
                 onPageChange={(newPage) => setPage(newPage + 1)}
                 totalCount={attendanceByStaff?.pagination?.total}
-                onSearch={(val)=>{
+                onSearch={(val) => {
                   setSearch(val);
                   setPage(1);
                 }}
