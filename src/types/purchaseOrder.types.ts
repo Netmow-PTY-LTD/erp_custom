@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PurchaseInvoice } from "./PurchaseInvoice.types";
 import type { Supplier } from "./supplier.types";
 import type { Payment, Product } from "./types";
@@ -11,7 +12,7 @@ export interface POItem {
   product_id: number;
   quantity: number;
   unit_cost: number;
-  line_total: number;
+  line_total?: number;
   product: Product;
   discount: number;
   total_price: number;
@@ -46,7 +47,7 @@ export interface POItem {
 // }
 
 // ===== Purchase Order =====
-export type PurchaseOrderStatus = "draft" | "approved" | "rejected";
+export type PurchaseOrderStatus ="pending"| "draft" | "approved" | "rejected";
 export type PurchasePaymentStatus = "paid" | "unpaid" | "partial";
 
 export interface  PurchaseOrder {
@@ -69,15 +70,15 @@ export interface  PurchaseOrder {
   total_paid_amount: number;
   total_due_amount: number;
 
-  created_by: number;
-  created_at: string;
-  updated_at: string;
+  created_by?: number;
+  created_at?: string;
+  updated_at?: string;
 
   supplier: Supplier;
- items: POItem[]; 
-  invoice: PurchaseInvoice;
-  payments: Payment[];
-  creator: User;
+  items?: POItem[]|any; 
+  invoice?: PurchaseInvoice;
+  payments?: Payment[];
+  creator?: User;
 }
 
 
