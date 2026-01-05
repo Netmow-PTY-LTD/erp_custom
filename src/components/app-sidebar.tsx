@@ -1,30 +1,40 @@
 "use client";
 
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenuButton } from "./ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenuButton,
+} from "./ui/sidebar";
 import { NavMain } from "./nav-main";
 import { sidebarItemLink } from "@/config/sidebarItemLInk";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
-
-
-
-
+import { Loader } from "lucide-react";
 
 export function AppSidebar({ ...props }) {
-
-const { data: companyProfileSettings } = useGetSettingsInfoQuery(); 
-const logo = companyProfileSettings?.data?.logo_url;
-const companyName = companyProfileSettings?.data?.company_name;
+  const { data: companyProfileSettings } = useGetSettingsInfoQuery();
+  const logo = companyProfileSettings?.data?.logo_url;
+  const companyName = companyProfileSettings?.data?.company_name;
   // Dummy team data
   const activeTeam = {
     name: companyName || "Inleads IT",
     plan: "Free",
     logo: () => (
       <div className="flex items-center justify-center">
-        <img src={logo || "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"} alt={activeTeam.name} className="w-12 h-12 object-contain rounded-full" />
+        {logo ? (
+          <img
+            src={logo}
+            alt={companyProfileSettings?.data?.company_name || "Logo"}
+            className="w-12 h-12 object-contain rounded-full"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-20 h-20 bg-gray-200 text-gray-400 rounded-full">
+            <Loader className="w-4 h-4 animate-spin" />
+          </div>
+        )}
       </div>
     ),
   };
-
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -45,8 +55,6 @@ const companyName = companyProfileSettings?.data?.company_name;
       <SidebarContent>
         <NavMain items={sidebarItemLink ?? []} />
       </SidebarContent>
-
-
     </Sidebar>
   );
 }
