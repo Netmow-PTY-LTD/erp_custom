@@ -49,15 +49,15 @@ import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const productSchema = z.object({
-  sku: z.string().min(1, "SKU is required"),
-  name: z.string().min(1, "Product name is required"),
+  sku: z.string().min(1, "Required"),
+  name: z.string().min(1, "Required"),
   description: z.string().optional(),
-  category: z.number(),
-  unit: z.number(),
-  price: z.number(),
-  costPrice: z.number(),
+  category: z.number().min(1, "Required"),
+  unit: z.number().min(1, "Required"),
+  price: z.number().min(0, "Price must be at least 0"),
+  costPrice: z.number().min(0, "Cost Price must be at least 0"),
   initialStock: z.number(),
-  minStock: z.number(),
+  minStock: z.number().min(0, "Required"),
   maxStock: z.number(),
   purchase_tax: z.number(),
   sales_tax: z.number(),

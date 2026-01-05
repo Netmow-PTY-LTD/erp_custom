@@ -25,9 +25,9 @@ import React, { useState } from "react";
 
 // -------------------- ZOD SCHEMA --------------------
 const editUserSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Required"),
   email: z.email("Invalid email"),
-  role_id: z.number().min(1, "Role is required"),
+  role_id: z.number().min(1, "Required"),
 });
 
 type EditUserFormValues = z.infer<typeof editUserSchema>;

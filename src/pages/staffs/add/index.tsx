@@ -57,7 +57,7 @@ const StaffSchema = z.object({
   last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
-  department: z.number(),
+  department: z.number().min(1, "Required"),
   position: z.string().min(1, "Required"),
   hire_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Invalid date",

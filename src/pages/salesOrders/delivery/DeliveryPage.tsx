@@ -186,7 +186,7 @@ export default function DeliveryPage() {
           <div className="space-y-4 mt-2">
             <div>
               <label className="block font-semibold mb-1">Status</label>
-              <Select onValueChange={(v) => setStatus(v as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed")} defaultValue={status}>
+              <Select onValueChange={(v) => setStatus(v as "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed")} defaultValue={status??"pending"}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select Status" />
                 </SelectTrigger>
@@ -196,7 +196,7 @@ export default function DeliveryPage() {
                   <SelectItem value="delivered">Delivered</SelectItem>
                   <SelectItem value="failed">Failed</SelectItem>
                   <SelectItem value="returned">Returned</SelectItem>
-                  {/* <SelectItem value="confirmed">Confirmed</SelectItem> */}
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
                 </SelectContent>
 
               </Select>

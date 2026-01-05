@@ -38,7 +38,7 @@ const customerSchema = z.object({
   company: z.string().optional(),
   customer_type: z.enum(["individual", "business"]).default("individual"),
   tax_id: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
+  email: z.email("Invalid email").min(1, "Email is required"),
   phone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -50,7 +50,7 @@ const customerSchema = z.object({
   credit_limit: z.number().min(0, "Credit limit must be 0 or more").default(0),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),
-  salesRouteId: z.string().optional() // <-- string now
+  salesRouteId: z.string().min(1, "Sales Route is required"),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
