@@ -100,8 +100,8 @@ export default function EditCustomerPage() {
         state: customer.state || "",
         country: customer.country || "",
         postal_code: customer.postal_code || "",
-        latitude: customer.latitude,
-        longitude: customer.longitude,
+        latitude: customer.latitude ?? undefined,
+        longitude: customer.longitude ?? undefined,
         credit_limit: customer.credit_limit || 0,
         notes: customer.notes || "",
         is_active: customer.is_active,
@@ -324,6 +324,7 @@ export default function EditCustomerPage() {
                           e.target.value ? Number(e.target.value) : undefined
                         )
                       }
+
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
