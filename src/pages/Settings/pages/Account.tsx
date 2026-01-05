@@ -12,9 +12,9 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const accountSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    dob: z.string().min(1, "Date of birth is required"),
-    language: z.string().min(1, "Language is required"),
+    name: z.string().min(1, "Required"),
+    dob: z.string().min(1, "Required"),
+    language: z.string().min(1, "Required"),
 });
 
 type AccountFormValues = z.infer<typeof accountSchema>;

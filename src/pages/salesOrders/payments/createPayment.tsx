@@ -47,11 +47,11 @@ import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 
 const paymentSchema = z.object({
-  customer_id: z.number().min(1, "Customer is required"),
+  customer_id: z.number().min(1, "Required"),
   invoice_id: z.number().optional(),
   amount: z.any().refine((value) => Number(value)),
-  payment_method: z.string().min(1, "Payment method is required"),
-  date: z.string().min(1, "Payment date is required"),
+  payment_method: z.string().min(1, "Required"),
+  date: z.string().min(1, "Required"),
   reference: z.string().optional(),
   notes: z.string().optional(),
 });

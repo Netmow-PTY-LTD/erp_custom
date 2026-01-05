@@ -28,7 +28,7 @@ import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Required"),
   company: z.string().optional(),
   customer_type: z.enum(["individual", "business"]),
   tax_id: z.string().optional(),
