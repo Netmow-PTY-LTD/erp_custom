@@ -196,7 +196,7 @@ export default function DeliveryPage() {
                   <SelectItem value="delivered">Delivered</SelectItem>
                   <SelectItem value="failed">Failed</SelectItem>
                   <SelectItem value="returned">Returned</SelectItem>
-                  {/* <SelectItem value="confirmed">Confirmed</SelectItem> */}
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
                 </SelectContent>
 
               </Select>
