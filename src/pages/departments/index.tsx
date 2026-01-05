@@ -18,7 +18,7 @@ import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 
 export const DepartmentSchema = z.object({
   name: z.string().min(1, "Required"),
-  description: z.string().min(1, "Required"),
+  description: z.string().optional(),
 });
 
 export type DepartmentFormValues = z.infer<typeof DepartmentSchema>;
