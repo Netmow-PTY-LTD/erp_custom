@@ -22,10 +22,10 @@ import { useState } from "react";
 
 // -------------------- ZOD SCHEMA --------------------
 const userSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Required"),
   email: z.email("Invalid email"),
   password: z.string().min(4, "Password must be at least 4 characters"),
-  role_id: z.number().min(1, "Role is required"),
+  role_id: z.number().min(1, "Required"),
   // status: z.string().min(1, "Status is required"),
 });
 
