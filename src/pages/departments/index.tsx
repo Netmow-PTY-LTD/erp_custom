@@ -17,8 +17,8 @@ import { useAppSelector } from "@/store/store";
 import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 
 export const DepartmentSchema = z.object({
-  name: z.string().min(1, "Department name is required"),
-  description: z.string().min(1, "Description is required"),
+  name: z.string().min(1, "Required"),
+  description: z.string().min(1, "Required"),
 });
 
 export type DepartmentFormValues = z.infer<typeof DepartmentSchema>;

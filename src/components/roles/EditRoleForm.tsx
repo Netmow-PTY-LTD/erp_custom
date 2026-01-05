@@ -32,10 +32,10 @@ const statusOptions = [
 ];
 
 const roleSchema = z.object({
-  name: z.string().min(1, "Category name is required"),
-  displayName: z.string().min(1, "Display name is required"),
-  description: z.string().min(1, "Description is required"),
-  status: z.string().min(1, "Status is required"),
+  name: z.string().min(1, "Required"),
+  displayName: z.string().min(1, "Required"),
+  description: z.string().min(1, "Required"),
+  status: z.string().min(1, "Required"),
 });
 export default function EditRoleForm({
   open,

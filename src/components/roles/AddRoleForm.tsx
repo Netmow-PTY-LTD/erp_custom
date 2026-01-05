@@ -38,10 +38,10 @@ const statusOptions = [
 ];
 
 const roleSchema = z.object({
-  role: z.string().min(1, "Category name is required"),
-  display_name: z.string().min(1, "Display name is required"),
-  description: z.string().min(1, "Description is required"),
-  status: z.string().min(1, "Status is required"),
+  role: z.string().min(1, "Required"),
+  display_name: z.string().min(1, "Required"),
+  description: z.string().min(1, "Required"),
+  status: z.string().min(1, "Required"),
   permissions: z.array(z.string())
 
 });
