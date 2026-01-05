@@ -39,7 +39,7 @@ const statusOptions = [
 ];
 
 const categorySchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  name: z.string().min(1, "Required"),
   description: z.string().optional(),
   is_active: z.boolean().optional(),
 });

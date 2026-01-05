@@ -27,7 +27,7 @@ import { useAppSelector } from "@/store/store";
 import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 const unitSchema = z.object({
-  name: z.string().min(1, "Unit name is required"),
+  name: z.string().min(1, "Required"),
   symbol: z.string(),
   is_active: z.boolean().optional(),
 });

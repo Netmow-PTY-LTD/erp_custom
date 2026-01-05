@@ -24,7 +24,7 @@ import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Required"),
   code: z.string().optional(),
   email: z.email("Invalid email").optional(),
   phone: z.string().optional(),
@@ -35,9 +35,9 @@ const supplierSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   postal_code: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
+  country: z.string().min(1, "Required"),
   paymentTerms: z.string().optional(),
-  status: z.enum(["Active", "Inactive"], "Status is required"),
+  status: z.enum(["Active", "Inactive"], "Required"),
 });
 
 type SupplierFormValues = z.infer<typeof supplierSchema>;
