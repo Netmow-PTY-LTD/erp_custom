@@ -45,13 +45,13 @@ import { useAppSelector } from "@/store/store";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const incomeSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  income_date: z.string().min(1, "Date is required"),
-  credit_head_id: z.number().min(1, "Credit Head is required"),
+  title: z.string().min(1, "Required"),
+  income_date: z.string().min(1, "Required"),
+  credit_head_id: z.number().min(1, "Required"),
   description: z.string().optional(),
   //category: z.string().min(1, "Category is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
-  receivedVia: z.string().min(1, "Received Via is required"),
+  receivedVia: z.string().optional(),
   reference: z.string().optional(),
 });
 

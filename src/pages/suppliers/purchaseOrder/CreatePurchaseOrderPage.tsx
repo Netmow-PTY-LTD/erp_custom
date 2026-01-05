@@ -38,23 +38,41 @@ import { useGetAllProductsQuery } from "@/store/features/admin/productsApiServic
 import { useState } from "react";
 import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const orderSchema = z
+  .object({
+    supplierId: z.number().min(1, "Required"),
+    notes: z.string().min(1, "Required"),
+    order_date: z.string().min(1, "Required"),
+    expected_delivery_date: z.string().min(1, "Required"),
+    items: z.array(
+      z.object({
+        productId: z.number().min(1, "Product is required"),
+        quantity: z.number().min(1, "Quantity must be at least 1"),
+        unit_cost: z.number().min(1, "Unit price must be at least 1"),
+        discount: z.number().min(0, "Discount must be 0 or more"),
+        purchase_tax: z.number().min(0, "Purchase tax must be 0 or more"),
+      })
+    ),
+  })
+  .refine(
+    (data) => {
+      const orderDate = new Date(data.order_date);
+      const dueDate = new Date(data.expected_delivery_date);
+
+      return dueDate >= orderDate;
+    },
+    {
+      message: "Expected delivery date cannot be earlier than order date",
+      path: ["expected_delivery_date"], // 👈 error shows under Expected Delivery Date field
+    }
+  );
 
 /* ---------------- TYPES ---------------- */
-interface POItem {
-  productId: string;
-  quantity: number;
-  unit_cost: number;
-  discount: number;
-  purchase_tax: number;
-}
 
-interface PurchaseOrderFormValues {
-  supplierId: string;
-  order_date: string;
-  expected_delivery_date: string;
-  notes: string;
-  items: POItem[];
-}
+type PurchaseOrderFormValues = z.infer<typeof orderSchema>;
 
 /* ---------------------------------------- */
 
@@ -65,14 +83,15 @@ export default function CreatePurchaseOrderPage() {
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
 
   const form = useForm<PurchaseOrderFormValues>({
+    resolver: zodResolver(orderSchema),
     defaultValues: {
-      supplierId: "",
+      supplierId: 0,
       order_date: new Date().toISOString().split("T")[0],
       expected_delivery_date: "",
       notes: "",
       items: [
         {
-          productId: "",
+          productId: 0,
           quantity: 1,
           unit_cost: 0,
           discount: 0,
@@ -95,7 +114,7 @@ export default function CreatePurchaseOrderPage() {
   function SupplierSelectField({
     field,
   }: {
-    field: { value?: string; onChange: (v: string) => void };
+    field: { value?: number; onChange: (v: number) => void };
   }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -110,7 +129,7 @@ export default function CreatePurchaseOrderPage() {
     const list = Array.isArray(data?.data) ? data.data : [];
 
     const selected = list.find(
-      (s: Supplier) => String(s.id) === String(field.value)
+      (s: Supplier) => Number(s.id) === Number(field.value)
     );
 
     return (
@@ -143,7 +162,7 @@ export default function CreatePurchaseOrderPage() {
                     <CommandItem
                       key={supplier.id}
                       onSelect={() => {
-                        field.onChange(String(supplier.id));
+                        field.onChange(Number(supplier.id));
                         setOpen(false);
                       }}
                     >
@@ -231,7 +250,7 @@ export default function CreatePurchaseOrderPage() {
     index,
     setValue,
   }: {
-    field: { value?: string; onChange: (v: string) => void };
+    field: { value?: number; onChange: (v: number) => void };
     index: number;
     setValue: UseFormSetValue<PurchaseOrderFormValues>;
   }) {
@@ -246,11 +265,11 @@ export default function CreatePurchaseOrderPage() {
 
     const list = Array.isArray(data?.data) ? data.data : [];
 
-    const selected = list.find((p) => String(p.id) === String(field.value));
+    const selected = list.find((p) => Number(p.id) === Number(field.value));
 
-    const handleSelect = (productId: string) => {
-      const product = list.find((p) => String(p.id) === productId);
-      field.onChange(productId);
+    const handleSelect = (productId: number) => {
+      const product = list.find((p) => p.id === productId);
+      field.onChange(Number(productId));
       setOpen(false);
 
       // Auto-set purchase_tax for this row
@@ -290,7 +309,7 @@ export default function CreatePurchaseOrderPage() {
                   list.map((product) => (
                     <CommandItem
                       key={product.id}
-                      onSelect={() => handleSelect(String(product.id))}
+                      onSelect={() => handleSelect(Number(product.id))}
                     >
                       {product.name} (SKU: {product.sku}) (
                       {product.unit?.name || "-"})
@@ -362,6 +381,7 @@ export default function CreatePurchaseOrderPage() {
           quantity: Number(item.quantity),
           unit_cost: Number(item.unit_cost),
           discount: Number(item.discount),
+          purchase_tax: Number(item.purchase_tax),
         })),
       };
 
@@ -394,12 +414,11 @@ export default function CreatePurchaseOrderPage() {
           <div className="border rounded-md p-4">
             <h2 className="font-semibold mb-4">Supplier & Details</h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
               {/* Supplier */}
               <FormField
                 name="supplierId"
                 control={control}
-                rules={{ required: "Supplier is required" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Supplier</FormLabel>
@@ -415,12 +434,14 @@ export default function CreatePurchaseOrderPage() {
               <FormField
                 name="order_date"
                 control={control}
+                rules={{ required: "Order Date is required" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Order Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} className="block" />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -433,8 +454,9 @@ export default function CreatePurchaseOrderPage() {
                   <FormItem>
                     <FormLabel>Expected Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input type="date" {...field} className="block" />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -450,6 +472,7 @@ export default function CreatePurchaseOrderPage() {
                   <FormControl>
                     <Textarea placeholder="Optional notes..." {...field} />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -463,7 +486,7 @@ export default function CreatePurchaseOrderPage() {
                 type="button"
                 onClick={() =>
                   append({
-                    productId: "",
+                    productId: 0,
                     quantity: 1,
                     unit_cost: 0,
                     discount: 0,
@@ -479,7 +502,7 @@ export default function CreatePurchaseOrderPage() {
               {fields.map((item, index) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded"
+                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-gray-50 p-3 rounded"
                 >
                   {/* Product */}
                   {/* <FormField
@@ -524,7 +547,7 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem className="sm:col-span-2">
                         <FormLabel>Unit Price</FormLabel>
                         <FormControl>
-                          <Input type="number" step="0.01" {...field} />
+                          <Input type="number" step="0.01" {...field} onChange={(e)=>field.onChange(Number(e.target.value))} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -569,7 +592,7 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem className="sm:col-span-1">
                         <FormLabel>Tax</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} readOnly />
+                          <Input type="number" {...field} onChange={(e)=>field.onChange(Number(e.target.value))} readOnly />
                         </FormControl>
                       </FormItem>
                     )}
