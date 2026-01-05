@@ -44,9 +44,12 @@ export default function EditDepartmentForm({
   departmentId,
 }: Props) {
   const navigate = useNavigate();
-  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canEditDepartments = userPermissions.includes(StaffPermission.EDIT_DEPARTMENTS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-
+  const userPermissions = useAppSelector(
+    (state) => state.auth.user?.role.permissions || []
+  );
+  const canEditDepartments =
+    userPermissions.includes(StaffPermission.EDIT_DEPARTMENTS) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const form = useForm<DepartmentFormValues>({
     resolver: zodResolver(DepartmentSchema),
@@ -73,7 +76,8 @@ export default function EditDepartmentForm({
     }
   }, [departmentData, form]);
 
-  const [updateDepartment, { isLoading: isUpdating }] = useUpdateDepartmentMutation();
+  const [updateDepartment, { isLoading: isUpdating }] =
+    useUpdateDepartmentMutation();
 
   const onSubmit = async (values: DepartmentFormValues) => {
     console.log("Edit Department: ", values);
@@ -115,7 +119,8 @@ export default function EditDepartmentForm({
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 You do not have permission to edit a Department. <br />
-                Please contact your administrator if you believe this is an error.
+                Please contact your administrator if you believe this is an
+                error.
               </p>
               <Button
                 variant="outline"
@@ -125,52 +130,54 @@ export default function EditDepartmentForm({
                 Close
               </Button>
             </div>
-          ) : (<Form {...form}>
-            <form
-              className="space-y-4 mt-6"
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input placeholder="Department name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          ) : (
+            <Form {...form}>
+              <form
+                className="space-y-4 mt-6"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Department name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Department description"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Department description"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Button className="w-full" type="submit" disabled={isUpdating}>
-                {isUpdating ? (
-                  <div className="flex items-center gap-2">
-                    <Loader className="w-4 h-4 animate-spin" />
-                    Updating...
-                  </div>
-                ) : (
-                  "Update"
-                )}
-              </Button>
-            </form>
-          </Form>)}
+                <Button className="w-full" type="submit" disabled={isUpdating}>
+                  {isUpdating ? (
+                    <div className="flex items-center gap-2">
+                      <Loader className="w-4 h-4 animate-spin" />
+                      Updating...
+                    </div>
+                  ) : (
+                    "Update"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          )}
         </div>
       </SheetContent>
     </Sheet>
