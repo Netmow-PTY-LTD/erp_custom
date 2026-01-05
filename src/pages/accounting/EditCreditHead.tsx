@@ -45,7 +45,7 @@ const statusOptions = [
 
 const creditHeadSchema = z.object({
   name: z.string().min(1, "Required"),
-  code: z.string().min(1, "Required"),
+  code: z.string().optional(),
   description: z.string().optional(),
   is_active: z.boolean().optional(),
 });

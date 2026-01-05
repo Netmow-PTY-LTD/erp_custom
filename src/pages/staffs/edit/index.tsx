@@ -59,7 +59,7 @@ const StaffSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
   department: z.number().optional(),
-  position: z.string().min(1, "Required"),
+  position: z.string().optional(),
   hire_date: z.string().refine((v) => !isNaN(Date.parse(v)), {
     message: "Invalid date",
   }),
@@ -142,7 +142,7 @@ export default function EditStaffPage() {
       department_id: values.department,
       position: values.position,
       hire_date: values.hire_date,
-      salary: values.salary,
+      salary: values.salary || 0,
       status: values.status,
       thumb_url: values.image,
       gallery_items: values.gallery_items,
@@ -214,7 +214,7 @@ export default function EditStaffPage() {
                 />
 
                 {/* FIRST + LAST NAME */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="first_name"
@@ -245,7 +245,7 @@ export default function EditStaffPage() {
                 </div>
 
                 {/* EMAIL + PHONE */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="email"
@@ -276,7 +276,7 @@ export default function EditStaffPage() {
                 </div>
 
                 {/* DEPARTMENT + POSITION */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="department"
@@ -367,7 +367,7 @@ export default function EditStaffPage() {
                 </div>
 
                 {/* HIRE DATE + SALARY */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="hire_date"
