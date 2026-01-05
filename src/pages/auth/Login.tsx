@@ -30,8 +30,8 @@ export default function Login() {
                 className="w-20 h-20 object-contain rounded-full"
               />
             ) : (
-              <div className="flex items-center justify-center w-20 h-20 bg-gray-200 text-gray-400 rounded-full">
-                <Loader className="w-10 h-10 animate-spin" /> 
+              <div className="flex items-center justify-center">
+                <Loader className="w-4 h-4 animate-spin" /> 
               </div>
             )}
           </div>
