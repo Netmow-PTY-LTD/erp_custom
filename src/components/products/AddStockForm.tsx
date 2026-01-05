@@ -40,12 +40,12 @@ import { useAppSelector } from "@/store/store";
 
 // 1️⃣ Define form schema using Zod
 const stockFormSchema = z.object({
-  product_id: z.number().min(1, "Product is required"),
+  product_id: z.number().min(1, "Required"),
   current_stock: z.number().min(0, "Current stock must be 0 or more"),
   quantity: z.number().min(0, "Stock must be 0 or more"),
-  operation: z.string().min(1, "Operation is required"),
-  date: z.string().min(1, "Date is required"),
-  movement_type: z.string().min(1, "Movement type is required"),
+  operation: z.string().min(1, "Required"),
+  date: z.string().min(1, "Required"),
+  movement_type: z.string().min(1, "Required"),
   notes: z.string().optional(),
 });
 
