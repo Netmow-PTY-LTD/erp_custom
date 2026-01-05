@@ -34,11 +34,11 @@ import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Required"),
   company: z.string().optional(),
   customer_type: z.enum(["individual", "business"]).default("individual"),
   tax_id: z.string().optional(),
-  email: z.email("Invalid email").min(1, "Email is required"),
+  email: z.email("Invalid email").min(1, "Required"),
   phone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -50,7 +50,7 @@ const customerSchema = z.object({
   credit_limit: z.number().min(0, "Credit limit must be 0 or more").default(0),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),
-  salesRouteId: z.string().min(1, "Sales Route is required"),
+  salesRouteId: z.string().min(1, "Required"),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;

@@ -17,7 +17,7 @@ import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const profileSchema = z.object({
-  company_name: z.string().min(1, "Username is required"),
+  company_name: z.string().min(1, "Required"),
   email: z.string().optional(),
   phone: z.string().optional(),
   description: z.string().optional(),

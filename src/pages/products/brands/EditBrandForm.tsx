@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 
 const brandSchema = z.object({
-  brand_name: z.string().min(1, "Brand name is required"),
+  brand_name: z.string().min(1, "Required"),
   description: z.string(),
   status: z.string(),
 });

@@ -40,9 +40,9 @@ import { ArrowLeft, Loader } from "lucide-react";
 
 
 const roleSchema = z.object({
-  role: z.string().min(1, "Role code is required"),
-  display_name: z.string().min(1, "Display name is required"),
-  description: z.string().min(1, "Description is required"),
+  role: z.string().min(1, "Required"),
+  display_name: z.string().min(1, "Required"),
+  description: z.string().min(1, "Required"),
   status: z.enum(["active", "inactive"]),
   permissions: z.array(z.string()).min(1, "Select at least one permission"),
 });

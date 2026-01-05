@@ -32,11 +32,11 @@ const statusOptions = [
 ];
 
 const contactSchema = z.object({
-  name: z.string().min(1, "Category name is required"),
+  name: z.string().min(1, "Required"),
   role: z.string(),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
-  primaryContact: z.string().min(1, "Status is required"),
+  primaryContact: z.string().min(1, "Required"),
 });
 export default function EditCustomerContactForm({
   open,
