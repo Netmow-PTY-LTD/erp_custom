@@ -65,6 +65,7 @@ export interface UpdateCustomerRequest {
     sales_route_id?: number;
     notes?: string;
     is_active?: boolean;
+    
 }
 
 export interface GetCustomersParams {
