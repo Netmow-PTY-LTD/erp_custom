@@ -45,11 +45,11 @@ import type { DebitHead } from "@/types/accounting.types";
 const expenseSchema = z.object({
   title: z.string().min(1, "Required"),
   expense_date: z.string().min(1, "Required"),
-  debit_head_id: z.number().optional(),
+  debit_head_id: z.number().min(1, "Required"),
   description: z.string().optional(),
   //category: z.string().min(1, "Category is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
-  paidVia: z.string().min(1, "Required"),
+  paidVia: z.string().optional(),
   reference: z.string().optional(),
 });
 
