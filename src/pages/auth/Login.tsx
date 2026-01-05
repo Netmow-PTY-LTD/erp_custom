@@ -1,6 +1,6 @@
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Link, useNavigate } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader } from "lucide-react";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 
 export default function Login() {
@@ -23,14 +23,17 @@ export default function Login() {
           className="flex flex-col items-center gap-2 self-center font-medium text-xl"
         >
           <div className="flex items-center justify-center rounded-md">
-            <img
-              src={
-                logo ||
-                "https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"
-              }
-              alt="Logo"
-              className="w-20 h-20 object-contain rounded-full"
-            />
+            {logo ? (
+              <img
+                src={logo}
+                alt={companyProfileSettings?.data?.company_name || "Logo"}
+                className="w-20 h-20 object-contain rounded-full"
+              />
+            ) : (
+              <div className="flex items-center justify-center w-20 h-20 bg-gray-200 text-gray-400 rounded-full">
+                <Loader className="w-10 h-10 animate-spin" /> 
+              </div>
+            )}
           </div>
           {/* {companyProfileSettings?.data?.company_name || "Inleads IT"} */}
         </Link>
