@@ -27,7 +27,6 @@ import {
   ShoppingBag,
   ShoppingCart,
   Truck,
-  UserCheck,
   UserCog,
   UserPlus,
   Users,
@@ -514,16 +513,16 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "Leave Management",
-        url: "/dashboard/staffs/leaves",
-        element: <LeavesManagement />,
-        icon: FileMinus,
-        allowedPermissions: [
-          StaffPermission.MANAGE_LEAVES,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
+      // {
+      //   title: "Leave Management",
+      //   url: "/dashboard/staffs/leaves",
+      //   element: <LeavesManagement />,
+      //   icon: FileMinus,
+      //   allowedPermissions: [
+      //     StaffPermission.MANAGE_LEAVES,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
       {
         title: "",
         url: "/dashboard/staffs/leaves/request",
@@ -927,16 +926,16 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "Staff Reports",
-        url: "/dashboard/reports/staffs",
-        element: <StaffReports />,
-        icon: UserCheck,
-        allowedPermissions: [
-          ReportPermission.STAFFS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
+      // {
+      //   title: "Staff Reports",
+      //   url: "/dashboard/reports/staffs",
+      //   element: <StaffReports />,
+      //   icon: UserCheck,
+      //   allowedPermissions: [
+      //     ReportPermission.STAFFS,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
     ],
   },
 ];

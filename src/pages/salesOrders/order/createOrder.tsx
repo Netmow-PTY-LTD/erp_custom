@@ -35,18 +35,53 @@ import {
 } from "@/store/features/salesOrder/salesOrder";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useAppSelector } from "@/store/store";
 import { Textarea } from "@/components/ui/textarea";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const orderSchema = z
+  .object({
+    customer_id: z.number().min(1, "Customer is required"),
+    shipping_address: z.string().min(5, "Shipping address is required"),
+    order_date: z.string().min(1, "Order date is required"),
+    due_date: z.string().min(1, "Due date is required"),
+    items: z.array(
+      z.object({
+        product_id: z.number().min(1, "Product is required"),
+        quantity: z.number().min(1, "Quantity must be at least 1"),
+        unit_price: z.number().min(1, "Unit price must be at least 1"),
+        discount: z.number().min(0, "Discount must be 0 or more"),
+        sales_tax: z.number().min(0, "Sales tax must be 0 or more"),
+      })
+    ),
+  })
+  .refine(
+    (data) => {
+      const orderDate = new Date(data.order_date);
+      const dueDate = new Date(data.due_date);
+
+      return dueDate >= orderDate;
+    },
+    {
+      message: "Due date cannot be earlier than order date",
+      path: ["due_date"], // 👈 error shows under Due Date field
+    }
+  );
 
 export default function CreateSalesOrderPage() {
+  const [searchParam] = useSearchParams();
+  const customerIdFromParam = searchParam.get("customerId");
   const navigate = useNavigate();
   const [addSalesOrder, { isLoading }] = useAddSalesOrderMutation();
   const [createInvoice] = useAddSalesInvoiceMutation();
 
   const currency = useAppSelector((state) => state.currency.value);
+  
 
   const form = useForm<SalesOrderFormValues>({
+    resolver: zodResolver(orderSchema),
     defaultValues: {
       customer_id: 0,
       shipping_address: "",
@@ -198,6 +233,13 @@ export default function CreateSalesOrderPage() {
     });
     const list = Array.isArray(data?.data) ? data.data : [];
     const selected = list.find((c) => c.id === field.value);
+    
+    if (customerIdFromParam) {
+      const preselected = list.find(
+        (c) => c.id === Number(customerIdFromParam)
+      );
+      if (preselected) field.onChange(preselected.id);
+    }
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -325,7 +367,6 @@ export default function CreateSalesOrderPage() {
               <FormField
                 name="customer_id"
                 control={control}
-                rules={{ required: "Customer required" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Customer</FormLabel>
@@ -344,6 +385,7 @@ export default function CreateSalesOrderPage() {
                   <FormItem>
                     <FormLabel>Order Date</FormLabel>
                     <Input type="date" {...field} className="block" />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -355,6 +397,7 @@ export default function CreateSalesOrderPage() {
                   <FormItem>
                     <FormLabel>Due Date</FormLabel>
                     <Input type="date" {...field} className="block" />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -362,7 +405,6 @@ export default function CreateSalesOrderPage() {
               <FormField
                 name="shipping_address"
                 control={control}
-                rules={{ required: "Shipping address required" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Shipping Address</FormLabel>
@@ -403,12 +445,11 @@ export default function CreateSalesOrderPage() {
               {fields.map((item, index) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded"
+                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-gray-50 p-3 rounded"
                 >
                   <FormField
                     name={`items.${index}.product_id`}
                     control={control}
-                    rules={{ required: "Product required" }}
                     render={({ field }) => (
                       <FormItem className="sm:col-span-4">
                         <FormLabel>Product</FormLabel>
@@ -428,7 +469,6 @@ export default function CreateSalesOrderPage() {
                   <FormField
                     name={`items.${index}.unit_price`}
                     control={control}
-                    rules={{ required: "Price required" }}
                     render={({ field }) => (
                       <FormItem className="sm:col-span-2">
                         <FormLabel>Unit Price ({currency})</FormLabel>
@@ -438,8 +478,12 @@ export default function CreateSalesOrderPage() {
                             min={0}
                             {...field}
                             className="bg-white"
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -447,7 +491,6 @@ export default function CreateSalesOrderPage() {
                   <FormField
                     name={`items.${index}.quantity`}
                     control={control}
-                    rules={{ required: "Quantity required" }}
                     render={({ field }) => (
                       <FormItem className="sm:col-span-1">
                         <FormLabel>Qty</FormLabel>
@@ -459,6 +502,7 @@ export default function CreateSalesOrderPage() {
                             className="bg-white"
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -475,6 +519,7 @@ export default function CreateSalesOrderPage() {
                           {...field}
                           className="bg-white"
                         />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -489,14 +534,20 @@ export default function CreateSalesOrderPage() {
                           min={0}
                           {...field}
                           className="bg-white"
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
                           readOnly
                         />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
 
                   <div className="sm:col-span-1">
-                    <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">Tax Amount</label>
+                    <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">
+                      Tax Amount
+                    </label>
                     <Input
                       type="number"
                       value={
@@ -507,7 +558,7 @@ export default function CreateSalesOrderPage() {
                     />
                   </div>
 
-                  <div className="sm:col-span-1 font-semibold text-right">
+                  <div className="sm:col-span-1 font-semibold text-right self-center">
                     {currency} {calculatedItems[index]?.total.toFixed(2)}
                   </div>
 

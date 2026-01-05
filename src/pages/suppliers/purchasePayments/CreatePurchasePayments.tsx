@@ -257,7 +257,7 @@ export default function CreatePurchasePayments() {
                               }
                             }
 
-                            field.onChange(raw); // store string, not number
+                            field.onChange(value); 
                           }}
                         />
                       </FormControl>
