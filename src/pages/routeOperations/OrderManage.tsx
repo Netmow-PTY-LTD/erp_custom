@@ -29,7 +29,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, X } from "lucide-react";
+import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, } from "lucide-react";
 import { toast } from "sonner";
 
 // Mock Data
@@ -280,7 +280,7 @@ const OrderManage = () => {
                                 <TableCell>
                                     {order.assignedTo.length > 0 ? (
                                         <div className="flex items-center -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300">
-                                            {order.assignedTo.map((staffId, i) => {
+                                            {order.assignedTo.map((staffId) => {
                                                 const staff = getStaffDetails(staffId);
                                                 if (!staff) return null;
                                                 return (
