@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {  useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   useGetStaffByIdQuery,
   useUpdateStaffMutation,
@@ -58,11 +58,9 @@ const StaffSchema = z.object({
   last_name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
-  department: z.number().optional(),
+  department: z.number().min(1, "Required"),
   position: z.string().optional(),
-  hire_date: z.string().refine((v) => !isNaN(Date.parse(v)), {
-    message: "Invalid date",
-  }),
+  hire_date: z.string().optional(),
   salary: z.number().optional(),
   status: z.enum(["active", "terminated", "on_leave"]),
   image: z.string().optional(),
@@ -120,11 +118,11 @@ export default function EditStaffPage() {
         email: staff?.email,
         phone: staff?.phone || "",
         department: staff?.department_id,
-        position: staff?.position,
-        hire_date: staff?.hire_date,
+        position: staff?.position || "",
+        hire_date: staff?.hire_date || "",
         salary: staff?.salary || 0,
         status: staff.status === "inactive" ? "terminated" : staff.status,
-        image: staff?.thumb_url,
+        image: staff?.thumb_url || "",
         gallery_items: staff?.gallery_items,
       });
     }
@@ -138,10 +136,10 @@ export default function EditStaffPage() {
       first_name: values.first_name,
       last_name: values.last_name,
       email: values.email,
-      phone: values.phone,
-      department_id: values.department,
-      position: values.position,
-      hire_date: values.hire_date,
+      phone: values.phone || "",
+      department_id: values.department || 0,
+      position: values.position || "",
+      hire_date: values.hire_date || "",
       salary: values.salary || 0,
       status: values.status,
       thumb_url: values.image,
@@ -179,7 +177,7 @@ export default function EditStaffPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-semibold">Edit Staff Member</h1>
 
-          <BackButton/>
+        <BackButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -394,10 +392,17 @@ export default function EditStaffPage() {
                           <PopoverContent className="p-0">
                             <Calendar
                               mode="single"
-                              selected={new Date(field.value)}
-                              onSelect={(date) =>
-                                date && field.onChange(date.toISOString())
+                              selected={
+                                field.value ? new Date(field.value) : undefined
                               }
+                              onSelect={(date: Date | undefined) => {
+                                if (date) {
+                                  field.onChange(date.toISOString());
+                                }
+                              }}
+                              // onSelect={(date) =>
+                              //   date && field.onChange(date.toISOString())
+                              // }
                             />
                           </PopoverContent>
                         </Popover>
