@@ -10,7 +10,7 @@ import {
   FileMinus,
   FileText,
   HandCoins,
-  KeyRound,
+
   Layers,
   LayoutDashboard,
   LineChart,
@@ -18,7 +18,6 @@ import {
   Map,
   MapPin,
   Package,
-  Pencil,
   PieChart,
   PlusCircle,
   Ruler,
@@ -27,10 +26,9 @@ import {
   ShoppingBag,
   ShoppingCart,
   Truck,
-  UserCog,
   UserPlus,
   Users,
-  Wrench,
+
 } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Products from "../pages/products/Products";
@@ -74,7 +72,6 @@ import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import AccountSettings from "@/pages/Settings/pages/Account";
 import InventoryReports from "@/pages/reports/InventoryReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
-import LeavesManagement from "@/pages/staffs/leaves/LeavesManagement";
 //import Roles from "@/pages/roles";
 import AttendancePage from "@/pages/staffs/attendance";
 //import PermissionsPage from "@/pages/permissions";
@@ -86,7 +83,7 @@ import UsersList from "@/pages/users/UsersList";
 import UserDetails from "@/pages/users/UserDetails";
 import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
-import StaffReports from "@/pages/reports/StaffReports";
+
 import CustomerReports from "@/pages/reports/CustomerReports";
 import EditPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/EditPurchaseOrderPage";
 import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
