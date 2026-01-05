@@ -9,7 +9,7 @@ import {
 import { NavMain } from "./nav-main";
 import { sidebarItemLink } from "@/config/sidebarItemLInk";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
-import { Loader } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export function AppSidebar({ ...props }) {
   const { data: companyProfileSettings } = useGetSettingsInfoQuery();
@@ -28,8 +28,8 @@ export function AppSidebar({ ...props }) {
             className="w-12 h-12 object-contain rounded-full"
           />
         ) : (
-          <div className="flex items-center justify-center w-20 h-20 bg-gray-200 text-gray-400 rounded-full">
-            <Loader className="w-4 h-4 animate-spin" />
+          <div className="flex items-center justify-center">
+            <Loader2 className="w-4 h-4 animate-spin" />
           </div>
         )}
       </div>
