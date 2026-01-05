@@ -27,9 +27,9 @@ import { useAddPurchasePaymentMutation, useGetAllPurchasesQuery, useGetPurchaseO
 import { useAppSelector } from "@/store/store";
 
 const paymentSchema = z.object({
-  purchase_order_id: z.number().min(1, "Purchase Order is required"),
-  amount: z.number().min(0.01, "Amount is required"),
-  payment_method: z.string().min(1, "Payment method is required"),
+  purchase_order_id: z.number().min(1, "Required"),
+  amount: z.number().min(0.01, "Required"),
+  payment_method: z.string().min(1, "Required"),
   reference: z.string().optional(),
   notes: z.string().optional(),
 });
