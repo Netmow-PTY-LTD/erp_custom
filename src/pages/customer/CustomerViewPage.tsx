@@ -50,7 +50,7 @@ export default function CustomerViewPage() {
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold">Customer: {customer.name}</h1>
                 <div className="flex gap-3">
-                    <Link to={'/dashboard/sales/orders/create'}>
+                    <Link to={'/dashboard/sales/orders/create?customerId=' + customer.id}>
                         <Button className="flex items-center gap-2">
                             <ShoppingCart size={18} /> Create Order
                         </Button>
