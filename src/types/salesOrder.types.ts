@@ -72,8 +72,8 @@ export interface SalesOrderFormValues {
 // TypeScript type for update payload
 export type UpdateDeliveryPayload = {
   status: "pending" | "in_transit" | "delivered" | "failed" | "returned"|"confirmed";
-  delivery_date: string; // ISO date string
-  notes: string;
+  delivery_date: string | undefined;// ISO date string
+  notes: string| undefined;
 };
 
 
