@@ -1,12 +1,12 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { MapPin, Search, Phone, Mail, Truck, User, ArrowRight, Filter, ChevronRight } from "lucide-react";
+import { MapPin, Search, Phone, Mail, Truck, User, ArrowRight, ChevronRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 // Enhanced Mock Data Generator
@@ -58,7 +58,7 @@ const StaffRoute = () => {
 
     // Calculate summary stats for selected staff
     const totalOrders = selectedStaff?.routes.reduce((acc, r) => acc + r.orders, 0) || 0;
-    const activeRoutes = selectedStaff?.routes.filter(r => r.status === "Active").length || 0;
+
 
     return (
         <div className="flex h-[calc(100vh-6rem)] gap-4 p-4 overflow-hidden bg-background">
