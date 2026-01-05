@@ -26,12 +26,12 @@ import { Textarea } from "@/components/ui/textarea";
 
 // ---------------- Schema ----------------
 const FormSchema = z.object({
-  routeName: z.string().min(1, "Route name is required"),
+  routeName: z.string().min(1, "Required"),
   zoomLevel: z.number().min(1).max(22),
   description: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
-  state: z.string().min(1, "State is required"),
-  city: z.string().min(1, "City is required"),
+  country: z.string().min(1, "Required"),
+  state: z.string().min(1, "Required"),
+  city: z.string().min(1, "Required"),
   end_location: z.string(),
   start_location: z.string(),
   postalCode: z.string(),

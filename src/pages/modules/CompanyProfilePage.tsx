@@ -11,10 +11,10 @@ import { Button } from "@/components/ui/button";
 
 const companySchema = z.object({
   logo: z.instanceof(File).optional(),
-  name: z.string().min(1, "Company name is required"),
+  name: z.string().min(1, "Required"),
   registrationNo: z.string().optional(),
   taxNo: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
+  address: z.string().min(1, "Required"),
   phone: z.string().optional(),
   email: z.string().email("Invalid email").optional(),
 });

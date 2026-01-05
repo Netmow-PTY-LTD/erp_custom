@@ -33,9 +33,9 @@ const statusOptions = [
 ];
 
 const groupSchema = z.object({
-  name: z.string().min(1, "Category name is required"),
-  description: z.string().min(1, "Description is required"),
-  status: z.string().min(1, "Status is required"),
+  name: z.string().min(1, "Required"),
+  description: z.string().min(1, "Required"),
+  status: z.string().min(1, "Required"),
 });
 export default function AddCustomerGroupForm({
   open,

@@ -16,8 +16,8 @@ import MultiTagSelect from "@/components/form/MultiTagSelect";
 
 
 const attributeSchema = z.object({
-  name: z.string().min(1, "Brand name is required"),
-  values: z.array(z.string()).min(1, "At least one value is required"),
+  name: z.string().min(1, "Required"),
+  values: z.array(z.string()).min(1, "Required"),
   variant: z.string(),
 });
 interface Props {
