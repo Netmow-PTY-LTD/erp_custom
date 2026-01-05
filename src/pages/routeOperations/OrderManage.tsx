@@ -26,17 +26,10 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@/components/ui/sheet";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit, Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock } from "lucide-react";
+import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, X } from "lucide-react";
 import { toast } from "sonner";
 
 // Mock Data
@@ -45,8 +38,10 @@ const dummyStaff = [
     { id: "S002", name: "Bob Smith", role: "Driver" },
     { id: "S003", name: "Charlie Brown", role: "Sales Rep" },
     { id: "S004", name: "David Wilson", role: "Driver" },
+    { id: "S005", name: "Eve Davis", role: "Manager" },
 ];
 
+// Updated initialOrders to support multiple staff (assignedTo is string[])
 const initialOrders = [
     {
         id: "ORD-101",
@@ -54,7 +49,7 @@ const initialOrders = [
         date: "2023-10-25",
         total: 1500,
         status: "Pending",
-        assignedTo: null,
+        assignedTo: [], // No staff
         items: [
             { name: "Wireless Mouse", qty: 10, price: 50 },
             { name: "Mechanical Keyboard", qty: 5, price: 200 }
@@ -68,7 +63,7 @@ const initialOrders = [
         date: "2023-10-24",
         total: 8500,
         status: "Shipped",
-        assignedTo: "S001",
+        assignedTo: ["S001", "S002"], // Alice & Bob
         items: [
             { name: "Gaming Monitor 27\"", qty: 20, price: 400 },
             { name: "HDMI Cable", qty: 50, price: 10 }
@@ -82,7 +77,7 @@ const initialOrders = [
         date: "2023-10-23",
         total: 420,
         status: "Delivered",
-        assignedTo: "S002",
+        assignedTo: ["S002"], // Bob only
         items: [
             { name: "USB Hub", qty: 15, price: 28 }
         ],
@@ -95,7 +90,7 @@ const initialOrders = [
         date: "2023-10-22",
         total: 2300,
         status: "Cancelled",
-        assignedTo: null,
+        assignedTo: [],
         items: [
             { name: "Webcam 1080p", qty: 10, price: 80 },
             { name: "Microphone", qty: 3, price: 500 }
@@ -109,7 +104,7 @@ const initialOrders = [
         date: "2023-10-26",
         total: 12000,
         status: "Pending",
-        assignedTo: null,
+        assignedTo: ["S001", "S003", "S004"], // 3 Staff
         items: [
             { name: "Office Chair", qty: 10, price: 1000 },
             { name: "Desk Lamp", qty: 20, price: 100 }
@@ -120,16 +115,21 @@ const initialOrders = [
 ];
 
 const OrderManage = () => {
-    const [orders, setOrders] = useState(initialOrders);
+    // Type definition for order to handle string[] assignedTo
+    type Order = typeof initialOrders[0] & { assignedTo: string[] };
+
+    const [orders, setOrders] = useState<Order[]>(initialOrders);
     const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+
+    // Dialog State
     const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
-    const [selectedStaffId, setSelectedStaffId] = useState<string>("");
+    const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
 
     // View Details State
-    const [viewOrder, setViewOrder] = useState<typeof initialOrders[0] | null>(null);
+    const [viewOrder, setViewOrder] = useState<Order | null>(null);
     const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
 
-    // Track which orders are being assigned (either from selection or single click)
+    // Track which orders are being assigned
     const [ordersToAssign, setOrdersToAssign] = useState<string[]>([]);
 
     const handleSelectAll = (checked: boolean) => {
@@ -150,36 +150,64 @@ const OrderManage = () => {
 
     const openAssignDialog = (orderIds: string[]) => {
         setOrdersToAssign(orderIds);
-        setSelectedStaffId(""); // Reset selection
+
+        // If single order, pre-select existing staff (optional but nice)
+        if (orderIds.length === 1) {
+            const order = orders.find(o => o.id === orderIds[0]);
+            if (order) {
+                setSelectedStaffIds(order.assignedTo);
+            } else {
+                setSelectedStaffIds([]);
+            }
+        } else {
+            setSelectedStaffIds([]); // Reset for bulk assignment to avoid confusion
+        }
+
         setIsAssignDialogOpen(true);
     };
 
+    const toggleStaffSelection = (staffId: string) => {
+        setSelectedStaffIds(prev =>
+            prev.includes(staffId)
+                ? prev.filter(id => id !== staffId)
+                : [...prev, staffId]
+        );
+    };
+
     const handleAssignStaff = () => {
-        if (!selectedStaffId) return;
+        // Even if empty, we might want to allow clearing assignments, so checking length > 0 might strictly be optional depending on requirement.
+        // Assuming we allow clearing if user unchecks all.
 
         setOrders((prevOrders) =>
             prevOrders.map((order) =>
                 ordersToAssign.includes(order.id)
-                    ? { ...order, assignedTo: selectedStaffId }
+                    ? { ...order, assignedTo: selectedStaffIds }
                     : order
             )
         );
 
-        toast.success(`Assigned ${dummyStaff.find(s => s.id === selectedStaffId)?.name} to ${ordersToAssign.length} order(s)`);
+        toast.success(`Updated staff assignment for ${ordersToAssign.length} order(s)`);
         setIsAssignDialogOpen(false);
         setOrdersToAssign([]);
         setSelectedOrders([]); // Clear selection after bulk action
+
+        // If view sheet matches modified order, update it? 
+        // Logic: The sheet uses `viewOrder` which is a copy. We should close it or update it.
+        // Simplest: If sheet is open and matches assign target, close it to refresh or manually update state.
+        if (isViewSheetOpen && viewOrder && ordersToAssign.includes(viewOrder.id)) {
+            // For simplicity, let's just close it or user can re-open. 
+            // Better user experience: update local viewOrder
+            setViewOrder(prev => prev ? { ...prev, assignedTo: selectedStaffIds } : null);
+        }
     };
 
-    const handleViewOrder = (order: typeof initialOrders[0]) => {
+    const handleViewOrder = (order: Order) => {
         setViewOrder(order);
         setIsViewSheetOpen(true);
     };
 
-    const getStaffName = (id: string | null) => {
-        if (!id) return "Unassigned";
-        const staff = dummyStaff.find((s) => s.id === id);
-        return staff ? staff.name : id;
+    const getStaffDetails = (id: string) => {
+        return dummyStaff.find((s) => s.id === id);
     };
 
     return (
@@ -250,20 +278,24 @@ const OrderManage = () => {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex items-center gap-2">
-                                        {order.assignedTo ? (
-                                            <Badge variant="outline" className="pl-0 gap-2 pr-2">
-                                                <Avatar className="h-5 w-5">
-                                                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                                                        {getStaffName(order.assignedTo).substring(0, 2).toUpperCase()}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                {getStaffName(order.assignedTo)}
-                                            </Badge>
-                                        ) : (
-                                            <span className="text-sm text-muted-foreground italic">Unassigned</span>
-                                        )}
-                                    </div>
+                                    {order.assignedTo.length > 0 ? (
+                                        <div className="flex items-center -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300">
+                                            {order.assignedTo.map((staffId, i) => {
+                                                const staff = getStaffDetails(staffId);
+                                                if (!staff) return null;
+                                                return (
+                                                    <Avatar key={staffId} className="h-8 w-8 border-2 border-background ring-1 ring-muted" title={staff.name}>
+                                                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
+                                                        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                                                            {staff.name.substring(0, 2).toUpperCase()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-muted-foreground italic">Unassigned</span>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right font-semibold">${order.total.toLocaleString()}</TableCell>
                                 <TableCell className="text-right">
@@ -339,33 +371,43 @@ const OrderManage = () => {
 
                                 <Separator />
 
-                                {/* Staff Info */}
+                                {/* Staff Info (Multiple) */}
                                 <div className="space-y-3">
-                                    <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
-                                        <UserPlus className="h-4 w-4" /> Assigned Staff
-                                    </h3>
-                                    {viewOrder.assignedTo ? (
-                                        <div className="flex items-center gap-4 bg-primary/5 p-4 rounded-lg border border-primary/10">
-                                            <Avatar className="h-10 w-10 border-2 border-background">
-                                                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${getStaffName(viewOrder.assignedTo)}`} />
-                                                <AvatarFallback>{getStaffName(viewOrder.assignedTo).substring(0, 2)}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="font-medium text-foreground">{getStaffName(viewOrder.assignedTo)}</p>
-                                                <p className="text-xs text-muted-foreground">Delivery / Sales Representative</p>
-                                            </div>
-                                            <Button variant="ghost" size="sm" className="ml-auto" onClick={() => {
-                                                setIsViewSheetOpen(false);
-                                                openAssignDialog([viewOrder.id]);
-                                            }}>
-                                                Change
-                                            </Button>
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
+                                            <UserPlus className="h-4 w-4" /> Assigned Staff ({viewOrder.assignedTo.length})
+                                        </h3>
+                                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => {
+                                            // Keep sheet open but open dialog
+                                            openAssignDialog([viewOrder.id]);
+                                        }}>
+                                            Manage Assignment
+                                        </Button>
+                                    </div>
+
+                                    {viewOrder.assignedTo.length > 0 ? (
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {viewOrder.assignedTo.map(staffId => {
+                                                const staff = getStaffDetails(staffId);
+                                                if (!staff) return null;
+                                                return (
+                                                    <div key={staffId} className="flex items-center gap-3 bg-card p-3 rounded-lg border shadow-sm">
+                                                        <Avatar className="h-8 w-8">
+                                                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
+                                                            <AvatarFallback>{staff.name.substring(0, 2)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex-1">
+                                                            <p className="font-medium text-sm">{staff.name}</p>
+                                                            <p className="text-xs text-muted-foreground">{staff.role}</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     ) : (
                                         <div className="flex items-center justify-between bg-muted/30 p-4 rounded-lg">
                                             <span className="text-sm text-muted-foreground italic">No staff assigned yet.</span>
                                             <Button variant="outline" size="sm" onClick={() => {
-                                                setIsViewSheetOpen(false);
                                                 openAssignDialog([viewOrder.id]);
                                             }}>
                                                 Assign Staff
@@ -435,41 +477,58 @@ const OrderManage = () => {
                 </SheetContent>
             </Sheet>
 
-            {/* Assign Dialog */}
+            {/* Assign Dialog - MULTI SELECT */}
             <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Assign Staff</DialogTitle>
                         <DialogDescription>
-                            Select a staff member to assign to {ordersToAssign.length} selected order(s).
+                            Select one or more staff members to assign to {ordersToAssign.length} selected order(s).
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
-                        <Select value={selectedStaffId} onValueChange={setSelectedStaffId}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select staff member..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {dummyStaff.map((staff) => (
-                                    <SelectItem key={staff.id} value={staff.id}>
-                                        <div className="flex items-center gap-2">
-                                            <Avatar className="h-6 w-6">
-                                                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
-                                                <AvatarFallback>{staff.name.substring(0, 2)}</AvatarFallback>
-                                            </Avatar>
-                                            <div className="flex flex-col text-left">
-                                                <span className="font-medium">{staff.name}</span>
-                                                <span className="text-xs text-muted-foreground">{staff.role}</span>
+                        <ScrollArea className="h-[200px] border rounded-md p-2">
+                            <div className="space-y-1">
+                                {dummyStaff.map((staff) => {
+                                    const isSelected = selectedStaffIds.includes(staff.id);
+                                    return (
+                                        <div
+                                            key={staff.id}
+                                            className={`flex items-center space-x-3 p-2 rounded-md hover:bg-accent cursor-pointer ${isSelected ? 'bg-accent/50' : ''}`}
+                                            onClick={() => toggleStaffSelection(staff.id)}
+                                        >
+                                            <Checkbox
+                                                id={`staff-${staff.id}`}
+                                                checked={isSelected}
+                                                onCheckedChange={() => toggleStaffSelection(staff.id)}
+                                            />
+                                            <div className="flex items-center gap-3 flex-1">
+                                                <Avatar className="h-8 w-8">
+                                                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
+                                                    <AvatarFallback>{staff.name.substring(0, 2)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex flex-col">
+                                                    <label
+                                                        htmlFor={`staff-${staff.id}`}
+                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                                    >
+                                                        {staff.name}
+                                                    </label>
+                                                    <span className="text-xs text-muted-foreground">{staff.role}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                                    );
+                                })}
+                            </div>
+                        </ScrollArea>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                            {selectedStaffIds.length} staff member{selectedStaffIds.length !== 1 ? 's' : ''} selected
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAssignDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleAssignStaff} disabled={!selectedStaffId}>
+                        <Button onClick={handleAssignStaff}>
                             <CheckCircle2 className="mr-2 h-4 w-4" />
                             Confirm Assignment
                         </Button>
