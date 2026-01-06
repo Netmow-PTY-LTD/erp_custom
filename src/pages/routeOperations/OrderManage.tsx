@@ -29,8 +29,11 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, } from "lucide-react";
+import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useGetAllSalesOrdersQuery } from "@/store/features/salesOrder/salesOrder";
+import { Input } from "@/components/ui/input";
+import type { SalesOrder, SalesOrderItem } from "@/types/salesOrder.types";
 
 // Mock Data
 const dummyStaff = [
@@ -41,84 +44,46 @@ const dummyStaff = [
     { id: "S005", name: "Eve Davis", role: "Manager" },
 ];
 
-// Updated initialOrders to support multiple staff (assignedTo is string[])
-const initialOrders = [
-    {
-        id: "ORD-101",
-        customer: "Tech Solutions",
-        date: "2023-10-25",
-        total: 1500,
-        status: "Pending",
-        assignedTo: [], // No staff
-        items: [
-            { name: "Wireless Mouse", qty: 10, price: 50 },
-            { name: "Mechanical Keyboard", qty: 5, price: 200 }
-        ],
-        address: "123 Tech Park, Dhaka",
-        contact: "+880 1711-000000"
-    },
-    {
-        id: "ORD-102",
-        customer: "Global Traders",
-        date: "2023-10-24",
-        total: 8500,
-        status: "Shipped",
-        assignedTo: ["S001", "S002"], // Alice & Bob
-        items: [
-            { name: "Gaming Monitor 27\"", qty: 20, price: 400 },
-            { name: "HDMI Cable", qty: 50, price: 10 }
-        ],
-        address: "456 Export Zone, Chittagong",
-        contact: "+880 1811-000000"
-    },
-    {
-        id: "ORD-103",
-        customer: "Local Mart",
-        date: "2023-10-23",
-        total: 420,
-        status: "Delivered",
-        assignedTo: ["S002"], // Bob only
-        items: [
-            { name: "USB Hub", qty: 15, price: 28 }
-        ],
-        address: "789 Local Bazar, Sylhet",
-        contact: "+880 1911-000000"
-    },
-    {
-        id: "ORD-104",
-        customer: "Super Store",
-        date: "2023-10-22",
-        total: 2300,
-        status: "Cancelled",
-        assignedTo: [],
-        items: [
-            { name: "Webcam 1080p", qty: 10, price: 80 },
-            { name: "Microphone", qty: 3, price: 500 }
-        ],
-        address: "321 Super Market, Rajshahi",
-        contact: "+880 1611-000000"
-    },
-    {
-        id: "ORD-105",
-        customer: "Mega Corp",
-        date: "2023-10-26",
-        total: 12000,
-        status: "Pending",
-        assignedTo: ["S001", "S003", "S004"], // 3 Staff
-        items: [
-            { name: "Office Chair", qty: 10, price: 1000 },
-            { name: "Desk Lamp", qty: 20, price: 100 }
-        ],
-        address: "654 Mega Tower, Gulshan",
-        contact: "+880 1511-000000"
-    },
-];
+// Initial orders removed to use API data
 
 const OrderManage = () => {
-    // Type definition for order to handle string[] assignedTo
-    type Order = typeof initialOrders[0] & { assignedTo: string[] };
+    // Local interface for UI representation
+    interface Order {
+        id: string;
+        customer: string;
+        date: string;
+        total: number;
+        status: string;
+        assignedTo: string[];
+        items: { name: string; qty: number; price: number }[];
+        address: string;
+        contact: string;
+    }
 
-    const [orders, setOrders] = useState<Order[]>(initialOrders);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [search, setSearch] = useState("");
+
+    const { data: salesOrderData, isLoading, isFetching } = useGetAllSalesOrdersQuery({ search, page, limit });
+
+    // Map API data to local Order interface
+    const orders: Order[] = salesOrderData?.data?.map((apiOrder: SalesOrder) => ({
+        id: apiOrder.order_number,
+        customer: apiOrder.customer?.name || "Unknown",
+        date: apiOrder.order_date ? new Date(apiOrder.order_date).toLocaleDateString() : "N/A",
+        total: Number(apiOrder.total_payable_amount) || 0,
+        status: apiOrder.status,
+        assignedTo: [], // Mocked as API doesn't support assignedTo yet
+        items: (apiOrder.items || []).map((item: SalesOrderItem) => ({
+            name: item.product?.name || "Unknown Item",
+            qty: item.quantity,
+            price: Number(item.unit_price) || 0
+        })),
+        address: apiOrder.shipping_address || "No Address Provided",
+        contact: apiOrder.customer?.phone || "No Contact"
+    })) || [];
+
+    const pagination = salesOrderData?.pagination;
     const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
     // Dialog State
@@ -175,30 +140,14 @@ const OrderManage = () => {
     };
 
     const handleAssignStaff = () => {
-        // Even if empty, we might want to allow clearing assignments, so checking length > 0 might strictly be optional depending on requirement.
-        // Assuming we allow clearing if user unchecks all.
+        // Since we are now using API data directly, local updates to 'orders' via setOrders won't work 
+        // until we have a mutation to update assignedTo on the server.
+        // For now, let's keep it as is but note that it won't persist across refreshes.
 
-        setOrders((prevOrders) =>
-            prevOrders.map((order) =>
-                ordersToAssign.includes(order.id)
-                    ? { ...order, assignedTo: selectedStaffIds }
-                    : order
-            )
-        );
-
-        toast.success(`Updated staff assignment for ${ordersToAssign.length} order(s)`);
+        toast.info("Assigned personnel update functionality is pending backend integration.");
         setIsAssignDialogOpen(false);
         setOrdersToAssign([]);
-        setSelectedOrders([]); // Clear selection after bulk action
-
-        // If view sheet matches modified order, update it? 
-        // Logic: The sheet uses `viewOrder` which is a copy. We should close it or update it.
-        // Simplest: If sheet is open and matches assign target, close it to refresh or manually update state.
-        if (isViewSheetOpen && viewOrder && ordersToAssign.includes(viewOrder.id)) {
-            // For simplicity, let's just close it or user can re-open. 
-            // Better user experience: update local viewOrder
-            setViewOrder(prev => prev ? { ...prev, assignedTo: selectedStaffIds } : null);
-        }
+        setSelectedOrders([]);
     };
 
     const handleViewOrder = (order: Order) => {
@@ -217,18 +166,32 @@ const OrderManage = () => {
                     <h1 className="text-3xl font-bold tracking-tight">Order Management</h1>
                     <p className="text-muted-foreground mt-1">Manage orders, view details, and assign staff.</p>
                 </div>
-                <div className="flex gap-2">
-                    {selectedOrders.length > 0 && (
-                        <Button
-                            variant="secondary"
-                            onClick={() => openAssignDialog(selectedOrders)}
-                            className="animate-in fade-in slide-in-from-right-5"
-                        >
-                            <Users className="mr-2 h-4 w-4" />
-                            Assign to {selectedOrders.length} Orders
-                        </Button>
-                    )}
-                    <Button>Create New Order</Button>
+                <div className="flex items-center gap-4">
+                    <div className="relative w-64">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search orders..."
+                            className="pl-8"
+                            value={search}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setPage(1);
+                            }}
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        {selectedOrders.length > 0 && (
+                            <Button
+                                variant="secondary"
+                                onClick={() => openAssignDialog(selectedOrders)}
+                                className="animate-in fade-in slide-in-from-right-5"
+                            >
+                                <Users className="mr-2 h-4 w-4" />
+                                Assign to {selectedOrders.length} Orders
+                            </Button>
+                        )}
+                        <Button>Create New Order</Button>
+                    </div>
                 </div>
             </div>
 
@@ -252,76 +215,135 @@ const OrderManage = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {orders.map((order) => (
-                            <TableRow key={order.id} className={selectedOrders.includes(order.id) ? "bg-muted/50" : ""}>
-                                <TableCell>
-                                    <Checkbox
-                                        checked={selectedOrders.includes(order.id)}
-                                        onCheckedChange={(checked) => handleSelectRow(order.id, checked as boolean)}
-                                    />
-                                </TableCell>
-                                <TableCell className="font-medium">{order.id}</TableCell>
-                                <TableCell>{order.customer}</TableCell>
-                                <TableCell>{order.date}</TableCell>
-                                <TableCell>
-                                    <Badge
-                                        variant={
-                                            order.status === "Delivered" ? "default" :
-                                                order.status === "Pending" ? "secondary" :
-                                                    order.status === "Cancelled" ? "destructive" : "outline"
-                                        }
-                                        className={
-                                            order.status === "Shipped" ? "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200" : ""
-                                        }
-                                    >
-                                        {order.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>
-                                    {order.assignedTo.length > 0 ? (
-                                        <div className="flex items-center -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300">
-                                            {order.assignedTo.map((staffId) => {
-                                                const staff = getStaffDetails(staffId);
-                                                if (!staff) return null;
-                                                return (
-                                                    <Avatar key={staffId} className="h-8 w-8 border-2 border-background ring-1 ring-muted" title={staff.name}>
-                                                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
-                                                        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                                                            {staff.name.substring(0, 2).toUpperCase()}
-                                                        </AvatarFallback>
-                                                    </Avatar>
-                                                );
-                                            })}
-                                        </div>
-                                    ) : (
-                                        <span className="text-sm text-muted-foreground italic">Unassigned</span>
-                                    )}
-                                </TableCell>
-                                <TableCell className="text-right font-semibold">${order.total.toLocaleString()}</TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            title="View Details"
-                                            onClick={() => handleViewOrder(order)}
-                                        >
-                                            <Eye className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            title="Assign Staff"
-                                            onClick={() => openAssignDialog([order.id])}
-                                        >
-                                            <UserPlus className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                                        </Button>
+                        {isLoading || isFetching ? (
+                            <TableRow>
+                                <TableCell colSpan={8} className="h-64 text-center">
+                                    <div className="flex flex-col items-center justify-center space-y-2">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                        <p className="text-sm text-muted-foreground">Loading orders...</p>
                                     </div>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        ) : orders.length > 0 ? (
+                            orders.map((order) => (
+                                <TableRow key={order.id} className={selectedOrders.includes(order.id) ? "bg-muted/50" : ""}>
+                                    <TableCell>
+                                        <Checkbox
+                                            checked={selectedOrders.includes(order.id)}
+                                            onCheckedChange={(checked) => handleSelectRow(order.id, checked as boolean)}
+                                        />
+                                    </TableCell>
+                                    <TableCell className="font-medium">{order.id}</TableCell>
+                                    <TableCell>{order.customer}</TableCell>
+                                    <TableCell>{order.date}</TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={
+                                                order.status === "delivered" ? "default" :
+                                                    order.status === "pending" ? "secondary" :
+                                                        order.status === "cancelled" ? "destructive" : "outline"
+                                            }
+                                            className={
+                                                order.status === "shipped" ? "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200" : ""
+                                            }
+                                        >
+                                            {order.status}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        {order.assignedTo.length > 0 ? (
+                                            <div className="flex items-center -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300">
+                                                {order.assignedTo.map((staffId) => {
+                                                    const staff = getStaffDetails(staffId);
+                                                    if (!staff) return null;
+                                                    return (
+                                                        <Avatar key={staffId} className="h-8 w-8 border-2 border-background ring-1 ring-muted" title={staff.name}>
+                                                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
+                                                            <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                                                                {staff.name.substring(0, 2).toUpperCase()}
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <span className="text-sm text-muted-foreground italic">Unassigned</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right font-semibold">${(order.total || 0).toLocaleString()}</TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                title="View Details"
+                                                onClick={() => handleViewOrder(order)}
+                                            >
+                                                <Eye className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                title="Assign Staff"
+                                                onClick={() => openAssignDialog([order.id])}
+                                            >
+                                                <UserPlus className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={8} className="h-64 text-center">
+                                    <div className="flex flex-col items-center justify-center space-y-2">
+                                        <Package className="h-8 w-8 text-muted-foreground opacity-50" />
+                                        <p className="text-sm text-muted-foreground">No orders found.</p>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
+                {/* Pagination Controls */}
+                {pagination && pagination.totalPage > 1 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20">
+                        <div className="text-sm text-muted-foreground">
+                            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, pagination.total)} of {pagination.total} orders
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                                disabled={page === 1}
+                            >
+                                Previous
+                            </Button>
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: pagination.totalPage }, (_, i) => i + 1).map((p) => (
+                                    <Button
+                                        key={p}
+                                        variant={page === p ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => setPage(p)}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        {p}
+                                    </Button>
+                                ))}
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setPage(prev => Math.min(prev + 1, pagination.totalPage))}
+                                disabled={page === pagination.totalPage}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* View Order Sheet */}
@@ -444,7 +466,7 @@ const OrderManage = () => {
                                                 ))}
                                                 <TableRow className="bg-muted/50 font-medium">
                                                     <TableCell colSpan={3} className="text-right">Grand Total</TableCell>
-                                                    <TableCell className="text-right text-primary">${viewOrder.total.toLocaleString()}</TableCell>
+                                                    <TableCell className="text-right text-primary">${(viewOrder.total || 0).toLocaleString()}</TableCell>
                                                 </TableRow>
                                             </TableBody>
                                         </Table>
