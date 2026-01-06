@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Calendar, CheckCircle, Clock, Package, User } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, Package, User } from "lucide-react";
 import { Link, useParams } from "react-router";
 
 const ProductionDetails = () => {
