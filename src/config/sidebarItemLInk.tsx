@@ -111,6 +111,8 @@ import {
   RolePermission,
   SettingsPermission,
   ReportPermission,
+  RawMaterialPermission,
+  ProductionPermission,
   SuperAdminPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
@@ -121,6 +123,13 @@ import AttendanceDetailsPage from "@/pages/staffs/attendance/attendanceDetails";
 import RouteWiseOrder from "@/pages/routeOperations/RouteWiseOrder";
 import OrderManage from "@/pages/routeOperations/OrderManage";
 import StaffRoute from "@/pages/routeOperations/StaffRoute";
+import RawMaterials from "@/pages/raw-materials";
+import AddRawMaterial from "@/pages/raw-materials/AddRawMaterial";
+import ProductionDashboard from "@/pages/production";
+import ProductionList from "@/pages/production/ProductionList";
+import CreateProduction from "@/pages/production/CreateProduction";
+import EditRawMaterial from "@/pages/raw-materials/EditRawMaterial";
+import ProductionDetails from "@/pages/production/ProductionDetails";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -437,6 +446,101 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+    ],
+  },
+
+  // RAW MATERIALS
+  {
+    title: "Raw Materials",
+    url: "#",
+    icon: Boxes,
+    allowedPermissions: [
+      RawMaterialPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "Raw Materials List",
+        url: "/dashboard/raw-materials",
+        element: <RawMaterials />,
+        icon: List,
+        allowedPermissions: [
+          RawMaterialPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Add Material",
+        url: "/dashboard/raw-materials/create",
+        element: <AddRawMaterial />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          RawMaterialPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/raw-materials/:id/edit",
+        element: <EditRawMaterial />,
+        allowedPermissions: [
+          RawMaterialPermission.EDIT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+    ],
+  },
+
+  // PRODUCTION
+  {
+    title: "Production",
+    url: "#",
+    icon: Layers,
+    allowedPermissions: [
+      ProductionPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "Dashboard",
+        url: "/dashboard/production",
+        element: <ProductionDashboard />,
+        icon: LayoutDashboard,
+        allowedPermissions: [
+          ProductionPermission.VIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Production List",
+        url: "/dashboard/production/list",
+        element: <ProductionList />,
+        icon: List,
+        allowedPermissions: [
+          ProductionPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Create Production",
+        url: "/dashboard/production/create",
+        element: <CreateProduction />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          ProductionPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/production/:id",
+        element: <ProductionDetails />,
+        allowedPermissions: [
+          ProductionPermission.DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
     ],
   },
 
