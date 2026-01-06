@@ -117,7 +117,8 @@ export const baseApi = createApi({
     "PurchaseMaps",
     "Purchase",
     "Stats",
-    "Reports"
+    "Reports",
+    "SalesOrdersByRoute"
   ],
   endpoints: () => ({}),
 });
