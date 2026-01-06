@@ -19,9 +19,9 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/ca
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, MapPin, Package, DollarSign, Filter, ArrowRight, Loader2 } from "lucide-react";
+import { Search, MapPin, Package, ArrowRight, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetSalesOrdersByRouteQuery } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
