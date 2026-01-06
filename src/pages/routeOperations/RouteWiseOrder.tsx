@@ -1,16 +1,32 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback, type ChangeEvent } from "react";
+
+interface Order {
+    id: string;
+    customer: string;
+    amount: number;
+    status: string;
+    date: string;
+}
+
+interface Route {
+    id: string | number;
+    name: string;
+    region: string;
+    orders?: Order[];
+}
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, MapPin, Package, DollarSign, Filter, ArrowRight } from "lucide-react";
+import { Search, MapPin, Package, DollarSign, Filter, ArrowRight, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useGetSalesOrdersByRouteQuery } from "@/store/features/salesOrder/salesOrder";
 
-// Expanded Dummy Data for "Lots of Orders"
-const dummyRoutes = [
+// Expanded Dummy Data for "Lots of Orders" (kept for structure reference if needed, but unused for route list logic)
+const dummyRoutes: Route[] = [
     {
         id: "R001",
         name: "Dhaka North Route",
@@ -23,55 +39,84 @@ const dummyRoutes = [
             date: "2024-03-20",
         })),
     },
-    {
-        id: "R002",
-        name: "Dhaka South Route",
-        region: "Dhaka",
-        orders: Array.from({ length: 35 }).map((_, i) => ({
-            id: `ORD-S${2000 + i}`,
-            customer: `Store ${i + 1}`,
-            amount: Math.floor(Math.random() * 15000) + 1000,
-            status: i % 2 === 0 ? "Pending" : "Delivered",
-            date: "2024-03-21",
-        })),
-    },
-    {
-        id: "R003",
-        name: "Chittagong Highway",
-        region: "Chittagong",
-        orders: [],
-    },
-    {
-        id: "R004",
-        name: "Sylhet Tea Garden",
-        region: "Sylhet",
-        orders: Array.from({ length: 12 }).map((_, i) => ({
-            id: `ORD-T${3000 + i}`,
-            customer: `Tea Stall ${i + 1}`,
-            amount: Math.floor(Math.random() * 5000) + 200,
-            status: "Pending",
-            date: "2024-03-22",
-        })),
-    },
+    // ... (rest of dummy data can stay or be removed, keeping for now to avoid large diffs if used elsewhere)
 ];
 
+
 const RouteWiseOrder = () => {
-    const [selectedRouteId, setSelectedRouteId] = useState<string>(dummyRoutes[0].id);
+    const [selectedRouteId, setSelectedRouteId] = useState<string | number | null>(null);
     const [routeSearch, setRouteSearch] = useState("");
     const [orderSearch, setOrderSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [allRoutes, setAllRoutes] = useState<Route[]>([]);
+    const [hasMore, setHasMore] = useState(true);
 
-    const selectedRoute = dummyRoutes.find((r) => r.id === selectedRouteId);
+    const { data: routeData, isFetching } = useGetSalesOrdersByRouteQuery({
+        search: routeSearch,
+        page: page,
+        limit: 10
+    });
 
-    const filteredRoutes = dummyRoutes.filter((route) =>
-        route.name.toLowerCase().includes(routeSearch.toLowerCase())
-    );
+    const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setRouteSearch(e.target.value);
+        setPage(1);
+        setAllRoutes([]);
+        setHasMore(true);
+    };
 
-    const filteredOrders = selectedRoute?.orders.filter((order) =>
-        order.customer.toLowerCase().includes(orderSearch.toLowerCase()) ||
-        order.id.toLowerCase().includes(orderSearch.toLowerCase())
-    );
+    // Handle data update
+    useEffect(() => {
+        if (routeData?.data) {
+            const returnedRoutes = routeData.data as Route[];
+            if (page === 1) {
+                setAllRoutes(returnedRoutes);
+                // Auto-select first route if none selected
+                if (!selectedRouteId && returnedRoutes.length > 0) {
+                    setSelectedRouteId(returnedRoutes[0].id);
+                }
+            } else {
+                setAllRoutes(prev => {
+                    const newRoutes = returnedRoutes.filter((newR) =>
+                        !prev.some(existingR => existingR.id === newR.id)
+                    );
+                    return [...prev, ...newRoutes];
+                });
+            }
 
-    const totalAmount = filteredOrders?.reduce((sum, order) => sum + order.amount, 0) || 0;
+            if (routeData.pagination) {
+                setHasMore(routeData.pagination.page < routeData.pagination.totalPage);
+            } else {
+                // Fallback if pagination info missing
+                setHasMore(routeData.data.length === 10);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [routeData, page]); // Removed selectedRouteId to avoid loop
+
+    // Intersection Observer for Infinite Scroll
+    const observer = useRef<IntersectionObserver | null>(null);
+    const lastRouteElementRef = useCallback((node: HTMLButtonElement) => {
+        if (isFetching) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                setPage(prevPage => prevPage + 1);
+            }
+        });
+        if (node) observer.current.observe(node);
+    }, [isFetching, hasMore]);
+
+
+    const selectedRoute = allRoutes.find((r) => r.id === selectedRouteId) || (dummyRoutes as unknown as Route[]).find((r) => r.id === selectedRouteId);
+
+    // Filter orders locally for the selected route (assuming API returns orders in the route object)
+    // Note: If API doesn't return orders, this needs separate fetching, but following current pattern:
+    const filteredOrders = selectedRoute?.orders?.filter((order: Order) =>
+        (order.customer && String(order.customer).toLowerCase().includes(orderSearch.toLowerCase())) ||
+        (order.id && String(order.id).toLowerCase().includes(orderSearch.toLowerCase()))
+    ) || [];
+
+    const totalAmount = filteredOrders?.reduce((sum: number, order: Order) => sum + (order.amount || 0), 0) || 0;
 
     return (
         <div className="flex h-[calc(100vh-6rem)] gap-4 p-4 overflow-hidden bg-background">
@@ -88,39 +133,78 @@ const RouteWiseOrder = () => {
                             placeholder="Search routes..."
                             className="pl-8 bg-background"
                             value={routeSearch}
-                            onChange={(e) => setRouteSearch(e.target.value)}
+                            onChange={handleSearchChange}
                         />
                     </div>
                 </CardHeader>
                 <ScrollArea className="flex-1">
                     <div className="p-2 space-y-2">
-                        {filteredRoutes.map((route) => (
-                            <button
-                                key={route.id}
-                                onClick={() => setSelectedRouteId(route.id)}
-                                className={`w-full text-left p-3 rounded-lg transition-all border hover:bg-accent group
-                                    ${selectedRouteId === route.id
-                                        ? "bg-primary/5 border-primary shadow-sm"
-                                        : "bg-card border-transparent hover:border-border"
-                                    }`}
-                            >
-                                <div className="flex justify-between items-start mb-1">
-                                    <span className={`font-semibold text-sm ${selectedRouteId === route.id ? "text-primary" : "text-foreground"}`}>
-                                        {route.name}
-                                    </span>
-                                    {route.orders.length > 0 && (
-                                        <Badge variant={selectedRouteId === route.id ? "default" : "secondary"} className="text-xs">
-                                            {route.orders.length}
-                                        </Badge>
-                                    )}
-                                </div>
-                                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                    <span>{route.region}</span>
-                                    {selectedRouteId === route.id && <ArrowRight className="h-3 w-3 animate-pulse text-primary" />}
-                                </div>
-                            </button>
-                        ))}
-                        {filteredRoutes.length === 0 && (
+                        {allRoutes.map((route, index) => {
+                            if (allRoutes.length === index + 1) {
+                                return (
+                                    <button
+                                        ref={lastRouteElementRef}
+                                        key={route.id}
+                                        onClick={() => setSelectedRouteId(route.id)}
+                                        className={`w-full text-left p-3 rounded-lg transition-all border hover:bg-accent group
+                                            ${selectedRouteId === route.id
+                                                ? "bg-primary/5 border-primary shadow-sm"
+                                                : "bg-card border-transparent hover:border-border"
+                                            }`}
+                                    >
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className={`font-semibold text-sm ${selectedRouteId === route.id ? "text-primary" : "text-foreground"}`}>
+                                                {route.name}
+                                            </span>
+                                            {route.orders && route.orders.length > 0 && (
+                                                <Badge variant={selectedRouteId === route.id ? "default" : "secondary"} className="text-xs">
+                                                    {route.orders.length}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>{route.region}</span>
+                                            {selectedRouteId === route.id && <ArrowRight className="h-3 w-3 animate-pulse text-primary" />}
+                                        </div>
+                                    </button>
+                                );
+                            } else {
+                                return (
+                                    <button
+                                        key={route.id}
+                                        onClick={() => setSelectedRouteId(route.id)}
+                                        className={`w-full text-left p-3 rounded-lg transition-all border hover:bg-accent group
+                                            ${selectedRouteId === route.id
+                                                ? "bg-primary/5 border-primary shadow-sm"
+                                                : "bg-card border-transparent hover:border-border"
+                                            }`}
+                                    >
+                                        <div className="flex justify-between items-start mb-1">
+                                            <span className={`font-semibold text-sm ${selectedRouteId === route.id ? "text-primary" : "text-foreground"}`}>
+                                                {route.name}
+                                            </span>
+                                            {route.orders && route.orders.length > 0 && (
+                                                <Badge variant={selectedRouteId === route.id ? "default" : "secondary"} className="text-xs">
+                                                    {route.orders.length}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span>{route.region}</span>
+                                            {selectedRouteId === route.id && <ArrowRight className="h-3 w-3 animate-pulse text-primary" />}
+                                        </div>
+                                    </button>
+                                );
+                            }
+                        })}
+
+                        {isFetching && (
+                            <div className="flex justify-center p-4">
+                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                            </div>
+                        )}
+
+                        {!isFetching && allRoutes.length === 0 && (
                             <div className="p-4 text-center text-sm text-muted-foreground">
                                 No routes found.
                             </div>
@@ -128,7 +212,7 @@ const RouteWiseOrder = () => {
                     </div>
                 </ScrollArea>
                 <div className="p-3 border-t bg-muted/20 text-xs text-center text-muted-foreground">
-                    Showing {filteredRoutes.length} routes
+                    Showing {allRoutes.length} routes
                 </div>
             </Card>
 

@@ -25,7 +25,7 @@ export interface UpdateInvoiceStatusPayload {
 
 export const salesApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-       // GET ALL SALES ORDERS
+    // GET ALL SALES ORDERS
     getSalesOrdersStats: builder.query({
       query: () => ({
         url: "/sales/orders/stats",
@@ -65,15 +65,15 @@ export const salesApiService = baseApi.injectEndpoints({
     // CREATE SALES ORDER
     updateSalesOrderStatus: builder.mutation<
       SalesResponse<SalesOrder>,
-     {
-      orderId:string|number,
-      orderData:UpdateDeliveryPayload
-     }
+      {
+        orderId: string | number,
+        orderData: UpdateDeliveryPayload
+      }
     >({
-      query: ({orderId,orderData}) => ({
+      query: ({ orderId, orderData }) => ({
         url: `/sales/orders/${orderId}/deliver`,
         method: "POST",
-        body:orderData,
+        body: orderData,
       }),
       invalidatesTags: ["SalesOrders"],
     }),
@@ -109,7 +109,7 @@ export const salesApiService = baseApi.injectEndpoints({
     // CREATE SALES INVOICE
     addSalesInvoice: builder.mutation<
       SalesResponse<SalesInvoice>,
-     InvoiceCreatePayload
+      InvoiceCreatePayload
     >({
       query: (body) => ({
         url: "/sales/orders/invoices",
@@ -120,8 +120,8 @@ export const salesApiService = baseApi.injectEndpoints({
     }),
 
 
-        // GET SINGLE SALES INVOICE BY ID
-    getInvoiceById: builder.query< SalesResponse<SalesInvoice>, string | number>(
+    // GET SINGLE SALES INVOICE BY ID
+    getInvoiceById: builder.query<SalesResponse<SalesInvoice>, string | number>(
       {
         query: (id) => ({
           url: `/sales/orders/invoices/${id}`,
@@ -130,8 +130,8 @@ export const salesApiService = baseApi.injectEndpoints({
         providesTags: ["SalesInvoice"],
       }
     ),
-        // GET SINGLE SALES INVOICE BY ID
-    getInvoicesByCustomer: builder.query< SalesResponse<SalesInvoice>, { page?: number; limit?: number; search?: string, customerId:number|string}>(
+    // GET SINGLE SALES INVOICE BY ID
+    getInvoicesByCustomer: builder.query<SalesResponse<SalesInvoice>, { page?: number; limit?: number; search?: string, customerId: number | string }>(
       {
         query: (params) => ({
           url: `/sales/orders/invoices/customer/${params.customerId}`,
@@ -139,29 +139,29 @@ export const salesApiService = baseApi.injectEndpoints({
           params
         }),
         providesTags: ["SalesInvoiceByCustomers"],
-        
+
       }
     ),
 
-  updateInvoiceStatus: builder.mutation<
+    updateInvoiceStatus: builder.mutation<
       SalesResponse<SalesInvoice>,
-     {
-      invoiceId: number,
-      invoiceData:UpdateInvoiceStatusPayload
-     }
+      {
+        invoiceId: number,
+        invoiceData: UpdateInvoiceStatusPayload
+      }
     >({
       query: (body) => ({
         url: `/sales/orders/invoices/${body.invoiceId}/status`,
         method: "PATCH",
-        body:body.invoiceData,
+        body: body.invoiceData,
       }),
       invalidatesTags: ["SalesInvoices"],
     }),
 
-      // GET ALL SALES INVOICES
+    // GET ALL SALES INVOICES
     getAllUnpaidSalesInvoices: builder.query<
       SalesResponse<SalesInvoice[]>,
-      { page?: number; limit?: number; search?: string, customerId:number|string }
+      { page?: number; limit?: number; search?: string, customerId: number | string }
     >({
       query: (params) => ({
         url: `/sales/orders/invoices/unpaid/customer/${params.customerId}`,
@@ -189,9 +189,9 @@ export const salesApiService = baseApi.injectEndpoints({
     }),
 
 
-       // GET ALL Payments
+    // GET ALL Payments
     getSalesPayment: builder.query<
-       SalesResponse<SalesPayment[]>,
+      SalesResponse<SalesPayment[]>,
       { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({
@@ -203,7 +203,7 @@ export const salesApiService = baseApi.injectEndpoints({
     }),
 
 
-      getSalesPaymentById: builder.query< SalesResponse<SalesPayment>, string | number>(
+    getSalesPaymentById: builder.query<SalesResponse<SalesPayment>, string | number>(
       {
         query: (id) => ({
           url: `/sales/orders/payments/${id}`,
@@ -260,10 +260,10 @@ export const salesApiService = baseApi.injectEndpoints({
     // ============================
     getSalesOrdersByRoute: builder.query<
       SalesResponse<any[]>,
-      { page?: number; limit?: number; search?: string, rsales_route_id:number|string }
+      { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({
-        url: `/api/sales/orders/by-route`,
+        url: `/sales/orders/by-route`,
         method: "GET",
         params,
       }),
@@ -294,5 +294,5 @@ export const {
   useGetSalesPaymentByIdQuery,
   useUpdateSalesOrderStatusMutation,
   useGetSalesOrdersByRouteQuery,
-  
+
 } = salesApiService;
