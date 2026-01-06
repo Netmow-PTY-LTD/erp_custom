@@ -254,6 +254,23 @@ export const salesApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["SalesRoutes"],
     }),
+
+    // ============================
+    // Route wise orders
+    // ============================
+    getSalesOrdersByRoute: builder.query<
+      SalesResponse<any[]>,
+      { page?: number; limit?: number; search?: string, rsales_route_id:number|string }
+    >({
+      query: (params) => ({
+        url: `/api/sales/orders/by-route`,
+        method: "GET",
+        params,
+      }),
+      providesTags: ["SalesOrdersByRoute"],
+    }),
+
+
   }),
 });
 
@@ -275,6 +292,7 @@ export const {
   useGetSalesRoutesQuery,
   useGetInvoicesByCustomerQuery,
   useGetSalesPaymentByIdQuery,
-  useUpdateSalesOrderStatusMutation
+  useUpdateSalesOrderStatusMutation,
+  useGetSalesOrdersByRouteQuery,
   
 } = salesApiService;
