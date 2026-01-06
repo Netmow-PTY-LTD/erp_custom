@@ -68,11 +68,12 @@ export default function AddStockForm({
 }) {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
-    const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canCreateStock = userPermissions.includes(ProductPermission.CREATE_STOCK)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-
-
-  
+  const userPermissions = useAppSelector(
+    (state) => state.auth.user?.role.permissions || []
+  );
+  const canCreateStock =
+    userPermissions.includes(ProductPermission.CREATE_STOCK) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const form = useForm<StockFormValues>({
     resolver: zodResolver(stockFormSchema),
@@ -82,7 +83,7 @@ export default function AddStockForm({
       quantity: 0,
       operation: "add",
       date: new Date().toISOString().split("T")[0],
-      movement_type: "Adjustment",
+      movement_type: "adjustment",
       notes: "",
     },
   });
@@ -100,7 +101,7 @@ export default function AddStockForm({
 
   // Find the selected product from parent products
   const selectedProduct = products?.find(
-    (p) => Number(p.id) === Number(selectedProductId)
+    (p) => p.id === selectedProductId
   );
 
   // Auto-fill stock when product changes
@@ -115,7 +116,12 @@ export default function AddStockForm({
   const [updateStock] = useUpdateStockMutation();
 
   const onSubmit = async (values: z.infer<typeof stockFormSchema>) => {
-    if (!selectedProduct) return;
+    console.log("Form Values:", values);
+    if (!selectedProduct) {
+      console.error("No product selected");
+      toast.error("Please select a valid product for stock adjustment");
+      return;
+    };
     const payload = {
       id: selectedProduct.id,
       body: {
@@ -155,7 +161,7 @@ export default function AddStockForm({
         </SheetHeader>
 
         <div className="p-4 max-h-[90vh] overflow-y-auto">
-           {!canCreateStock? (
+          {!canCreateStock ? (
             <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
               <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
                 <ShieldAlert className="w-10 h-10 text-destructive" />
@@ -165,7 +171,8 @@ export default function AddStockForm({
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 You do not have permission to add a new Stock. <br />
-                Please contact your administrator if you believe this is an error.
+                Please contact your administrator if you believe this is an
+                error.
               </p>
               <Button
                 variant="outline"
@@ -175,178 +182,192 @@ export default function AddStockForm({
                 Close
               </Button>
             </div>
-          ) :( <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              {/* PRODUCT DROPDOWN */}
-              <Controller
-                control={control}
-                name="product_id"
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel>Product Name</FieldLabel>
-                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className="w-full justify-between"
-                        >
-                          {selectedProduct
-                            ? selectedProduct.name
-                            : "Select product..."}
-                          <ChevronDown className="opacity-50 h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
+          ) : (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
+                {/* PRODUCT DROPDOWN */}
+                <Controller
+                  control={control}
+                  name="product_id"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Product Name</FieldLabel>
+                      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {selectedProduct
+                              ? selectedProduct.name
+                              : "Select product..."}
+                            <ChevronDown className="opacity-50 h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
 
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search product..."
-                            className="h-9"
-                            value={search}
-                            onValueChange={setSearch}
-                          />
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search product..."
+                              className="h-9"
+                              value={search}
+                              onValueChange={setSearch}
+                            />
 
-                          <CommandList>
-                            <CommandEmpty>No matching product.</CommandEmpty>
+                            <CommandList>
+                              <CommandEmpty>No matching product.</CommandEmpty>
 
-                            <CommandGroup>
-                              {products?.map((product) => (
-                                <CommandItem
-                                  key={product.id}
-                                  value={product.name}
-                                  onSelect={() => {
-                                    field.onChange(Number(product.id));
-                                    setPopoverOpen(false);
-                                  }}
-                                >
-                                  {product.name}
-                                  <Check
-                                    className={`ml-auto h-4 w-4 ${Number(field.value) === product.id
-                                        ? "opacity-100"
-                                        : "opacity-0"
+                              <CommandGroup>
+                                {products?.map((product) => (
+                                  <CommandItem
+                                    key={product.id}
+                                    value={product.name}
+                                    onSelect={() => {
+                                      field.onChange(Number(product.id));
+                                      setPopoverOpen(false);
+                                    }}
+                                  >
+                                    {product.name}
+                                    <Check
+                                      className={`ml-auto h-4 w-4 ${
+                                        Number(field.value) === product.id
+                                          ? "opacity-100"
+                                          : "opacity-0"
                                       }`}
-                                  />
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </Field>
-                )}
-              />
+                                    />
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
 
-              {/* STOCK INPUT */}
-              <Controller
-                control={control}
-                name="current_stock"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Current Stock</FieldLabel>
-                    <Input
-                      type="number"
-                      placeholder="Enter stock"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      disabled
-                    />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
 
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+                {/* STOCK INPUT */}
+                <Controller
+                  control={control}
+                  name="current_stock"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Current Stock</FieldLabel>
+                      <Input
+                        type="number"
+                        placeholder="Enter stock"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        disabled
+                      />
 
-              <Controller
-                control={control}
-                name="quantity"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Quantity</FieldLabel>
-                    <Input
-                      type="number"
-                      placeholder="Enter stock"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="operation"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Operation</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select operation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="add">Add</SelectItem>
-                        <SelectItem value="subtract">Subtract</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={control}
-                name="movement_type"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Movement Type</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select operation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="purchase">Purchase</SelectItem>
-                        <SelectItem value="sale">Sale</SelectItem>
-                        <SelectItem value="return">Return</SelectItem>
-                        <SelectItem value="adjustment">Adjustment</SelectItem>
-                        <SelectItem value="transfer">Transfer</SelectItem>
-                        <SelectItem value="production">Production</SelectItem>
-                        <SelectItem value="waste">Waste</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={control}
-                name="date"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Date</FieldLabel>
-                    <Input type="date" {...field} className="block" />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="quantity"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Quantity</FieldLabel>
+                      <Input
+                        type="number"
+                        placeholder="Enter stock"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="notes"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Notes</FieldLabel>
-                    <Textarea placeholder="Write notes..." {...field} />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="operation"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Operation</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select operation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="add">Add</SelectItem>
+                          <SelectItem value="subtract">Subtract</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="movement_type"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Movement Type</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select operation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="purchase">Purchase</SelectItem>
+                          <SelectItem value="sale">Sale</SelectItem>
+                          <SelectItem value="return">Return</SelectItem>
+                          <SelectItem value="adjustment">Adjustment</SelectItem>
+                          <SelectItem value="transfer">Transfer</SelectItem>
+                          <SelectItem value="production">Production</SelectItem>
+                          <SelectItem value="waste">Waste</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="date"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Date</FieldLabel>
+                      <Input type="date" {...field} className="block" />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
 
-              <div className="flex justify-center items-center gap-2">
-                <Button type="submit">Adjust Stock</Button>
-              </div>
-            </form>
-          </Form>)}
+                <Controller
+                  control={control}
+                  name="notes"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Notes</FieldLabel>
+                      <Textarea placeholder="Write notes..." {...field} />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+
+                <div className="flex justify-center items-center gap-2">
+                  <Button type="submit">Adjust Stock</Button>
+                </div>
+              </form>
+            </Form>
+          )}
         </div>
       </SheetContent>
     </Sheet>

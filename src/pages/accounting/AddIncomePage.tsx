@@ -51,7 +51,7 @@ const incomeSchema = z.object({
   description: z.string().optional(),
   //category: z.string().min(1, "Category is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
-  receivedVia: z.string().min(1, "Required"),
+  receivedVia: z.string().optional(),
   reference: z.string().optional(),
 });
 

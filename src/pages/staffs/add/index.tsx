@@ -58,10 +58,11 @@ const StaffSchema = z.object({
   email: z.string().email("Invalid email"),
   phone: z.string().optional(),
   department: z.number().min(1, "Required"),
-  position: z.string().min(1, "Required"),
-  hire_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Invalid date",
-  }),
+  position: z.string().optional(),
+  // hire_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+  //   message: "Invalid date",
+  // }),
+  hire_date: z.string().optional(),
   salary: z.number().optional(),
   // address: z.string().optional(),
   status: z.enum(["active", "terminated", "on_leave"]),

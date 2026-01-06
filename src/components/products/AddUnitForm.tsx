@@ -26,7 +26,7 @@ import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Required"),
-  symbol: z.string(),
+  symbol: z.string().min(1, "Required"),
   is_active: z.boolean().optional(),
 });
 interface Props {
@@ -35,18 +35,20 @@ interface Props {
   refetchUnits: () => void;
 }
 
+export default function AddUnitForm({
+  open,
+  onOpenChange,
+  refetchUnits,
+}: Props) {
+  const userPermissions = useAppSelector(
+    (state) => state.auth.user?.role.permissions || []
+  );
 
-export default function AddUnitForm({ open, onOpenChange, refetchUnits }: Props) {
+  // Units permissions
 
-
-   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  
-    // Units permissions
-
-    const canCreateUnits = userPermissions.includes(ProductPermission.CREATE_UNITS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-    
-
-
+  const canCreateUnits =
+    userPermissions.includes(ProductPermission.CREATE_UNITS) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const form = useForm({
     resolver: zodResolver(unitSchema),
@@ -79,7 +81,10 @@ export default function AddUnitForm({ open, onOpenChange, refetchUnits }: Props)
       }
     } catch (error) {
       console.error("Error adding unit:", error);
-      toast.error("Failed to add unit" + (error instanceof Error ? ": " + error.message : ""));
+      toast.error(
+        "Failed to add unit" +
+          (error instanceof Error ? ": " + error.message : "")
+      );
     }
   };
 
@@ -91,7 +96,7 @@ export default function AddUnitForm({ open, onOpenChange, refetchUnits }: Props)
         </SheetHeader>
 
         <div className="px-4">
-           {!canCreateUnits? (
+          {!canCreateUnits ? (
             <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
               <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
                 <ShieldAlert className="w-10 h-10 text-destructive" />
@@ -101,7 +106,8 @@ export default function AddUnitForm({ open, onOpenChange, refetchUnits }: Props)
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 You do not have permission to add a new Unit. <br />
-                Please contact your administrator if you believe this is an error.
+                Please contact your administrator if you believe this is an
+                error.
               </p>
               <Button
                 variant="outline"
@@ -111,84 +117,88 @@ export default function AddUnitForm({ open, onOpenChange, refetchUnits }: Props)
                 Close
               </Button>
             </div>
-          ) :(<Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="space-y-4">
-                {/* Unit Name */}
-                <Controller
-                  name="name"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel htmlFor="name">Unit Name</FieldLabel>
-                      <Input
-                        id="name"
-                        placeholder="Unit name (e.g., Pieces)"
-                        {...field}
-                      />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
+          ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="space-y-4">
+                  {/* Unit Name */}
+                  <Controller
+                    name="name"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel htmlFor="name">Unit Name</FieldLabel>
+                        <Input
+                          id="name"
+                          placeholder="Unit name (e.g., Pieces)"
+                          {...field}
+                        />
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
 
-                {/* Symbol */}
-                <Controller
-                  name="symbol"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel htmlFor="symbol">Unit Code</FieldLabel>
-                      <Input
-                        id="symbol"
-                        placeholder="Abbreviation (e.g., pcs)"
-                        {...field}
-                      />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
+                  {/* Symbol */}
+                  <Controller
+                    name="symbol"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel htmlFor="symbol">Unit Code</FieldLabel>
+                        <Input
+                          id="symbol"
+                          placeholder="Abbreviation (e.g., pcs)"
+                          {...field}
+                        />
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
 
-                {/* Is Active */}
-                <Controller
-                  name="is_active"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel htmlFor="is_active">Active</FieldLabel>
+                  {/* Is Active */}
+                  <Controller
+                    name="is_active"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel htmlFor="is_active">Active</FieldLabel>
 
-                      <Select
-                        value={field.value ? "true" : "false"}
-                        onValueChange={(val) => field.onChange(val === "true")}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
+                        <Select
+                          value={field.value ? "true" : "false"}
+                          onValueChange={(val) =>
+                            field.onChange(val === "true")
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
 
-                        <SelectContent>
-                          <SelectItem value="true">Active</SelectItem>
-                          <SelectItem value="false">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
+                          <SelectContent>
+                            <SelectItem value="true">Active</SelectItem>
+                            <SelectItem value="false">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
 
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
 
-                {/* Submit Button */}
-                <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader className="w-4 h-4 animate-spin" />
-                    Adding...
-                  </div>
-                ) : (
-                  "Add Unit"
-                )}
-              </Button>
-              </div>
-            </form>
-          </Form>)}
+                  {/* Submit Button */}
+                  <Button className="w-full" type="submit" disabled={isLoading}>
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader className="w-4 h-4 animate-spin" />
+                        Adding...
+                      </div>
+                    ) : (
+                      "Add Unit"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          )}
         </div>
       </SheetContent>
     </Sheet>
