@@ -31,7 +31,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
-import { useGetAllSalesOrdersQuery } from "@/store/features/salesOrder/salesOrder";
+import { useGetAllSalesOrdersQuery, useGetSalesOrderByIdQuery } from "@/store/features/salesOrder/salesOrder";
 import { Input } from "@/components/ui/input";
 import type { SalesOrder, SalesOrderItem } from "@/types/salesOrder.types";
 
@@ -63,8 +63,10 @@ const OrderManage = () => {
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [search, setSearch] = useState("");
+    const [viewOrderId, setViewOrderId] = useState<string | number | null>(null);
 
     const { data: salesOrderData, isLoading, isFetching } = useGetAllSalesOrdersQuery({ search, page, limit });
+    const { data: detailedOrderData, isFetching: isFetchingDetail } = useGetSalesOrderByIdQuery(viewOrderId as string | number, { skip: !viewOrderId });
 
     // Map API data to local Order interface
     const orders: Order[] = salesOrderData?.data?.map((apiOrder: SalesOrder) => ({
@@ -91,7 +93,6 @@ const OrderManage = () => {
     const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
 
     // View Details State
-    const [viewOrder, setViewOrder] = useState<Order | null>(null);
     const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
 
     // Track which orders are being assigned
@@ -151,7 +152,12 @@ const OrderManage = () => {
     };
 
     const handleViewOrder = (order: Order) => {
-        setViewOrder(order);
+        // Find the numeric ID from the api response if possible, 
+        // but since we mapped order_number to id, we need to find the original id.
+        const originalOrder = salesOrderData?.data?.find((o: SalesOrder) => o.order_number === order.id);
+        if (originalOrder) {
+            setViewOrderId(originalOrder.id);
+        }
         setIsViewSheetOpen(true);
     };
 
@@ -347,154 +353,142 @@ const OrderManage = () => {
             </div>
 
             {/* View Order Sheet */}
-            <Sheet open={isViewSheetOpen} onOpenChange={setIsViewSheetOpen}>
+            <Sheet open={isViewSheetOpen} onOpenChange={(open) => {
+                setIsViewSheetOpen(open);
+                if (!open) setViewOrderId(null);
+            }}>
                 <SheetContent className="sm:max-w-xl">
-                    <SheetHeader className="mb-6">
-                        <div className="flex items-center justify-between">
-                            <SheetTitle className="text-2xl font-bold flex items-center gap-2">
-                                {viewOrder?.id}
-                                <Badge variant={viewOrder?.status === "Delivered" ? "default" : "secondary"} className="ml-2 text-sm font-normal">
-                                    {viewOrder?.status}
-                                </Badge>
-                            </SheetTitle>
+                    {isFetchingDetail ? (
+                        <div className="flex flex-col items-center justify-center h-full space-y-4">
+                            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                            <p className="text-muted-foreground">Fetching order details...</p>
                         </div>
-                        <SheetDescription>
-                            Order placed on {viewOrder?.date}
-                        </SheetDescription>
-                    </SheetHeader>
-
-                    {viewOrder && (
-                        <ScrollArea className="h-[calc(100vh-10rem)] pr-4">
-                            <div className="space-y-6">
-                                {/* Customer Info */}
-                                <div className="space-y-3">
-                                    <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
-                                        <Users className="h-4 w-4" /> Customer Details
-                                    </h3>
-                                    <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                                        <div className="flex justify-between">
-                                            <span className="text-sm font-medium">Name:</span>
-                                            <span className="text-sm">{viewOrder.customer}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-sm font-medium">Contact:</span>
-                                            <div className="flex items-center gap-1 text-sm">
-                                                <Phone className="h-3 w-3" /> {viewOrder.contact}
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-sm font-medium">Address:</span>
-                                            <div className="flex items-center gap-1 text-sm text-right">
-                                                <MapPin className="h-3 w-3" /> {viewOrder.address}
-                                            </div>
-                                        </div>
-                                    </div>
+                    ) : detailedOrderData?.data ? (
+                        <>
+                            <SheetHeader className="mb-6">
+                                <div className="flex items-center justify-between">
+                                    <SheetTitle className="text-2xl font-bold flex items-center gap-2">
+                                        {detailedOrderData.data.order_number}
+                                        <Badge variant={detailedOrderData.data.status === "delivered" ? "default" : "secondary"} className="ml-2 text-sm font-normal">
+                                            {detailedOrderData.data.status}
+                                        </Badge>
+                                    </SheetTitle>
                                 </div>
+                                <SheetDescription>
+                                    Order placed on {new Date(detailedOrderData.data.order_date).toLocaleDateString()}
+                                </SheetDescription>
+                            </SheetHeader>
 
-                                <Separator />
-
-                                {/* Staff Info (Multiple) */}
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
+                            <ScrollArea className="h-[calc(100vh-10rem)] pr-4">
+                                <div className="space-y-6">
+                                    {/* Customer Info */}
+                                    <div className="space-y-3">
                                         <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
-                                            <UserPlus className="h-4 w-4" /> Assigned Staff ({viewOrder.assignedTo.length})
+                                            <Users className="h-4 w-4" /> Customer Details
                                         </h3>
-                                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => {
-                                            // Keep sheet open but open dialog
-                                            openAssignDialog([viewOrder.id]);
-                                        }}>
-                                            Manage Assignment
-                                        </Button>
+                                        <div className="bg-muted/30 p-4 rounded-lg space-y-2">
+                                            <div className="flex justify-between">
+                                                <span className="text-sm font-medium">Name:</span>
+                                                <span className="text-sm">{detailedOrderData.data.customer?.name}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-sm font-medium">Contact:</span>
+                                                <div className="flex items-center gap-1 text-sm">
+                                                    <Phone className="h-3 w-3" /> {detailedOrderData.data.customer?.phone || "N/A"}
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-sm font-medium">Address:</span>
+                                                <div className="flex items-center gap-1 text-sm text-right">
+                                                    <MapPin className="h-3 w-3" /> {detailedOrderData.data.shipping_address || "N/A"}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {viewOrder.assignedTo.length > 0 ? (
-                                        <div className="grid grid-cols-1 gap-2">
-                                            {viewOrder.assignedTo.map(staffId => {
-                                                const staff = getStaffDetails(staffId);
-                                                if (!staff) return null;
-                                                return (
-                                                    <div key={staffId} className="flex items-center gap-3 bg-card p-3 rounded-lg border shadow-sm">
-                                                        <Avatar className="h-8 w-8">
-                                                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
-                                                            <AvatarFallback>{staff.name.substring(0, 2)}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div className="flex-1">
-                                                            <p className="font-medium text-sm">{staff.name}</p>
-                                                            <p className="text-xs text-muted-foreground">{staff.role}</p>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                    <Separator />
+
+                                    {/* Staff Info (Multiple) - Still Mocked for now */}
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
+                                                <UserPlus className="h-4 w-4" /> Assigned Staff (0)
+                                            </h3>
                                         </div>
-                                    ) : (
+
                                         <div className="flex items-center justify-between bg-muted/30 p-4 rounded-lg">
                                             <span className="text-sm text-muted-foreground italic">No staff assigned yet.</span>
                                             <Button variant="outline" size="sm" onClick={() => {
-                                                openAssignDialog([viewOrder.id]);
+                                                if (detailedOrderData.data) openAssignDialog([detailedOrderData.data.order_number]);
                                             }}>
                                                 Assign Staff
                                             </Button>
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
 
-                                <Separator />
+                                    <Separator />
 
-                                {/* Items List */}
-                                <div className="space-y-3">
-                                    <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
-                                        <Package className="h-4 w-4" /> Order Items
-                                    </h3>
-                                    <div className="border rounded-lg overflow-hidden">
-                                        <Table>
-                                            <TableHeader className="bg-muted/50">
-                                                <TableRow className="hover:bg-transparent">
-                                                    <TableHead className="h-9">Item</TableHead>
-                                                    <TableHead className="h-9 text-right">Qty</TableHead>
-                                                    <TableHead className="h-9 text-right">Price</TableHead>
-                                                    <TableHead className="h-9 text-right">Total</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {viewOrder.items.map((item, index) => (
-                                                    <TableRow key={index} className="hover:bg-transparent">
-                                                        <TableCell className="py-2">{item.name}</TableCell>
-                                                        <TableCell className="text-right py-2">{item.qty}</TableCell>
-                                                        <TableCell className="text-right py-2">${item.price}</TableCell>
-                                                        <TableCell className="text-right py-2 font-medium">${item.price * item.qty}</TableCell>
+                                    {/* Items List */}
+                                    <div className="space-y-3">
+                                        <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
+                                            <Package className="h-4 w-4" /> Order Items
+                                        </h3>
+                                        <div className="border rounded-lg overflow-hidden">
+                                            <Table>
+                                                <TableHeader className="bg-muted/50">
+                                                    <TableRow className="hover:bg-transparent">
+                                                        <TableHead className="h-9">Item</TableHead>
+                                                        <TableHead className="h-9 text-right">Qty</TableHead>
+                                                        <TableHead className="h-9 text-right">Price</TableHead>
+                                                        <TableHead className="h-9 text-right">Total</TableHead>
                                                     </TableRow>
-                                                ))}
-                                                <TableRow className="bg-muted/50 font-medium">
-                                                    <TableCell colSpan={3} className="text-right">Grand Total</TableCell>
-                                                    <TableCell className="text-right text-primary">${(viewOrder.total || 0).toLocaleString()}</TableCell>
-                                                </TableRow>
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                {/* Payment Info Mock */}
-                                <div className="space-y-3">
-                                    <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
-                                        <CreditCard className="h-4 w-4" /> Payment Details
-                                    </h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-muted/30 p-3 rounded-md">
-                                            <span className="text-xs text-muted-foreground block text-left">Payment Method</span>
-                                            <span className="text-sm font-medium">Cash on Delivery</span>
-                                        </div>
-                                        <div className="bg-muted/30 p-3 rounded-md">
-                                            <span className="text-xs text-muted-foreground block text-left">Payment Status</span>
-                                            <span className="text-sm font-medium flex items-center gap-2">
-                                                <Clock className="h-3 w-3" /> {viewOrder.status === 'Delivered' ? 'Paid' : 'Pending'}
-                                            </span>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {(detailedOrderData.data.items || []).map((item, index) => (
+                                                        <TableRow key={index} className="hover:bg-transparent">
+                                                            <TableCell className="py-2">{item.product?.name || "Unknown"}</TableCell>
+                                                            <TableCell className="text-right py-2">{item.quantity}</TableCell>
+                                                            <TableCell className="text-right py-2">${Number(item.unit_price).toLocaleString()}</TableCell>
+                                                            <TableCell className="text-right py-2 font-medium">${Number(item.total_price).toLocaleString()}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                    <TableRow className="bg-muted/50 font-medium">
+                                                        <TableCell colSpan={3} className="text-right">Grand Total</TableCell>
+                                                        <TableCell className="text-right text-primary">${(Number(detailedOrderData.data.total_payable_amount) || 0).toLocaleString()}</TableCell>
+                                                    </TableRow>
+                                                </TableBody>
+                                            </Table>
                                         </div>
                                     </div>
+
+                                    <Separator />
+
+                                    {/* Payment Info */}
+                                    <div className="space-y-3">
+                                        <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
+                                            <CreditCard className="h-4 w-4" /> Payment Details
+                                        </h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-muted/30 p-3 rounded-md">
+                                                <span className="text-xs text-muted-foreground block text-left">Payment Status</span>
+                                                <span className="text-sm font-medium uppercase">{detailedOrderData.data.payment_status}</span>
+                                            </div>
+                                            <div className="bg-muted/30 p-3 rounded-md">
+                                                <span className="text-xs text-muted-foreground block text-left">Delivery Status</span>
+                                                <span className="text-sm font-medium flex items-center gap-2 uppercase">
+                                                    <Clock className="h-3 w-3" /> {detailedOrderData.data.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </ScrollArea>
+                            </ScrollArea>
+                        </>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                            <Package className="h-10 w-10 opacity-20 mb-2" />
+                            <p>Could not load order details.</p>
+                        </div>
                     )}
                 </SheetContent>
             </Sheet>
