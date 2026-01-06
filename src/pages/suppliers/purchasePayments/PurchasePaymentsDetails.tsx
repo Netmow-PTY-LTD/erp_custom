@@ -39,6 +39,7 @@ export default function PurchasePaymentsDetails() {
     ? {
         number: payment.purchase_order.po_number,
         total: payment.purchase_order.total_amount,
+        total_payable_amount: payment.purchase_order.total_payable_amount,
         supplier: payment.purchase_order.supplier,
       }
     : null;
@@ -51,6 +52,7 @@ export default function PurchasePaymentsDetails() {
         invoice_id: payment.invoice_id,
         number: payment.invoice.invoice_number,
         total: payment.invoice.total_amount,
+        total_payable_amount: payment.invoice.total_payable_amount,
         dueDate: payment.invoice.due_date,
       }
     : null;
@@ -154,7 +156,7 @@ export default function PurchasePaymentsDetails() {
 
               <div className="flex justify-between text-sm">
                 <span>Total Amount</span>
-                <span className="font-semibold">{currency} {po.total.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {po.total_payable_amount.toFixed(2)}</span>
               </div>
             </div>
           )}
@@ -171,7 +173,7 @@ export default function PurchasePaymentsDetails() {
 
               <div className="flex justify-between text-sm">
                 <span>Total</span>
-                <span className="font-semibold">{currency} {invoice.total.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {invoice.total_payable_amount.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between text-sm">
