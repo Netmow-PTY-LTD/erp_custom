@@ -499,6 +499,9 @@ export default function CreateSalesOrderPage() {
                             type="number"
                             min={1}
                             {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                             className="bg-white"
                           />
                         </FormControl>
@@ -517,6 +520,9 @@ export default function CreateSalesOrderPage() {
                           type="number"
                           min={0}
                           {...field}
+                          onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           className="bg-white"
                         />
                         <FormMessage />
