@@ -60,7 +60,7 @@ export default function PurchaseInvoicesList() {
     //   cell: ({ row }) => `Supplier #${row.original.supplier_id}`,
     // },
      {
-      accessorKey: "purchase_order",
+      accessorKey: "purchase_order?.supplier?.name",
       header: "Supplier",
       cell: ({ row }) => `${row.original.purchase_order.supplier?.name}`,
     },

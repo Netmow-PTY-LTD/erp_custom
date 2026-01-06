@@ -127,10 +127,11 @@ import OrderManage from "@/pages/routeOperations/OrderManage";
 import StaffRoute from "@/pages/routeOperations/StaffRoute";
 import RawMaterials from "@/pages/raw-materials";
 import AddRawMaterial from "@/pages/raw-materials/AddRawMaterial";
+import EditRawMaterial from "@/pages/raw-materials/EditRawMaterial";
+import ViewRawMaterial from "@/pages/raw-materials/ViewRawMaterial";
 import ProductionDashboard from "@/pages/production";
 import ProductionList from "@/pages/production/ProductionList";
 import CreateProduction from "@/pages/production/CreateProduction";
-import EditRawMaterial from "@/pages/raw-materials/EditRawMaterial";
 import ProductionDetails from "@/pages/production/ProductionDetails";
 import RMSupplierList from "@/pages/raw-materials/suppliers/SupplierList";
 import AddRMSupplier from "@/pages/raw-materials/suppliers/AddSupplier";
@@ -144,6 +145,7 @@ import BomList from "@/pages/production/bom/BomList";
 import CreateBom from "@/pages/production/bom/CreateBom";
 import FinishedGoodsList from "@/pages/production/finished-goods/FinishedGoodsList";
 import AddFinishedGood from "@/pages/production/finished-goods/AddFinishedGood";
+import RawMaterialCategoriesPage from "@/pages/raw-materials/categories";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -511,16 +513,29 @@ export const sidebarItemLink = [
         icon: CreditCard,
         allowedPermissions: [RawMaterialPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
       },
+      {
+        title: "Categories",
+        url: "/dashboard/raw-materials/categories",
+        element: <RawMaterialCategoriesPage />,
+        icon: Layers,
+        allowedPermissions: [RawMaterialPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+      },
       // Hidden Create/Edit Routes
       {
         title: "",
-        url: "/dashboard/raw-materials/create",
+        url: "/dashboard/raw-materials/add",
         element: <AddRawMaterial />,
         allowedPermissions: [RawMaterialPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
       },
       {
         title: "",
-        url: "/dashboard/raw-materials/:id/edit",
+        url: "/dashboard/raw-materials/view/:id",
+        element: <ViewRawMaterial />,
+        allowedPermissions: [RawMaterialPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+      },
+      {
+        title: "",
+        url: "/dashboard/raw-materials/edit/:id",
         element: <EditRawMaterial />,
         allowedPermissions: [RawMaterialPermission.EDIT, SuperAdminPermission.ACCESS_ALL],
       },
