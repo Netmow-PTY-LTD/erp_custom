@@ -182,6 +182,15 @@ export const ProductionPermission = {
 
 
 
+
+// --- Route Operations ---
+export const RouteOperationPermission = {
+  VIEW: "route_operations.view" as const,
+  ROUTE_WISE_ORDER: "route_operations.route_wise_order.view" as const,
+  ORDER_MANAGE: "route_operations.order_manage.view" as const,
+  STAFF_WISE_ROUTE: "route_operations.staff_wise_route.view" as const,
+};
+
 //   for sidebar
 export const PERMISSION_GROUPS = {
 
@@ -198,6 +207,7 @@ export const PERMISSION_GROUPS = {
   Reports: ReportPermission,
   RawMaterials: RawMaterialPermission,
   Production: ProductionPermission,
+  RouteOperations: RouteOperationPermission,
 } as const;
 
 
@@ -217,4 +227,5 @@ export type PermissionType =
   | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof ReportPermission[keyof typeof ReportPermission]
   | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
-  | typeof ProductionPermission[keyof typeof ProductionPermission];
+  | typeof ProductionPermission[keyof typeof ProductionPermission]
+  | typeof RouteOperationPermission[keyof typeof RouteOperationPermission];
