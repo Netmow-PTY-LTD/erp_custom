@@ -66,6 +66,18 @@ export const purchaseApiService = baseApi.injectEndpoints({
       providesTags: ["Purchases"],
     }),
 
+  getAllApprovedPurchaseOrders: builder.query<
+      PurchaseResponse<PurchaseOrder>,
+      { page?: number; limit?: number; search?: string }
+    >({
+      query: (params) => ({
+        url: "/purchase/orders/approved",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Purchases"],
+    }),
+
     // ADD PURCHASE ORDER
     addPurchaseOrder: builder.mutation<
       PurchaseResponse<PurchaseOrder>,
@@ -238,6 +250,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
 export const {
   // ORDERS
   useGetAllPurchasesQuery,
+  useGetAllApprovedPurchaseOrdersQuery,
   useAddPurchaseOrderMutation,
   useGetPurchaseOrderByIdQuery,
   useUpdatePurchaseOrderMutation,

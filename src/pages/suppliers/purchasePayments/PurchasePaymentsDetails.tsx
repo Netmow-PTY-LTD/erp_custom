@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useGetPurchasePaymentByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useAppSelector } from "@/store/store";
 
 import { Link, useParams } from "react-router";
 
 export default function PurchasePaymentsDetails() {
+    const currency = useAppSelector((state) => state.currency.value);
+
   const { id } = useParams();
   const { data, isLoading, error } = useGetPurchasePaymentByIdQuery(id as string);
 
@@ -11,6 +14,9 @@ export default function PurchasePaymentsDetails() {
   if (error || !data?.data) return <p>Payment not found.</p>;
 
   const payment = data.data;
+
+  console.log("Payment Data: ", payment);
+
 
   // --------------------------
   // Payment Core Info
@@ -116,7 +122,7 @@ export default function PurchasePaymentsDetails() {
 
               <div>
                 <p className="font-semibold">Amount</p>
-                <p className="text-xl font-bold">৳ {formattedPayment.amount.toFixed(2)}</p>
+                <p className="text-xl font-bold">{formattedPayment.amount.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -148,7 +154,7 @@ export default function PurchasePaymentsDetails() {
 
               <div className="flex justify-between text-sm">
                 <span>Total Amount</span>
-                <span className="font-semibold">৳ {po.total.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {po.total.toFixed(2)}</span>
               </div>
             </div>
           )}
@@ -165,7 +171,7 @@ export default function PurchasePaymentsDetails() {
 
               <div className="flex justify-between text-sm">
                 <span>Total</span>
-                <span className="font-semibold">৳ {invoice.total.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {invoice.total.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between text-sm">
