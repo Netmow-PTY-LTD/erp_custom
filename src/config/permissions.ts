@@ -5,7 +5,7 @@
 // --- Dashboard ---
 
 export const SuperAdminPermission = {
- ACCESS_ALL: "*" as const,
+  ACCESS_ALL: "*" as const,
 };
 export const DashboardPermission = {
   VIEW: "dashboard.view" as const,
@@ -18,7 +18,7 @@ export const ProductPermission = {
   DETAILS: "products.details" as const,
   CREATE: "products.create" as const,
   EDIT: "products.edit" as const,
-    // Categories
+  // Categories
   VIEW_CATEGORIES: "products.categories.view" as const,
   CREATE_CATEGORIES: "products.categories.create" as const,
   Edit_CATEGORIES: "products.categories.edit" as const,
@@ -113,7 +113,7 @@ export const AccountingPermission = {
   CREATE_INCOME: "accounting.incomes.create" as const,
   CREATE_EXPENSE: "accounting.expenses.create" as const,
 
-   // Credit Heads
+  // Credit Heads
   VIEW_CREDIT_HEADS: "accounting.credit_heads.view" as const,
   CREATE_CREDIT_HEADS: "accounting.credit_heads.create" as const,
   EDIT_CREDIT_HEADS: "accounting.credit_heads.edit" as const,
@@ -143,7 +143,7 @@ export const RolePermission = {
   VIEW_PERMISSIONS: "permissions.view" as const,
   VIEW_ROLES_PERMISSIONS: "roles_permissions.view" as const,
   EDIT_ROLES_PERMISSIONS: "roles_permissions.edit" as const,
- 
+
 };
 
 // --- Settings ---
@@ -162,11 +162,29 @@ export const ReportPermission = {
   STAFFS: "reports.staffs.view" as const,
 };
 
+// --- Raw Materials ---
+export const RawMaterialPermission = {
+  VIEW: "raw_materials.view" as const,
+  LIST: "raw_materials.list" as const,
+  CREATE: "raw_materials.create" as const,
+  EDIT: "raw_materials.edit" as const,
+  DELETE: "raw_materials.delete" as const,
+};
+
+// --- Production ---
+export const ProductionPermission = {
+  VIEW: "production.view" as const,
+  LIST: "production.list" as const,
+  CREATE: "production.create" as const,
+  EDIT: "production.edit" as const,
+  DETAILS: "production.details" as const,
+};
+
 
 
 //   for sidebar
 export const PERMISSION_GROUPS = {
-  
+
   Dashboard: DashboardPermission,
   Products: ProductPermission,
   Customers: CustomerPermission,
@@ -178,6 +196,8 @@ export const PERMISSION_GROUPS = {
   Roles: RolePermission,
   Settings: SettingsPermission,
   Reports: ReportPermission,
+  RawMaterials: RawMaterialPermission,
+  Production: ProductionPermission,
 } as const;
 
 
@@ -194,4 +214,7 @@ export type PermissionType =
   | typeof UserPermission[keyof typeof UserPermission]
   | typeof RolePermission[keyof typeof RolePermission]
   | typeof SettingsPermission[keyof typeof SettingsPermission]
-  | typeof ReportPermission[keyof typeof ReportPermission];
+  | typeof SettingsPermission[keyof typeof SettingsPermission]
+  | typeof ReportPermission[keyof typeof ReportPermission]
+  | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
+  | typeof ProductionPermission[keyof typeof ProductionPermission];
