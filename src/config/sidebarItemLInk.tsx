@@ -115,6 +115,7 @@ import {
   RawMaterialPermission,
   ProductionPermission,
   SuperAdminPermission,
+  RouteOperationPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
@@ -1145,28 +1146,40 @@ export const sidebarItemLink = [
     title: "Route Operations",
     url: "#",
     icon: Map,
-    allowedPermissions: [SuperAdminPermission.ACCESS_ALL],
+    allowedPermissions: [
+      RouteOperationPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL
+    ],
     items: [
       {
         title: "Route Wise Order",
         url: "/dashboard/route-operations/route-wise-order",
         element: <RouteWiseOrder />,
         icon: List,
-        allowedPermissions: [SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          RouteOperationPermission.ROUTE_WISE_ORDER,
+          SuperAdminPermission.ACCESS_ALL
+        ],
       },
       {
         title: "Order Manage",
         url: "/dashboard/route-operations/order-manage",
         element: <OrderManage />,
         icon: Settings,
-        allowedPermissions: [SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          RouteOperationPermission.ORDER_MANAGE,
+          SuperAdminPermission.ACCESS_ALL
+        ],
       },
       {
         title: "Staff Wise Route",
         url: "/dashboard/route-operations/staff-route",
         element: <StaffRoute />,
         icon: Users,
-        allowedPermissions: [SuperAdminPermission.ACCESS_ALL],
+        allowedPermissions: [
+          RouteOperationPermission.STAFF_WISE_ROUTE,
+          SuperAdminPermission.ACCESS_ALL
+        ],
       },
     ],
   },
