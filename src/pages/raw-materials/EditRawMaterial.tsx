@@ -31,15 +31,20 @@ const EditRawMaterial = () => {
         // Simulate fetching data
         if (id) {
             // Mock data lookup - in real app fetch from API
-            setFormData({
-                name: "Cotton Fabric",
-                category: "fabric",
-                supplier: "Textile Corp",
-                unit: "meters",
-                cost: "120",
-                stock: "500",
-                min_stock: "50"
-            });
+            // Using setTimeout to simulate async API call and avoid synchronous state update warning
+            const timer = setTimeout(() => {
+                setFormData({
+                    name: "Cotton Fabric",
+                    category: "fabric",
+                    supplier: "Textile Corp",
+                    unit: "meters",
+                    cost: "120",
+                    stock: "500",
+                    min_stock: "50"
+                });
+            }, 100);
+
+            return () => clearTimeout(timer);
         }
     }, [id]);
 
