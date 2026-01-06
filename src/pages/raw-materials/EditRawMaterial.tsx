@@ -1,172 +1,444 @@
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { ArrowLeft, Save } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router"; // Fixed import from react-router-dom to react-router per user edit history
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronDown, Loader } from "lucide-react";
 import { toast } from "sonner";
+import { Link, useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { Form } from "@/components/ui/form";
+import {
+  useGetAllRawMaterialCategoriesQuery,
+  useUpdateRawMaterialMutation,
+  useGetRawMaterialByIdQuery,
+} from "@/store/features/admin/rawMaterialApiService";
+import { useGetAllUnitsQuery } from "@/store/features/admin/productsApiService";
+import { BackButton } from "@/components/BackButton";
 
+/* ------------------ ZOD SCHEMA ------------------ */
+const rawMaterialSchema = z.object({
+  name: z.string().min(1, "Material name is required"),
+  sku: z.string().min(1, "SKU is required"),
+  category: z.number().min(1, "Category is required"),
+  supplier: z.string().optional(),
+  unit: z.number().min(1, "Unit of measure is required"),
+  cost: z.number().min(0, "Cost must be at least 0"),
+  initialStock: z.number().min(0, "Initial stock must be at least 0"),
+  minStock: z.number().min(0, "Min stock must be at least 0"),
+  description: z.string().optional(),
+  is_active: z.boolean().optional(),
+});
+
+type RawMaterialFormValues = z.infer<typeof rawMaterialSchema>;
+
+/* ------------------ PAGE ------------------ */
 const EditRawMaterial = () => {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const [formData, setFormData] = useState({
-        name: "",
-        category: "",
-        supplier: "",
-        unit: "",
-        cost: "",
-        stock: "",
-        min_stock: ""
-    });
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const materialId = id ? parseInt(id, 10) : null;
 
-    useEffect(() => {
-        // Simulate fetching data
-        if (id) {
-            // Mock data lookup - in real app fetch from API
-            // Using setTimeout to simulate async API call and avoid synchronous state update warning
-            const timer = setTimeout(() => {
-                setFormData({
-                    name: "Cotton Fabric",
-                    category: "fabric",
-                    supplier: "Textile Corp",
-                    unit: "meters",
-                    cost: "120",
-                    stock: "500",
-                    min_stock: "50"
-                });
-            }, 100);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [unitOpen, setUnitOpen] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [unitSearch, setUnitSearch] = useState("");
 
-            return () => clearTimeout(timer);
-        }
-    }, [id]);
+  // Fetch material details
+  const { data: materialData } = useGetRawMaterialByIdQuery(materialId || 0, {
+    skip: !materialId,
+  });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        toast.success("Raw material updated successfully!");
-        navigate("/dashboard/raw-materials");
-    };
+  // Fetch categories
+  const { data: fetchedCategories } = useGetAllRawMaterialCategoriesQuery({
+    search: categorySearch,
+  });
 
-    return (
-        <div className="w-full max-w-4xl mx-auto p-4">
-            <div className="flex items-center gap-4 mb-6">
-                <Link to="/dashboard/raw-materials">
-                    <Button variant="outline" size="icon">
-                        <ArrowLeft className="w-4 h-4" />
-                    </Button>
-                </Link>
-                <h1 className="text-2xl font-bold">Edit Raw Material</h1>
-            </div>
+  // Fetch units
+  const { data: fetchedUnits } = useGetAllUnitsQuery({
+    search: unitSearch,
+  });
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Edit Material Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Material Name</Label>
-                                <Input
-                                    id="name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                />
-                            </div>
+  // Update mutation
+  const [updateRawMaterial, { isLoading: isSubmitting }] =
+    useUpdateRawMaterialMutation();
 
-                            <div className="space-y-2">
-                                <Label htmlFor="category">Category</Label>
-                                <Select value={formData.category} onValueChange={(val) => setFormData({ ...formData, category: val })}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select category" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="fabric">Fabric</SelectItem>
-                                        <SelectItem value="thread">Thread</SelectItem>
-                                        <SelectItem value="accessories">Accessories</SelectItem>
-                                        <SelectItem value="packaging">Packaging</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+  const form = useForm<RawMaterialFormValues>({
+    resolver: zodResolver(rawMaterialSchema),
+    defaultValues: {
+      name: "",
+      category: 0,
+      supplier: "",
+      unit: 0,
+      cost: 0,
+      initialStock: 0,
+      minStock: 0,
+      description: "",
+      is_active: true,
+    },
+  });
 
-                            <div className="space-y-2">
-                                <Label htmlFor="supplier">Supplier</Label>
-                                <Input
-                                    id="supplier"
-                                    value={formData.supplier}
-                                    onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                                />
-                            </div>
+  const { control, handleSubmit, reset } = form;
 
-                            <div className="space-y-2">
-                                <Label htmlFor="unit">Unit of Measure</Label>
-                                <Select value={formData.unit} onValueChange={(val) => setFormData({ ...formData, unit: val })}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select unit" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="meters">Meters</SelectItem>
-                                        <SelectItem value="kg">Kilogram (kg)</SelectItem>
-                                        <SelectItem value="pcs">Pieces (pcs)</SelectItem>
-                                        <SelectItem value="liters">Liters</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+  // Populate form when material data is loaded
+  useEffect(() => {
+    if (materialData?.data) {
+      const material = materialData.data;
+      reset({
+        name: material.name,
+        sku: material.sku || "",
+        category: material.category_id,
+        supplier: material.supplier || "",
+        unit: material.unit_id,
+        cost: material.cost,
+        initialStock: material.initial_stock,
+        minStock: material.min_stock,
+        description: material.description || "",
+        is_active: material.is_active,
+      });
+    }
+  }, [materialData, reset]);
 
-                            <div className="space-y-2">
-                                <Label htmlFor="cost">Cost Price (per unit)</Label>
-                                <Input
-                                    id="cost"
-                                    type="number"
-                                    value={formData.cost}
-                                    onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
-                                    min="0"
-                                    step="0.01"
-                                />
-                            </div>
+  const onSubmit = async (values: RawMaterialFormValues) => {
+    if (!materialId) {
+      toast.error("Invalid material ID");
+      return;
+    }
 
-                            <div className="space-y-2">
-                                <Label htmlFor="stock">Current Stock</Label>
-                                <Input
-                                    id="stock"
-                                    type="number"
-                                    value={formData.stock}
-                                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                                    min="0"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="min_stock">Reorder Point</Label>
-                                <Input
-                                    id="min_stock"
-                                    type="number"
-                                    value={formData.min_stock}
-                                    onChange={(e) => setFormData({ ...formData, min_stock: e.target.value })}
-                                    min="0"
-                                />
-                            </div>
-                        </div>
+    try {
+      await updateRawMaterial({
+        id: materialId,
+        body: {
+          name: values.name,
+          sku: values.sku,
+          category_id: values.category,
+          supplier: values.supplier || "",
+          unit_id: values.unit,
+          cost: values.cost,
+          initial_stock: values.initialStock,
+          min_stock: values.minStock,
+          description: values.description || "",
+          is_active: values.is_active ?? true,
+        },
+      }).unwrap();
 
-                        <div className="flex justify-end gap-4 pt-4">
-                            <Link to="/dashboard/raw-materials">
-                                <Button variant="outline" type="button">Cancel</Button>
-                            </Link>
-                            <Button type="submit" className="bg-blue-600 hover:bg-blue-500">
-                                <Save className="w-4 h-4 mr-2" />
-                                Update Material
+      toast.success("Raw material updated successfully!");
+      navigate("/dashboard/raw-materials");
+    } catch (error) {
+      console.error("Error updating raw material:", error);
+      toast.error("Failed to update raw material");
+      if (error instanceof Error) {
+        toast.error("Error: " + error.message);
+      }
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="flex items-center gap-3 mb-6">
+        <BackButton />
+        <h1 className="text-3xl font-bold">Edit Raw Material</h1>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Material Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* NAME */}
+                <div>
+                  <Controller
+                    control={control}
+                    name="name"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Material Name *</FieldLabel>
+                        <Input
+                          placeholder="e.g., Cotton Fabric"
+                          {...field}
+                        />
+                        <FieldError>{fieldState?.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+                </div>
+
+                {/* SKU */}
+                <div>
+                  <Controller
+                    control={control}
+                    name="sku"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>SKU *</FieldLabel>
+                        <Input
+                          placeholder="e.g., RM-001"
+                          {...field}
+                        />
+                        <FieldError>{fieldState?.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+                </div>
+
+                {/* CATEGORY */}
+                <div>
+                  <Controller
+                    control={control}
+                    name="category"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Category *</FieldLabel>
+                        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-between"
+                            >
+                              {field.value
+                                ? fetchedCategories?.data?.find(
+                                    (cat) => cat.id === field.value
+                                  )?.name
+                                : "Select category"}
+                              <ChevronDown className="w-4 h-4 opacity-50" />
                             </Button>
-                        </div>
-                    </form>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0" align="start">
+                            <Command>
+                              <CommandInput
+                                placeholder="Search categories..."
+                                value={categorySearch}
+                                onValueChange={setCategorySearch}
+                              />
+                              <CommandEmpty>No category found.</CommandEmpty>
+                              <CommandGroup>
+                                <CommandList>
+                                  {fetchedCategories?.data?.map((category) => (
+                                    <CommandItem
+                                      key={category.id}
+                                      value={category.name}
+                                      onSelect={() => {
+                                        field.onChange(category.id);
+                                        setCategoryOpen(false);
+                                      }}
+                                    >
+                                      {category.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandList>
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FieldError>{fieldState?.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+                </div>
+
+                    {/* SUPPLIER */}
+                    <div>
+                      <Controller
+                        control={control}
+                        name="supplier"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Supplier (Optional)</FieldLabel>
+                            <Input placeholder="e.g., Textile Corp" {...field} />
+                            <FieldError>{fieldState?.error?.message}</FieldError>
+                          </Field>
+                        )}
+                      />
+                    </div>
+
+                    {/* UNIT */}
+                    <div>
+                      <Controller
+                        control={control}
+                        name="unit"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Unit of Measure *</FieldLabel>
+                            <Popover open={unitOpen} onOpenChange={setUnitOpen}>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-between"
+                                >
+                                  {field.value
+                                    ? fetchedUnits?.data?.find(
+                                        (unit) => unit.id === field.value
+                                      )?.name
+                                    : "Select unit"}
+                                  <ChevronDown className="w-4 h-4 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-full p-0" align="start">
+                                <Command>
+                                  <CommandInput
+                                    placeholder="Search units..."
+                                    value={unitSearch}
+                                    onValueChange={setUnitSearch}
+                                  />
+                                  <CommandEmpty>No unit found.</CommandEmpty>
+                                  <CommandGroup>
+                                    <CommandList>
+                                      {fetchedUnits?.data?.map((unit) => (
+                                        <CommandItem
+                                          key={unit.id}
+                                          value={unit.name}
+                                          onSelect={() => {
+                                            field.onChange(unit.id);
+                                            setUnitOpen(false);
+                                          }}
+                                        >
+                                          {unit.name}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandList>
+                                  </CommandGroup>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FieldError>{fieldState?.error?.message}</FieldError>
+                          </Field>
+                        )}
+                      />
+                    </div>
+
+                    {/* COST */}
+                    <div>
+                      <Controller
+                        control={control}
+                        name="cost"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Cost Price *</FieldLabel>
+                            <Input
+                              type="number"
+                              placeholder="0.00"
+                              step="0.01"
+                              min="0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(parseFloat(e.target.value) || 0)
+                              }
+                            />
+                            <FieldError>{fieldState?.error?.message}</FieldError>
+                          </Field>
+                        )}
+                      />
+                    </div>
+
+                    {/* INITIAL STOCK */}
+                    <div>
+                      <Controller
+                        control={control}
+                        name="initialStock"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Initial Stock *</FieldLabel>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              min="0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value) || 0)
+                              }
+                            />
+                            <FieldError>{fieldState?.error?.message}</FieldError>
+                          </Field>
+                        )}
+                      />
+                    </div>
+
+                    {/* MIN STOCK */}
+                    <div>
+                      <Controller
+                        control={control}
+                        name="minStock"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Min Stock *</FieldLabel>
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              min="0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value) || 0)
+                              }
+                            />
+                            <FieldError>{fieldState?.error?.message}</FieldError>
+                          </Field>
+                        )}
+                      />
+                    </div>
+
+                    {/* DESCRIPTION */}
+                    <div className="md:col-span-2">
+                      <Controller
+                        control={control}
+                        name="description"
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Description (Optional)</FieldLabel>
+                            <Textarea
+                              rows={4}
+                              placeholder="Additional details..."
+                              {...field}
+                            />
+                            <FieldError>{fieldState?.error?.message}</FieldError>
+                          </Field>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </CardContent>
-            </Card>
+              </Card>
+
+              {/* ACTIONS */}
+              <div className="flex justify-end gap-4 pt-4">
+                <Link to="/dashboard/raw-materials">
+                  <Button variant="outline" type="button">
+                    Cancel
+                  </Button>
+                </Link>
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-500" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Update Material
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </div>
     );
 };

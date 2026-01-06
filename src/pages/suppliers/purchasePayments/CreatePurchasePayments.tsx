@@ -1,4 +1,3 @@
-
 import {
   Form,
   FormControl,
@@ -11,7 +10,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,11 +24,26 @@ import { z } from "zod";
 import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 import { toast } from "sonner";
-import { useAddPurchasePaymentMutation, useGetAllPurchasesQuery, useGetPurchaseOrderByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import {
+  useAddPurchasePaymentMutation,
+  useGetAllApprovedPurchaseOrdersQuery,
+  useGetPurchaseOrderByIdQuery,
+} from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useAppSelector } from "@/store/store";
 
 const paymentSchema = z.object({
@@ -53,19 +73,23 @@ export default function CreatePurchasePayments() {
     },
   });
 
-
-
   const currency = useAppSelector((state) => state.currency.value);
 
-
   /* -------------------- Purchase Order Select -------------------- */
-  const PurchaseOrderSelectField = ({ field }: { field: { value: number; onChange: (v: number) => void } }) => {
+  const PurchaseOrderSelectField = ({
+    field,
+  }: {
+    field: { value: number; onChange: (v: number) => void };
+  }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState(purchase_order_number || "");
-    const { data, isLoading } = useGetAllPurchasesQuery({ page: 1, limit: 20, search: query });
+    const { data, isLoading } = useGetAllApprovedPurchaseOrdersQuery({
+      page: 1,
+      limit: 10,
+      search: query,
+    });
 
     const list = Array.isArray(data?.data) ? data.data : [];
-
 
     // Auto-select purchase order if found in search results
     useEffect(() => {
@@ -76,7 +100,6 @@ export default function CreatePurchasePayments() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [list, field, purchase_order_number]);
 
-
     const selected = list.find((po) => po.id === field.value);
 
     return (
@@ -86,16 +109,29 @@ export default function CreatePurchasePayments() {
             {selected ? selected.po_number : "Select Purchase Order..."}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0">
+        <PopoverContent className="w-[300px] p-0 bg-white shadow ring-1 ring-black/5 rounded-md">
           <Command>
-            <CommandInput placeholder="Search Purchase Orders..." onValueChange={setQuery} />
+            <CommandInput
+              placeholder="Search Purchase Orders..."
+              onValueChange={setQuery}
+            />
             <CommandList>
               <CommandEmpty>No Purchase Orders found</CommandEmpty>
               <CommandGroup>
-                {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
                 {!isLoading &&
                   list.map((po) => (
-                    <CommandItem key={po.id} onSelect={() => { field.onChange(po.id); setOpen(false); }}>
+                    <CommandItem
+                      key={po.id}
+                      onSelect={() => {
+                        field.onChange(po.id);
+                        setOpen(false);
+                      }}
+                    >
                       {po.po_number} - {currency} {po.total_payable_amount}
                     </CommandItem>
                   ))}
@@ -134,15 +170,10 @@ export default function CreatePurchasePayments() {
   const watchAmount = form.watch("amount");
   const watchMethod = form.watch("payment_method");
 
-
   const { data } = useGetPurchaseOrderByIdQuery(watchPO, {
     skip: !watchPO,
   });
-  const purchaseOrderDetails = data?.data
-
-
-
-
+  const purchaseOrderDetails = data?.data;
 
   //  ------------  calculation variable of purchase order invoices ----
 
@@ -153,7 +184,6 @@ export default function CreatePurchasePayments() {
   const total = subtotal + tax - discount;
   const paid = purchaseOrderDetails?.total_paid_amount ?? 0;
   const balance = total - paid;
-
 
   return (
     <div className="w-full">
@@ -215,7 +245,6 @@ export default function CreatePurchasePayments() {
 
                 /> */}
 
-
                 <FormField
                   name="amount"
                   control={form.control}
@@ -250,14 +279,16 @@ export default function CreatePurchasePayments() {
                               if (value > max) {
                                 form.setError("amount", {
                                   type: "manual",
-                                  message: `Amount cannot exceed due (${currency} ${max.toFixed(2)})`,
+                                  message: `Amount cannot exceed due (${currency} ${max.toFixed(
+                                    2
+                                  )})`,
                                 });
                               } else {
                                 form.clearErrors("amount");
                               }
                             }
 
-                            field.onChange(value); 
+                            field.onChange(value);
                           }}
                         />
                       </FormControl>
@@ -266,10 +297,6 @@ export default function CreatePurchasePayments() {
                   )}
                 />
 
-
-
-
-
                 {/* PAYMENT METHOD */}
                 <FormField
                   name="payment_method"
@@ -277,7 +304,10 @@ export default function CreatePurchasePayments() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Payment Method</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select Method" />
@@ -285,8 +315,12 @@ export default function CreatePurchasePayments() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="cash">Cash</SelectItem>
-                          <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                          <SelectItem value="credit_card">Credit Card</SelectItem>
+                          <SelectItem value="bank_transfer">
+                            Bank Transfer
+                          </SelectItem>
+                          <SelectItem value="credit_card">
+                            Credit Card
+                          </SelectItem>
                           <SelectItem value="cheque">Cheque</SelectItem>
                           <SelectItem value="online">Online</SelectItem>
                         </SelectContent>
@@ -304,7 +338,10 @@ export default function CreatePurchasePayments() {
                     <FormItem>
                       <FormLabel>Reference</FormLabel>
                       <FormControl>
-                        <Input placeholder="Transaction ID or Cheque #" {...field} />
+                        <Input
+                          placeholder="Transaction ID or Cheque #"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -319,7 +356,11 @@ export default function CreatePurchasePayments() {
                     <FormItem className="md:col-span-2">
                       <FormLabel>Notes</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Additional notes..." className="h-28" {...field} />
+                        <Textarea
+                          placeholder="Additional notes..."
+                          className="h-28"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -328,27 +369,33 @@ export default function CreatePurchasePayments() {
               </div>
 
               <div className="flex gap-4">
-                <Button disabled={
-                  !watchPO ||
-                  !watchAmount ||
-                  (purchaseOrderDetails &&
-                    watchAmount >
-                    (purchaseOrderDetails.total_amount +
-                      purchaseOrderDetails.tax_amount -
-                      purchaseOrderDetails.discount_amount -
-                      purchaseOrderDetails.total_paid_amount))
-                } type="submit" className="bg-blue-600 hover:bg-blue-700">
+                <Button
+                  disabled={
+                    !watchPO ||
+                    !watchAmount ||
+                    (purchaseOrderDetails &&
+                      watchAmount >
+                        purchaseOrderDetails.total_amount +
+                          purchaseOrderDetails.tax_amount -
+                          purchaseOrderDetails.discount_amount -
+                          purchaseOrderDetails.total_paid_amount)
+                  }
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
                   Record Payment
                 </Button>
-                <Button type="button" variant="secondary" onClick={() => form.reset()}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => form.reset()}
+                >
                   Cancel
                 </Button>
               </div>
             </form>
           </Form>
         </div>
-
-
 
         {/* SUMMARY PANEL */}
         <div className="rounded-lg border p-6 bg-white space-y-4">
@@ -360,13 +407,27 @@ export default function CreatePurchasePayments() {
 
             {purchaseOrderDetails ? (
               <>
-                <p><strong>PO Number:</strong> {purchaseOrderDetails.po_number}</p>
-                <p><strong>Subtotal:</strong> {currency} {subtotal.toFixed(2)}</p>
-                <p><strong>Tax:</strong> {currency} {tax.toFixed(2)}</p>
-                <p><strong>Discount:</strong> {currency} {discount.toFixed(2)}</p>
-                <p><strong>Total:</strong> {currency} {total.toFixed(2)}</p>
-                <p><strong>Paid:</strong> {currency} {paid.toFixed(2)}</p>
-                <p><strong>Balance:</strong> {currency} {balance.toFixed(2)}</p>
+                <p>
+                  <strong>PO Number:</strong> {purchaseOrderDetails.po_number}
+                </p>
+                <p>
+                  <strong>Subtotal:</strong> {currency} {subtotal.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Tax:</strong> {currency} {tax.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Discount:</strong> {currency} {discount.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Total:</strong> {currency} {total.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Paid:</strong> {currency} {paid.toFixed(2)}
+                </p>
+                <p>
+                  <strong>Balance:</strong> {currency} {balance.toFixed(2)}
+                </p>
               </>
             ) : (
               <p>No Purchase Order Selected</p>
@@ -379,19 +440,21 @@ export default function CreatePurchasePayments() {
 
             <p>
               <strong>Amount:</strong>{" "}
-              {watchAmount ? `${currency} ${Number(watchAmount).toFixed(2)}` : "Not Entered"}
+              {watchAmount
+                ? `${currency} ${Number(watchAmount).toFixed(2)}`
+                : "Not Entered"}
             </p>
 
             <p>
               <strong>Method:</strong>{" "}
               {watchMethod
-                ? watchMethod.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase())
+                ? watchMethod
+                    .replaceAll("_", " ")
+                    .replace(/^\w/, (c) => c.toUpperCase())
                 : "Not Selected"}
             </p>
           </div>
         </div>
-
-
       </div>
     </div>
   );

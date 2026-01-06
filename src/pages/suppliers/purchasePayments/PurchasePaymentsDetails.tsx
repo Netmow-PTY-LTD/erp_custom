@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useGetPurchasePaymentByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useAppSelector } from "@/store/store";
 
 import { Link, useParams } from "react-router";
 
 export default function PurchasePaymentsDetails() {
+    const currency = useAppSelector((state) => state.currency.value);
+
   const { id } = useParams();
   const { data, isLoading, error } = useGetPurchasePaymentByIdQuery(id as string);
 
@@ -11,6 +14,9 @@ export default function PurchasePaymentsDetails() {
   if (error || !data?.data) return <p>Payment not found.</p>;
 
   const payment = data.data;
+
+  console.log("Payment Data: ", payment);
+
 
   // --------------------------
   // Payment Core Info
@@ -33,6 +39,7 @@ export default function PurchasePaymentsDetails() {
     ? {
         number: payment.purchase_order.po_number,
         total: payment.purchase_order.total_amount,
+        total_payable_amount: payment.purchase_order.total_payable_amount,
         supplier: payment.purchase_order.supplier,
       }
     : null;
@@ -45,6 +52,7 @@ export default function PurchasePaymentsDetails() {
         invoice_id: payment.invoice_id,
         number: payment.invoice.invoice_number,
         total: payment.invoice.total_amount,
+        total_payable_amount: payment.invoice.total_payable_amount,
         dueDate: payment.invoice.due_date,
       }
     : null;
@@ -116,7 +124,7 @@ export default function PurchasePaymentsDetails() {
 
               <div>
                 <p className="font-semibold">Amount</p>
-                <p className="text-xl font-bold">৳ {formattedPayment.amount.toFixed(2)}</p>
+                <p className="text-xl font-bold">{formattedPayment.amount.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -148,7 +156,7 @@ export default function PurchasePaymentsDetails() {
 
               <div className="flex justify-between text-sm">
                 <span>Total Amount</span>
-                <span className="font-semibold">৳ {po.total.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {po.total_payable_amount.toFixed(2)}</span>
               </div>
             </div>
           )}
@@ -165,7 +173,7 @@ export default function PurchasePaymentsDetails() {
 
               <div className="flex justify-between text-sm">
                 <span>Total</span>
-                <span className="font-semibold">৳ {invoice.total.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {invoice.total_payable_amount.toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between text-sm">
