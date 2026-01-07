@@ -122,6 +122,10 @@ export const baseApi = createApi({
     "RawMaterialCategory",
     "RawMaterialUnit",
     "RawMaterial",
+    'RawMaterialSupplier',
+    'RawMaterialPurchaseOrder',
+    'RawMaterialPurchaseInvoice',
+    'RawMaterialPayment',
   ],
   endpoints: () => ({}),
 });
