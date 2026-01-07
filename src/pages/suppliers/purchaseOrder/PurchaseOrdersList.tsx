@@ -53,14 +53,6 @@ function ConfirmModal({
   );
 }
 
-
-
-
-
-
-
-
-
 /* COMPONENT */
 export default function PurchaseOrdersList() {
   const [page, setPage] = useState<number>(1);

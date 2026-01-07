@@ -1,84 +1,206 @@
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { PlusCircle, Eye, Trash2, CreditCard } from "lucide-react";
 import { Link } from "react-router";
 import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-
-type Invoice = {
-    id: string;
-    poNumber: string;
-    supplier: string;
-    date: string;
-    amount: number;
-    status: "Paid" | "Unpaid" | "Partial";
-};
-
-const dummyInvoices: Invoice[] = [
-    { id: "INV-2024-001", poNumber: "PO-RM-1001", supplier: "Textile Corp", date: "2024-03-25", amount: 50000, status: "Unpaid" },
-    { id: "INV-2024-002", poNumber: "PO-RM-998", supplier: "Thread Masters", date: "2024-03-20", amount: 12000, status: "Paid" },
-];
+import {
+  useGetAllRawMaterialPurchaseInvoicesQuery,
+  type RawMaterialInvoice,
+  useDeleteRawMaterialPurchaseInvoiceMutation,
+} from "@/store/features/admin/rawMaterialApiService";
+import { useAppSelector } from "@/store/store";
+import { toast } from "sonner";
 
 export default function RMInvoiceList() {
-    const [search, setSearch] = useState("");
-    const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(1);
+  const [search, setSearch] = useState<string>("");
+  //const navigate = useNavigate();
+  const limit = 10;
 
-    const filteredData = dummyInvoices.filter(i => i.id.toLowerCase().includes(search.toLowerCase()) || i.supplier.toLowerCase().includes(search.toLowerCase()));
+  const { data, isFetching } = useGetAllRawMaterialPurchaseInvoicesQuery({
+    page,
+    limit,
+    search,
+  });
 
-    const columns: ColumnDef<Invoice>[] = [
-        { accessorKey: "id", header: "Invoice #" },
-        { accessorKey: "poNumber", header: "PO Reference" },
-        { accessorKey: "supplier", header: "Supplier" },
-        { accessorKey: "date", header: "Date" },
-        {
-            accessorKey: "amount",
-            header: "Amount",
-            cell: ({ row }) => <span className="font-medium">${row.original.amount.toLocaleString()}</span>
-        },
-        {
-            accessorKey: "status",
-            header: "Payment Status",
-            cell: ({ row }) => {
-                const colors = {
-                    Paid: "bg-green-500",
-                    Unpaid: "bg-red-500",
-                    Partial: "bg-yellow-500"
-                };
-                return <Badge className={colors[row.original.status]}>{row.original.status}</Badge>;
-            }
-        },
-    ];
+  const [deleteInvoice] = useDeleteRawMaterialPurchaseInvoiceMutation();
 
-    return (
-        <div className="w-full space-y-4">
-            <div className="flex flex-wrap justify-between items-center mb-6">
-                <h2 className="text-3xl font-semibold">Invoices & GRN</h2>
-                <Link to="/dashboard/raw-materials/invoices/create">
-                    <Button className="bg-blue-600 hover:bg-blue-500">
-                        <PlusCircle className="mr-2 h-4 w-4" /> Record Invoice
-                    </Button>
-                </Link>
-            </div>
+  const invoicesData: RawMaterialInvoice[] = Array.isArray(data?.data)
+    ? data.data
+    : [];
+  const pagination = data?.pagination ?? {
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPage: 1,
+  };
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Invoice History</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DataTable
-                        columns={columns}
-                        data={filteredData}
-                        totalCount={filteredData.length}
-                        pageIndex={page - 1}
-                        pageSize={10}
-                        onPageChange={p => setPage(p + 1)}
-                        onSearch={setSearch}
-                        isFetching={false}
-                    />
-                </CardContent>
-            </Card>
+  const currency = useAppSelector((state) => state.currency.value);
+
+  const handleDelete = (id: number | undefined) => {
+    if (!id) return;
+
+    toast.custom(
+      (t) => (
+        <div className="bg-white p-4 rounded-lg shadow-lg border border-red-200">
+          <p className="mb-4 font-semibold">
+            Are you sure you want to delete this invoice?
+          </p>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toast.dismiss(t)}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={async () => {
+                try {
+                  await deleteInvoice(id).unwrap();
+                  toast.success("Invoice deleted successfully");
+                  toast.dismiss(t);
+                } catch (error) {
+                  console.error("Error deleting invoice:", error);
+                  toast.error("Failed to delete invoice");
+                }
+              }}
+            >
+              Delete
+            </Button>
+          </div>
         </div>
+      ),
+      { duration: Infinity }
     );
+  };
+
+  // Table Columns
+  const invoiceColumns: ColumnDef<RawMaterialInvoice>[] = [
+    {
+      accessorKey: "invoice_number",
+      header: "Invoice #",
+    },
+    {
+      accessorKey: "purchase_order",
+      header: "PO Number",
+      cell: ({ row }) => `PO #${row.original.purchase_order?.po_number || "-"}`,
+    },
+    {
+      accessorKey: "purchase_order.supplier.name",
+      header: "Supplier",
+      cell: ({ row }) =>
+        `${row.original.purchase_order?.supplier?.name || "-"}`,
+    },
+    {
+      accessorKey: "invoice_date",
+      header: "Invoice Date",
+      cell: ({ row }) => {
+        const date = new Date(row.original.invoice_date);
+        return date.toISOString().split("T")[0];
+      },
+    },
+    {
+      accessorKey: "total_payable_amount",
+      header: `Total Amount (${currency})`,
+      cell: ({ row }) =>
+        `${Number(row.original.total_payable_amount || 0).toFixed(2)}`,
+    },
+    {
+      accessorKey: "paid_amount",
+      header: `Paid Amount (${currency})`,
+      cell: ({ row }) => `${Number(row.original.paid_amount || 0).toFixed(2)}`,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status || "pending";
+        const color =
+          status === "paid"
+            ? "bg-green-600"
+            : status === "pending"
+            ? "bg-yellow-600"
+            : "bg-gray-400";
+
+        return (
+          <Badge className={`${color} text-white capitalize`}>{status}</Badge>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const invoice = row.original;
+
+        return (
+          <div className="flex gap-2">
+            <Link to={`/dashboard/raw-materials/invoices/${invoice.id}`}>
+              <Button size="sm" variant="outline">
+                <Eye className="w-4 h-4" />
+              </Button>
+            </Link>
+            <Link to={`/dashboard/raw-materials/payments/create?po_id=${invoice.purchase_order?.id}&invoice_id=${invoice.id}`}>
+              <Button size="sm" variant="outline">
+                <CreditCard className="w-4 h-4" />
+                <span>Pay</span>
+              </Button>
+            </Link>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => handleDelete(invoice.id)}
+              disabled={invoice.status === "paid"}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Purchase Invoices & GRN (Raw Materials)</h1>
+        <Link to="/dashboard/raw-materials/invoices/create">
+          <Button className="bg-blue-600 hover:bg-blue-500">
+            <PlusCircle className="mr-2 h-4 w-4" /> Record Invoice
+          </Button>
+        </Link>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All Invoices (Raw Materials)</CardTitle>
+          <CardDescription>Manage all your purchase invoices</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={invoiceColumns}
+            data={invoicesData}
+            pageIndex={page - 1}
+            pageSize={limit}
+            totalCount={pagination.total}
+            onPageChange={(p) => setPage(p + 1)}
+            onSearch={setSearch}
+            isFetching={isFetching}
+          />
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

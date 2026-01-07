@@ -129,7 +129,7 @@ const RawMaterialsPage = () => {
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() =>
-                navigate(`/dashboard/raw-materials/view/${row.original.id}`)
+                navigate(`/dashboard/raw-materials/${row.original.id}`)
               }
               className="cursor-pointer"
             >

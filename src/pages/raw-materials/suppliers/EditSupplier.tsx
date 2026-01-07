@@ -15,10 +15,11 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { BackButton } from "@/components/BackButton";
-import { useAddRawMaterialSupplierMutation } from "@/store/features/admin/rawMaterialApiService";
+import { useGetRawMaterialSupplierByIdQuery, useUpdateRawMaterialSupplierMutation } from "@/store/features/admin/rawMaterialApiService";
 import { Textarea } from "@/components/ui/textarea";
+import { useEffect } from "react";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
@@ -35,9 +36,13 @@ const supplierSchema = z.object({
 type SupplierFormValues = z.infer<typeof supplierSchema>;
 
 /* ------------------ PAGE ------------------ */
-export default function AddRMSupplier() {
+export default function EditRMSupplier() {
   const navigate = useNavigate();
-  const [addSupplier, { isLoading }] = useAddRawMaterialSupplierMutation();
+  const { id } = useParams();
+  const [updateSupplier, { isLoading: isUpdating }] = useUpdateRawMaterialSupplierMutation();
+  const { data: supplierData, isLoading: isLoadingData, error } = useGetRawMaterialSupplierByIdQuery(id || "", {
+    skip: !id,
+  });
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierSchema),
@@ -55,6 +60,23 @@ export default function AddRMSupplier() {
 
   const { control, handleSubmit, reset } = form;
 
+  // Populate form with existing data
+  useEffect(() => {
+    if (supplierData?.data) {
+      const supplier = supplierData.data;
+      reset({
+        name: supplier.name,
+        code: supplier.code || "",
+        email: supplier.email || "",
+        phone: supplier.phone || "",
+        contact_person: supplier.contact_person || "",
+        address: supplier.address || "",
+        payment_terms: supplier.payment_terms || "",
+        status: supplier.is_active ? "Active" : "Inactive",
+      });
+    }
+  }, [supplierData, reset]);
+
   const onSubmit: SubmitHandler<SupplierFormValues> = async (values) => {
     try {
       const payload = {
@@ -68,22 +90,57 @@ export default function AddRMSupplier() {
         is_active: values.status === "Active",
       };
 
-      const res = await addSupplier(payload).unwrap();
+      const res = await updateSupplier({
+        id: id || "",
+        body: payload,
+      }).unwrap();
+
       if (res?.status) {
-        toast.success("Supplier added successfully");
-        reset();
+        toast.success("Supplier updated successfully");
         navigate("/dashboard/raw-materials/suppliers");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to add supplier");
+      toast.error("Failed to update supplier");
     }
   };
+
+  if (isLoadingData) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto py-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Edit Supplier</h1>
+          <BackButton />
+        </div>
+        <Card>
+          <CardContent className="py-8">
+            <div className="text-center text-gray-500">Loading supplier data...</div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error || !supplierData?.data) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto py-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Edit Supplier</h1>
+          <BackButton />
+        </div>
+        <Card>
+          <CardContent className="py-8">
+            <div className="text-center text-red-500">Failed to load supplier data</div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto py-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Add Supplier</h1>
+        <h1 className="text-3xl font-bold">Edit Supplier</h1>
         <BackButton />
       </div>
 
@@ -202,8 +259,8 @@ export default function AddRMSupplier() {
 
         {/* SUBMIT */}
         <div className="flex justify-end">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Supplier"}
+          <Button type="submit" disabled={isUpdating}>
+            {isUpdating ? "Updating..." : "Update Supplier"}
           </Button>
         </div>
       </form>
