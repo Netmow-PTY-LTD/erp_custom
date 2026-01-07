@@ -1,4 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
+
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,76 +28,59 @@ import {
   CommandEmpty,
   CommandGroup,
 } from "@/components/ui/command";
+
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
-import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
+
+import {
+  useGetAllRawMaterialSuppliersQuery,
+  useGetAllRawMaterialsQuery,
+  useGetRawMaterialPurchaseOrderByIdQuery,
+  useUpdateRawMaterialPurchaseOrderMutation,
+  type RawMaterialSupplier,
+} from "@/store/features/admin/rawMaterialApiService";
 import { useAppSelector } from "@/store/store";
-import { BackButton } from "@/components/BackButton";
-import z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetAllRawMaterialSuppliersQuery } from "@/store/features/admin/rawMaterialApiService";
-import { useGetAllRawMaterialsQuery } from "@/store/features/admin/rawMaterialApiService";
-import { useAddRawMaterialPurchaseOrderMutation } from "@/store/features/admin/rawMaterialApiService";
-import { Trash2 } from "lucide-react";
 
-const orderSchema = z
-  .object({
-    supplierId: z.number().min(1, "Required"),
-    notes: z.string().min(1, "Required"),
-    order_date: z.string().min(1, "Required"),
-    expected_delivery_date: z.string().min(1, "Required"),
-    items: z.array(
-      z.object({
-        rawMaterialId: z.number().min(1, "Raw material is required"),
-        quantity: z.number().min(1, "Quantity must be at least 1"),
-        unit_cost: z.number().min(1, "Unit price must be at least 1"),
-      })
-    ),
-  })
-  .refine(
-    (data) => {
-      const orderDate = new Date(data.order_date);
-      const dueDate = new Date(data.expected_delivery_date);
-      return dueDate >= orderDate;
-    },
-    {
-      message: "Expected delivery date cannot be earlier than order date",
-      path: ["expected_delivery_date"],
-    }
-  );
+interface POItem {
+  rawMaterialId: number;
+  quantity: number;
+  unit_cost: number;
+}
 
-type PurchaseOrderFormValues = z.infer<typeof orderSchema>;
+interface PurchaseOrderFormValues {
+  supplierId: number;
+  order_date: string;
+  expected_delivery_date: string;
+  notes: string;
+  items: POItem[];
+}
 
-export default function CreateRMPurchaseOrder() {
+export default function EditRawMaterialPurchaseOrder() {
   const navigate = useNavigate();
+  const { purchaseId } = useParams();
   const currency = useAppSelector((state) => state.currency.value);
-  const [addPurchaseOrder, { isLoading }] = useAddRawMaterialPurchaseOrderMutation();
+
+  const { data: poData, isLoading: poLoading } =
+    useGetRawMaterialPurchaseOrderByIdQuery(Number(purchaseId));
+  const [updatePurchaseOrder, { isLoading: isUpdating }] =
+    useUpdateRawMaterialPurchaseOrderMutation();
 
   const form = useForm<PurchaseOrderFormValues>({
-    resolver: zodResolver(orderSchema),
     defaultValues: {
       supplierId: 0,
       order_date: new Date().toISOString().split("T")[0],
       expected_delivery_date: "",
       notes: "",
-      items: [
-        {
-          rawMaterialId: 0,
-          quantity: 1,
-          unit_cost: 0,
-        },
-      ],
+      items: [{ rawMaterialId: 0, quantity: 1, unit_cost: 0 }],
     },
   });
 
-  const { control, watch } = form;
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "items",
-  });
-
+  const { control, reset, watch } = form;
+  const { fields, append, remove } = useFieldArray({ control, name: "items" });
   const items = watch("items");
 
+  /* ================= Supplier Select ================= */
   function SupplierSelectField({
     field,
   }: {
@@ -109,7 +96,9 @@ export default function CreateRMPurchaseOrder() {
     });
 
     const list = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.find((s) => Number(s.id) === Number(field.value));
+    const selected = list.find(
+      (s: RawMaterialSupplier) => s.id === field.value
+    );
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -156,6 +145,7 @@ export default function CreateRMPurchaseOrder() {
     );
   }
 
+  /* ================= Raw Material Select ================= */
   function RawMaterialSelectField({
     field,
   }: {
@@ -171,15 +161,13 @@ export default function CreateRMPurchaseOrder() {
     });
 
     const list = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.find((m) => Number(m.id) === Number(field.value));
+    const selected = list.find((r: any) => r.id === field.value);
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-between text-left">
-            {selected
-              ? `${selected.name} (SKU: ${selected.sku || "-"})`
-              : "Select Raw Material..."}
+          <Button variant="outline" className="w-full justify-between">
+            {selected ? selected.name : "Select Raw Material..."}
           </Button>
         </PopoverTrigger>
 
@@ -201,15 +189,15 @@ export default function CreateRMPurchaseOrder() {
                 )}
 
                 {!isLoading &&
-                  list.map((material) => (
+                  list.map((material: any) => (
                     <CommandItem
                       key={material.id}
                       onSelect={() => {
-                        field.onChange(Number(material.id));
+                        field.onChange(material.id);
                         setOpen(false);
                       }}
                     >
-                      {material.name} (SKU: {material.sku || "-"})
+                      {material.name}
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -220,6 +208,33 @@ export default function CreateRMPurchaseOrder() {
     );
   }
 
+  /* ================= Form Population on Load ================= */
+  useEffect(() => {
+    if (poData?.data) {
+      const po = poData.data;
+      reset({
+        supplierId: po.supplier_id,
+        order_date: po.order_date
+          ? new Date(po.order_date).toISOString().split("T")[0]
+          : "",
+        expected_delivery_date: po.expected_delivery_date
+          ? new Date(po.expected_delivery_date).toISOString().split("T")[0]
+          : "",
+        notes: po.notes,
+        items: (po.items ?? []).map((item: any) => ({
+          rawMaterialId: item.raw_material_id || item.product_id,
+          quantity: item.quantity,
+          unit_cost: item.unit_cost,
+        })),
+      });
+    }
+  }, [poData, reset]);
+
+  const subtotal = items.reduce(
+    (sum, item) => sum + Number(item.quantity) * Number(item.unit_cost),
+    0
+  );
+
   const onSubmit = async (values: PurchaseOrderFormValues) => {
     try {
       const payload = {
@@ -228,46 +243,57 @@ export default function CreateRMPurchaseOrder() {
         expected_delivery_date: values.expected_delivery_date,
         notes: values.notes,
         items: values.items.map((item) => ({
-          product_id: item.rawMaterialId,
-          quantity: item.quantity,
-          unit_cost: item.unit_cost,
+          product_id: Number(item.rawMaterialId),
+          quantity: Number(item.quantity),
+          unit_cost: Number(item.unit_cost),
         })),
       };
 
-      const res = await addPurchaseOrder(payload).unwrap();
-      if (res?.status) {
-        toast.success("Purchase Order created successfully!");
+      const res = await updatePurchaseOrder({
+        id: Number(purchaseId),
+        body: payload,
+      }).unwrap();
+      if (res.status) {
+        toast.success(res.message || "Purchase Order Updated Successfully");
         navigate("/dashboard/raw-materials/purchase-orders");
+      } else {
+        toast.error(res.message || "Something went wrong");
       }
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update purchase order");
       console.error(error);
-      toast.error("Failed to create purchase order");
     }
   };
 
-  const totalAmount = items.reduce(
-    (sum, item) => sum + (item.quantity * item.unit_cost),
-    0
-  );
+  if (poLoading)
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        Loading Purchase Order...
+      </div>
+    );
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto py-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Create Purchase Order</h1>
-        <BackButton />
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center">
+        <h1 className="text-3xl font-bold">Edit Purchase Order</h1>
+        <Link to="/dashboard/raw-materials/purchase-orders" className="ml-auto">
+          <Button variant="outline">
+            <ArrowLeft className="w-4 h-4" /> Back to POs
+          </Button>
+        </Link>
       </div>
 
       <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-          {/* SUPPLIER & DETAILS */}
+          {/* Supplier & Details */}
           <div className="border rounded-md p-4">
             <h2 className="font-semibold mb-4">Supplier & Details</h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Supplier */}
               <FormField
                 name="supplierId"
                 control={control}
+                rules={{ required: "Supplier is required" }}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Supplier</FormLabel>
@@ -278,7 +304,6 @@ export default function CreateRMPurchaseOrder() {
                   </FormItem>
                 )}
               />
-
               {/* Order Date */}
               <FormField
                 name="order_date"
@@ -289,11 +314,9 @@ export default function CreateRMPurchaseOrder() {
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
-
               {/* Expected Date */}
               <FormField
                 name="expected_delivery_date"
@@ -304,12 +327,10 @@ export default function CreateRMPurchaseOrder() {
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-
             {/* Notes */}
             <FormField
               name="notes"
@@ -320,24 +341,19 @@ export default function CreateRMPurchaseOrder() {
                   <FormControl>
                     <Textarea placeholder="Optional notes..." {...field} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          {/* ORDER ITEMS */}
+          {/* Order Items */}
           <div className="border rounded-md p-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold">Order Items</h2>
+              <h2 className="font-semibold">Raw Materials</h2>
               <Button
                 type="button"
                 onClick={() =>
-                  append({
-                    rawMaterialId: 0,
-                    quantity: 1,
-                    unit_cost: 0,
-                  })
+                  append({ rawMaterialId: 0, quantity: 1, unit_cost: 0 })
                 }
               >
                 + Add Item
@@ -346,83 +362,87 @@ export default function CreateRMPurchaseOrder() {
 
             <div className="space-y-3">
               {fields.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-12 gap-3 items-start border p-3 rounded bg-slate-50">
+                <div
+                  key={item.id}
+                  className="grid grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded"
+                >
                   {/* Raw Material */}
                   <FormField
                     name={`items.${index}.rawMaterialId`}
                     control={control}
+                    rules={{ required: "Raw material required" }}
                     render={({ field }) => (
-                      <FormItem className="col-span-4">
-                        <FormLabel className="text-xs">Raw Material</FormLabel>
+                      <FormItem className="col-span-6">
+                        <FormLabel>Raw Material</FormLabel>
                         <FormControl>
                           <RawMaterialSelectField field={field} />
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-
+                  {/* Unit Price */}
+                  <FormField
+                    name={`items.${index}.unit_cost`}
+                    control={control}
+                    rules={{ required: "Price required" }}
+                    render={({ field }) => (
+                      <FormItem className="col-span-2">
+                        <FormLabel>Unit Price</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseFloat(e.target.value) || 0)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   {/* Quantity */}
                   <FormField
                     name={`items.${index}.quantity`}
                     control={control}
+                    rules={{ required: "Quantity required" }}
                     render={({ field }) => (
                       <FormItem className="col-span-2">
-                        <FormLabel className="text-xs">Quantity</FormLabel>
+                        <FormLabel>Quantity</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
-                            min="1"
                             {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseFloat(e.target.value) || 0)
+                            }
                           />
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  {/* Unit Cost */}
-                  <FormField
-                    name={`items.${index}.unit_cost`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel className="text-xs">Unit Cost</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) => field.onChange(Number(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage className="text-xs" />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Total */}
-                  <div className="col-span-2 pt-6">
-                    <Input
-                      type="number"
-                      disabled
-                      value={(items[index].quantity * items[index].unit_cost).toFixed(2)}
-                      className="bg-gray-100 text-right"
-                    />
+                  {/* Line Total */}
+                  <div className="col-span-1">
+                    <FormLabel>Total</FormLabel>
+                    <div className="font-semibold">
+                      {currency}{" "}
+                      {(items[index].quantity * items[index].unit_cost).toFixed(
+                        2
+                      )}
+                    </div>
                   </div>
-
-                  {/* Delete Button */}
-                  <div className="col-span-1 pt-6">
+                  {/* Remove */}
+                  <div className="col-span-1 flex justify-end">
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="icon"
+                      variant="outline"
+                      size="sm"
                       onClick={() => remove(index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -430,17 +450,20 @@ export default function CreateRMPurchaseOrder() {
             </div>
 
             {/* Summary */}
-            <div className="mt-4 pt-4 border-t text-right">
-              <div className="text-lg font-semibold">
-                Total: {currency} {totalAmount.toFixed(2)}
+            <div className="mt-4 text-right pr-2">
+              <div>
+                Subtotal: {currency} {subtotal.toFixed(2)}
+              </div>
+              <div className="font-bold text-lg">
+                Total: {currency} {subtotal.toFixed(2)}
               </div>
             </div>
           </div>
 
           {/* Submit */}
-          <div className="flex justify-end gap-4">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Purchase Order"}
+          <div className="flex justify-end">
+            <Button className="px-6" type="submit" disabled={isUpdating}>
+              {isUpdating ? "Updating..." : "Update Purchase Order"}
             </Button>
           </div>
         </form>

@@ -56,8 +56,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
           {/* Company Info */}
           <div className="text-right flex flex-col items-end">
             <img
-              src="https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png" // <-- Replace with your logo
-              alt="Company Logo"
+              src={from?.logo_url} // <-- Replace with your logo
+              alt={from?.company_name || "Company Logo"}
               className="h-16 w-auto object-contain inline-block"
             />
             <p className="font-semibold">{from?.company_name}</p>
