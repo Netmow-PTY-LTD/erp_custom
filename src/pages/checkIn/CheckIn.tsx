@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 
+import { useGetCheckinListQuery } from "@/store/features/checkIn/checkIn";
 import  { useState } from "react";
-import { useGetCheckinListQuery } from "@/store/baseApi";
+
 
 type Customer = {
 	id: string;
