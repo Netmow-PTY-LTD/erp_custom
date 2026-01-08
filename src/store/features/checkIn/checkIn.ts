@@ -1,23 +1,59 @@
 import { baseApi } from "@/store/baseApi";
 
-// Attendance endpoints
+// Types for attendance API
+export type AttendanceItem = {
+  id: number;
+  staff_id: number;
+  customer_id?: number;
+  date: string;
+  check_in: string | null;
+  check_out?: string | null;
+  status?: string | null;
+  notes?: string | null;
+  latitude?: number;
+  longitude?: number;
+  created_by?: number;
+  created_at?: string;
+  updated_at?: string;
+  total_hours?: number;
+  staff?: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email?: string;
+  };
+  customer?: {
+    id: number;
+    name: string;
+    location: string;
+    phone?: string;
+    email?: string;
+  };
+};
+
+export type Pagination = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPage: number;
+};
+
+export type CheckinListResponse = {
+  success: boolean;
+  message?: string;
+  pagination?: Pagination;
+  data: AttendanceItem[];
+};
+
 export const attendanceApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCheckinList: builder.query<unknown, { staff_id?: string | number; date?: string } | void>({
+    getCheckinList: builder.query<CheckinListResponse, { staff_id?: string | number; date?: string; page?: number; limit?: number } | void>({
       query: (params) => {
-        const qs = new URLSearchParams();
-        if (params) {
-          if (params.staff_id !== undefined && params.staff_id !== null && params.staff_id !== "") {
-            qs.set('staff_id', String(params.staff_id));
-          }
-          if (params.date) {
-            qs.set('date', params.date);
-          }
-        }
-        const queryString = qs.toString();
+
         return {
-          url: `/attendance/checkin-list${queryString ? `?${queryString}` : ''}`,
+          url: `/staff-attendance/checkin-list`,
           method: 'GET',
+          params: params || undefined
         };
       },
       providesTags: ['Attendance'],
@@ -26,3 +62,4 @@ export const attendanceApi = baseApi.injectEndpoints({
 });
 
 export const { useGetCheckinListQuery } = attendanceApi;
+
