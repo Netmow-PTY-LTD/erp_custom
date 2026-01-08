@@ -136,7 +136,6 @@ import AddRMSupplier from "@/pages/raw-materials/suppliers/AddSupplier";
 import EditRMSupplier from "@/pages/raw-materials/suppliers/EditSupplier";
 import RMPurchaseOrderList from "@/pages/raw-materials/purchase-orders/PurchaseOrderList";
 import CreateRMPurchaseOrder from "@/pages/raw-materials/purchase-orders/CreatePurchaseOrder";
-import ViewRMPurchaseOrder from "@/pages/raw-materials/purchase-orders/ViewPurchaseOrderPage";
 import RMInvoiceList from "@/pages/raw-materials/invoice/RawMaterialInvoiceList";
 import RecordRMInvoice from "@/pages/raw-materials/invoice/RecordInvoice";
 import RawMaterialInvoiceDetails from "@/pages/raw-materials/invoice/RawMaterialInvoiceDetails";
