@@ -151,6 +151,7 @@ import AddFinishedGood from "@/pages/production/finished-goods/AddFinishedGood";
 import RawMaterialCategoriesPage from "@/pages/raw-materials/categories";
 import EditRawMaterialPurchaseOrder from "@/pages/raw-materials/purchase-orders/EditPurchaseOrder";
 import InActiveCustomersList from "@/pages/customer/InActiveCustomers";
+import CheckIn from "@/pages/checkIn/CheckIn";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -161,6 +162,18 @@ export const sidebarItemLink = [
     element: <Dashboard />,
     allowedPermissions: [
       DashboardPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
+
+  // CHECK IN
+  {
+    title: "Check In",
+    url: "/dashboard/check-in",
+    icon: MapPin,
+    element: <CheckIn />,
+    allowedPermissions: [
+      CustomerPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
   },
