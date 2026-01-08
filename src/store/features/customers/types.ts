@@ -13,6 +13,8 @@ export interface Customer {
     postal_code?: string;
     latitude?: number;
     longitude?: number;
+    image?: string | string[];
+    images?: string[];
     tax_id?: string;
     credit_limit?: number;
     outstanding_balance?: number;
@@ -37,6 +39,8 @@ export interface CreateCustomerRequest {
     postal_code?: string;
     latitude?: number;
     longitude?: number;
+    image?: string | string[];
+    images?: string[];
     tax_id?: string;
     credit_limit?: number;
     outstanding_balance?: number;
@@ -58,6 +62,8 @@ export interface UpdateCustomerRequest {
     postal_code?: string;
     latitude?: number;
     longitude?: number;
+    image?: string | string[];
+    images?: string[];
     tax_id?: string;
     credit_limit?: number;
     outstanding_balance?: number;
