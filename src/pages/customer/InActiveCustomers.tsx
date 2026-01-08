@@ -11,6 +11,7 @@ import {
   PackagePlus,
   MapPin,
   Trash2,
+  User,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -120,6 +121,22 @@ export default function InActiveCustomersList() {
   const customerColumns: ColumnDef<Customer>[] = [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },
+     { accessorKey: "thumb_url", header: "Image" ,
+          cell: ({ row }) => {
+            const thumbUrl = row.getValue("thumb_url") as string;
+            return thumbUrl ? (
+              <img
+                src={thumbUrl}
+                alt="Customer"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <User className="w-5 h-5 text-gray-500" />
+              </div>
+            );
+          },
+        },
     {
       accessorKey: "customer_type",
       header: "Type",
