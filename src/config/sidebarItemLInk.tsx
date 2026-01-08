@@ -150,6 +150,8 @@ import FinishedGoodsList from "@/pages/production/finished-goods/FinishedGoodsLi
 import AddFinishedGood from "@/pages/production/finished-goods/AddFinishedGood";
 import RawMaterialCategoriesPage from "@/pages/raw-materials/categories";
 import EditRawMaterialPurchaseOrder from "@/pages/raw-materials/purchase-orders/EditPurchaseOrder";
+import InActiveCustomersList from "@/pages/customer/InActiveCustomers";
+import CheckIn from "@/pages/checkIn/CheckIn";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -160,6 +162,18 @@ export const sidebarItemLink = [
     element: <Dashboard />,
     allowedPermissions: [
       DashboardPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
+
+  // CHECK IN
+  {
+    title: "Check In",
+    url: "/dashboard/check-in",
+    icon: MapPin,
+    element: <CheckIn />,
+    allowedPermissions: [
+      CustomerPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
   },
@@ -256,12 +270,22 @@ export const sidebarItemLink = [
     ],
     items: [
       {
-        title: "List of Customers",
+        title: "List of  Active Customers",
         url: "/dashboard/customers",
         element: <Customers />,
         icon: List,
         allowedPermissions: [
           CustomerPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "List of Inactive Customers",
+        url: "/dashboard/customers/inactive",
+        element: <InActiveCustomersList />,
+        icon: List,
+        allowedPermissions: [
+          CustomerPermission.LIST_INACTIVE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
