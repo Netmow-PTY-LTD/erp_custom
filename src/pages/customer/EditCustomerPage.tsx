@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 
 import {
@@ -32,6 +33,7 @@ import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField"
 import { BackButton } from "@/components/BackButton";
 import { useEffect } from "react";
 import { useAppSelector } from "@/store/store";
+import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -53,6 +55,8 @@ const customerSchema = z.object({
   credit_limit: z.number().min(0, "Credit limit must be 0 or more"),
   notes: z.string().optional(),
   is_active: z.boolean(),
+  thumb_url: z.string().optional(),
+  gallery_items: z.array(z.string()).optional(),
   salesRouteId: z.string().optional() // <-- string now
 });
 
@@ -90,6 +94,8 @@ export default function EditCustomerPage() {
       state: "",
       country: "",
       postal_code: "",
+      thumb_url: "",
+      gallery_items: [],
       credit_limit: 0,
       notes: "",
       is_active: true,
@@ -102,6 +108,25 @@ export default function EditCustomerPage() {
   /* ------------------ LOAD CUSTOMER DATA ------------------ */
   useEffect(() => {
     if (customer) {
+      // Normalize image fields: support both legacy `thumb_url`/`gallery_items` (strings)
+      // and `images` array of objects { image_url, is_primary }
+      const primaryFromImages =
+        Array.isArray((customer as any).images) &&
+        (customer as any).images.find((i: any) => i?.is_primary)?.image_url;
+
+      const imagesFromObjects =
+        Array.isArray((customer as any).images) &&
+        (customer as any).images.map((i: any) =>
+          typeof i === "string" ? i : i?.image_url
+        );
+
+      const thumbVal =
+        customer.thumb_url || primaryFromImages || (imagesFromObjects && imagesFromObjects[0]) || "";
+
+      const galleryVal =
+        customer.gallery_items ||
+        (imagesFromObjects ? imagesFromObjects.filter((u: string) => u !== thumbVal) : []);
+
       reset({
         name: customer.name,
         company: customer.company || "",
@@ -119,6 +144,8 @@ export default function EditCustomerPage() {
         credit_limit: customer.credit_limit || 0,
         notes: customer.notes || "",
         is_active: customer.is_active,
+        thumb_url: thumbVal,
+        gallery_items: galleryVal || [],
         salesRouteId: String(customer.sales_route_id)
       });
     }
@@ -141,7 +168,7 @@ export default function EditCustomerPage() {
       if (res.status) {
 
         toast.success(res.message || "Customer updated successfully");
-        navigate("/dashboard/customers");
+        navigate("/dashboard/customers/inactive");
 
       }
     } catch (error) {
@@ -198,6 +225,58 @@ export default function EditCustomerPage() {
                   </Field>
                 )}
               />
+
+               <Controller
+                              control={control}
+                              name="thumb_url"
+                              render={({ field, fieldState }) => (
+                                <div>
+                                  <Field>
+                                    <FieldLabel>Primary Image</FieldLabel>
+                                    <div className="max-w-xs">
+                                      <ImageUploaderPro
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                      />
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                      Optional. Single primary image. Recommended size: 400×400 px.
+                                    </p>
+                                    <FieldError>{fieldState?.error?.message}</FieldError>
+                                  </Field>
+                                </div>
+                              )}
+                            />
+              
+                            <Controller
+                              control={control}
+                              name="gallery_items"
+                              render={({ field, fieldState }) => (
+                                <div className="md:col-span-2">
+                                  <Field>
+                                    <FieldLabel>Gallery (max 2)</FieldLabel>
+                                    <div className="max-w-xs">
+                                      <ImageUploaderPro
+                                        multiple
+                                        value={field.value || []}
+                                        onChange={(v) => {
+                                          const arr = Array.isArray(v) ? v : v ? [v] : [];
+                                          if (arr.length > 10) {
+                                            toast.error("You can upload up to 10 images only");
+                                            arr.splice(10);
+                                          }
+                                          field.onChange(arr);
+                                        }}
+                                      />
+                                    </div>
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                      Optional. Upload up to 10 additional images for the customer.
+                                    </p>
+                                    <FieldError>{fieldState?.error?.message}</FieldError>
+                                  </Field>
+                                </div>
+                              )}
+                            />
 
               <Controller
                 control={control}
