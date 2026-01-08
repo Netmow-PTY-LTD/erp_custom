@@ -257,7 +257,7 @@ export const sidebarItemLink = [
     ],
     items: [
       {
-        title: "List of Customers",
+        title: "List of  Active Customers",
         url: "/dashboard/customers",
         element: <Customers />,
         icon: List,

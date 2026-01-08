@@ -219,7 +219,7 @@ export default function Customers() {
   return (
     <div className="w-full">
       <div className="flex flex-wrap justify-between items-center mb-6">
-        <h2 className="text-3xl font-semibold">All Customers</h2>
+        <h2 className="text-3xl font-semibold">All Active Customers</h2>
 
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/customers/create">
