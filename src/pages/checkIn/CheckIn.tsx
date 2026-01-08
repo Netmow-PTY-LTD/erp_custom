@@ -17,6 +17,9 @@ type Customer = {
   email?: string;
   lat?: number;
   lng?: number;
+check_in_status?: boolean;
+check_in_time?: string;
+
 };
 
 type CheckIn = {
@@ -38,6 +41,8 @@ const sampleCustomers: Customer[] = [
     email: "hakim@restaurant.com",
     lat: 3.0738,
     lng: 101.5183,
+    check_in_status: true,
+    check_in_time: "2024-06-01T10:15:00Z",
   },
 ];
 
