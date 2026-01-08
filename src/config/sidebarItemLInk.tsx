@@ -152,6 +152,7 @@ import RawMaterialCategoriesPage from "@/pages/raw-materials/categories";
 import EditRawMaterialPurchaseOrder from "@/pages/raw-materials/purchase-orders/EditPurchaseOrder";
 import InActiveCustomersList from "@/pages/customer/InActiveCustomers";
 import CheckIn from "@/pages/checkIn/CheckIn";
+import CheckInList from "@/pages/checkIn/CheckInList";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -162,18 +163,6 @@ export const sidebarItemLink = [
     element: <Dashboard />,
     allowedPermissions: [
       DashboardPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-  },
-
-  // CHECK IN
-  {
-    title: "Check In",
-    url: "/dashboard/check-in",
-    icon: MapPin,
-    element: <CheckIn />,
-    allowedPermissions: [
-      CustomerPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
   },
@@ -857,6 +846,28 @@ export const sidebarItemLink = [
       //     SuperAdminPermission.ACCESS_ALL,
       //   ],
       // },
+      
+  // CHECK IN
+  {
+    title: "Check In",
+    url: "/dashboard/staff/check-in",
+    icon: MapPin,
+    element: <CheckIn />,
+    allowedPermissions: [
+      CustomerPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
+  {
+    title: "Check In List",
+    url: "/dashboard/staff/check-in-list",
+    icon: MapPin,
+    element: <CheckInList />,
+    allowedPermissions: [
+      CustomerPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
       {
         title: "",
         url: "/dashboard/staffs/leaves/request",
