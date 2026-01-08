@@ -25,7 +25,7 @@ export const attendanceApiService = baseApi.injectEndpoints({
     // CHECK-IN
     checkIn: builder.mutation<AttendanceResponse, any>({
       query: (body) => ({
-        url: `/attendance/staff/${body.staff_id}`,
+        url: `/staff-attendance/staff/${body.staff_id}`,
         method: "POST",
         body: body.data,
       }),
@@ -35,7 +35,7 @@ export const attendanceApiService = baseApi.injectEndpoints({
     // CHECK-OUT
     checkOut: builder.mutation<AttendanceResponse, any>({
       query: (body) => ({
-        url: "/attendance/check-out",
+        url: "/staff-attendance/check-out",
         method: "POST",
         body,
       }),
@@ -48,7 +48,7 @@ export const attendanceApiService = baseApi.injectEndpoints({
       { page?: number; limit?: number; search?: string }
     >({
       query: () => ({
-        url: "/attendance",
+        url: "/staff-attendance",
         method: "GET",
       }),
       providesTags: ["Attendance"],
@@ -57,7 +57,7 @@ export const attendanceApiService = baseApi.injectEndpoints({
     // GET SINGLE ATTENDANCE BY ID
     getAttendanceById: builder.query<AttendanceResponse, number>({
       query: (id) => ({
-        url: `/attendance/${id}`,
+        url: `/staff-attendance/${id}`,
         method: "GET",
       }),
       providesTags: ["Attendance"],
@@ -74,7 +74,7 @@ export const attendanceApiService = baseApi.injectEndpoints({
       }
     >({
       query: ({ staffId, page = 1, limit = 10, search = "" }) => ({
-        url: `/attendance/staff/${staffId}`,
+        url: `/staff-attendance/staff/${staffId}`,
         method: "GET",
         params: {
           page,
@@ -91,7 +91,7 @@ export const attendanceApiService = baseApi.injectEndpoints({
       { id: number; body: any }
     >({
       query: ({ id, body }) => ({
-        url: `/attendance/${id}`,
+        url: `/staff-attendance/${id}`,
         method: "PUT",
         body,
       }),
@@ -101,7 +101,7 @@ export const attendanceApiService = baseApi.injectEndpoints({
     // DELETE ATTENDANCE
     deleteAttendance: builder.mutation<AttendanceResponse, number>({
       query: (id) => ({
-        url: `/attendance/${id}`,
+        url: `/staff-attendance/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Attendance"],
@@ -109,14 +109,14 @@ export const attendanceApiService = baseApi.injectEndpoints({
 
     staffWiseFullDayLeaveApplication: builder.mutation<any, { staff_id: number; body: any }>({
       query: ({ staff_id, body }) => ({
-        url: `/attendance/staff/${staff_id}/leave/full-day`,
+        url: `/staff-attendance/staff/${staff_id}/leave/full-day`,
         method: "POST",
         body,
       }),
     }),
     staffWiseShortLeaveApplication: builder.mutation<any, { staff_id: number; body: any }>({
       query: ({ staff_id, body }) => ({
-        url: `/attendance/staff/${staff_id}/leave/short`,
+        url: `/staff-attendance/staff/${staff_id}/leave/short`,
         method: "POST",
         body,
       }),

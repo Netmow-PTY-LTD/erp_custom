@@ -200,7 +200,10 @@ export default function RMInvoiceList() {
             pageSize={limit}
             totalCount={pagination.total}
             onPageChange={(p) => setPage(p + 1)}
-            onSearch={setSearch}
+            onSearch={(val) => {
+              setSearch(val);
+              setPage(1);
+            }}
             isFetching={isFetching}
           />
         </CardContent>

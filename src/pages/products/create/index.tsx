@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 //import { ImageUploader } from "@/components/form/ImageUploader";
 import { useNavigate } from "react-router";
-import {  Check, ChevronDown, Loader } from "lucide-react";
+import { Check, ChevronDown, Loader } from "lucide-react";
 import {
   useAddProductMutation,
   useGetAllCategoriesQuery,
@@ -162,15 +162,11 @@ export default function AddProductPage() {
         // Navigate back to products list or reset form
         navigate("/dashboard/products");
         form.reset();
-      } else {
-        toast.error("Failed to add product: " + res.message);
       }
     } catch (error) {
       console.error("Error adding product:", error);
-      toast.error("Failed to add product");
-      if (error instanceof Error) {
-        toast.error("Failed to add product: " + error.message);
-      }
+      const err = error as { data: { message: string } };
+      toast.error(err?.data?.message || "Failed to add product");
     }
   };
 
@@ -178,7 +174,7 @@ export default function AddProductPage() {
     <div className="space-y-6 max-w-4xl mx-auto py-6">
       <div className="flex flex-wrap justify-between items-center gap-4">
         <h1 className="text-3xl font-bold">Add Product</h1>
-        <BackButton/>
+        <BackButton />
       </div>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -396,23 +392,23 @@ export default function AddProductPage() {
 
                               <CommandGroup>
                                 {fetchedUnits?.data?.map((unit) => {
-                                  if(!unit.is_active)return
-                                    return (
-                                  <CommandItem
-                                    key={unit.id}
-                                    value={unit.name} // for built-in filtering
-                                    onSelect={() => {
-                                      field.onChange(unit.id);
-                                      setOpen(false);
-                                    }}
-                                  >
-                                    <span>{unit.name}</span>
+                                  if (!unit.is_active) return
+                                  return (
+                                    <CommandItem
+                                      key={unit.id}
+                                      value={unit.name} // for built-in filtering
+                                      onSelect={() => {
+                                        field.onChange(unit.id);
+                                        setOpen(false);
+                                      }}
+                                    >
+                                      <span>{unit.name}</span>
 
-                                    {field.value === unit.id && (
-                                      <Check className="ml-auto h-4 w-4" />
-                                    )}
-                                  </CommandItem>
-                                )
+                                      {field.value === unit.id && (
+                                        <Check className="ml-auto h-4 w-4" />
+                                      )}
+                                    </CommandItem>
+                                  )
                                 })}
                               </CommandGroup>
                             </CommandList>
