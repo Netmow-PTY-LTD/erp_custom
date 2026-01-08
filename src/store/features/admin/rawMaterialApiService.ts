@@ -623,31 +623,42 @@ export const rawMaterialApiService = baseApi.injectEndpoints({
 });
 
 export const {
+  // Raw Material Category
   useAddRawMaterialCategoryMutation,
   useGetAllRawMaterialCategoriesQuery,
   useGetRawMaterialCategoryByIdQuery,
   useUpdateRawMaterialCategoryMutation,
   useDeleteRawMaterialCategoryMutation,
+
+  // Raw Material
   useAddRawMaterialMutation,
   useGetAllRawMaterialsQuery,
   useGetRawMaterialByIdQuery,
   useUpdateRawMaterialMutation,
   useDeleteRawMaterialMutation,
+
+  // Raw Material Supplier
   useAddRawMaterialSupplierMutation,
   useGetAllRawMaterialSuppliersQuery,
   useGetRawMaterialSupplierByIdQuery,
   useUpdateRawMaterialSupplierMutation,
   useDeleteRawMaterialSupplierMutation,
+
+  // Raw Material Purchase Order
   useAddRawMaterialPurchaseOrderMutation,
   useGetAllRawMaterialPurchaseOrdersQuery,
   useGetRawMaterialPurchaseOrderByIdQuery,
   useUpdateRawMaterialPurchaseOrderMutation,
   useDeleteRawMaterialPurchaseOrderMutation,
+
+  // Raw Material Purchase Invoice
   useCreateRawMaterialPurchaseInvoiceMutation,
   useGetAllRawMaterialPurchaseInvoicesQuery,
   useGetRawMaterialPurchaseInvoiceByIdQuery,
   useUpdateRawMaterialPurchaseInvoiceMutation,
   useDeleteRawMaterialPurchaseInvoiceMutation,
+
+  // Raw Material Payment
   useAddRawMaterialPaymentMutation,
   useGetAllRawMaterialPaymentsQuery,
   useGetRawMaterialPaymentByIdQuery,
