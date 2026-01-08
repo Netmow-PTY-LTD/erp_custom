@@ -150,6 +150,7 @@ import FinishedGoodsList from "@/pages/production/finished-goods/FinishedGoodsLi
 import AddFinishedGood from "@/pages/production/finished-goods/AddFinishedGood";
 import RawMaterialCategoriesPage from "@/pages/raw-materials/categories";
 import EditRawMaterialPurchaseOrder from "@/pages/raw-materials/purchase-orders/EditPurchaseOrder";
+import RawMaterialPurchaseOrderView from "@/pages/raw-materials/purchase-orders/ViewPurchaseOrderPage";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -597,7 +598,7 @@ export const sidebarItemLink = [
       {
         title: "",
         url: "/dashboard/raw-materials/purchase-orders/:purchaseId",
-        element: <ViewRMPurchaseOrder />,
+        element: <RawMaterialPurchaseOrderView />,
         allowedPermissions: [
           RawMaterialPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,

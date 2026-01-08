@@ -106,7 +106,7 @@ export default function PaymentDetails() {
                                 <div>
                                     <p className="text-sm text-gray-500">Amount Paid</p>
                                     <p className="text-2xl font-bold text-green-600">
-                                        {currency} {payment.amount.toLocaleString()}
+                                        {currency} {Number(payment.amount).toFixed(2)}
                                     </p>
                                 </div>
                             </div>
@@ -235,7 +235,7 @@ export default function PaymentDetails() {
                             <div className="flex justify-between items-center pt-2">
                                 <span className="font-semibold">Amount Paid</span>
                                 <span className="text-xl font-bold text-green-600">
-                                    {currency} {payment.amount.toLocaleString()}
+                                    {currency} {Number(payment.amount).toFixed(2)}
                                 </span>
                             </div>
                         </div>
@@ -248,37 +248,24 @@ export default function PaymentDetails() {
 
                             <div className="space-y-3 text-sm">
                                 <div className="flex justify-between">
+                                    <span className="text-gray-600">Invoice #
+                                    </span>
+                                    <span className="font-medium">
+                                        {invoice.invoice_number}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
                                     <span className="text-gray-600">Total Amount</span>
                                     <span className="font-medium">
-                                        {currency} {invoice.total_payable_amount?.toLocaleString() || '0'}
+                                        {currency} {Number(invoice.total_payable_amount || 0).toFixed(2)}
                                     </span>
                                 </div>
 
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Paid Amount</span>
-                                    <span className="font-medium text-green-600">
-                                        {currency} {invoice.paid_amount?.toLocaleString() || '0'}
+                                <div className="flex justify-between items-center">
+                                    <span>Due Date</span>
+                                    <span className="font-medium">
+                                        {invoice.due_date}
                                     </span>
-                                </div>
-
-                                <Separator />
-
-                                <div className="flex justify-between items-center pt-2">
-                                    <span className="font-semibold">Due Amount</span>
-                                    <span className="text-lg font-bold text-orange-600">
-                                        {currency} {invoice.due_amount?.toLocaleString() || '0'}
-                                    </span>
-                                </div>
-
-                                <div className="pt-2">
-                                    <Badge
-                                        className={`${invoice.status === "paid"
-                                                ? "bg-green-600"
-                                                : "bg-yellow-600"
-                                            } text-white capitalize w-full justify-center`}
-                                    >
-                                        {invoice.status}
-                                    </Badge>
                                 </div>
                             </div>
                         </div>
