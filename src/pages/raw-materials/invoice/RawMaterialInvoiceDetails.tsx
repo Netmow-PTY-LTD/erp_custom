@@ -7,15 +7,18 @@ import { Link, useParams } from "react-router";
 import { useAppSelector } from "@/store/store";
 import {
   useGetRawMaterialPurchaseInvoiceByIdQuery,
+  useUpdateRawMaterialPurchaseInvoiceMutation,
   type RawMaterialInvoice,
 } from "@/store/features/admin/rawMaterialApiService";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { toast } from "sonner";
 
 export default function RawMaterialInvoiceDetails() {
   const { id } = useParams();
   const currency = useAppSelector((state) => state.currency.value);
-
-  const {data: fetchedSettingsInfo} = useGetSettingsInfoQuery();
+  const [markPaid, { isLoading: isMarkingPaid }] =
+    useUpdateRawMaterialPurchaseInvoiceMutation();
+  const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
   const to = fetchedSettingsInfo?.data;
 
   const { data, isLoading } = useGetRawMaterialPurchaseInvoiceByIdQuery(
@@ -51,6 +54,25 @@ export default function RawMaterialInvoiceDetails() {
   const paid = invoice?.paid_amount || 0;
   const balance = invoice?.due_amount || 0;
   const isFullyPaid = balance <= 0;
+  const showMarkAsPaidButton = isFullyPaid && invoice?.status !== "paid";
+
+  const handleMarkAsPaid = async () => {
+    if (!isFullyPaid || invoice?.status === "paid") return;
+    try {
+      const res = await markPaid({
+        id: Number(invoice?.id),
+        body: {
+          status: "paid",
+        },
+      }).unwrap();
+      if (res) {
+        toast.success(res.message || "Invoice marked as paid successfully");
+      }
+    } catch (error) {
+      console.error("Failed to mark invoice as paid", error);
+      toast.error("Failed to mark invoice as paid");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -67,7 +89,7 @@ export default function RawMaterialInvoiceDetails() {
 
           {id && (
             <Link to={`/dashboard/raw-materials/invoices/print/${id}`}>
-              <Button className="bg-gray-600 hover:bg-gray-700 text-white">
+              <Button variant="info">
                 Print Preview
               </Button>
             </Link>
@@ -77,10 +99,19 @@ export default function RawMaterialInvoiceDetails() {
             <Link
               to={`/dashboard/raw-materials/payments/create?poid=${po.id}`}
             >
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Button variant="info">
                 Record Payment
               </Button>
             </Link>
+          )}
+          {showMarkAsPaidButton && (
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={handleMarkAsPaid}
+              disabled={isMarkingPaid}
+            >
+              {isMarkingPaid ? "Marking..." : "✔ Mark as Paid"}
+            </Button>
           )}
         </div>
       </div>
@@ -130,13 +161,12 @@ export default function RawMaterialInvoiceDetails() {
                 <p className="flex items-center gap-2">
                   <strong>Status:</strong>
                   <Badge
-                    className={`${
-                      invoice?.status === "paid"
-                        ? "bg-green-600"
-                        : invoice?.status === "pending"
+                    className={`${invoice?.status === "paid"
+                      ? "bg-green-600"
+                      : invoice?.status === "pending"
                         ? "bg-yellow-600" : invoice?.status === "draft" ? "bg-blue-600"
-                        : "bg-red-600"
-                    } text-white capitalize`}
+                          : "bg-red-600"
+                      } text-white capitalize`}
                   >
                     {invoice?.status}
                   </Badge>
@@ -223,13 +253,13 @@ export default function RawMaterialInvoiceDetails() {
                         <td className="p-3">
                           {payment?.payment_date
                             ? new Date(payment.payment_date).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )
                             : "-"}
                         </td>
 
@@ -328,12 +358,11 @@ export default function RawMaterialInvoiceDetails() {
 
               <div>
                 <Badge
-                className={`${
-                  isFullyPaid ? "bg-green-600" : "bg-yellow-500"
-                } text-white capitalize mt-2 justify-center`}
-              >
-                {isFullyPaid ? "Paid" : invoice?.status || "Pending"}
-              </Badge>
+                  className={`${invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-500"
+                    } text-white capitalize mt-2 justify-center`}
+                >
+                  {invoice?.status}
+                </Badge>
               </div>
             </div>
           </div>
@@ -365,8 +394,8 @@ export default function RawMaterialInvoiceDetails() {
                 <strong>Expected Delivery:</strong>{" "}
                 {po?.expected_delivery_date
                   ? new Date(po.expected_delivery_date)
-                      .toISOString()
-                      .split("T")[0]
+                    .toISOString()
+                    .split("T")[0]
                   : "-"}
               </p>
               {po?.notes && (

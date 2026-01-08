@@ -75,28 +75,27 @@ export default function PrintableRMPurchaseInvoice({
               <strong>Invoice Date:</strong>{" "}
               {invoice?.invoice_date
                 ? new Date(invoice.invoice_date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
                 : "-"}
             </p>
             <p>
               <strong>Due Date:</strong>{" "}
               {invoice?.due_date
                 ? new Date(invoice.due_date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
                 : "-"}
             </p>
             <p>
               <strong>Status:</strong>{" "}
               <Badge
-                className={`${
-                  invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"
-                } text-white capitalize`}
+                className={`${invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"
+                  } text-white capitalize`}
               >
                 {invoice?.status}
               </Badge>
