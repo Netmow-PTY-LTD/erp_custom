@@ -1,6 +1,7 @@
 "use client";
 
-
+import { MapEmbed } from "@/components/MapEmbed";
+import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 
 type Customer = {
   id: number;
@@ -20,15 +21,18 @@ export default function CheckInLocationModal({
   customer: Customer;
   onClose: () => void;
 }) {
+  const hasCoords = typeof customer.lat === "number" && typeof customer.lng === "number";
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md">
+      <div className="bg-white rounded-lg shadow-lg w-[95%] max-w-3xl">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h2 className="text-lg font-medium">Check In — {customer.name}</h2>
           <button className="px-3 py-1 bg-gray-200 rounded" onClick={onClose}>
             Close
           </button>
         </div>
+
         <div className="p-4 space-y-3">
           <div>
             <div className="text-sm text-gray-500">Location</div>
@@ -45,6 +49,22 @@ export default function CheckInLocationModal({
           <div>
             <div className="text-sm text-gray-500">Coordinates</div>
             <div className="font-medium">{customer.lat ?? "—"}, {customer.lng ?? "—"}</div>
+          </div>
+
+          <div className="w-full h-64 rounded overflow-hidden border">
+            {hasCoords ? (
+              <div className="w-full h-full">
+                <GoogleMapEmbed
+                  center={{ lat: customer.lat!, lng: customer.lng! }}
+                  zoom={16}
+                  startLocation={{ lat: customer.lat!, lng: customer.lng!, name: customer.name }}
+                  endLocation={{ lat: customer.lat!, lng: customer.lng!, name: customer.name }}
+                  customerMarkers={[]}
+                />
+              </div>
+            ) : (
+              <MapEmbed location={customer.location} />
+            )}
           </div>
 
           <div className="pt-2 flex justify-end gap-2">
