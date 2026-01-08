@@ -41,6 +41,7 @@ export const ProductPermission = {
 export const CustomerPermission = {
   VIEW: "customers.view" as const,
   LIST: "customers.list" as const,
+  LIST_INACTIVE: "customers.list.inactive" as const,
   DETAILS: "customers.details" as const,
   CREATE: "customers.create" as const,
   EDIT: "customers.edit" as const,

@@ -18,7 +18,7 @@ import { Link } from "react-router";
 import {
   useDeleteCustomerMutation,
   useGetCustomerStatsQuery,
-  useGetActiveCustomersQuery,
+  useGetInactiveCustomersQuery,
 } from "@/store/features/customers/customersApi";
 import type { Customer } from "@/store/features/customers/types";
 import { toast } from "sonner";
@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAppSelector } from "@/store/store";
 
-export default function Customers() {
+export default function InActiveCustomersList() {
   const [pageIndex, setPageIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -45,10 +45,11 @@ export default function Customers() {
   const currency = useAppSelector((state) => state.currency.value); 
 
   // Fetch customers with pagination and search
-  const { data, isLoading, error } = useGetActiveCustomersQuery({
+  const { data, isLoading, error } = useGetInactiveCustomersQuery({
     page: currentPage,
     limit: pageSize,
     search: searchTerm || undefined,
+ 
   });
 
   const [deleteCustomer, { isLoading: isDeleting }] =
@@ -120,22 +121,22 @@ export default function Customers() {
   const customerColumns: ColumnDef<Customer>[] = [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },
-    { accessorKey: "thumb_url", header: "Image" ,
-      cell: ({ row }) => {
-        const thumbUrl = row.getValue("thumb_url") as string;
-        return thumbUrl ? (
-          <img
-            src={thumbUrl}
-            alt="Customer"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-            <User className="w-5 h-5 text-gray-500" />
-          </div>
-        );
-      },
-    },
+     { accessorKey: "thumb_url", header: "Image" ,
+          cell: ({ row }) => {
+            const thumbUrl = row.getValue("thumb_url") as string;
+            return thumbUrl ? (
+              <img
+                src={thumbUrl}
+                alt="Customer"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <User className="w-5 h-5 text-gray-500" />
+              </div>
+            );
+          },
+        },
     {
       accessorKey: "customer_type",
       header: "Type",
@@ -236,7 +237,7 @@ export default function Customers() {
   return (
     <div className="w-full">
       <div className="flex flex-wrap justify-between items-center mb-6">
-        <h2 className="text-3xl font-semibold">All Active Customers</h2>
+        <h2 className="text-3xl font-semibold">Inactive Customers</h2>
 
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/customers/create">
@@ -273,7 +274,7 @@ export default function Customers() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Customers</CardTitle>
+          <CardTitle>Inactive Customers</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
