@@ -1,30 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-
-import { useGetCheckinListQuery } from "@/store/features/checkIn/checkIn";
-import  { useState } from "react";
+import { useState, useMemo, type JSX } from "react";
+import { DataTable } from "@/components/dashboard/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useGetCheckinListQuery } from "@/store/baseApi";
+import CheckInLocationModal from "./CheckInLocationModal";
 
 
 type Customer = {
-	id: string;
+    image: string | undefined;
+	id: number;
 	name: string;
-	address: string;
+	location: string;
+	route?: string;
+	phone?: string;
+	email?: string;
 	lat?: number;
 	lng?: number;
 };
 
 type CheckIn = {
 	id: string;
-	customerId: string;
+	customerId: number | string;
 	staffName: string;
 	time: string; // ISO
 	note?: string;
 };
 
 const sampleCustomers: Customer[] = [
-	{ id: "c1", name: "Acme Supplies", address: "12 Market St, Springfield", lat: 40.7128, lng: -74.006 },
-	{ id: "c2", name: "Beta Retail", address: "88 Industrial Rd, Centerville", lat: 34.0522, lng: -118.2437 },
-	{ id: "c3", name: "Gamma Traders", address: "7 High St, Lakeside", lat: 51.5074, lng: -0.1278 },
+	{
+		id: 1,
+        image: undefined,
+		name: "Restaurant Hakim",
+		location: "Shah Alam",
+		route: "Route A",
+		phone: "+60 12-345 6789",
+		email: "hakim@restaurant.com",
+		lat: 3.0738,
+		lng: 101.5183,
+	},
 ];
 
 const initialCheckIns: CheckIn[] = [
@@ -32,7 +45,7 @@ const initialCheckIns: CheckIn[] = [
 	{ id: "i2", customerId: "c2", staffName: "Jane Smith", time: new Date().toISOString(), note: "Left samples" },
 ];
 
-export default function CheckIn() {
+export default function CheckIn(): JSX.Element {
 	const [customers] = useState<Customer[]>(sampleCustomers);
 	const [checkIns, setCheckIns] = useState<CheckIn[]>(initialCheckIns);
 	const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -40,6 +53,57 @@ export default function CheckIn() {
 	const [staffFilterInput, setStaffFilterInput] = useState<string>("");
 	const [dateFilterInput, setDateFilterInput] = useState<string>("");
 	const [fetchParams, setFetchParams] = useState<{ staff_id?: string | number; date?: string } | null>(null);
+
+	// DataTable states for customers
+	const [search, setSearch] = useState("");
+	const [page, setPage] = useState(1);
+	const [limit] = useState(10);
+
+	const filteredCustomers = useMemo(() => {
+		if (!search) return customers;
+		const s = search.toLowerCase();
+		return customers.filter(
+			(c) =>
+				String(c.id).includes(s) ||
+				c.name.toLowerCase().includes(s) ||
+				(c.location && c.location.toLowerCase().includes(s)) ||
+				(c.route && c.route.toLowerCase().includes(s))
+		);
+	}, [search, customers]);
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const customerColumns = useMemo<ColumnDef<Customer>[]>(
+		() => [
+             { accessorKey: "image", header: "Image", 
+        cell: ({ row }) => <img src={row.original.image} alt="Customer" className="w-10 h-10 rounded-full object-cover" /> },
+			{ accessorKey: "name", header: "Name" },
+
+			{ accessorKey: "location", header: "Location" },
+			{ accessorKey: "route", header: "Route" },
+			{ accessorKey: "phone", header: "Phone" },
+			{ accessorKey: "email", header: "Email" },
+			{
+				id: "coords",
+				header: "Coordinates",
+				cell: (info) => (info.row.original.lat ? `${info.row.original.lat}, ${info.row.original.lng}` : "—"),
+			},
+			{
+				id: "actions",
+				header: "Actions",
+				cell: ({ row }) => (
+					<div>
+						<button className="bg-blue-600 text-white px-3 py-1 rounded mr-2" onClick={() => handleCheckIn(row.original)}>
+							Check In
+						</button>
+						<button className="border px-3 py-1 rounded" onClick={() => setLocationCustomer(row.original)}>
+							View Location
+						</button>
+					</div>
+				),
+			},
+		],
+		[]
+	);
 
 	function handleOpenList(customer: Customer) {
 		setSelectedCustomer(customer);
@@ -51,18 +115,61 @@ export default function CheckIn() {
 		setSelectedCustomer(null);
 	}
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	function handleCheckIn(customer: Customer) {
-		const newCheckIn: CheckIn = {
-			// eslint-disable-next-line react-hooks/purity
-			id: `i_${Date.now()}`,
-			customerId: customer.id,
-			staffName: "Current User", // replace with real user from context
-			time: new Date().toISOString(),
+		// perform geolocation check then add check-in if within threshold
+		if (!customer.lat || !customer.lng) {
+			setMessage({ type: "error", text: "Customer location not available." });
+			return;
+		}
+
+		const doCheckIn = (pos: GeolocationPosition) => {
+			const { latitude, longitude } = pos.coords;
+			const dist = haversineDistanceMeters(latitude, longitude, customer.lat!, customer.lng!);
+			const thresholdMeters = 100; // acceptable distance in meters
+			if (dist <= thresholdMeters) {
+				const newCheckIn: CheckIn = {
+					 
+					id: `i_${Date.now()}`,
+					customerId: customer.id,
+					staffName: "Current User",
+					time: new Date().toISOString(),
+				};
+				setCheckIns((s) => [newCheckIn, ...s]);
+				setMessage({ type: "success", text: "Check-in successful." });
+				handleOpenList(customer);
+			} else {
+				setMessage({ type: "error", text: `Please go to the exact location. Distance is ${Math.round(dist)} m.` });
+			}
 		};
-		setCheckIns((s) => [newCheckIn, ...s]);
-		// after check-in, open list for that customer
-		handleOpenList(customer);
+
+		const onError = (err: GeolocationPositionError) => {
+			setMessage({ type: "error", text: `Unable to get current location: ${err.message}` });
+		};
+
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(doCheckIn, onError, { enableHighAccuracy: true, timeout: 10000 });
+		} else {
+			setMessage({ type: "error", text: "Geolocation is not supported by this browser." });
+		}
 	}
+
+	// helper: haversine distance in meters
+	function haversineDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
+		const toRad = (v: number) => (v * Math.PI) / 180;
+		const R = 6371000; // metres
+		const dLat = toRad(lat2 - lat1);
+		const dLon = toRad(lon2 - lon1);
+		const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		return R * c;
+	}
+
+	// view location modal
+	const [locationCustomer, setLocationCustomer] = useState<Customer | null>(null);
+
+	// simple message banner
+	const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
 	// RTK Query for attendance check-in list
 	const { data: apiData, isLoading: apiLoading, isError: apiError } = useGetCheckinListQuery(
@@ -70,24 +177,28 @@ export default function CheckIn() {
 		{ skip: !fetchParams }
 	);
 
-	const customerRows = customers.map((c) => (
-		<tr key={c.id} className="even:bg-gray-50">
-			<td className="px-4 py-2">{c.name}</td>
-			<td className="px-4 py-2">{c.address}</td>
-			<td className="px-4 py-2">{c.lat ? `${c.lat}, ${c.lng}` : "—"}</td>
-			<td className="px-4 py-2">
-				<button
-					className="bg-blue-600 text-white px-3 py-1 rounded mr-2"
-					onClick={() => handleCheckIn(c)}
-				>
-					Check In
-				</button>
-				<button className="border px-3 py-1 rounded" onClick={() => handleOpenList(c)}>
-					View Check-ins
-				</button>
-			</td>
-		</tr>
-	));
+	// typed view of API response
+	type AttendanceItemApi = {
+		id: number;
+		staff_id?: number;
+		date?: string;
+		check_in?: string | null;
+		check_out?: string | null;
+		status?: string | null;
+		notes?: string | null;
+		staff?: { id: number; first_name: string; last_name: string; email?: string };
+	};
+
+	type ApiResponse = {
+		success?: boolean;
+		message?: string;
+		pagination?: { total: number; page: number; limit: number; totalPage: number };
+		data?: AttendanceItemApi[];
+	} | undefined;
+
+	const api = apiData as ApiResponse;
+
+	// `customerRows` removed: using DataTable for rendering
 
 	const selectedCheckIns = selectedCustomer
 		? checkIns.filter((ci) => ci.customerId === selectedCustomer.id)
@@ -97,18 +208,26 @@ export default function CheckIn() {
 		<div className="p-6">
 			<h1 className="text-2xl font-semibold mb-4">Check In</h1>
 
+			{message && (
+				<div className={`mb-4 p-3 rounded ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+					{message.text}
+				</div>
+			)}
+
 			<div className="overflow-x-auto bg-white shadow rounded-lg">
-				<table className="w-full border-collapse">
-					<thead className="bg-gray-100">
-						<tr>
-							<th className="text-left px-4 py-2">Customer</th>
-							<th className="text-left px-4 py-2">Address</th>
-							<th className="text-left px-4 py-2">Coordinates</th>
-							<th className="text-left px-4 py-2">Actions</th>
-						</tr>
-					</thead>
-					<tbody>{customerRows}</tbody>
-				</table>
+				<DataTable
+					columns={customerColumns}
+					data={filteredCustomers}
+					pageIndex={page - 1}
+					pageSize={limit}
+					totalCount={filteredCustomers.length}
+					onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+					onSearch={(value) => {
+						setSearch(value);
+						setPage(1);
+					}}
+					isFetching={false}
+				/>
 			</div>
 
 			{showModal && selectedCustomer && (
@@ -172,21 +291,21 @@ export default function CheckIn() {
 								</div>
 							</div>
 							{/* API results (if any) else fallback to local check-ins */}
-							{apiLoading ? (
-								<p className="text-sm text-gray-600">Loading...</p>
-							) : apiError ? (
-								<p className="text-sm text-red-600">Error loading check-ins.</p>
-							) : apiData && (apiData as any).data && (apiData as any).data.length > 0 ? (
-								<ul className="space-y-2">
-									{(apiData as any).data.map((ci: any) => (
-										<li key={ci.id} className="p-2 border rounded">
-											<div className="text-sm font-semibold">{ci.staff?.first_name} {ci.staff?.last_name}</div>
-											<div className="text-xs text-gray-600">{ci.date} {ci.check_in ? ` · ${ci.check_in}` : ''}</div>
-											{ci.notes && <div className="text-sm mt-1">{ci.notes}</div>}
-										</li>
-									))}
-								</ul>
-							) : (
+										{apiLoading ? (
+											<p className="text-sm text-gray-600">Loading...</p>
+										) : apiError ? (
+											<p className="text-sm text-red-600">Error loading check-ins.</p>
+										) : api && api.data && api.data.length > 0 ? (
+											<ul className="space-y-2">
+												{api.data.map((ci) => (
+													<li key={ci.id} className="p-2 border rounded">
+														<div className="text-sm font-semibold">{ci.staff?.first_name} {ci.staff?.last_name}</div>
+														<div className="text-xs text-gray-600">{ci.date} {ci.check_in ? ` · ${ci.check_in}` : ''}</div>
+														{ci.notes && <div className="text-sm mt-1">{ci.notes}</div>}
+													</li>
+												))}
+											</ul>
+										) : (
 								// fallback to local checkins for this customer
 								selectedCheckIns.length === 0 ? (
 									<p className="text-sm text-gray-600">No check-ins yet for this customer.</p>
@@ -206,6 +325,10 @@ export default function CheckIn() {
 					</div>
 				</div>
 			)}
+
+		{locationCustomer && (
+			<CheckInLocationModal customer={locationCustomer} onClose={() => setLocationCustomer(null)} />
+		)}
 		</div>
 	);
 }
