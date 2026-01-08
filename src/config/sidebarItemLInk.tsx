@@ -150,6 +150,7 @@ import FinishedGoodsList from "@/pages/production/finished-goods/FinishedGoodsLi
 import AddFinishedGood from "@/pages/production/finished-goods/AddFinishedGood";
 import RawMaterialCategoriesPage from "@/pages/raw-materials/categories";
 import EditRawMaterialPurchaseOrder from "@/pages/raw-materials/purchase-orders/EditPurchaseOrder";
+import InActiveCustomersList from "@/pages/customer/InActiveCustomers";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -262,6 +263,16 @@ export const sidebarItemLink = [
         icon: List,
         allowedPermissions: [
           CustomerPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "List of Inactive Customers",
+        url: "/dashboard/customers/inactive",
+        element: <InActiveCustomersList />,
+        icon: List,
+        allowedPermissions: [
+          CustomerPermission.LIST_INACTIVE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
