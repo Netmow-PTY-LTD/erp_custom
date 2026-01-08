@@ -26,12 +26,10 @@ import {
   CommandGroup,
 } from "@/components/ui/command";
 
-
-
 import { toast } from "sonner";
 
 import { useAddPurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
-import {  useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
@@ -405,7 +403,7 @@ export default function CreatePurchaseOrderPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Create Purchase Order</h1>
 
-        <BackButton/>
+        <BackButton />
       </div>
 
       <Form {...form}>
@@ -547,7 +545,14 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem className="sm:col-span-2">
                         <FormLabel>Unit Price</FormLabel>
                         <FormControl>
-                          <Input type="number" step="0.01" {...field} onChange={(e)=>field.onChange(Number(e.target.value))} />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -563,7 +568,13 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem className="sm:col-span-1">
                         <FormLabel>Quantity</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -579,7 +590,13 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem className="sm:col-span-1">
                         <FormLabel>Discount</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -592,7 +609,14 @@ export default function CreatePurchaseOrderPage() {
                       <FormItem className="sm:col-span-1">
                         <FormLabel>Tax</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} onChange={(e)=>field.onChange(Number(e.target.value))} readOnly />
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            readOnly
+                          />
                         </FormControl>
                       </FormItem>
                     )}

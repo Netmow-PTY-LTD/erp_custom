@@ -35,6 +35,8 @@ export interface PurchasePayment {
       phone: string;
       contact_person: string;
     };
+    net_amount: number;
+    total_payable_amount: number;
   };
 
   invoice: {
@@ -44,5 +46,7 @@ export interface PurchasePayment {
     purchase_order_id: number;
     status: string;
     due_date: string;
+    net_amount: number;
+    total_payable_amount: number;
   };
 }
