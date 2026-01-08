@@ -168,7 +168,7 @@ export default function EditCustomerPage() {
       if (res.status) {
 
         toast.success(res.message || "Customer updated successfully");
-        navigate("/dashboard/customers");
+        navigate("/dashboard/customers/inactive");
 
       }
     } catch (error) {
