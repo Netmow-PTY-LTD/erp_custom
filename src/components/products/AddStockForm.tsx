@@ -42,7 +42,7 @@ import { useAppSelector } from "@/store/store";
 const stockFormSchema = z.object({
   product_id: z.number().min(1, "Required"),
   current_stock: z.number().min(0, "Current stock must be 0 or more"),
-  quantity: z.number().min(0, "Stock must be 0 or more"),
+  quantity: z.number().min(1, "Stock must be greater than 0"),
   operation: z.string().min(1, "Required"),
   date: z.string().min(1, "Required"),
   movement_type: z.string().min(1, "Required"),
@@ -233,11 +233,10 @@ export default function AddStockForm({
                                   >
                                     {product.name}
                                     <Check
-                                      className={`ml-auto h-4 w-4 ${
-                                        Number(field.value) === product.id
+                                      className={`ml-auto h-4 w-4 ${Number(field.value) === product.id
                                           ? "opacity-100"
                                           : "opacity-0"
-                                      }`}
+                                        }`}
                                     />
                                   </CommandItem>
                                 ))}

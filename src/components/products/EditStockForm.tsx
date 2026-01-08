@@ -41,7 +41,7 @@ import { ShieldAlert } from "lucide-react";
 const stockFormSchema = z.object({
   product_id: z.number().min(1, "Required"),
   current_stock: z.number().min(0, "Current stock must be 0 or more"),
-  quantity: z.number().min(0, "Stock must be 0 or more"),
+  quantity: z.number().min(1, "Stock must be greater than 0"),
   operation: z.string().min(1, "Required"),
   date: z.string().min(1, "Required"),
   movement_type: z.string().min(1, "Required"),
@@ -98,11 +98,11 @@ export default function EditStockForm({
       form.reset({
         product_id: selectedProduct?.id,
         current_stock: selectedProduct?.stock_quantity,
-        quantity: 0, 
-        operation: "add", 
-        date: new Date().toISOString().split("T")[0], 
-        movement_type: "adjustment", 
-        notes: "", 
+        quantity: 0,
+        operation: "add",
+        date: new Date().toISOString().split("T")[0],
+        movement_type: "adjustment",
+        notes: "",
       });
     }
   }, [selectedProduct, form]);

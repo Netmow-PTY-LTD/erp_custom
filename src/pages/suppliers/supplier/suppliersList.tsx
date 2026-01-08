@@ -38,7 +38,7 @@ function ConfirmModal({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white p-6 rounded-xl w-96">
         <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
         <p className="mb-6">{message}</p>
@@ -64,9 +64,9 @@ export default function SuppliersList() {
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string |number | null>(null);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | number | null>(null);
 
-  const handleDeleteClick = (id: string|number) => {
+  const handleDeleteClick = (id: string | number) => {
     setSelectedSupplierId(id);
     setModalOpen(true);
   };

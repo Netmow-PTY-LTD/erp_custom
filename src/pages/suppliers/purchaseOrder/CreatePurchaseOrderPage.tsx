@@ -42,7 +42,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const orderSchema = z
   .object({
     supplierId: z.number().min(1, "Required"),
-    notes: z.string().min(1, "Required"),
+    notes: z.string().optional(),
     order_date: z.string().min(1, "Required"),
     expected_delivery_date: z.string().min(1, "Required"),
     items: z.array(
@@ -279,9 +279,8 @@ export default function CreatePurchaseOrderPage() {
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
             {selected
-              ? `${selected.name} (SKU: ${selected.sku}) (${
-                  selected.unit?.name || "-"
-                })`
+              ? `${selected.name} (SKU: ${selected.sku}) (${selected.unit?.name || "-"
+              })`
               : "Select Product..."}
           </Button>
         </PopoverTrigger>
@@ -359,7 +358,7 @@ export default function CreatePurchaseOrderPage() {
       ((Number(item.unit_cost) * Number(item.quantity) -
         Number(item.discount || 0)) *
         (Number(item.purchase_tax) || 0)) /
-        100,
+      100,
     0
   );
 
@@ -662,7 +661,7 @@ export default function CreatePurchaseOrderPage() {
                         ((items[index].quantity * items[index].unit_cost -
                           items[index].discount) *
                           (items[index].purchase_tax || 0)) /
-                          100
+                        100
                       ).toFixed(2)}
                     </div>
                   </div>

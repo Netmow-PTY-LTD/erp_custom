@@ -156,7 +156,8 @@ export default function AddCustomerPage() {
       }
       navigate("/dashboard/customers");
     } catch (error) {
-      toast.error("Failed to create customer");
+      const err = error as { data: { message: string } };
+      toast.error(err?.data?.message || "Failed to create customer");
       console.error("Failed to create customer:", error);
     }
   };
