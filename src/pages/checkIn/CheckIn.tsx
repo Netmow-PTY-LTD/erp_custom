@@ -52,6 +52,9 @@ export default function CheckIn(): JSX.Element {
   const [, setShowModal] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+
+    
+
   // DataTable states
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
