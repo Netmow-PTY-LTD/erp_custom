@@ -51,8 +51,8 @@ const customerSchema = z.object({
   credit_limit: z.number().min(0, "Credit limit must be 0 or more").default(0),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),
-  image: z.string().optional(),
-  images: z.array(z.string()).max(10, "Maximum 10 images").optional(),
+  thumb_url: z.string().optional(),
+  gallery_items: z.array(z.string()).max(10, "Maximum 10 images").optional(),
   salesRouteId: z.string().min(1, "Required"),
 });
 
@@ -79,8 +79,8 @@ export default function AddCustomerPage() {
       state: "",
       country: "",
       postal_code: "",
-      image: "",
-      images: [],
+      thumb_url: "",
+      gallery_items: [],
       credit_limit: 0,
       notes: "",
       is_active: true,
@@ -146,8 +146,8 @@ export default function AddCustomerPage() {
       const payload = {
         ...values,
         salesRouteId: Number(values.salesRouteId),
-        image: values.image,
-        images: values.images,
+        thumb_url: values.thumb_url,
+        gallery_items: values.gallery_items,
 
       }
       const res = await createCustomer(payload).unwrap();
@@ -203,7 +203,7 @@ export default function AddCustomerPage() {
 
               <Controller
                 control={control}
-                name="image"
+                name="thumb_url"
                 render={({ field, fieldState }) => (
                   <div>
                     <Field>
@@ -225,7 +225,7 @@ export default function AddCustomerPage() {
 
               <Controller
                 control={control}
-                name="images"
+                name="gallery_items"
                 render={({ field, fieldState }) => (
                   <div className="md:col-span-2">
                     <Field>
@@ -245,7 +245,7 @@ export default function AddCustomerPage() {
                         />
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
-                        Optional. Upload up to 2 additional images for the customer.
+                        Optional. Upload up to 10 additional images for the customer.
                       </p>
                       <FieldError>{fieldState?.error?.message}</FieldError>
                     </Field>
