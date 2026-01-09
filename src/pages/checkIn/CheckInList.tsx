@@ -64,8 +64,10 @@ export default function CheckInList(): JSX.Element {
 
   const columns = useMemo<ColumnDef<Customer>[]>(
     () => [
-      { accessorKey: "image", header: "Image", 
-        cell: ({ row }) => <img src={row.original.image} alt="Customer" className="w-10 h-10 rounded-full object-cover" /> },
+      {
+        accessorKey: "image", header: "Image",
+        cell: ({ row }) => <img src={row.original.image} alt="Customer" className="w-10 h-10 rounded-full object-cover" />
+      },
       { accessorKey: "name", header: "Name" },
       { accessorKey: "location", header: "Location" },
       { accessorKey: "route", header: "Route" },
@@ -342,7 +344,7 @@ export default function CheckInList(): JSX.Element {
 
 //   const columns = useMemo<ColumnDef<Customer>[]>(
 //     () => [
-//       { accessorKey: "image", header: "Image", 
+//       { accessorKey: "image", header: "Image",
 //         cell: ({ row }) => <img src={row.original.image} alt="Customer" className="w-10 h-10 rounded-full object-cover" /> },
 //       { accessorKey: "name", header: "Name" },
 //       { accessorKey: "location", header: "Location" },
