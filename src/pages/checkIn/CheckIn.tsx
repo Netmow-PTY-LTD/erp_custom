@@ -73,22 +73,25 @@ const customerColumns: ColumnDef<Customer>[] = [
     header: "Location",
   },
   {
-    accessorKey: "sales_route_id",
-    header: "Route ID",
+    accessorKey: "salesRoute",
+    header: "Route",
+    cell: ({ row }) => (
+      <span className="text-gray-600">{(row.original as any).salesRoute?.route_name}</span>
+    ),
   },
   {
     accessorKey: "phone",
     header: "Phone",
   },
-  {
-    accessorKey: "check_in_status",
-    header: "Status",
-    cell: ({ row }) => (
-      <span className={(row.original as any).check_in_status ? "text-green-600 font-medium" : "text-red-500"}>
-        {(row.original as any).check_in_status ? "Visted" : "Not Visited"}
-      </span>
-    ),
-  },
+  // {
+  //   accessorKey: "check_in_status",
+  //   header: "Status",
+  //   cell: ({ row }) => (
+  //     <span className={(row.original as any).check_in_status ? "text-green-600 font-medium" : "text-red-500"}>
+  //       {(row.original as any).check_in_status ? "Visted" : "Not Visited"}
+  //     </span>
+  //   ),
+  // },
   {
     id: "coords",
     header: "Coordinates",
@@ -134,6 +137,16 @@ const customerColumns: ColumnDef<Customer>[] = [
 
     if (!customer.latitude || !customer.longitude) {
       toast.error("Customer location not available.");
+      return;
+    }
+
+    // Duplicate check: see if staff already checked in for this customer today
+    const alreadyCheckedIn = (customer as any).checkins?.some(
+      (ci: any) => ci.staff_id === user.id
+    );
+
+    if (alreadyCheckedIn) {
+      toast.error("You have already checked in for this customer today.");
       return;
     }
 

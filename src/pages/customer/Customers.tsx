@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAppSelector } from "@/store/store";
+import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function Customers() {
   const [pageIndex, setPageIndex] = useState(0);
@@ -41,6 +42,13 @@ export default function Customers() {
 
   const pageSize = 10;
   const currentPage = pageIndex + 1;
+
+      const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  
+    // permissions
+
+    const canDeleteCustomer = userPermissions.includes(CustomerPermission.DELETE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  
 
   const currency = useAppSelector((state) => state.currency.value); 
 
@@ -210,13 +218,14 @@ export default function Customers() {
               </Button>
             </Link>
             {/* DELETE BUTTON */}
-            <Button
+            {canDeleteCustomer && ( <Button
               variant="destructive"
               size="sm"
               onClick={() => setDeleteId(id)}
             >
               <Trash2 size={16} />
-            </Button>
+            </Button>)}
+           
           </div>
         );
       },
