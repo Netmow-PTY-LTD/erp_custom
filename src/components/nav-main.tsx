@@ -21,7 +21,7 @@ export interface NavSubItem {
   title: string;
   url: string;
   icon?: React.ElementType;
-  allowedPermissions:string[];
+  allowedPermissions?: string[];
 }
 
 // Type for main menu items
@@ -32,7 +32,7 @@ export interface NavItem {
   items?: NavSubItem[];
   isActive?: boolean;
   layout?: ReactNode;
-  allowedPermissions: string[]
+  allowedPermissions?: string[]
 }
 
 // Props type
@@ -42,7 +42,7 @@ interface NavMainProps {
 
 export function NavMain({ items }: NavMainProps) {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  
+
 
   return (
     <SidebarGroup>
