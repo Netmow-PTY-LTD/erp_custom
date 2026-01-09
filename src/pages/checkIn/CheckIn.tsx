@@ -9,6 +9,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery } from "@/store/features/checkIn/checkIn";
 import type { Customer } from "@/store/features/customers/types";
 import ClenderButton from "./ClenderButton";
+import { useAppSelector } from "@/store/store";
 
 
 
@@ -26,6 +27,11 @@ export default function CheckIn(): JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+const user = useAppSelector((state) => state.auth.user);
+
+
+  // Units permissions
+
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
@@ -36,6 +42,7 @@ export default function CheckIn(): JSX.Element {
     limit: pageSize,
     search: searchTerm || undefined,
   });
+
 
   const [locationData, setLocationData] = useState<{ checkins: any[]; customer: Customer } | null>(null);
   const [attendanceResult, setAttendanceResult] = useState<any>(null);
@@ -120,6 +127,11 @@ const customerColumns: ColumnDef<Customer>[] = [
 
 
   function handleCheckIn(customer: Customer) {
+    if (!user) {
+      toast.error("User not found. Please log in again.");
+      return;
+    }
+
     if (!customer.latitude || !customer.longitude) {
       toast.error("Customer location not available.");
       return;
@@ -142,7 +154,7 @@ const customerColumns: ColumnDef<Customer>[] = [
 
         const payload = {
           customer_id: customer.id,
-          staff_id: 123, // replace with your logged-in staff ID
+          staff_id: user.id, // replace with your logged-in staff ID
           check_in_time: new Date().toISOString(),
           latitude,
           longitude,

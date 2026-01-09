@@ -69,6 +69,7 @@
 
 import { baseApi } from "@/store/baseApi";
 import type { Customer } from "../customers/types";
+import type { Staff } from "@/types/types";
 
 /* =======================
    Types
@@ -85,7 +86,7 @@ export type StaffAttendance = {
   note?: string;
   created_at: string;
   updated_at: string;
-  staff?: Record<string, unknown> | null; // null in example, but keeping it flexible
+  staff?: Staff | null; // null in example, but keeping it flexible
   customer: {
     id: number;
     name: string;
