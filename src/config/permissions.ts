@@ -83,6 +83,8 @@ export const StaffPermission = {
   VIEW_ATTENDANCE: "attendance.view" as const,
   MANAGE_LEAVES: "leaves.manage" as const,
   VIEW_STAFF_MAP: "staffs.map.view" as const,
+  CHECK_IN: "staffs.check_in" as const,
+  VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
 };
 
 // --- Sales & Orders ---
@@ -103,6 +105,7 @@ export const SalesPermission = {
   DETAILS_SALES_ROUTES: "sales.routes.details" as const,
   CREATE_ROUTE: "sales.routes.create" as const,
   ASSIGN_ROUTE: "sales.routes.assign" as const,
+  MARK_AS_PAID: "sales.invoices.mark_as_paid" as const,
 };
 
 // --- Accounting ---

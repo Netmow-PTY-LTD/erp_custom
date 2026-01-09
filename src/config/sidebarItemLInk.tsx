@@ -854,7 +854,7 @@ export const sidebarItemLink = [
     icon: MapPin,
     element: <CheckIn />,
     allowedPermissions: [
-      CustomerPermission.VIEW,
+     StaffPermission.CHECK_IN,
       SuperAdminPermission.ACCESS_ALL,
     ],
   },
@@ -864,7 +864,7 @@ export const sidebarItemLink = [
     icon: MapPin,
     element: <CheckInList />,
     allowedPermissions: [
-      CustomerPermission.VIEW,
+      StaffPermission.VIEW_CHECK_IN_LIST,
       SuperAdminPermission.ACCESS_ALL,
     ],
   },
