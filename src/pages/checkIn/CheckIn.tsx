@@ -73,22 +73,25 @@ const customerColumns: ColumnDef<Customer>[] = [
     header: "Location",
   },
   {
-    accessorKey: "sales_route_id",
-    header: "Route ID",
+    accessorKey: "salesRoute",
+    header: "Route",
+    cell: ({ row }) => (
+      <span className="text-gray-600">{(row.original as any).salesRoute?.route_name}</span>
+    ),
   },
   {
     accessorKey: "phone",
     header: "Phone",
   },
-  {
-    accessorKey: "check_in_status",
-    header: "Status",
-    cell: ({ row }) => (
-      <span className={(row.original as any).check_in_status ? "text-green-600 font-medium" : "text-red-500"}>
-        {(row.original as any).check_in_status ? "Visted" : "Not Visited"}
-      </span>
-    ),
-  },
+  // {
+  //   accessorKey: "check_in_status",
+  //   header: "Status",
+  //   cell: ({ row }) => (
+  //     <span className={(row.original as any).check_in_status ? "text-green-600 font-medium" : "text-red-500"}>
+  //       {(row.original as any).check_in_status ? "Visted" : "Not Visited"}
+  //     </span>
+  //   ),
+  // },
   {
     id: "coords",
     header: "Coordinates",
@@ -197,7 +200,7 @@ const customerColumns: ColumnDef<Customer>[] = [
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Check In</h1>
-        <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        <ClenderButton disableOpen={true} selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
