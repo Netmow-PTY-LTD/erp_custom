@@ -68,6 +68,7 @@
 
 
 import { baseApi } from "@/store/baseApi";
+import type { Customer } from "../customers/types";
 
 /* =======================
    Types
@@ -232,6 +233,25 @@ export const staffAttendanceApiService = baseApi.injectEndpoints({
       providesTags: ["StaffCheckIn"],
     }),
 
+    // GET CUSTOMER LIST WITH STAFF CHECK-INS BY DATE
+    getCustomerCheckInListByDate: builder.query<
+      AttendanceResponse<Customer[]>,
+      {
+        date: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+      }
+    >({
+      query: ({ date, page = 1, limit = 10, search }) => ({
+        url: `/staff-attendance/customer-list/${date}`,
+        method: "GET",
+        params: { page, limit, search },
+      }),
+      providesTags: ["StaffCheckIn"],
+    }),
+
+
   }),
 });
 
@@ -247,4 +267,5 @@ export const {
   useDeleteStaffAttendanceMutation,
   useStaffCheckInMutation,
   useGetCheckInByIdQuery,
+  useGetCustomerCheckInListByDateQuery,
 } = staffAttendanceApiService;

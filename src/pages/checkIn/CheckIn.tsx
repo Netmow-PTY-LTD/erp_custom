@@ -4,10 +4,11 @@ import { useState, type JSX } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { toast } from "sonner";
 import CheckInLocationModal from "./CheckInLocationModal";
+import { format } from "date-fns";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useStaffCheckInMutation } from "@/store/features/checkIn/checkIn";
-import { useGetActiveCustomersQuery } from "@/store/features/customers/customersApi";
+import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery } from "@/store/features/checkIn/checkIn";
 import type { Customer } from "@/store/features/customers/types";
+import ClenderButton from "./ClenderButton";
 
 
 
@@ -26,8 +27,11 @@ export default function CheckIn(): JSX.Element {
   const [pageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch customers with pagination and search
-  const { data: customerData, isLoading: customersLoading, error: customersError } = useGetActiveCustomersQuery({
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+
+  // Fetch customers with status by date
+  const { data: customerData, isLoading: customersLoading, error: customersError } = useGetCustomerCheckInListByDateQuery({
+    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
     page: currentPage,
     limit: pageSize,
     search: searchTerm || undefined,
@@ -42,11 +46,11 @@ export default function CheckIn(): JSX.Element {
 
 const customerColumns: ColumnDef<Customer>[] = [
   {
-    accessorKey: "thumb_url",
+    accessorKey: "image_url",
     header: "Image",
     cell: ({ row }) => (
       <img
-        src={row.original.thumb_url || "/placeholder.png"}
+        src={(row.original as any).image_url || (row.original as any).thumb_url || "/placeholder.png"}
         alt={row.original.name}
         className="w-10 h-10 rounded-full object-cover"
       />
@@ -69,8 +73,13 @@ const customerColumns: ColumnDef<Customer>[] = [
     header: "Phone",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "check_in_status",
+    header: "Status",
+    cell: ({ row }) => (
+      <span className={(row.original as any).check_in_status ? "text-green-600 font-medium" : "text-red-500"}>
+        {(row.original as any).check_in_status ? "Visted" : "Not Visited"}
+      </span>
+    ),
   },
   {
     id: "coords",
@@ -106,8 +115,7 @@ const customerColumns: ColumnDef<Customer>[] = [
 ];
 
 
-  // RTK Query Mutation for creating check-in
-  // const [createCheckIn, { isLoading: isSubmitting }] = useCreateCheckInMutation();
+
 
   function handleCheckIn(customer: Customer) {
     if (!customer.latitude || !customer.longitude) {
@@ -173,9 +181,10 @@ const customerColumns: ColumnDef<Customer>[] = [
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Check In</h1>
-
-      <h1 className="text-2xl font-semibold mb-4">Check In</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Check In</h1>
+        <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      </div>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
         {customersError ? (
