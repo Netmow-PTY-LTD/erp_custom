@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import {  useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useGetCustomerByIdQuery, useUpdateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
 
@@ -34,6 +34,7 @@ import { BackButton } from "@/components/BackButton";
 import { useEffect } from "react";
 import { useAppSelector } from "@/store/store";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -67,14 +68,24 @@ type CustomerFormValues = z.infer<typeof customerSchema>;
 export default function EditCustomerPage() {
 
 
-   const { customerId } = useParams();
+  const { customerId } = useParams();
   const navigate = useNavigate();
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  // permissions
+
+  const canActivePermsion = userPermissions.includes(CustomerPermission.CUSTOMER_ACTIVE_PERMSSION) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+
+
+
 
   const currency = useAppSelector((state) => state.currency.value);
   const { data, isLoading: isFetching } = useGetCustomerByIdQuery(
     Number(customerId)
   );
-  const [updateCustomer, { isLoading}] =
+  const [updateCustomer, { isLoading }] =
     useUpdateCustomerMutation();
 
 
@@ -190,7 +201,7 @@ export default function EditCustomerPage() {
     <div className="space-y-6 max-w-4xl mx-auto py-6">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
         <h1 className="text-3xl font-bold">Edit Customer</h1>
-         <BackButton/>
+        <BackButton />
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -226,57 +237,57 @@ export default function EditCustomerPage() {
                 )}
               />
 
-               <Controller
-                              control={control}
-                              name="thumb_url"
-                              render={({ field, fieldState }) => (
-                                <div>
-                                  <Field>
-                                    <FieldLabel>Primary Image</FieldLabel>
-                                    <div className="max-w-xs">
-                                      <ImageUploaderPro
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                      />
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                      Optional. Single primary image. Recommended size: 400×400 px.
-                                    </p>
-                                    <FieldError>{fieldState?.error?.message}</FieldError>
-                                  </Field>
-                                </div>
-                              )}
-                            />
-              
-                            <Controller
-                              control={control}
-                              name="gallery_items"
-                              render={({ field, fieldState }) => (
-                                <div className="md:col-span-2">
-                                  <Field>
-                                    <FieldLabel>Gallery (max 2)</FieldLabel>
-                                    <div className="max-w-xs">
-                                      <ImageUploaderPro
-                                        multiple
-                                        value={field.value || []}
-                                        onChange={(v) => {
-                                          const arr = Array.isArray(v) ? v : v ? [v] : [];
-                                          if (arr.length > 10) {
-                                            toast.error("You can upload up to 10 images only");
-                                            arr.splice(10);
-                                          }
-                                          field.onChange(arr);
-                                        }}
-                                      />
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                      Optional. Upload up to 10 additional images for the customer.
-                                    </p>
-                                    <FieldError>{fieldState?.error?.message}</FieldError>
-                                  </Field>
-                                </div>
-                              )}
-                            />
+              <Controller
+                control={control}
+                name="thumb_url"
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Field>
+                      <FieldLabel>Primary Image</FieldLabel>
+                      <div className="max-w-xs">
+                        <ImageUploaderPro
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Optional. Single primary image. Recommended size: 400×400 px.
+                      </p>
+                      <FieldError>{fieldState?.error?.message}</FieldError>
+                    </Field>
+                  </div>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="gallery_items"
+                render={({ field, fieldState }) => (
+                  <div className="md:col-span-2">
+                    <Field>
+                      <FieldLabel>Gallery (max 2)</FieldLabel>
+                      <div className="max-w-xs">
+                        <ImageUploaderPro
+                          multiple
+                          value={field.value || []}
+                          onChange={(v) => {
+                            const arr = Array.isArray(v) ? v : v ? [v] : [];
+                            if (arr.length > 10) {
+                              toast.error("You can upload up to 10 images only");
+                              arr.splice(10);
+                            }
+                            field.onChange(arr);
+                          }}
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Optional. Upload up to 10 additional images for the customer.
+                      </p>
+                      <FieldError>{fieldState?.error?.message}</FieldError>
+                    </Field>
+                  </div>
+                )}
+              />
 
               <Controller
                 control={control}
@@ -485,10 +496,11 @@ export default function EditCustomerPage() {
                   <Field>
                     <FieldLabel>Status</FieldLabel>
                     <Select
+                      disabled={!canActivePermsion}
                       value={field.value ? "active" : "inactive"}
                       onValueChange={(val) => field.onChange(val === "active")}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className={!canActivePermsion ? "bg-muted cursor-not-allowed opacity-70" : ""}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

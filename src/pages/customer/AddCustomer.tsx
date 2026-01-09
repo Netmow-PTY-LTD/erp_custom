@@ -31,6 +31,7 @@ import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
 import { BackButton } from "@/components/BackButton";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -61,9 +62,25 @@ type CustomerFormValues = z.infer<typeof customerSchema>;
 /* ------------------ PAGE ------------------ */
 export default function AddCustomerPage() {
   const navigate = useNavigate();
+
+
+      const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+    
+      // permissions
+
+      const canActivePermsion = userPermissions.includes(CustomerPermission.CUSTOMER_ACTIVE_PERMSSION)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+    
+  
+
+
+
+
+
   const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
   const currency = useAppSelector((state) => state.currency.value);
+
+
 
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema) as Resolver<CustomerFormValues>,
@@ -83,7 +100,7 @@ export default function AddCustomerPage() {
       gallery_items: [],
       credit_limit: 0,
       notes: "",
-      is_active: true,
+      is_active: false,
       salesRouteId: '',
     },
   });
@@ -463,10 +480,11 @@ export default function AddCustomerPage() {
                   <Field>
                     <FieldLabel>Status</FieldLabel>
                     <Select
+                      disabled={!canActivePermsion}
                       value={field.value ? "active" : "inactive"}
                       onValueChange={(val) => field.onChange(val === "active")}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className={!canActivePermsion ? "bg-muted cursor-not-allowed opacity-70" : ""}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
