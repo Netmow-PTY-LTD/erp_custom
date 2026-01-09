@@ -131,8 +131,8 @@ export default function RMInvoiceList() {
           status === "paid"
             ? "bg-green-600"
             : status === "pending"
-            ? "bg-yellow-600"
-            : "bg-gray-400";
+              ? "bg-yellow-600"
+              : "bg-gray-400";
 
         return (
           <Badge className={`${color} text-white capitalize`}>{status}</Badge>
@@ -150,22 +150,26 @@ export default function RMInvoiceList() {
             <Link to={`/dashboard/raw-materials/invoices/${invoice.id}`}>
               <Button size="sm" variant="outline">
                 <Eye className="w-4 h-4" />
+                <span>View</span>
               </Button>
             </Link>
-            <Link to={`/dashboard/raw-materials/payments/create?po_id=${invoice.purchase_order?.id}&invoice_id=${invoice.id}`}>
-              <Button size="sm" variant="outline">
-                <CreditCard className="w-4 h-4" />
-                <span>Pay</span>
+            {invoice.status !== "paid" && (
+              <Link to={`/dashboard/raw-materials/payments/create?po_id=${invoice.purchase_order?.id}&invoice_id=${invoice.id}`}>
+                <Button size="sm" variant="outline">
+                  <CreditCard className="w-4 h-4" />
+                  <span>Pay</span>
+                </Button>
+              </Link>
+            )}
+            {invoice.status !== "paid" && (
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => handleDelete(invoice.id)}
+              >
+                <Trash2 className="w-4 h-4" />
               </Button>
-            </Link>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleDelete(invoice.id)}
-              disabled={invoice.status === "paid"}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
+            )}
           </div>
         );
       },
@@ -176,9 +180,9 @@ export default function RMInvoiceList() {
     <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Purchase Invoices & GRN (Raw Materials)</h1>
-        <Link to="/dashboard/raw-materials/invoices/create">
+        <Link to="/dashboard/raw-materials/payments/create">
           <Button className="bg-blue-600 hover:bg-blue-500">
-            <PlusCircle className="mr-2 h-4 w-4" /> Record Invoice
+            <PlusCircle className="h-4 w-4" /> Record Payment
           </Button>
         </Link>
       </div>
@@ -196,7 +200,10 @@ export default function RMInvoiceList() {
             pageSize={limit}
             totalCount={pagination.total}
             onPageChange={(p) => setPage(p + 1)}
-            onSearch={setSearch}
+            onSearch={(val) => {
+              setSearch(val);
+              setPage(1);
+            }}
             isFetching={isFetching}
           />
         </CardContent>

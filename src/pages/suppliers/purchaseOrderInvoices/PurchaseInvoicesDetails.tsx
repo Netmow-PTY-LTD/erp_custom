@@ -150,11 +150,10 @@ export default function PurchaseInvoicesDetails() {
                 <p className="flex items-center gap-2">
                   <strong>Status:</strong>
                   <Badge
-                    className={`${
-                      invoice?.status === "paid"
+                    className={`${invoice?.status === "paid"
                         ? "bg-green-600"
                         : "bg-yellow-600"
-                    } text-white capitalize`}
+                      } text-white capitalize`}
                   >
                     {invoice?.status}
                   </Badge>
@@ -303,13 +302,13 @@ export default function PurchaseInvoicesDetails() {
                         <td className="p-3">
                           {item?.payment_date
                             ? new Date(item.payment_date).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )
                             : "-"}
                         </td>
 
@@ -396,13 +395,12 @@ export default function PurchaseInvoicesDetails() {
 
               <div className="flex justify-between text-lg font-bold mt-1">
                 <span>Balance</span>
-                <span>RM {balance.toFixed(2)}</span>
+                <span>{currency} {balance.toFixed(2)}</span>
               </div>
 
               <Badge
-                className={`${
-                  invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"
-                } text-white capitalize mt-1`}
+                className={`${invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"
+                  } text-white capitalize mt-1`}
               >
                 {invoice?.status}
               </Badge>
