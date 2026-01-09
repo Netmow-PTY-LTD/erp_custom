@@ -19,13 +19,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { CalendarIcon, ChevronDown, Check, Eye, EyeOff } from "lucide-react";
+
+import { CalendarIcon, ChevronDown, Check } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -83,7 +78,6 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 // =====================================================
 export default function AddStaffPage() {
   const [open, setOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [addStaff, { isLoading }] = useAddStaffMutation();
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
