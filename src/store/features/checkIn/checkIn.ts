@@ -200,10 +200,13 @@ export const staffAttendanceApiService = baseApi.injectEndpoints({
     staffCheckIn: builder.mutation<
       AttendanceResponse<StaffAttendance>,
       {
-        staffId: string | number;
-        lat: number;
-        lng: number;
-        address?: string;
+        customer_id: number;
+        staff_id: number;
+        check_in_time: string;
+        latitude: number;
+        longitude: number;
+        distance_meters: number;
+        note?: string;
       }
     >({
       query: (body) => ({

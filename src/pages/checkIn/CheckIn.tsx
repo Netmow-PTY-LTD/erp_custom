@@ -1,26 +1,15 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo, type JSX } from "react";
+import { useState, type JSX } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-
-// import { useGetCheckinListQuery, useCreateCheckInMutation } from "@/store/baseApi";
+import { toast } from "sonner";
 import CheckInLocationModal from "./CheckInLocationModal";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useStaffCheckInMutation } from "@/store/features/checkIn/checkIn";
+import { useGetActiveCustomersQuery } from "@/store/features/customers/customersApi";
+import type { Customer } from "@/store/features/customers/types";
 
-type Customer = {
-  image: string | undefined;
-  id: number;
-  name: string;
-  location: string;
-  route?: string;
-  phone?: string;
-  email?: string;
-  lat?: number;
-  lng?: number;
-check_in_status?: boolean;
-check_in_time?: string;
 
-};
 
 type CheckIn = {
   id: string;
@@ -30,55 +19,34 @@ type CheckIn = {
   note?: string;
 };
 
-const sampleCustomers: Customer[] = [
-  {
-    id: 1,
-    image: undefined,
-    name: "Restaurant Hakim",
-    location: "Shah Alam",
-    route: "Route A",
-    phone: "+60 12-345 6789",
-    email: "hakim@restaurant.com",
-    lat: 3.0738,
-    lng: 101.5183,
-    check_in_status: true,
-    check_in_time: "2024-06-01T10:15:00Z",
-  },
-];
+
 
 export default function CheckIn(): JSX.Element {
-  const [customers] = useState<Customer[]>(sampleCustomers);
-  const [, setSelectedCustomer] = useState<Customer | null>(null);
-  const [, setShowModal] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  // Fetch customers with pagination and search
+  const { data: customerData, isLoading: customersLoading, error: customersError } = useGetActiveCustomersQuery({
+    page: currentPage,
+    limit: pageSize,
+    search: searchTerm || undefined,
+  });
 
-    
+  const [attendanceResult, setAttendanceResult] = useState<any>(null);
+  const [check_in, { isLoading: isSubmitting }] = useStaffCheckInMutation();
 
-  // DataTable states
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const customers = customerData?.data || [];
+  const totalCount = customerData?.pagination?.total || 0;
 
-  const filteredCustomers = useMemo(() => {
-    if (!search) return customers;
-    const s = search.toLowerCase();
-    return customers.filter(
-      (c) =>
-        String(c.id).includes(s) ||
-        c.name.toLowerCase().includes(s) ||
-        (c.location && c.location.toLowerCase().includes(s)) ||
-        (c.route && c.route.toLowerCase().includes(s))
-    );
-  }, [search, customers]);
 
 const customerColumns: ColumnDef<Customer>[] = [
   {
-    accessorKey: "image",
+    accessorKey: "thumb_url",
     header: "Image",
     cell: ({ row }) => (
       <img
-        src={row.original.image}
+        src={row.original.thumb_url || "/placeholder.png"}
         alt={row.original.name}
         className="w-10 h-10 rounded-full object-cover"
       />
@@ -89,12 +57,12 @@ const customerColumns: ColumnDef<Customer>[] = [
     header: "Name",
   },
   {
-    accessorKey: "location",
+    accessorKey: "address",
     header: "Location",
   },
   {
-    accessorKey: "route",
-    header: "Route",
+    accessorKey: "sales_route_id",
+    header: "Route ID",
   },
   {
     accessorKey: "phone",
@@ -108,8 +76,8 @@ const customerColumns: ColumnDef<Customer>[] = [
     id: "coords",
     header: "Coordinates",
     cell: ({ row }) =>
-      row.original.lat && row.original.lng
-        ? `${row.original.lat}, ${row.original.lng}`
+      row.original.latitude && row.original.longitude
+        ? `${row.original.latitude}, ${row.original.longitude}`
         : "—",
   },
   {
@@ -127,7 +95,7 @@ const customerColumns: ColumnDef<Customer>[] = [
           </button>
           <button
             className="border px-3 py-1 rounded"
-            onClick={() => setLocationCustomer(customer)}
+            // onClick={() => setLocationCustomer(customer)}
           >
             View Location
           </button>
@@ -139,29 +107,26 @@ const customerColumns: ColumnDef<Customer>[] = [
 
 
   // RTK Query Mutation for creating check-in
-//   const [createCheckIn, { isLoading: isSubmitting }] = useCreateCheckInMutation();
+  // const [createCheckIn, { isLoading: isSubmitting }] = useCreateCheckInMutation();
 
   function handleCheckIn(customer: Customer) {
-    if (!customer.lat || !customer.lng) {
-      setMessage({ type: "error", text: "Customer location not available." });
+    if (!customer.latitude || !customer.longitude) {
+      toast.error("Customer location not available.");
       return;
     }
 
     if (!navigator.geolocation) {
-      setMessage({ type: "error", text: "Geolocation not supported." });
+      toast.error("Geolocation not supported.");
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-        const distance = haversineDistanceMeters(latitude, longitude, customer.lat!, customer.lng!);
+        const distance = haversineDistanceMeters(latitude, longitude, customer.latitude!, customer.longitude!);
 
         if (distance > 100) {
-          setMessage({
-            type: "error",
-            text: `Please go to the exact location. Distance is ${Math.round(distance)} m.`,
-          });
+          toast.error(`Please go to the exact location. Distance is ${Math.round(distance)} m.`);
           return;
         }
 
@@ -172,25 +137,21 @@ const customerColumns: ColumnDef<Customer>[] = [
           latitude,
           longitude,
           distance_meters: Math.round(distance),
-          note: "Checked in",
+          note: "Checked in from mobile app",
         };
 
         console.log("CHECK-IN PAYLOAD:", payload);
 
         try {
-        //   await createCheckIn(payload).unwrap();
-          setMessage({ type: "success", text: "Check-in successful!" });
-          setSelectedCustomer(customer);
-          setShowModal(true);
+          const res = await check_in(payload).unwrap();
+          toast.success("Check-in successful!");
+          setAttendanceResult(res.data);
         } catch (err: any) {
-          setMessage({ type: "error", text: err?.data?.message || "Check-in failed" });
+          toast.error(err?.data?.message || "Check-in failed");
         }
       },
       (err) => {
-        setMessage({
-          type: "error",
-          text: `Location error: ${err.message}`,
-        });
+        toast.error(`Location error: ${err.message}`);
       },
       { enableHighAccuracy: true }
     );
@@ -208,41 +169,39 @@ const customerColumns: ColumnDef<Customer>[] = [
     return R * c;
   }
 
-  // view location modal
-  const [locationCustomer, setLocationCustomer] = useState<Customer | null>(null);
+
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-4">Check In</h1>
 
-      {message && (
-        <div
-          className={`mb-4 p-3 rounded ${
-            message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+      <h1 className="text-2xl font-semibold mb-4">Check In</h1>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <DataTable
-          columns={customerColumns}
-          data={filteredCustomers}
-          pageIndex={page - 1}
-          pageSize={limit}
-          totalCount={filteredCustomers.length}
-          onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-          onSearch={(value) => {
-            setSearch(value);
-            setPage(1);
-          }}
-        //   isFetching={isSubmitting}
-        />
+        {customersError ? (
+          <div className="p-4 text-red-600 text-center">Error loading customers: {(customersError as any)?.data?.message || "Something went wrong"}</div>
+        ) : (
+          <DataTable
+            columns={customerColumns}
+            data={customers}
+            pageIndex={currentPage - 1}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={(newPageIndex) => setCurrentPage(newPageIndex + 1)}
+            onSearch={(value) => {
+              setSearchTerm(value);
+              setCurrentPage(1);
+            }}
+            isFetching={customersLoading || isSubmitting}
+          />
+        )}
       </div>
 
-      {locationCustomer && (
-        <CheckInLocationModal customer={locationCustomer} onClose={() => setLocationCustomer(null)} />
+      {attendanceResult && (
+        <CheckInLocationModal
+          attendance={attendanceResult}
+          onClose={() => setAttendanceResult(null)}
+        />
       )}
     </div>
   );
