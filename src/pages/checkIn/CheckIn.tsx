@@ -197,7 +197,7 @@ const customerColumns: ColumnDef<Customer>[] = [
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Check In</h1>
-        <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        <ClenderButton disableOpen={true} selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>
 
       <div className="overflow-x-auto bg-white shadow rounded-lg">
