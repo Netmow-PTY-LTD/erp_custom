@@ -48,6 +48,7 @@ export const CustomerPermission = {
   VIEW_ROUTE_DETAILS: "customers.routes.details.view" as const,
   ASSIGN_ROUTE: "customers.routes.assign" as const,
   VIEW_MAP: "customers.map.view" as const,
+  DELETE: "customers.delete" as const,
 };
 
 // --- Suppliers ---
