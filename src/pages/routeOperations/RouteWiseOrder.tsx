@@ -19,11 +19,13 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/ca
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, MapPin, Package, DollarSign, Filter, ArrowRight, Loader2 } from "lucide-react";
+import { Search, MapPin, Package, ArrowRight, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetSalesOrdersByRouteQuery } from "@/store/features/salesOrder/salesOrder";
+import { useAppSelector } from "@/store/store";
+import { selectCurrency } from "@/store/currencySlice";
 
 // Expanded Dummy Data for "Lots of Orders" (kept for structure reference if needed, but unused for route list logic)
 const dummyRoutes: Route[] = [
@@ -117,6 +119,8 @@ const RouteWiseOrder = () => {
     ) || [];
 
     const totalAmount = filteredOrders?.reduce((sum: number, order: Order) => sum + (order.amount || 0), 0) || 0;
+ const currency = useAppSelector(selectCurrency);
+
 
     return (
         <div className="flex h-[calc(100vh-6rem)] gap-4 p-4 overflow-hidden bg-background">
@@ -235,8 +239,8 @@ const RouteWiseOrder = () => {
                                 <div className="flex flex-col items-end gap-1">
                                     <div className="text-sm text-muted-foreground font-medium">Total Volume</div>
                                     <div className="text-2xl font-bold text-primary flex items-center">
-                                        <DollarSign className="h-5 w-5 mr-1" />
-                                        {totalAmount.toLocaleString()}
+                                       {currency}   {totalAmount.toLocaleString()}
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -252,7 +256,7 @@ const RouteWiseOrder = () => {
                                         onChange={(e) => setOrderSearch(e.target.value)}
                                     />
                                 </div>
-                                <div className="flex gap-2 ml-auto">
+                                {/* <div className="flex gap-2 ml-auto">
                                     <Button variant="outline" size="sm" className="gap-2">
                                         <Filter className="h-4 w-4" />
                                         Filter
@@ -261,7 +265,7 @@ const RouteWiseOrder = () => {
                                         <Package className="h-4 w-4" />
                                         Export List
                                     </Button>
-                                </div>
+                                </div> */}
                             </div>
                         </CardHeader>
 
@@ -308,7 +312,7 @@ const RouteWiseOrder = () => {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right font-semibold">
-                                                    ${order.amount.toLocaleString()}
+                                                   {currency} {order.amount.toLocaleString()}
                                                 </TableCell>
                                             </TableRow>
                                         ))

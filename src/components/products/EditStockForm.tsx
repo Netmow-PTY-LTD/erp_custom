@@ -41,7 +41,7 @@ import { ShieldAlert } from "lucide-react";
 const stockFormSchema = z.object({
   product_id: z.number().min(1, "Required"),
   current_stock: z.number().min(0, "Current stock must be 0 or more"),
-  quantity: z.number().min(0, "Stock must be 0 or more"),
+  quantity: z.number().min(1, "Stock must be greater than 0"),
   operation: z.string().min(1, "Required"),
   date: z.string().min(1, "Required"),
   movement_type: z.string().min(1, "Required"),
@@ -61,16 +61,13 @@ export default function EditStockForm({
   productId: number;
   refetchStockMovements: () => void;
 }) {
+  const userPermissions = useAppSelector(
+    (state) => state.auth.user?.role.permissions || []
+  );
 
-  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-
-  const canEditStock = userPermissions.includes(ProductPermission.EDIT_STOCK)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-
-
-
-
-
-
+  const canEditStock =
+    userPermissions.includes(ProductPermission.EDIT_STOCK) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const form = useForm<StockFormValues>({
     resolver: zodResolver(stockFormSchema),
@@ -80,7 +77,7 @@ export default function EditStockForm({
       quantity: 0,
       operation: "add",
       date: new Date().toISOString().split("T")[0],
-      movement_type: "Adjustment",
+      movement_type: "adjustment",
       notes: "",
     },
   });
@@ -101,6 +98,11 @@ export default function EditStockForm({
       form.reset({
         product_id: selectedProduct?.id,
         current_stock: selectedProduct?.stock_quantity,
+        quantity: 0,
+        operation: "add",
+        date: new Date().toISOString().split("T")[0],
+        movement_type: "adjustment",
+        notes: "",
       });
     }
   }, [selectedProduct, form]);
@@ -128,7 +130,7 @@ export default function EditStockForm({
         refetchStockMovements();
         setOpen(false);
       } else {
-        toast.error("Failed to update stock: " + res.message);
+        toast.error(res.message || "Failed to update stock");
       }
     } catch (error) {
       console.error(error);
@@ -156,7 +158,8 @@ export default function EditStockForm({
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 You do not have permission to edit a Stock. <br />
-                Please contact your administrator if you believe this is an error.
+                Please contact your administrator if you believe this is an
+                error.
               </p>
               <Button
                 variant="outline"
@@ -166,10 +169,14 @@ export default function EditStockForm({
                 Close
               </Button>
             </div>
-          ) : (<Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-              {/* PRODUCT DROPDOWN */}
-              {/* <Controller
+          ) : (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
+                {/* PRODUCT DROPDOWN */}
+                {/* <Controller
                 control={control}
                 name="product_id"
                 render={({ field }) => (
@@ -185,128 +192,131 @@ export default function EditStockForm({
                 )}
               /> */}
 
-              <Field>
-                <FieldLabel>Product Name</FieldLabel>
-                <Input
-                  type="text"
-                  value={selectedProduct?.name ?? ""}
-                  disabled
+                <Field>
+                  <FieldLabel>Product Name</FieldLabel>
+                  <Input
+                    type="text"
+                    value={selectedProduct?.name ?? ""}
+                    disabled
+                  />
+                </Field>
+
+                {/* STOCK INPUT */}
+                <Controller
+                  control={control}
+                  name="current_stock"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Current Stock</FieldLabel>
+                      <Input
+                        type="number"
+                        placeholder="Enter stock"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        disabled
+                      />
+
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
                 />
-              </Field>
 
-              {/* STOCK INPUT */}
-              <Controller
-                control={control}
-                name="current_stock"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Current Stock</FieldLabel>
-                    <Input
-                      type="number"
-                      placeholder="Enter stock"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      disabled
-                    />
+                <Controller
+                  control={control}
+                  name="quantity"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Quantity</FieldLabel>
+                      <Input
+                        type="number"
+                        placeholder="Enter stock"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
 
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="operation"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Operation</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select operation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="add">Add</SelectItem>
+                          <SelectItem value="subtract">Subtract</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="movement_type"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Movement Type</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select operation" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="purchase">Purchase</SelectItem>
+                          <SelectItem value="sale">Sale</SelectItem>
+                          <SelectItem value="return">Return</SelectItem>
+                          <SelectItem value="adjustment">Adjustment</SelectItem>
+                          <SelectItem value="transfer">Transfer</SelectItem>
+                          <SelectItem value="production">Production</SelectItem>
+                          <SelectItem value="waste">Waste</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="date"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Notes</FieldLabel>
+                      <Input type="date" {...field} className="block" />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="quantity"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Quantity</FieldLabel>
-                    <Input
-                      type="number"
-                      placeholder="Enter stock"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="notes"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Notes</FieldLabel>
+                      <Textarea placeholder="Write notes..." {...field} />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="operation"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Operation</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select operation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="add">Add</SelectItem>
-                        <SelectItem value="subtract">Subtract</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={control}
-                name="movement_type"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Movement Type</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select operation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="purchase">Purchase</SelectItem>
-                        <SelectItem value="sale">Sale</SelectItem>
-                        <SelectItem value="return">Return</SelectItem>
-                        <SelectItem value="adjustment">Adjustment</SelectItem>
-                        <SelectItem value="transfer">Transfer</SelectItem>
-                        <SelectItem value="production">Production</SelectItem>
-                        <SelectItem value="waste">Waste</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={control}
-                name="date"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Notes</FieldLabel>
-                    <Input type="date" {...field} className="block" />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="notes"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Notes</FieldLabel>
-                    <Textarea placeholder="Write notes..." {...field} />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              <div className="flex justify-center items-center gap-2">
-                <Button
-                  type="submit"
-                >
-                  Adjust Stock
-                </Button>
-              </div>
-            </form>
-          </Form>)}
+                <div className="flex justify-center items-center gap-2">
+                  <Button type="submit">Adjust Stock</Button>
+                </div>
+              </form>
+            </Form>
+          )}
         </div>
       </SheetContent>
     </Sheet>

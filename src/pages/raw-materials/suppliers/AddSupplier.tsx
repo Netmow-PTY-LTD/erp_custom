@@ -1,66 +1,212 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, Save } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
+import { BackButton } from "@/components/BackButton";
+import { useAddRawMaterialSupplierMutation } from "@/store/features/admin/rawMaterialApiService";
+import { Textarea } from "@/components/ui/textarea";
 
-const AddRMSupplier = () => {
-    const navigate = useNavigate();
+/* ------------------ ZOD SCHEMA ------------------ */
+const supplierSchema = z.object({
+  name: z.string().min(1, "Required"),
+  code: z.string().optional(),
+  email: z.string().min(1, "Required").email("Invalid email"),
+  phone: z.string().optional(),
+  contact_person: z.string().optional(),
+  address: z.string().optional(),
+  payment_terms: z.string().optional(),
+  status: z.enum(["Active", "Inactive"]),
+});
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        toast.success("Supplier added successfully!");
+type SupplierFormValues = z.infer<typeof supplierSchema>;
+
+/* ------------------ PAGE ------------------ */
+export default function AddRMSupplier() {
+  const navigate = useNavigate();
+  const [addSupplier, { isLoading }] = useAddRawMaterialSupplierMutation();
+
+  const form = useForm<SupplierFormValues>({
+    resolver: zodResolver(supplierSchema),
+    defaultValues: {
+      name: "",
+      code: "",
+      email: "",
+      phone: "",
+      contact_person: "",
+      address: "",
+      payment_terms: "",
+      status: "Active",
+    },
+  });
+
+  const { control, handleSubmit, reset } = form;
+
+  const onSubmit: SubmitHandler<SupplierFormValues> = async (values) => {
+    try {
+      const payload = {
+        name: values.name,
+        code: values.code,
+        contact_person: values.contact_person,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        payment_terms: values.payment_terms,
+        is_active: values.status === "Active",
+      };
+
+      const res = await addSupplier(payload).unwrap();
+      if (res?.status) {
+        toast.success("Supplier added successfully");
+        reset();
         navigate("/dashboard/raw-materials/suppliers");
-    };
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add supplier");
+    }
+  };
 
-    return (
-        <div className="w-full max-w-4xl mx-auto p-4">
-            <div className="flex items-center gap-4 mb-6">
-                <Link to="/dashboard/raw-materials/suppliers">
-                    <Button variant="outline" size="icon">
-                        <ArrowLeft className="w-4 h-4" />
-                    </Button>
-                </Link>
-                <h1 className="text-2xl font-bold">Add Supplier</h1>
-            </div>
+  return (
+    <div className="space-y-6 max-w-4xl mx-auto py-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Add Supplier</h1>
+        <BackButton />
+      </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Supplier Information</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Supplier Name</Label>
-                                <Input id="name" required placeholder="Company Name" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="contact">Contact Number</Label>
-                                <Input id="contact" required placeholder="+880..." />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email Address</Label>
-                                <Input id="email" type="email" placeholder="email@example.com" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="address">Address</Label>
-                                <Input id="address" placeholder="Full Address" />
-                            </div>
-                        </div>
-                        <div className="flex justify-end gap-4 pt-4">
-                            <Button type="submit" className="bg-blue-600 hover:bg-blue-500">
-                                <Save className="mr-2 h-4 w-4" /> Save Supplier
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* BASIC INFORMATION */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Name</FieldLabel>
+                  <Input placeholder="Supplier Name" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="code"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Supplier Code (optional)</FieldLabel>
+                  <Input placeholder="e.g., SUP001" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Email</FieldLabel>
+                  <Input type="email" placeholder="supplier@example.com" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Phone</FieldLabel>
+                  <Input placeholder="+880 1234-567-890" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="contact_person"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Contact Person</FieldLabel>
+                  <Input placeholder="John Doe" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="payment_terms"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Payment Terms</FieldLabel>
+                  <Input placeholder="e.g., Net 30" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="address"
+              render={({ field, fieldState }) => (
+                <Field className="md:col-span-2">
+                  <FieldLabel>Address</FieldLabel>
+                  <Textarea placeholder="Full Address" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="status"
+              render={({ field, fieldState }) => (
+                <Field className="md:col-span-2">
+                  <FieldLabel>Status</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* SUBMIT */}
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save Supplier"}
+          </Button>
         </div>
-    );
-};
-
-export default AddRMSupplier;
+      </form>
+    </div>
+  );
+}

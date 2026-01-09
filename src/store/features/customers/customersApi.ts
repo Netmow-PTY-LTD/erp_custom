@@ -106,6 +106,39 @@ export const customersApi = baseApi.injectEndpoints({
       }),
       providesTags: [{ type: "Customers", id: "MAP" }],
     }),
+
+    // ------------------------------------------
+    // inactive customer 
+    // ------------------------------------------
+   getInactiveCustomers: builder.query<
+      GetCustomersResponse,
+      GetCustomersParams | void
+    >({
+      query: (params) => ({
+        url: "/customers/inactive",
+        method: "GET",
+        params: params || {}, 
+      }),
+
+      providesTags:['InactiveCustomers']
+    }),
+    // ------------------------------------------
+    // inactive customer 
+    // ------------------------------------------
+   getActiveCustomers: builder.query<
+      GetCustomersResponse,
+      GetCustomersParams | void
+    >({
+      query: (params) => ({
+        url: "/customers/active",
+        method: "GET",
+        params: params || {}, 
+      }),
+
+      providesTags:['ActiveCustomers']
+    }),
+
+
   }),
 });
 
@@ -117,4 +150,6 @@ export const {
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
   useGetCustomerMapsQuery,
+  useGetInactiveCustomersQuery,
+  useGetActiveCustomersQuery
 } = customersApi;

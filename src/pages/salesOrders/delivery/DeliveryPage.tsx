@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -36,7 +35,6 @@ import {
 } from "@/store/features/salesOrder/salesOrder";
 import type { SalesOrder } from "@/types/salesOrder.types";
 
-
 // ================= ZOD SCHEMA =================
 
 const deliverySchema = z
@@ -55,13 +53,13 @@ const deliverySchema = z
   .refine(
     (data) => {
       const requiredStatuses = [
-      "pending",
-      "in_transit",
-      "delivered",
-      "failed",
-      "returned",
-      "confirmed",
-    ];
+        "pending",
+        "in_transit",
+        "delivered",
+        "failed",
+        "returned",
+        "confirmed",
+      ];
       if (requiredStatuses.includes(data.status)) {
         return !!data.delivery_date;
       }
@@ -74,7 +72,6 @@ const deliverySchema = z
   );
 
 type DeliveryFormValues = z.infer<typeof deliverySchema>;
-
 
 // ================= COMPONENT =================
 
@@ -116,9 +113,10 @@ export default function DeliveryPage() {
       : "";
 
     form.reset({
-      status: order.delivery_status ?? 'pending' as DeliveryFormValues["status"],
+      status:
+        order.delivery_status ?? ("pending" as DeliveryFormValues["status"]),
       delivery_date: deliveryDateValue,
-    notes: order.delivery?.notes ?? "",
+      notes: order.delivery?.notes ?? "",
     });
 
     setOpenModal(true);
@@ -158,13 +156,11 @@ export default function DeliveryPage() {
       ),
     },
     {
-      accessorKey: "customer_id",
+      accessorKey: "customer",
       header: "Customer",
       cell: ({ row }) => (
         <div>
-          <div className="font-semibold">
-            Customer #{row.original.customer_id}
-          </div>
+          <div className="font-semibold">{row.original.customer?.name}</div>
           <div className="text-xs text-muted-foreground">
             ID: {row.original.customer_id}
           </div>
@@ -339,4 +335,3 @@ export default function DeliveryPage() {
     </div>
   );
 }
-

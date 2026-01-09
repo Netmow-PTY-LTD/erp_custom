@@ -149,7 +149,12 @@ export default function PurchaseInvoicesDetails() {
                 </p>
                 <p className="flex items-center gap-2">
                   <strong>Status:</strong>
-                  <Badge className={`${invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"} text-white capitalize`}>
+                  <Badge
+                    className={`${invoice?.status === "paid"
+                        ? "bg-green-600"
+                        : "bg-yellow-600"
+                      } text-white capitalize`}
+                  >
                     {invoice?.status}
                   </Badge>
                 </p>
@@ -174,6 +179,9 @@ export default function PurchaseInvoicesDetails() {
                       <th className="p-3 text-left">Product</th>
                       <th className="p-3 text-right">Qty</th>
                       <th className="p-3 text-right">Unit Cost ({currency})</th>
+                      <th className="p-3 text-right">
+                        Total Price ({currency})
+                      </th>
                       <th className="p-3 text-right">Discount ({currency})</th>
                       <th className="p-3 text-right">
                         Line Total ({currency})
@@ -210,7 +218,9 @@ export default function PurchaseInvoicesDetails() {
                         <td className="p-3 text-right">
                           {item.unit_cost.toFixed(2)}
                         </td>
-
+                        <td className="p-3 text-right">
+                          {item.total_price.toFixed(2)}
+                        </td>
                         {/* Discount */}
                         <td className="p-3 text-right">
                           {item.discount.toFixed(2)}
@@ -292,13 +302,13 @@ export default function PurchaseInvoicesDetails() {
                         <td className="p-3">
                           {item?.payment_date
                             ? new Date(item.payment_date).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )
                             : "-"}
                         </td>
 
@@ -385,10 +395,13 @@ export default function PurchaseInvoicesDetails() {
 
               <div className="flex justify-between text-lg font-bold mt-1">
                 <span>Balance</span>
-                <span>RM {balance.toFixed(2)}</span>
+                <span>{currency} {balance.toFixed(2)}</span>
               </div>
 
-              <Badge className={`${invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"} text-white capitalize mt-1`}>
+              <Badge
+                className={`${invoice?.status === "paid" ? "bg-green-600" : "bg-yellow-600"
+                  } text-white capitalize mt-1`}
+              >
                 {invoice?.status}
               </Badge>
             </div>

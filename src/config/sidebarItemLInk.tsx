@@ -7,11 +7,10 @@ import {
   DollarSign,
   DollarSignIcon,
   FileMinus,
-  FileCode,
+  // FileCode,
   Box,
   FileText,
   HandCoins,
-
   Layers,
   LayoutDashboard,
   LineChart,
@@ -29,7 +28,6 @@ import {
   Truck,
   UserPlus,
   Users,
-
 } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Products from "../pages/products/Products";
@@ -112,8 +110,8 @@ import {
   RolePermission,
   SettingsPermission,
   ReportPermission,
-  RawMaterialPermission,
-  ProductionPermission,
+  // RawMaterialPermission,
+  // ProductionPermission,
   SuperAdminPermission,
   RouteOperationPermission,
 } from "./permissions";
@@ -125,25 +123,36 @@ import AttendanceDetailsPage from "@/pages/staffs/attendance/attendanceDetails";
 import RouteWiseOrder from "@/pages/routeOperations/RouteWiseOrder";
 import OrderManage from "@/pages/routeOperations/OrderManage";
 import StaffRoute from "@/pages/routeOperations/StaffRoute";
-import RawMaterials from "@/pages/raw-materials";
-import AddRawMaterial from "@/pages/raw-materials/AddRawMaterial";
-import ProductionDashboard from "@/pages/production";
-import ProductionList from "@/pages/production/ProductionList";
-import CreateProduction from "@/pages/production/CreateProduction";
-import EditRawMaterial from "@/pages/raw-materials/EditRawMaterial";
-import ProductionDetails from "@/pages/production/ProductionDetails";
-import RMSupplierList from "@/pages/raw-materials/suppliers/SupplierList";
-import AddRMSupplier from "@/pages/raw-materials/suppliers/AddSupplier";
-import RMPurchaseOrderList from "@/pages/raw-materials/purchase-orders/PurchaseOrderList";
-import CreateRMPurchaseOrder from "@/pages/raw-materials/purchase-orders/CreatePurchaseOrder";
-import RMInvoiceList from "@/pages/raw-materials/invoice/RawMaterialInvoiceList";
-import RecordRMInvoice from "@/pages/raw-materials/invoice/RecordInvoice";
-import SupplierPaymentList from "@/pages/raw-materials/payments/SupplierPaymentList";
-import MakeSupplierPayment from "@/pages/raw-materials/payments/MakePayment";
-import BomList from "@/pages/production/bom/BomList";
-import CreateBom from "@/pages/production/bom/CreateBom";
-import FinishedGoodsList from "@/pages/production/finished-goods/FinishedGoodsList";
-import AddFinishedGood from "@/pages/production/finished-goods/AddFinishedGood";
+// import RawMaterials from "@/pages/raw-materials";
+// import AddRawMaterial from "@/pages/raw-materials/AddRawMaterial";
+// import EditRawMaterial from "@/pages/raw-materials/EditRawMaterial";
+// import ViewRawMaterial from "@/pages/raw-materials/ViewRawMaterial";
+// import ProductionDashboard from "@/pages/production";
+// import ProductionList from "@/pages/production/ProductionList";
+// import CreateProduction from "@/pages/production/CreateProduction";
+// import ProductionDetails from "@/pages/production/ProductionDetails";
+// import RMSupplierList from "@/pages/raw-materials/suppliers/SupplierList";
+// import AddRMSupplier from "@/pages/raw-materials/suppliers/AddSupplier";
+// import EditRMSupplier from "@/pages/raw-materials/suppliers/EditSupplier";
+// import RMPurchaseOrderList from "@/pages/raw-materials/purchase-orders/PurchaseOrderList";
+// import CreateRMPurchaseOrder from "@/pages/raw-materials/purchase-orders/CreatePurchaseOrder";
+// import ViewRMPurchaseOrder from "@/pages/raw-materials/purchase-orders/ViewPurchaseOrderPage";
+// import RMInvoiceList from "@/pages/raw-materials/invoice/RawMaterialInvoiceList";
+// import RecordRMInvoice from "@/pages/raw-materials/invoice/RecordInvoice";
+// import RawMaterialInvoiceDetails from "@/pages/raw-materials/invoice/RawMaterialInvoiceDetails";
+// import RMPurchaseInvoicePrintPreview from "@/pages/raw-materials/invoice/RMPurchaseInvoicePrintPreview";
+// import SupplierPaymentList from "@/pages/raw-materials/payments/SupplierPaymentList";
+// import MakeSupplierPayment from "@/pages/raw-materials/payments/MakePayment";
+// import RMPaymentDetails from "@/pages/raw-materials/payments/PaymentDetails";
+// import BomList from "@/pages/production/bom/BomList";
+// import CreateBom from "@/pages/production/bom/CreateBom";
+// import FinishedGoodsList from "@/pages/production/finished-goods/FinishedGoodsList";
+// import AddFinishedGood from "@/pages/production/finished-goods/AddFinishedGood";
+// import RawMaterialCategoriesPage from "@/pages/raw-materials/categories";
+// import EditRawMaterialPurchaseOrder from "@/pages/raw-materials/purchase-orders/EditPurchaseOrder";
+import InActiveCustomersList from "@/pages/customer/InActiveCustomers";
+import CheckIn from "@/pages/checkIn/CheckIn";
+import CheckInList from "@/pages/checkIn/CheckInList";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -250,12 +259,22 @@ export const sidebarItemLink = [
     ],
     items: [
       {
-        title: "List of Customers",
+        title: "List of  Active Customers",
         url: "/dashboard/customers",
         element: <Customers />,
         icon: List,
         allowedPermissions: [
           CustomerPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "List of Inactive Customers",
+        url: "/dashboard/customers/inactive",
+        element: <InActiveCustomersList />,
+        icon: List,
+        allowedPermissions: [
+          CustomerPermission.LIST_INACTIVE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -463,184 +482,286 @@ export const sidebarItemLink = [
     ],
   },
 
-  // RAW MATERIALS
-  {
-    title: "Raw Materials",
-    url: "#",
-    icon: Boxes,
-    allowedPermissions: [
-      RawMaterialPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-    items: [
-      {
-        title: "Raw Materials List",
-        url: "/dashboard/raw-materials",
-        element: <RawMaterials />,
-        icon: List,
-        allowedPermissions: [
-          RawMaterialPermission.LIST,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Suppliers",
-        url: "/dashboard/raw-materials/suppliers",
-        element: <RMSupplierList />,
-        icon: Truck,
-        allowedPermissions: [RawMaterialPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "Purchase Orders",
-        url: "/dashboard/raw-materials/purchase-orders",
-        element: <RMPurchaseOrderList />,
-        icon: FileText,
-        allowedPermissions: [RawMaterialPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "Invoices & GRN",
-        url: "/dashboard/raw-materials/invoices",
-        element: <RMInvoiceList />,
-        icon: FileText,
-        allowedPermissions: [RawMaterialPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "Payments",
-        url: "/dashboard/raw-materials/payments",
-        element: <SupplierPaymentList />,
-        icon: CreditCard,
-        allowedPermissions: [RawMaterialPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
-      },
-      // Hidden Create/Edit Routes
-      {
-        title: "",
-        url: "/dashboard/raw-materials/create",
-        element: <AddRawMaterial />,
-        allowedPermissions: [RawMaterialPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "",
-        url: "/dashboard/raw-materials/:id/edit",
-        element: <EditRawMaterial />,
-        allowedPermissions: [RawMaterialPermission.EDIT, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "",
-        url: "/dashboard/raw-materials/suppliers/create",
-        element: <AddRMSupplier />,
-        allowedPermissions: [RawMaterialPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "",
-        url: "/dashboard/raw-materials/purchase-orders/create",
-        element: <CreateRMPurchaseOrder />,
-        allowedPermissions: [RawMaterialPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "",
-        url: "/dashboard/raw-materials/invoices/create",
-        element: <RecordRMInvoice />,
-        allowedPermissions: [RawMaterialPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
-      },
-      {
-        title: "",
-        url: "/dashboard/raw-materials/payments/create",
-        element: <MakeSupplierPayment />,
-        allowedPermissions: [RawMaterialPermission.CREATE, SuperAdminPermission.ACCESS_ALL],
-      },
-    ],
-  },
+  // // RAW MATERIALS
+  // {
+  //   title: "Raw Materials",
+  //   url: "#",
+  //   icon: Boxes,
+  //   allowedPermissions: [
+  //     RawMaterialPermission.VIEW,
+  //     SuperAdminPermission.ACCESS_ALL,
+  //   ],
+  //   items: [
+  //     {
+  //       title: "Raw Materials List",
+  //       url: "/dashboard/raw-materials",
+  //       element: <RawMaterials />,
+  //       icon: List,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.LIST,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Suppliers",
+  //       url: "/dashboard/raw-materials/suppliers",
+  //       element: <RMSupplierList />,
+  //       icon: Truck,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Purchase Orders",
+  //       url: "/dashboard/raw-materials/purchase-orders",
+  //       element: <RMPurchaseOrderList />,
+  //       icon: FileText,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Invoices & GRN",
+  //       url: "/dashboard/raw-materials/invoices",
+  //       element: <RMInvoiceList />,
+  //       icon: FileText,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Payments",
+  //       url: "/dashboard/raw-materials/payments",
+  //       element: <SupplierPaymentList />,
+  //       icon: CreditCard,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Categories",
+  //       url: "/dashboard/raw-materials/categories",
+  //       element: <RawMaterialCategoriesPage />,
+  //       icon: Layers,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     // Hidden Create/Edit Routes
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/add",
+  //       element: <AddRawMaterial />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/:id",
+  //       element: <ViewRawMaterial />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/edit/:id",
+  //       element: <EditRawMaterial />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.EDIT,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/suppliers/create",
+  //       element: <AddRMSupplier />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/suppliers/edit/:id",
+  //       element: <EditRMSupplier />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.EDIT,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/purchase-orders/create",
+  //       element: <CreateRMPurchaseOrder />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/purchase-orders/:purchaseId",
+  //       element: <ViewRMPurchaseOrder />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/purchase-orders/edit/:purchaseId",
+  //       element: <EditRawMaterialPurchaseOrder />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.EDIT,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/invoices/create",
+  //       element: <RecordRMInvoice />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/invoices/:id",
+  //       element: <RawMaterialInvoiceDetails />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/invoices/print/:id",
+  //       element: <RMPurchaseInvoicePrintPreview />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/payments/create",
+  //       element: <MakeSupplierPayment />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/raw-materials/payments/:id",
+  //       element: <RMPaymentDetails />,
+  //       allowedPermissions: [
+  //         RawMaterialPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //   ],
+  // },
 
-  // PRODUCTION
-  {
-    title: "Production",
-    url: "#",
-    icon: Layers,
-    allowedPermissions: [
-      ProductionPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-    items: [
-      {
-        title: "Dashboard",
-        url: "/dashboard/production",
-        element: <ProductionDashboard />,
-        icon: LayoutDashboard,
-        allowedPermissions: [
-          ProductionPermission.VIEW,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Production Batches",
-        url: "/dashboard/production/list",
-        element: <ProductionList />,
-        icon: List,
-        allowedPermissions: [
-          ProductionPermission.LIST,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Recipes (BOM)",
-        url: "/dashboard/production/bom",
-        element: <BomList />,
-        icon: FileCode,
-        allowedPermissions: [
-          ProductionPermission.VIEW,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Finished Goods",
-        url: "/dashboard/production/finished-goods",
-        element: <FinishedGoodsList />,
-        icon: Box,
-        allowedPermissions: [
-          ProductionPermission.VIEW,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      // Hidden Create Routes
-      {
-        title: "",
-        url: "/dashboard/production/create",
-        element: <CreateProduction />,
-        allowedPermissions: [
-          ProductionPermission.CREATE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/production/:id",
-        element: <ProductionDetails />,
-        allowedPermissions: [
-          ProductionPermission.DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/production/bom/create",
-        element: <CreateBom />,
-        allowedPermissions: [
-          ProductionPermission.CREATE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/production/finished-goods/create",
-        element: <AddFinishedGood />,
-        allowedPermissions: [
-          ProductionPermission.CREATE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-
-    ],
-  },
+  // // PRODUCTION
+  // {
+  //   title: "Production",
+  //   url: "#",
+  //   icon: Layers,
+  //   allowedPermissions: [
+  //     ProductionPermission.VIEW,
+  //     SuperAdminPermission.ACCESS_ALL,
+  //   ],
+  //   items: [
+  //     {
+  //       title: "Dashboard",
+  //       url: "/dashboard/production",
+  //       element: <ProductionDashboard />,
+  //       icon: LayoutDashboard,
+  //       allowedPermissions: [
+  //         ProductionPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Production Batches",
+  //       url: "/dashboard/production/list",
+  //       element: <ProductionList />,
+  //       icon: List,
+  //       allowedPermissions: [
+  //         ProductionPermission.LIST,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Recipes (BOM)",
+  //       url: "/dashboard/production/bom",
+  //       element: <BomList />,
+  //       icon: FileCode,
+  //       allowedPermissions: [
+  //         ProductionPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "Finished Goods",
+  //       url: "/dashboard/production/finished-goods",
+  //       element: <FinishedGoodsList />,
+  //       icon: Box,
+  //       allowedPermissions: [
+  //         ProductionPermission.VIEW,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     // Hidden Create Routes
+  //     {
+  //       title: "",
+  //       url: "/dashboard/production/create",
+  //       element: <CreateProduction />,
+  //       allowedPermissions: [
+  //         ProductionPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/production/:id",
+  //       element: <ProductionDetails />,
+  //       allowedPermissions: [
+  //         ProductionPermission.DETAILS,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/production/bom/create",
+  //       element: <CreateBom />,
+  //       allowedPermissions: [
+  //         ProductionPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //     {
+  //       title: "",
+  //       url: "/dashboard/production/finished-goods/create",
+  //       element: <AddFinishedGood />,
+  //       allowedPermissions: [
+  //         ProductionPermission.CREATE,
+  //         SuperAdminPermission.ACCESS_ALL,
+  //       ],
+  //     },
+  //   ],
+  // },
 
   // STAFFS
   {
@@ -725,6 +846,28 @@ export const sidebarItemLink = [
       //     SuperAdminPermission.ACCESS_ALL,
       //   ],
       // },
+      
+  // CHECK IN
+  {
+    title: "Check In",
+    url: "/dashboard/staff/check-in",
+    icon: MapPin,
+    element: <CheckIn />,
+    allowedPermissions: [
+      CustomerPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
+  {
+    title: "Check In List",
+    url: "/dashboard/staff/check-in-list",
+    icon: MapPin,
+    element: <CheckInList />,
+    allowedPermissions: [
+      CustomerPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
       {
         title: "",
         url: "/dashboard/staffs/leaves/request",
@@ -1148,7 +1291,7 @@ export const sidebarItemLink = [
     icon: Map,
     allowedPermissions: [
       RouteOperationPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL
+      SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
       {
@@ -1158,7 +1301,7 @@ export const sidebarItemLink = [
         icon: List,
         allowedPermissions: [
           RouteOperationPermission.ROUTE_WISE_ORDER,
-          SuperAdminPermission.ACCESS_ALL
+          SuperAdminPermission.ACCESS_ALL,
         ],
       },
       {
@@ -1168,7 +1311,7 @@ export const sidebarItemLink = [
         icon: Settings,
         allowedPermissions: [
           RouteOperationPermission.ORDER_MANAGE,
-          SuperAdminPermission.ACCESS_ALL
+          SuperAdminPermission.ACCESS_ALL,
         ],
       },
       {
@@ -1178,11 +1321,9 @@ export const sidebarItemLink = [
         icon: Users,
         allowedPermissions: [
           RouteOperationPermission.STAFF_WISE_ROUTE,
-          SuperAdminPermission.ACCESS_ALL
+          SuperAdminPermission.ACCESS_ALL,
         ],
       },
     ],
   },
 ];
-
-
