@@ -1,11 +1,11 @@
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo, type JSX } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/dashboard/components/DataTable";
+import { format } from "date-fns";
 import CheckInLocationModal from "./CheckInLocationModal";
 import { useGetAllStaffAttendanceQuery, type StaffAttendance } from "@/store/features/checkIn/checkIn";
+import ClenderButton from "./ClenderButton";
 
 /* ================= COMPONENT ================= */
 
@@ -14,11 +14,13 @@ export default function CheckInList(): JSX.Element {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [locationItem, setLocationItem] = useState<StaffAttendance | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const { data: response, isFetching, isLoading } = useGetAllStaffAttendanceQuery({
     page,
     limit,
     search,
+    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined,
   });
 
   const attendanceItems = useMemo(() => response?.data || [], [response]);
@@ -83,7 +85,10 @@ export default function CheckInList(): JSX.Element {
 
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-semibold">Check In List</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Check In List</h1>
+        <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      </div>
 
       <div className="bg-white shadow rounded-lg">
         <DataTable
@@ -110,4 +115,3 @@ export default function CheckInList(): JSX.Element {
     </div>
   );
 }
-
