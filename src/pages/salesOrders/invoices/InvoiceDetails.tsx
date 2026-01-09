@@ -9,16 +9,25 @@ import {
 import { useAppSelector } from "@/store/store";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { toast } from "sonner";
+import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function InvoiceDetailsPage() {
   // Example data (replace with your actual API response)
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  // permissions
+  const canMarkAsPaid = userPermissions.includes(SalesPermission.MARK_AS_PAID)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+
 
   const invoiceId = useParams().invoiceId;
 
   const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), {
     skip: !invoiceId,
   });
-  console.log("invoice data", invoiceData);
+
 
   const invoice = invoiceData?.data;
 
@@ -87,17 +96,21 @@ export default function InvoiceDetailsPage() {
           <Link to="/dashboard/sales/invoices">
             <Button variant="outline">← Back to Invoices</Button>
           </Link>
-          <Link to={`/dashboard/sales/payments/create`}>
+          {
+            canRecordPayment && (   <Link to={`/dashboard/sales/payments/create`}>
             <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
               Record Payment
             </Button>
-          </Link>
+          </Link>)
+          }
+       
           <Link to={`/dashboard/sales/invoices/${invoice?.id}/preview`}>
             <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
               Print Preview
             </Button>
           </Link>
-          {invoice?.status !== "paid" && (
+        
+          { canMarkAsPaid && invoice?.status !== "paid" && (
             <Button
               variant="default"
               className="bg-green-600 hover:bg-green-700 text-white"
