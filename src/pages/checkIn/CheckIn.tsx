@@ -37,6 +37,7 @@ export default function CheckIn(): JSX.Element {
     search: searchTerm || undefined,
   });
 
+  const [locationData, setLocationData] = useState<{ checkins: any[]; customer: Customer } | null>(null);
   const [attendanceResult, setAttendanceResult] = useState<any>(null);
   const [check_in, { isLoading: isSubmitting }] = useStaffCheckInMutation();
 
@@ -103,8 +104,9 @@ const customerColumns: ColumnDef<Customer>[] = [
             Check In
           </button>
           <button
-            className="border px-3 py-1 rounded"
-            // onClick={() => setLocationCustomer(customer)}
+            className="border px-3 py-1 rounded disabled:opacity-50"
+            onClick={() => setLocationData({ checkins: (customer as any).checkins || [], customer })}
+            disabled={!(customer as any).checkins?.length}
           >
             View Location
           </button>
@@ -210,6 +212,14 @@ const customerColumns: ColumnDef<Customer>[] = [
         <CheckInLocationModal
           attendance={attendanceResult}
           onClose={() => setAttendanceResult(null)}
+        />
+      )}
+
+      {locationData && (
+        <CheckInLocationModal
+          customer={locationData.customer}
+          checkins={locationData.checkins}
+          onClose={() => setLocationData(null)}
         />
       )}
     </div>
