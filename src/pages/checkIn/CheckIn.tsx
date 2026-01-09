@@ -140,6 +140,16 @@ const customerColumns: ColumnDef<Customer>[] = [
       return;
     }
 
+    // Duplicate check: see if staff already checked in for this customer today
+    const alreadyCheckedIn = (customer as any).checkins?.some(
+      (ci: any) => ci.staff_id === user.id
+    );
+
+    if (alreadyCheckedIn) {
+      toast.error("You have already checked in for this customer today.");
+      return;
+    }
+
     if (!navigator.geolocation) {
       toast.error("Geolocation not supported.");
       return;
