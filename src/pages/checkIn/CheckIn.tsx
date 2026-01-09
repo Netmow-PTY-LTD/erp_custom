@@ -1,26 +1,17 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo, type JSX } from "react";
+import { useState, type JSX } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-
-// import { useGetCheckinListQuery, useCreateCheckInMutation } from "@/store/baseApi";
+import { toast } from "sonner";
 import CheckInLocationModal from "./CheckInLocationModal";
+import { format } from "date-fns";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery } from "@/store/features/checkIn/checkIn";
+import type { Customer } from "@/store/features/customers/types";
+import ClenderButton from "./ClenderButton";
+import { useAppSelector } from "@/store/store";
 
-type Customer = {
-  image: string | undefined;
-  id: number;
-  name: string;
-  location: string;
-  route?: string;
-  phone?: string;
-  email?: string;
-  lat?: number;
-  lng?: number;
-check_in_status?: boolean;
-check_in_time?: string;
 
-};
 
 type CheckIn = {
   id: string;
@@ -30,55 +21,44 @@ type CheckIn = {
   note?: string;
 };
 
-const sampleCustomers: Customer[] = [
-  {
-    id: 1,
-    image: undefined,
-    name: "Restaurant Hakim",
-    location: "Shah Alam",
-    route: "Route A",
-    phone: "+60 12-345 6789",
-    email: "hakim@restaurant.com",
-    lat: 3.0738,
-    lng: 101.5183,
-    check_in_status: true,
-    check_in_time: "2024-06-01T10:15:00Z",
-  },
-];
+
 
 export default function CheckIn(): JSX.Element {
-  const [customers] = useState<Customer[]>(sampleCustomers);
-  const [, setSelectedCustomer] = useState<Customer | null>(null);
-  const [, setShowModal] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
+const user = useAppSelector((state) => state.auth.user);
 
 
-    
+  // Units permissions
 
-  // DataTable states
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
 
-  const filteredCustomers = useMemo(() => {
-    if (!search) return customers;
-    const s = search.toLowerCase();
-    return customers.filter(
-      (c) =>
-        String(c.id).includes(s) ||
-        c.name.toLowerCase().includes(s) ||
-        (c.location && c.location.toLowerCase().includes(s)) ||
-        (c.route && c.route.toLowerCase().includes(s))
-    );
-  }, [search, customers]);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+
+  // Fetch customers with status by date
+  const { data: customerData, isLoading: customersLoading, error: customersError } = useGetCustomerCheckInListByDateQuery({
+    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
+    page: currentPage,
+    limit: pageSize,
+    search: searchTerm || undefined,
+  });
+
+
+  const [locationData, setLocationData] = useState<{ checkins: any[]; customer: Customer } | null>(null);
+  const [attendanceResult, setAttendanceResult] = useState<any>(null);
+  const [check_in, { isLoading: isSubmitting }] = useStaffCheckInMutation();
+
+  const customers = customerData?.data || [];
+  const totalCount = customerData?.pagination?.total || 0;
+
 
 const customerColumns: ColumnDef<Customer>[] = [
   {
-    accessorKey: "image",
+    accessorKey: "image_url",
     header: "Image",
     cell: ({ row }) => (
       <img
-        src={row.original.image}
+        src={(row.original as any).image_url || (row.original as any).thumb_url || "/placeholder.png"}
         alt={row.original.name}
         className="w-10 h-10 rounded-full object-cover"
       />
@@ -89,27 +69,35 @@ const customerColumns: ColumnDef<Customer>[] = [
     header: "Name",
   },
   {
-    accessorKey: "location",
+    accessorKey: "address",
     header: "Location",
   },
   {
-    accessorKey: "route",
+    accessorKey: "salesRoute",
     header: "Route",
+    cell: ({ row }) => (
+      <span className="text-gray-600">{(row.original as any).salesRoute?.route_name}</span>
+    ),
   },
   {
     accessorKey: "phone",
     header: "Phone",
   },
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
+  // {
+  //   accessorKey: "check_in_status",
+  //   header: "Status",
+  //   cell: ({ row }) => (
+  //     <span className={(row.original as any).check_in_status ? "text-green-600 font-medium" : "text-red-500"}>
+  //       {(row.original as any).check_in_status ? "Visted" : "Not Visited"}
+  //     </span>
+  //   ),
+  // },
   {
     id: "coords",
     header: "Coordinates",
     cell: ({ row }) =>
-      row.original.lat && row.original.lng
-        ? `${row.original.lat}, ${row.original.lng}`
+      row.original.latitude && row.original.longitude
+        ? `${row.original.latitude}, ${row.original.longitude}`
         : "—",
   },
   {
@@ -126,8 +114,9 @@ const customerColumns: ColumnDef<Customer>[] = [
             Check In
           </button>
           <button
-            className="border px-3 py-1 rounded"
-            onClick={() => setLocationCustomer(customer)}
+            className="border px-3 py-1 rounded disabled:opacity-50"
+            onClick={() => setLocationData({ checkins: (customer as any).checkins || [], customer })}
+            disabled={!(customer as any).checkins?.length}
           >
             View Location
           </button>
@@ -138,59 +127,66 @@ const customerColumns: ColumnDef<Customer>[] = [
 ];
 
 
-  // RTK Query Mutation for creating check-in
-//   const [createCheckIn, { isLoading: isSubmitting }] = useCreateCheckInMutation();
+
 
   function handleCheckIn(customer: Customer) {
-    if (!customer.lat || !customer.lng) {
-      setMessage({ type: "error", text: "Customer location not available." });
+    if (!user) {
+      toast.error("User not found. Please log in again.");
+      return;
+    }
+
+    if (!customer.latitude || !customer.longitude) {
+      toast.error("Customer location not available.");
+      return;
+    }
+
+    // Duplicate check: see if staff already checked in for this customer today
+    const alreadyCheckedIn = (customer as any).checkins?.some(
+      (ci: any) => ci.staff_id === user.id
+    );
+
+    if (alreadyCheckedIn) {
+      toast.error("You have already checked in for this customer today.");
       return;
     }
 
     if (!navigator.geolocation) {
-      setMessage({ type: "error", text: "Geolocation not supported." });
+      toast.error("Geolocation not supported.");
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-        const distance = haversineDistanceMeters(latitude, longitude, customer.lat!, customer.lng!);
+        const distance = haversineDistanceMeters(latitude, longitude, customer.latitude!, customer.longitude!);
 
         if (distance > 100) {
-          setMessage({
-            type: "error",
-            text: `Please go to the exact location. Distance is ${Math.round(distance)} m.`,
-          });
+          toast.error(`Please go to the exact location. Distance is ${Math.round(distance)} m.`);
           return;
         }
 
         const payload = {
           customer_id: customer.id,
-          staff_id: 123, // replace with your logged-in staff ID
+          staff_id: user.id, // replace with your logged-in staff ID
           check_in_time: new Date().toISOString(),
           latitude,
           longitude,
           distance_meters: Math.round(distance),
-          note: "Checked in",
+          note: "Checked in from mobile app",
         };
 
         console.log("CHECK-IN PAYLOAD:", payload);
 
         try {
-        //   await createCheckIn(payload).unwrap();
-          setMessage({ type: "success", text: "Check-in successful!" });
-          setSelectedCustomer(customer);
-          setShowModal(true);
+          const res = await check_in(payload).unwrap();
+          toast.success("Check-in successful!");
+          setAttendanceResult(res.data);
         } catch (err: any) {
-          setMessage({ type: "error", text: err?.data?.message || "Check-in failed" });
+          toast.error(err?.data?.message || "Check-in failed");
         }
       },
       (err) => {
-        setMessage({
-          type: "error",
-          text: `Location error: ${err.message}`,
-        });
+        toast.error(`Location error: ${err.message}`);
       },
       { enableHighAccuracy: true }
     );
@@ -208,41 +204,48 @@ const customerColumns: ColumnDef<Customer>[] = [
     return R * c;
   }
 
-  // view location modal
-  const [locationCustomer, setLocationCustomer] = useState<Customer | null>(null);
+
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Check In</h1>
-
-      {message && (
-        <div
-          className={`mb-4 p-3 rounded ${
-            message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
-
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <DataTable
-          columns={customerColumns}
-          data={filteredCustomers}
-          pageIndex={page - 1}
-          pageSize={limit}
-          totalCount={filteredCustomers.length}
-          onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-          onSearch={(value) => {
-            setSearch(value);
-            setPage(1);
-          }}
-        //   isFetching={isSubmitting}
-        />
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Check In</h1>
+        <ClenderButton disableOpen={true} selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>
 
-      {locationCustomer && (
-        <CheckInLocationModal customer={locationCustomer} onClose={() => setLocationCustomer(null)} />
+      <div className="overflow-x-auto bg-white shadow rounded-lg">
+        {customersError ? (
+          <div className="p-4 text-red-600 text-center">Error loading customers: {(customersError as any)?.data?.message || "Something went wrong"}</div>
+        ) : (
+          <DataTable
+            columns={customerColumns}
+            data={customers}
+            pageIndex={currentPage - 1}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={(newPageIndex) => setCurrentPage(newPageIndex + 1)}
+            onSearch={(value) => {
+              setSearchTerm(value);
+              setCurrentPage(1);
+            }}
+            isFetching={customersLoading || isSubmitting}
+          />
+        )}
+      </div>
+
+      {attendanceResult && (
+        <CheckInLocationModal
+          attendance={attendanceResult}
+          onClose={() => setAttendanceResult(null)}
+        />
+      )}
+
+      {locationData && (
+        <CheckInLocationModal
+          customer={locationData.customer}
+          checkins={locationData.checkins}
+          onClose={() => setLocationData(null)}
+        />
       )}
     </div>
   );

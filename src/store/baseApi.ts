@@ -130,7 +130,8 @@ export const baseApi = createApi({
     'BillOfMaterial',
     'FinishedGood',
     'InactiveCustomers',
-    'ActiveCustomers'
+    'ActiveCustomers',
+    'StaffCheckIn',
   ],
   endpoints: () => ({}),
 });
