@@ -74,21 +74,30 @@ import { baseApi } from "@/store/baseApi";
 ======================= */
 
 export type StaffAttendance = {
-  id: string | number;
-  staffId: string | number;
-  checkInTime?: string;
-  checkOutTime?: string;
-  date: string;
-  location?: {
-    lat: number;
-    lng: number;
-    address?: string;
+  id: number;
+  latitude: number;
+  longitude: number;
+  distance_meters: number;
+  customer_id: number;
+  staff_id: number;
+  check_in_time: string;
+  note?: string;
+  created_at: string;
+  updated_at: string;
+  staff?: Record<string, unknown> | null; // null in example, but keeping it flexible
+  customer: {
+    id: number;
+    name: string;
+    company: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
   };
-  status: "checked_in" | "checked_out" | "absent";
 };
 
 export type AttendanceResponse<T> = {
-  status: boolean;
+  success: boolean;
   message: string;
   data: T;
   pagination?: {
