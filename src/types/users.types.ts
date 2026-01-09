@@ -2,10 +2,11 @@
 export interface Role {
   id: number;
   role: string;
+  name: string;
   display_name: string;
   description: string;
   status: string;
- permissions: string[]
+  permissions: string[]
 }
 
 export type User = {
@@ -16,5 +17,8 @@ export type User = {
   email: string;
   role_id: number;
   role: Role;
+  phone: string;
+  profile_image: string;
+  password?: string;
   created_at: string; // or Date if you want: Date
 };

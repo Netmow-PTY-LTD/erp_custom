@@ -67,7 +67,6 @@ import EditStaff from "@/pages/staffs/edit";
 import EditCustomerPage from "@/pages/customer/EditCustomerPage";
 import CustomerViewPage from "@/pages/customer/CustomerViewPage";
 import CustomersMapPage from "@/pages/customer/CustomersMapPage";
-import UserProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import AccountSettings from "@/pages/Settings/pages/Account";
 import InventoryReports from "@/pages/reports/InventoryReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
@@ -153,6 +152,8 @@ import StaffRoute from "@/pages/routeOperations/StaffRoute";
 import InActiveCustomersList from "@/pages/customer/InActiveCustomers";
 import CheckIn from "@/pages/checkIn/CheckIn";
 import CheckInList from "@/pages/checkIn/CheckInList";
+import AddCustomerByStaffPage from "@/pages/customer/AddCustomerByStaff";
+import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -294,6 +295,16 @@ export const sidebarItemLink = [
         icon: UserPlus,
         allowedPermissions: [
           CustomerPermission.CREATE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Add Customer By Staff",
+        url: "/dashboard/customers/create/by-staff",
+        element: <AddCustomerByStaffPage />,
+        icon: UserPlus,
+        allowedPermissions: [
+          CustomerPermission.CREATE_BY_STAFF,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -846,28 +857,28 @@ export const sidebarItemLink = [
       //     SuperAdminPermission.ACCESS_ALL,
       //   ],
       // },
-      
-  // CHECK IN
-  {
-    title: "Check In",
-    url: "/dashboard/staff/check-in",
-    icon: MapPin,
-    element: <CheckIn />,
-    allowedPermissions: [
-      CustomerPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-  },
-  {
-    title: "Check In List",
-    url: "/dashboard/staff/check-in-list",
-    icon: MapPin,
-    element: <CheckInList />,
-    allowedPermissions: [
-      CustomerPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-  },
+
+      // CHECK IN
+      {
+        title: "Check In",
+        url: "/dashboard/staff/check-in",
+        icon: MapPin,
+        element: <CheckIn />,
+        allowedPermissions: [
+          CustomerPermission.VIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Check In List",
+        url: "/dashboard/staff/check-in-list",
+        icon: MapPin,
+        element: <CheckInList />,
+        allowedPermissions: [
+          CustomerPermission.VIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
       {
         title: "",
         url: "/dashboard/staffs/leaves/request",
@@ -1213,12 +1224,13 @@ export const sidebarItemLink = [
       {
         title: "Profile",
         url: "/dashboard/settings/profile",
-        element: <UserProfilePage />,
+        element: <MyProfileSettings />,
         allowedPermissions: [
           SettingsPermission.PROFILE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+
       {
         title: "Account",
         url: "/dashboard/settings/account",
@@ -1229,6 +1241,12 @@ export const sidebarItemLink = [
         ],
       },
     ],
+  },
+
+  {
+    title: "",
+    url: "/dashboard/settings/profile",
+    element: <MyProfileSettings />,
   },
 
   // REPORTS
