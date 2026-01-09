@@ -13,7 +13,7 @@ import type { User } from "@/types/users.types";
 export function ProfileDropdown() {
 
   const [open, setOpen] = useDialogState();
-  const user = useAppSelector( (state) => state.auth.user) as User | null;
+  const user = useAppSelector((state) => state.auth.user) as User | null;
 
 
   return (
@@ -32,7 +32,7 @@ export function ProfileDropdown() {
             <div className="flex flex-col gap-1.5">
               <p className="text-sm leading-none font-medium">{user?.name ?? 'Username'}</p>
               <p className="text-muted-foreground text-xs leading-none">
-                {user?.email??'example@gmail.com'}
+                {user?.email ?? 'example@gmail.com'}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -44,6 +44,7 @@ export function ProfileDropdown() {
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
               <Link to="/dashboard/settings">

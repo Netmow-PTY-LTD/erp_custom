@@ -1,13 +1,13 @@
-import type { Role } from "@/types/users.types";
+import type { User } from "@/types/users.types";
 
 // User details returned from the backend
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  role_id?: number;
-  role:Role
-}
+// export interface User {
+//   id: number;
+//   name: string;
+//   email: string;
+//   role_id?: number;
+//   role:Role
+// }
 
 // Request payload for login
 export interface LoginRequest {
@@ -30,7 +30,7 @@ export interface AuthUserResponse {
   status: boolean;
   message: string;
   data: {
-    user:User
+    user: User
   }
 }
 
