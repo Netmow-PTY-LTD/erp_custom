@@ -44,6 +44,7 @@ export const CustomerPermission = {
   LIST_INACTIVE: "customers.list.inactive" as const,
   DETAILS: "customers.details" as const,
   CREATE: "customers.create" as const,
+  CUSTOMER_ACTIVE_PERMSSION: "customers.active.permission" as const,
   CREATE_BY_STAFF: "customers.create.by.staff" as const,
   EDIT: "customers.edit" as const,
   VIEW_ROUTE_DETAILS: "customers.routes.details.view" as const,
