@@ -19,7 +19,13 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CalendarIcon, ChevronDown, Check } from "lucide-react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { CalendarIcon, ChevronDown, Check, Eye, EyeOff } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -55,7 +61,7 @@ import { BackButton } from "@/components/BackButton";
 const StaffSchema = z.object({
   first_name: z.string().min(1, "Required"),
   last_name: z.string().min(1, "Required"),
-  email: z.string().email("Invalid email"),
+  email: z.string().min(1, "Required").email("Invalid email"),
   phone: z.string().optional(),
   department: z.number().min(1, "Required"),
   position: z.string().optional(),
@@ -77,6 +83,7 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 // =====================================================
 export default function AddStaffPage() {
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [addStaff, { isLoading }] = useAddStaffMutation();
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
@@ -169,7 +176,7 @@ export default function AddStaffPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-semibold">Add New Staff Member</h1>
 
-         <BackButton/>
+        <BackButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -236,7 +243,7 @@ export default function AddStaffPage() {
                   />
                 </div>
 
-                {/* ROW 2 — EMAIL + PHONE */}
+                {/* ROW 2 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                   <FormField
                     control={form.control}
@@ -253,7 +260,6 @@ export default function AddStaffPage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="phone"
@@ -268,9 +274,9 @@ export default function AddStaffPage() {
                     )}
                   />
                 </div>
-
-                {/* ROW 3 — DEPT + POSITION */}
+                {/* ROW 3 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+
                   <FormField
                     control={form.control}
                     name="department"
@@ -344,7 +350,6 @@ export default function AddStaffPage() {
                       );
                     }}
                   />
-
                   <FormField
                     control={form.control}
                     name="position"
@@ -362,8 +367,10 @@ export default function AddStaffPage() {
                   />
                 </div>
 
-                {/* ROW 4 — HIRE DATE + SALARY */}
+
+                {/* ROW 4 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+
                   <FormField
                     control={form.control}
                     name="hire_date"
@@ -407,7 +414,6 @@ export default function AddStaffPage() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="salary"
@@ -430,7 +436,9 @@ export default function AddStaffPage() {
                       </FormItem>
                     )}
                   />
+
                 </div>
+
 
                 {/* ADDRESS */}
                 {/* <FormField
@@ -499,7 +507,7 @@ export default function AddStaffPage() {
 
                 {/* BUTTONS */}
                 <div className="flex justify-end gap-3 pt-4">
-                  <Button variant="outline">Cancel</Button>
+                  {/* <Button variant="outline">Cancel</Button> */}
                   <Button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white"

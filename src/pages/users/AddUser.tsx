@@ -70,7 +70,12 @@ export default function AddUserPage() {
       }
     } catch (error) {
       console.error("Error adding user:", error);
-      toast.error("An error occurred while adding the user");
+      const err = error as {
+        data: {
+          message: string;
+        };
+      };
+      toast.error(err.data.message || "An error occurred while adding the user");
     }
   };
 
