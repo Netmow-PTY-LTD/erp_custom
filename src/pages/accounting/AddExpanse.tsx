@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown, FileText, CreditCard, TrendingDown, CheckCircle2 } from "lucide-react";
+import { Check, ChevronDown, FileText, CreditCard, TrendingDown } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -128,7 +128,7 @@ export default function AddExpensePage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFO */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-red-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-2 border-red-100 dark:border-red-900">
+          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-1 border-red-100 dark:border-red-900 py-3 gap-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
                 <FileText className="w-6 h-6 text-white" />
@@ -139,7 +139,7 @@ export default function AddExpensePage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
+          <CardContent className="grid gap-4 md:grid-cols-2 pb-6">
 
             {/* TITLE */}
             <Controller
@@ -293,7 +293,7 @@ export default function AddExpensePage() {
 
         {/* PAYMENT DETAILS */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-red-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-2 border-red-100 dark:border-red-900">
+          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-1 border-red-100 dark:border-red-900 py-3 gap-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
                 <CreditCard className="w-6 h-6 text-white" />
@@ -304,7 +304,7 @@ export default function AddExpensePage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
+          <CardContent className="grid gap-4 md:grid-cols-2 pb-6">
             {/* AMOUNT */}
             <Controller
               control={control}

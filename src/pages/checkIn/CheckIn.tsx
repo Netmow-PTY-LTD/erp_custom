@@ -221,7 +221,7 @@ const customerColumns: ColumnDef<Customer>[] = [
         <ClenderButton disableOpen={true} selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>
 
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
+      <div className="overflow-x-auto bg-white">
         {customersError ? (
           <div className="p-4 text-red-600 text-center">Error loading customers: {(customersError as any)?.data?.message || "Something went wrong"}</div>
         ) : (

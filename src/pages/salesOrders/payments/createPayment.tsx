@@ -21,7 +21,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ChevronLeft, CreditCard, Receipt, CheckCircle2, ArrowLeft } from "lucide-react";
+import { CreditCard, Receipt, CheckCircle2, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
@@ -308,7 +308,7 @@ export default function CreatePaymentPage() {
       {/* BACK BUTTON & HEADER */}
       <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
             Record Payment
           </h1>
           <p className="text-muted-foreground mt-2">Record a new payment for customer invoice</p>
@@ -322,10 +322,10 @@ export default function CreatePaymentPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT FORM */}
-        <Card className="lg:col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-green-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-950/30 border-b-2 border-green-100 dark:border-green-900">
+        <Card className="lg:col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-green-600 to-green-500 rounded-xl shadow-lg shadow-green-500/30">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
@@ -334,7 +334,7 @@ export default function CreatePaymentPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="pb-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -551,7 +551,7 @@ export default function CreatePaymentPage() {
                   <button
                     disabled={isAmountInvalid}
                     type="submit"
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-8 py-3 font-semibold text-white shadow-lg shadow-green-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-green-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
                   >
                     <CheckCircle2 className="w-5 h-5" />
                     <span>Record Payment</span>
@@ -572,9 +572,9 @@ export default function CreatePaymentPage() {
 
         {/* RIGHT SIDE INFO */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-green-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-950/30 border-b-2 border-green-100 dark:border-green-900">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-indigo-950/30 dark:via-indigo-950/30 dark:to-indigo-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-green-600 to-green-500 rounded-xl shadow-lg shadow-green-500/30">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <Receipt className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
@@ -583,7 +583,7 @@ export default function CreatePaymentPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="pb-6">
 
             <div className="text-sm space-y-3 leading-relaxed">
               <p>
