@@ -42,8 +42,16 @@ export default function ExpensesPage() {
   const currency = useAppSelector((state) => state.currency.value);
 
   const expenseColumns: ColumnDef<Expense>[] = [
-    { accessorKey: "id", header: "ID" },
-    { accessorKey: "title", header: "Title" },
+    {
+      accessorKey: "id",
+      header: "ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+    },
     { accessorKey: "description", header: "Description" },
     {
       accessorKey: "debitHead",
@@ -70,8 +78,8 @@ export default function ExpensesPage() {
           status.toLowerCase() === "paid"
             ? "success"
             : status.toLowerCase() === "pending"
-            ? "secondary"
-            : "destructive";
+              ? "secondary"
+              : "destructive";
 
         return <Badge variant={variant}>{status}</Badge>;
       },

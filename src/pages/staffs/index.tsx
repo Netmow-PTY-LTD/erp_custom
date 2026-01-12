@@ -136,6 +136,7 @@ export default function Staffs() {
     {
       accessorKey: "id",
       header: "Employee ID #",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[140px]" } as any,
       cell: ({ row }) => (
         <span className="font-medium">{row.getValue("id")}</span>
       ),
@@ -144,6 +145,7 @@ export default function Staffs() {
     {
       accessorKey: "first_name",
       header: "Name",
+      meta: { className: "md:sticky md:left-[140px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => (
         <div className="font-semibold">
           {row.original?.first_name} {row.original?.last_name}
