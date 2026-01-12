@@ -96,7 +96,7 @@ export default function CheckInLocationModal(props: ModalProps) {
                 />
               </div>
             ) : (
-              customer.address ? (
+              customer?.address ? (
                 <MapEmbed location={customer.address} />
               ) : (
                 <div className="flex items-center justify-center h-full bg-gray-50 text-gray-400">

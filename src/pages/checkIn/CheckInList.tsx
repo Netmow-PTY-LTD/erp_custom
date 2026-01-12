@@ -31,7 +31,7 @@ export default function CheckInList(): JSX.Element {
   const columns = useMemo<ColumnDef<StaffAttendance>[]>(
     () => [
       {
-        accessorKey: "staff.first_name",
+        accessorKey: "staff",
         header: "Staff Name",
         cell: ({ row }) => {
           const staff = row.original.staff;
