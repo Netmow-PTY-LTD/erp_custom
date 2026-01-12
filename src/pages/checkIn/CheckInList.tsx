@@ -94,7 +94,7 @@ export default function CheckInList(): JSX.Element {
         <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>
 
-      <div className="bg-white shadow rounded-lg">
+      <div className="bg-white">
         <DataTable
           columns={columns}
           data={attendanceItems}

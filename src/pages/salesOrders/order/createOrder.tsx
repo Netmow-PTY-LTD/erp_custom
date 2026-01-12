@@ -368,7 +368,7 @@ export default function CreateSalesOrderPage() {
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
           {/* Customer & Shipping */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <User className="w-6 h-6 text-white" />
@@ -379,7 +379,7 @@ export default function CreateSalesOrderPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <FormField
                   name="customer_id"
@@ -441,7 +441,7 @@ export default function CreateSalesOrderPage() {
 
           {/* Order Items */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
@@ -469,7 +469,7 @@ export default function CreateSalesOrderPage() {
                 </button>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pb-6">
 
               <div className="space-y-3">
                 {fields.map((item, index) => (
@@ -604,7 +604,7 @@ export default function CreateSalesOrderPage() {
                         onClick={() => remove(index)}
                         className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-red-300 dark:border-red-600 font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
                       >
-                        <X className="w-4 h-4" /> Remove
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -616,7 +616,7 @@ export default function CreateSalesOrderPage() {
 
           {/* Order Summary */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <Receipt className="w-6 h-6 text-white" />
@@ -627,8 +627,8 @@ export default function CreateSalesOrderPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-3">
+            <CardContent className="pb-6">
+              <div className="space-y-3 max-w-[300px] ml-auto">
                 <div className="flex justify-between items-center py-2 border-b">
                   <div className="font-semibold text-gray-700 dark:text-gray-300">Subtotal:</div>
                   <div className="text-lg font-medium">{currency} {totalSubtotal.toFixed(2)}</div>
