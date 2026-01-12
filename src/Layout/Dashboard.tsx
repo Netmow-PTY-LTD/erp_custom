@@ -11,12 +11,14 @@ import { ThemeSwitch } from "../components/theme-switch";
 import { Link, Outlet } from "react-router";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { useAppSelector } from "@/store/store";
+import type { User } from "@/types/users.types";
 
 export default function DashboardLayout() {
-  const { data: settings} = useGetSettingsInfoQuery();
+  const { data: settings } = useGetSettingsInfoQuery();
   useAppSettings(settings?.data);
 
-
+  const user = useAppSelector((state) => state.auth.user) as User | null;
 
 
   return (
@@ -27,6 +29,7 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-2 px-4 w-full bg-background/20 backdrop-blur-lg">
             <SidebarTrigger className="-ml-1 cursor-pointer" />
             <div className="ml-auto flex items-center gap-4">
+              <span className="text-xs bg-blue-100 px-3 py-1 rounded-full text-blue-600 font-semibold">{user?.role?.display_name}</span>
               <ThemeSwitch />
               <ProfileDropdown />
             </div>

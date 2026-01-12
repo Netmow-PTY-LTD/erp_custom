@@ -8,13 +8,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { SignOutDialog } from "../../sign-out-dialog";
 import { useAppSelector } from "@/store/store";
 import type { User } from "@/types/users.types";
-
+import { Badge } from "@/components/ui/badge";
 
 export function ProfileDropdown() {
 
   const [open, setOpen] = useDialogState();
   const user = useAppSelector((state) => state.auth.user) as User | null;
-
 
   return (
     <>
@@ -22,7 +21,7 @@ export function ProfileDropdown() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="/avatars/01.png" alt="user_avater" />
+              <AvatarImage src={user?.thumb_url} alt="user_avater" />
               <AvatarFallback>{user?.name?.charAt(0) ?? "U"}</AvatarFallback>
             </Avatar>
           </Button>
@@ -34,12 +33,13 @@ export function ProfileDropdown() {
               <p className="text-muted-foreground text-xs leading-none">
                 {user?.email ?? 'example@gmail.com'}
               </p>
+              <Badge className="text-xs bg-blue-100 px-3 py-1 rounded-full text-blue-600 mt-1">{user?.role?.display_name}</Badge>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Link to="/dashboard/settings/profile">
+              <Link to="/dashboard/settings/profile" className="cursor-pointer">
                 Profile
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </Link>
@@ -47,7 +47,7 @@ export function ProfileDropdown() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link to="/dashboard/settings">
+              <Link to="/dashboard/settings" className="cursor-pointer">
                 Settings
                 <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
               </Link>
@@ -55,7 +55,7 @@ export function ProfileDropdown() {
 
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" onClick={() => setOpen(true)}>
+          <DropdownMenuItem variant="destructive" onClick={() => setOpen(true)} className="cursor-pointer">
             Sign out
             <DropdownMenuShortcut className="text-current">
               ⇧⌘Q

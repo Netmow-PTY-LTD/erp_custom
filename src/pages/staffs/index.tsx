@@ -137,7 +137,7 @@ export default function Staffs() {
       accessorKey: "id",
       header: "Employee ID #",
       cell: ({ row }) => (
-        <span className="font-medium">EMP-{row.getValue("id")}</span>
+        <span className="font-medium">{row.getValue("id")}</span>
       ),
     },
 
@@ -193,8 +193,8 @@ export default function Staffs() {
           status.toLowerCase() === "active"
             ? "bg-green-600"
             : status.toLowerCase() === "inactive"
-            ? "bg-red-500"
-            : "bg-gray-500";
+              ? "bg-red-500"
+              : "bg-gray-500";
 
         return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
       },
