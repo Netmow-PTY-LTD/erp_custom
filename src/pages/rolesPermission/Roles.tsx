@@ -63,8 +63,8 @@ export default function Roles() {
 
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-const canDeleteRole =
-  userPermissions.includes(RolePermission.DELETE_ROLES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canDeleteRole =
+    userPermissions.includes(RolePermission.DELETE_ROLES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
