@@ -12,6 +12,8 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Truck, CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { useAppSelector } from "@/store/store";
 import {
   Dialog,
   DialogContent,
@@ -91,6 +93,46 @@ export default function DeliveryPage() {
   const [updateOrder] = useUpdateSalesOrderStatusMutation();
 
   const orders = data?.data ?? [];
+
+  // Stats calculation (frontend)
+  const { data: allOrdersData } = useGetAllSalesOrdersQuery({ limit: 1000 });
+  const allOrders = allOrdersData?.data || [];
+
+  const totalDeliveries = allOrders.length;
+  const inTransit = allOrders.filter((o) => o.delivery_status === "in_transit").length;
+  const delivered = allOrders.filter((o) => o.delivery_status === "delivered").length;
+  const pending = allOrders.filter((o) => o.delivery_status === "pending").length;
+
+  const stats = [
+    {
+      label: "Total Deliveries",
+      value: totalDeliveries,
+      gradient: "from-blue-600 to-blue-400",
+      shadow: "shadow-blue-500/30",
+      icon: <Truck className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "In Transit",
+      value: inTransit,
+      gradient: "from-purple-600 to-purple-400",
+      shadow: "shadow-purple-500/30",
+      icon: <Clock className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Delivered",
+      value: delivered,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <CheckCircle className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Pending",
+      value: pending,
+      gradient: "from-amber-600 to-amber-400",
+      shadow: "shadow-amber-500/30",
+      icon: <AlertTriangle className="w-6 h-6 text-white" />,
+    },
+  ];
 
   // ================= RHF =================
 
@@ -228,7 +270,42 @@ export default function DeliveryPage() {
   // ================= RENDER =================
 
   return (
-    <div className="p-6">
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Delivery Management</h1>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {stats.map((item, idx) => (
+          <div
+            key={idx}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+          >
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {item.value}
+                </h3>
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
+            </div>
+
+            {/* Progress/Indicator line (optional visual flair) */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
+          </div>
+        ))}
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-xl font-bold">

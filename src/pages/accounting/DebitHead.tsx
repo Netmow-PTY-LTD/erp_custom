@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 //import { toast } from "sonner";
 import AddDebitHeadForm from "./AddDebitHead";
 import EditDebitHeadForm from "./EditDebitHead";
+import { CheckCircle, FolderOpen, XCircle } from "lucide-react";
 export default function DebitHead() {
   const [openEditForm, setOpenEditForm] = useState<boolean>(false);
   const [debitHeadId, setDebitHeadId] = useState<number>(0);
@@ -25,12 +26,46 @@ export default function DebitHead() {
     limit: 10,
     search,
   });
-  
+
   const debitHeads: DebitHead[] = data?.data || [];
 
   console.log("Debit Heads", data);
 
- // const [deleteDebitHead] = useDeleteDebitHeadMutation();
+  // Stats
+  const totalHeads = data?.pagination?.total ?? 0;
+
+  // Approximation if not fetching all, or ideally fetching all for accurate stats if dataset is small
+  const { data: allHeadsData } = useGetAllDebitHeadsQuery({ limit: 1000 });
+  const allHeads = allHeadsData?.data || [];
+
+  const activeHeads = allHeads.filter(h => h.is_active).length;
+  const inactiveHeads = allHeads.filter(h => !h.is_active).length;
+
+  const stats = [
+    {
+      label: "Total Heads",
+      value: totalHeads,
+      gradient: "from-blue-600 to-blue-400",
+      shadow: "shadow-blue-500/30",
+      icon: <FolderOpen className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Active Heads",
+      value: activeHeads,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <CheckCircle className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Inactive Heads",
+      value: inactiveHeads,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <XCircle className="w-6 h-6 text-white" />,
+    },
+  ];
+
+  // const [deleteDebitHead] = useDeleteDebitHeadMutation();
 
   // const handleDeleteDebitHead = async (id: number) => {
   //   const confirmed = await new Promise<boolean>((resolve) => {
@@ -88,8 +123,16 @@ export default function DebitHead() {
   // };
 
   const debitHeadColumns: ColumnDef<CreditHead>[] = [
-    { accessorKey: "id", header: "ID" },
-    { accessorKey: "name", header: "Name" },
+    {
+      accessorKey: "id",
+      header: "ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any,
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+    },
     { accessorKey: "code", header: "Code" },
     { accessorKey: "description", header: "Description" },
     {
@@ -140,9 +183,40 @@ export default function DebitHead() {
 
   return (
     <div>
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-semibold mb-4">List of Debit Heads</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">List of Debit Heads</h2>
         <AddDebitHeadForm />
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {stats.map((item, idx) => (
+          <div
+            key={idx}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+          >
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {item.value}
+                </h3>
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
+            </div>
+
+            {/* Progress/Indicator line (optional visual flair) */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
+          </div>
+        ))}
       </div>
       <DataTable
         columns={debitHeadColumns}
