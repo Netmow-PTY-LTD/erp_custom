@@ -144,14 +144,13 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const { latitude, longitude } = position.coords;
-                        
                         // Reverse geocode to get address details
                         geocoderRef.current.geocode(
                             { location: { lat: latitude, lng: longitude } },
                             (results: any, status: any) => {
                                 if (status === (window as any).google.maps.GeocoderStatus.OK && results && results.length > 0) {
                                     const placeResult = results[0];
-                                    
+
                                     // Extract address components
                                     let address = "";
                                     let city = "";
@@ -221,7 +220,13 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
                         }
                         alert(message);
                         setIsGeolocating(false);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0,
                     }
+
                 );
             } catch (error) {
                 console.error("Error getting current location:", error);
@@ -656,7 +661,7 @@ AddressAutocomplete.displayName = "AddressAutocomplete";
 //             let country = "";
 
 //             // Extract address components
-//             // Handle both snake_case (Legacy) and camelCase (New) if needed, 
+//             // Handle both snake_case (Legacy) and camelCase (New) if needed,
 //             // but we normalized to legacy structure in Strategy B adapter above theoretically.
 //             // Actually, new API returns specialized objects, let's just be safe.
 

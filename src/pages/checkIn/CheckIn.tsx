@@ -179,8 +179,11 @@ const customerColumns: ColumnDef<Customer>[] = [
 
         try {
           const res = await check_in(payload).unwrap();
+          if(res.success){
           toast.success("Check-in successful!");
           setAttendanceResult(res.data);
+          }
+          
         } catch (err: any) {
           toast.error(err?.data?.message || "Check-in failed");
         }
@@ -188,7 +191,11 @@ const customerColumns: ColumnDef<Customer>[] = [
       (err) => {
         toast.error(`Location error: ${err.message}`);
       },
-      { enableHighAccuracy: true }
+    {
+    enableHighAccuracy: true,
+    timeout: 20000,
+    maximumAge: 0,
+  }
     );
   }
 
