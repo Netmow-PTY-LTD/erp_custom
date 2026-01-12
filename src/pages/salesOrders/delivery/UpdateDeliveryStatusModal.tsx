@@ -69,7 +69,6 @@ export default function UpdateDeliveryStatusModal({
     onClose,
     selectedOrder,
 }: UpdateDeliveryStatusModalProps) {
-    console.log("selectedOrder", selectedOrder);
     const form = useForm<DeliveryFormValues>({
         resolver: zodResolver(deliverySchema),
         defaultValues: {
@@ -98,8 +97,6 @@ export default function UpdateDeliveryStatusModal({
 
     const handleUpdate = async (values: DeliveryFormValues) => {
         if (!selectedOrder) return;
-
-        console.log("values", values);
 
         try {
             const payload = {
