@@ -919,7 +919,7 @@ export const sidebarItemLink = [
         element: <PendingOrders />,
         icon: Clock,
         allowedPermissions: [
-          SalesPermission.ORDERS,
+          SalesPermission.PENDING_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -929,7 +929,7 @@ export const sidebarItemLink = [
         element: <ConfirmedOrders />,
         icon: CheckCircle,
         allowedPermissions: [
-          SalesPermission.ORDERS,
+          SalesPermission.CONFIRMED_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -939,7 +939,7 @@ export const sidebarItemLink = [
         element: <DeliveredOrders />,
         icon: Truck,
         allowedPermissions: [
-          SalesPermission.ORDERS,
+          SalesPermission.DELIVERED_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },

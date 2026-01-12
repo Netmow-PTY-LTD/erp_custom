@@ -22,7 +22,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { Button } from "@/components/ui/button";
+//import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
@@ -135,7 +135,7 @@ export default function AddCustomerPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFORMATION */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <User className="w-6 h-6 text-white" />
@@ -146,7 +146,7 @@ export default function AddCustomerPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="pb-6">
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <Controller
                 control={control}
@@ -261,7 +261,7 @@ export default function AddCustomerPage() {
 
         {/* CONTACT DETAILS */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <Phone className="w-6 h-6 text-white" />
@@ -272,7 +272,7 @@ export default function AddCustomerPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="pb-6">
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <Controller
                 control={control}
@@ -302,8 +302,8 @@ export default function AddCustomerPage() {
         </Card>
 
         {/* ADDRESS DETAILS */}
-        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+        <Card className="border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <MapPin className="w-6 h-6 text-white" />
@@ -314,7 +314,7 @@ export default function AddCustomerPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="pb-6">
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <Controller
                 control={control}
@@ -351,9 +351,7 @@ export default function AddCustomerPage() {
                   </Field>
                 )}
               />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Controller
                 control={control}
                 name="state"
@@ -389,9 +387,6 @@ export default function AddCustomerPage() {
                   </Field>
                 )}
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
                 control={control}
                 name="latitude"
@@ -441,7 +436,7 @@ export default function AddCustomerPage() {
 
         {/* BUSINESS SETTINGS */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <Briefcase className="w-6 h-6 text-white" />
@@ -452,7 +447,7 @@ export default function AddCustomerPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="pb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Controller
                 control={control}
@@ -495,31 +490,31 @@ export default function AddCustomerPage() {
                   </Field>
                 )}
               />
+
+              <Controller
+                control={control}
+                name="notes"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Notes</FieldLabel>
+                    <Textarea placeholder="Additional notes..." {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="salesRouteId"
+                rules={{ required: "Select a sales route" }}
+                render={({ field, fieldState }) => (
+                  <SalesRouteSelectField
+                    field={field}
+                    error={fieldState.error?.message}
+                  />
+                )}
+              />
             </div>
-
-            <Controller
-              control={control}
-              name="notes"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Notes</FieldLabel>
-                  <Textarea placeholder="Additional notes..." {...field} />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="salesRouteId"
-              rules={{ required: "Select a sales route" }}
-              render={({ field, fieldState }) => (
-                <SalesRouteSelectField
-                  field={field}
-                  error={fieldState.error?.message}
-                />
-              )}
-            />
           </CardContent>
         </Card>
 

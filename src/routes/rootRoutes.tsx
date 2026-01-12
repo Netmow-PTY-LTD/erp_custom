@@ -31,10 +31,10 @@ const rootRouter = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
-  { path: "/unauthorized", element: <UnauthorizedPage/>},
-  { path: "/privacy", element: <Privacy/>},
-  { path: "/terms", element: <Terms/>},
-  { path: "/contact", element: <Contact/>},
+  { path: "/unauthorized", element: <UnauthorizedPage /> },
+  { path: "/privacy", element: <Privacy /> },
+  { path: "/terms", element: <Terms /> },
+  { path: "/contact", element: <Contact /> },
 
   //  PROTECTED DASHBOARD
   {

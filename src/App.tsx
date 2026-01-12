@@ -5,6 +5,8 @@ import { useGetSettingsInfoQuery } from "./store/features/admin/settingsApiServi
 import { useAppSettings } from "./hooks/useAppSettings";
 
 import { useAppSelector } from "./store/store";
+import { sidebarItemLink } from "./config/sidebarItemLInk";
+import { getFirstAllowedRoute } from "./utils/permissionUtils";
 
 
 
@@ -36,7 +38,7 @@ const APP = () => {
             <div className="px-8 py-3 text-white"><Loader /></div>
           ) : isLoggedIn ? (
             <Link
-              to="/dashboard"
+              to={getFirstAllowedRoute(sidebarItemLink, user?.data?.user?.role?.permissions || [])}
               className="px-8 py-3 bg-green-600 text-white font-semibold rounded shadow hover:bg-green-700 transition"
             >
               Go to Dashboard

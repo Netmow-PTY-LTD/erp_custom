@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from "react";
 import {
@@ -50,6 +51,7 @@ const dummyStaff = [
 const OrderManage = () => {
     // Local interface for UI representation
     interface Order {
+        total_amount: number;
         id: number | string;
         order_number: string;
         customer: string;
@@ -77,9 +79,11 @@ const OrderManage = () => {
         order_number: apiOrder.order_number,
         customer: apiOrder.customer?.name || "Unknown",
         date: apiOrder.order_date ? new Date(apiOrder.order_date).toLocaleDateString() : "N/A",
-        total: Number(apiOrder.total_payable_amount) || 0,
+        total: Number(apiOrder.total_amount) || 0,
+        total_amount: Number(apiOrder.total_amount) || 0,
         status: apiOrder.status,
-        assignedTo: [], // Mocked as API doesn't support assignedTo yet
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        assignedTo: (apiOrder.assignedStaff || []).map((staff: any) => staff.id.toString()),
         items: (apiOrder.items || []).map((item: SalesOrderItem) => ({
             name: item.product?.name || "Unknown Item",
             qty: item.quantity,
@@ -155,10 +159,12 @@ const OrderManage = () => {
             // Assuming the API takes one orderId at a time for now based on the store definition
             // If the backend supports bulk, we should update the store definition.
 
+            
+            const staffIds: number[] = selectedStaffIds.map(id => Number(id));
             for (const orderId of ordersToAssign) {
                 await assignStaff({
                     orderId,
-                    data: { staffIds: selectedStaffIds }
+                    data: { staff_ids: staffIds }
                 }).unwrap();
             }
 
@@ -179,6 +185,18 @@ const OrderManage = () => {
     };
 
     const getStaffDetails = (id: string) => {
+        // Try to get from staffData first
+        if (staffData?.data) {
+            const staff = staffData.data.find((s) => s.id.toString() === id);
+            if (staff) {
+                return {
+                    id: staff.id.toString(),
+                    name: `${staff.first_name} ${staff.last_name}`,
+                    role: staff.position
+                };
+            }
+        }
+        // Fallback to dummy staff
         return dummyStaff.find((s) => s.id === id);
     };
 
@@ -293,7 +311,7 @@ const OrderManage = () => {
                                             <span className="text-sm text-muted-foreground italic">Unassigned</span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-right font-semibold">${(order.total || 0).toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-semibold">${(order.total_amount || 0).toLocaleString()}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1">
                                             <Button
@@ -425,22 +443,53 @@ const OrderManage = () => {
 
                                     <Separator />
 
-                                    {/* Staff Info (Multiple) - Still Mocked for now */}
+                                    {/* Staff Info (Multiple) */}
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-center">
                                             <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
-                                                <UserPlus className="h-4 w-4" /> Assigned Staff (0)
+                                                <UserPlus className="h-4 w-4" /> Assigned Staff ({(detailedOrderData.data.assignedStaff || []).length})
                                             </h3>
                                         </div>
 
-                                        <div className="flex items-center justify-between bg-muted/30 p-4 rounded-lg">
-                                            <span className="text-sm text-muted-foreground italic">No staff assigned yet.</span>
-                                            <Button variant="outline" size="sm" onClick={() => {
-                                                if (detailedOrderData.data) openAssignDialog([detailedOrderData.data.order_number]);
-                                            }}>
-                                                Assign Staff
-                                            </Button>
-                                        </div>
+                                        {(detailedOrderData.data.assignedStaff || []).length > 0 ? (
+                                            <div className="bg-muted/30 rounded-lg overflow-hidden flex flex-col">
+                                                <ScrollArea className="h-[250px]">
+                                                    <div className="p-4 space-y-3">
+                                                        {(detailedOrderData.data.assignedStaff || []).map((staff: any) => (
+                                                            <div key={staff.id} className="flex items-center justify-between border-b last:border-b-0 pb-3 last:pb-0">
+                                                                <div className="flex items-center gap-3">
+                                                                    <Avatar className="h-10 w-10">
+                                                                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.first_name} ${staff.last_name}`} />
+                                                                        <AvatarFallback>{`${staff.first_name.substring(0, 1)}${staff.last_name.substring(0, 1)}`.toUpperCase()}</AvatarFallback>
+                                                                    </Avatar>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-sm font-medium">{staff.first_name} {staff.last_name}</span>
+                                                                        <span className="text-xs text-muted-foreground">{staff.position}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                                                                    {new Date(staff.OrderStaff.assigned_at).toLocaleDateString()}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </ScrollArea>
+                                                <Button variant="outline" size="sm" className="w-full rounded-none border-t" onClick={() => {
+                                                    if (detailedOrderData.data) openAssignDialog([detailedOrderData.data.id]);
+                                                }}>
+                                                    Reassign Staff
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-between bg-muted/30 p-4 rounded-lg">
+                                                <span className="text-sm text-muted-foreground italic">No staff assigned yet.</span>
+                                                <Button variant="outline" size="sm" onClick={() => {
+                                                    if (detailedOrderData.data) openAssignDialog([detailedOrderData.data.id]);
+                                                }}>
+                                                    Assign Staff
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <Separator />
@@ -471,7 +520,7 @@ const OrderManage = () => {
                                                     ))}
                                                     <TableRow className="bg-muted/50 font-medium">
                                                         <TableCell colSpan={3} className="text-right">Grand Total</TableCell>
-                                                        <TableCell className="text-right text-primary">${(Number(detailedOrderData.data.total_payable_amount) || 0).toLocaleString()}</TableCell>
+                                                        <TableCell className="text-right text-primary">${(Number(detailedOrderData.data.total_amount) || 0).toLocaleString()}</TableCell>
                                                     </TableRow>
                                                 </TableBody>
                                             </Table>
