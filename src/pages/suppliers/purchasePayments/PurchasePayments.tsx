@@ -125,9 +125,9 @@ export default function PurchasePayments() {
     },
     {
       accessorKey: "amount",
-      header: "Amount",
+      header: `Amount (${currency})`,
       cell: ({ row }) => (
-        <span>RM {Number(row.original.amount).toFixed(2)}</span>
+        <span>{Number(row.original.amount).toFixed(2)}</span>
       ),
     },
     {
