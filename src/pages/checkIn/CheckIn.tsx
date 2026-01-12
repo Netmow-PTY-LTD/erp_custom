@@ -180,7 +180,7 @@ const customerColumns: ColumnDef<Customer>[] = [
         try {
           const res = await check_in(payload).unwrap();
           console.log("CHECK-IN RESPONSE:", res);
-          if(res.success){
+          if(res.status){
           toast.success("Check-in successful!");
           setAttendanceResult(res.data);
           }
