@@ -43,14 +43,14 @@ export default function Customers() {
   const pageSize = 10;
   const currentPage = pageIndex + 1;
 
-      const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  
-    // permissions
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-    const canDeleteCustomer = userPermissions.includes(CustomerPermission.DELETE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  
+  // permissions
 
-  const currency = useAppSelector((state) => state.currency.value); 
+  const canDeleteCustomer = userPermissions.includes(CustomerPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   // Fetch customers with pagination and search
   const { data, isLoading, error } = useGetActiveCustomersQuery({
@@ -126,9 +126,18 @@ export default function Customers() {
 
 
   const customerColumns: ColumnDef<Customer>[] = [
-    { accessorKey: "id", header: "ID" },
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "thumb_url", header: "Image" ,
+    {
+      accessorKey: "id",
+      header: "ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+    },
+    {
+      accessorKey: "thumb_url", header: "Image",
       cell: ({ row }) => {
         const thumbUrl = row.getValue("thumb_url") as string;
         return thumbUrl ? (
@@ -218,14 +227,14 @@ export default function Customers() {
               </Button>
             </Link>
             {/* DELETE BUTTON */}
-            {canDeleteCustomer && ( <Button
+            {canDeleteCustomer && (<Button
               variant="destructive"
               size="sm"
               onClick={() => setDeleteId(id)}
             >
               <Trash2 size={16} />
             </Button>)}
-           
+
           </div>
         );
       },

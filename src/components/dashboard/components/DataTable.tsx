@@ -69,8 +69,8 @@ export function DataTable<TData>({
   totalCount = 0,
   pageIndex = 0,
   pageSize = 10,
-  onPageChange = () => {},
-  onSearch = () => {},
+  onPageChange = () => { },
+  onSearch = () => { },
   isFetching = null,
   // onGlobalFilterChange = () => {},
   globalFilterValue = "",
@@ -119,13 +119,16 @@ export function DataTable<TData>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={(header.column.columnDef.meta as any)?.className}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -152,7 +155,10 @@ export function DataTable<TData>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={(cell.column.columnDef.meta as any)?.className}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

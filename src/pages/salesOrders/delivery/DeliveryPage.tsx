@@ -151,6 +151,7 @@ export default function DeliveryPage() {
     {
       accessorKey: "order_number",
       header: "Order #",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any,
       cell: ({ row }) => (
         <span className="font-medium">{row.original.order_number}</span>
       ),
@@ -158,13 +159,9 @@ export default function DeliveryPage() {
     {
       accessorKey: "customer",
       header: "Customer",
+      meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => (
-        <div>
-          <div className="font-semibold">{row.original.customer?.name}</div>
-          <div className="text-xs text-muted-foreground">
-            ID: {row.original.customer_id}
-          </div>
-        </div>
+        <div className="font-semibold">{row.original.customer?.name}</div>
       ),
     },
     {

@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import { useEffect } from "react";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { Separator } from "@/components/ui/separator";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const profileSchema = z.object({
@@ -95,9 +96,18 @@ export default function EditProfilePage() {
 
     return (
         <div className=" py-6 px-4 space-y-6 max-w-[700px] w-full">
+            <div className="space-y-0.5">
+                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                    Settings
+                </h1>
+                <p className="text-muted-foreground">
+                    Update your account details, preferences, and security settings.
+                </p>
+            </div>
+            <Separator className="my-4 lg:my-6" />
             {/* HEADER */}
             <div>
-                <h1 className="text-2xl font-semibold">Profile</h1>
+                <h1 className="text-2xl font-semibold">Personal Profile</h1>
                 <p className="text-sm text-gray-500 mt-1">
                     Manage your personal information and profile settings.
                 </p>
