@@ -99,6 +99,9 @@ export const StaffPermission = {
 export const SalesPermission = {
   VIEW: "sales.view" as const,
   ORDERS: "sales.orders.view" as const,
+  PENDING_ORDERS: "sales.orders.pending.view" as const,
+  CONFIRMED_ORDERS: "sales.orders.confirmed.view" as const,
+  DELIVERED_ORDERS: "sales.orders.delivered.view" as const,
   ORDER_DETAILS: "sales.orders.details.view" as const,
   CREATE_ORDER: "sales.orders.create" as const,
   EDIT_ORDER: "sales.orders.edit" as const,
@@ -109,6 +112,7 @@ export const SalesPermission = {
   PAYMENT_DETAILS: "sales.payments.details.view" as const,
   CREATE_PAYMENT: "sales.payments.create" as const,
   DELIVERY: "sales.delivery.view" as const,
+  UPDATE_DELIVERY: "sales.delivery.update" as const,
   SALES_ROUTES: "sales.routes.view" as const,
   DETAILS_SALES_ROUTES: "sales.routes.details" as const,
   CREATE_ROUTE: "sales.routes.create" as const,
