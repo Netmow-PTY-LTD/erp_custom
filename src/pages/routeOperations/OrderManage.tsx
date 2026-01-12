@@ -155,10 +155,12 @@ const OrderManage = () => {
             // Assuming the API takes one orderId at a time for now based on the store definition
             // If the backend supports bulk, we should update the store definition.
 
+            
+            const staffIds: number[] = selectedStaffIds.map(id => Number(id));
             for (const orderId of ordersToAssign) {
                 await assignStaff({
                     orderId,
-                    data: { staff_ids: selectedStaffIds }
+                    data: { staff_ids: staffIds }
                 }).unwrap();
             }
 
