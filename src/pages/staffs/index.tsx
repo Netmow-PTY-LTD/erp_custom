@@ -136,14 +136,16 @@ export default function Staffs() {
     {
       accessorKey: "id",
       header: "Employee ID #",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[140px]" } as any,
       cell: ({ row }) => (
-        <span className="font-medium">EMP-{row.getValue("id")}</span>
+        <span className="font-medium">{row.getValue("id")}</span>
       ),
     },
 
     {
       accessorKey: "first_name",
       header: "Name",
+      meta: { className: "md:sticky md:left-[140px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => (
         <div className="font-semibold">
           {row.original?.first_name} {row.original?.last_name}
@@ -193,8 +195,8 @@ export default function Staffs() {
           status.toLowerCase() === "active"
             ? "bg-green-600"
             : status.toLowerCase() === "inactive"
-            ? "bg-red-500"
-            : "bg-gray-500";
+              ? "bg-red-500"
+              : "bg-gray-500";
 
         return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
       },

@@ -40,11 +40,13 @@ export default function Invoices() {
     {
       accessorKey: "invoice_number",
       header: "Invoice #",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any,
       cell: ({ row }) => <span className="font-medium">{row.getValue("invoice_number")}</span>,
     },
     {
       accessorKey: "order.customer.name",
       header: "Customer",
+      meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => row.original?.order?.customer.name,
     },
     {
@@ -67,17 +69,17 @@ export default function Invoices() {
       header: `Total Amount (${currency})`,
       cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_amount")).toFixed(2)}</span>,
     },
-     {
+    {
       accessorKey: "total_payable",
       header: `Total Payable (${currency})`,
       cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_payable")).toFixed(2)}</span>,
     },
-     {
+    {
       accessorKey: "paid_amount",
       header: `Paid Amount (${currency})`,
       cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("paid_amount")).toFixed(2)}</span>,
     },
-     {
+    {
       accessorKey: "remaining_balance",
       header: `Due Amount (${currency})`,
       cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("remaining_balance")).toFixed(2)}</span>,
@@ -91,8 +93,8 @@ export default function Invoices() {
           status === "paid"
             ? "bg-green-500"
             : status === "draft"
-            ? "bg-yellow-500"
-            : "bg-gray-500";
+              ? "bg-yellow-500"
+              : "bg-gray-500";
         return <Badge className={color}>{status}</Badge>;
       },
     },

@@ -46,8 +46,8 @@ export default function ImageUploaderPro({
       ? value
       : []
     : value
-    ? [value as string]
-    : [];
+      ? [value as string]
+      : [];
 
   // ---------------- FETCH MEDIA LIBRARY ----------------
   const fetchLibrary = async (pageNum = 1) => {
@@ -200,7 +200,7 @@ export default function ImageUploaderPro({
               </div>
             </DialogTrigger>
             <DialogTitle className="hidden sr-only">Select Images</DialogTitle>
-            <DialogContent className="w-[800px]">
+            <DialogContent className="sm:max-w-[800px]">
               <h2 className="text-lg font-semibold mb-4">Select Images</h2>
 
               <Tabs
@@ -241,9 +241,8 @@ export default function ImageUploaderPro({
                       return (
                         <div
                           key={item.id}
-                          className={`relative border rounded-xl overflow-hidden cursor-pointer ${
-                            isSelected ? "ring-2 ring-blue-500" : ""
-                          }`}
+                          className={`relative border rounded-xl overflow-hidden cursor-pointer ${isSelected ? "ring-2 ring-blue-500" : ""
+                            }`}
                         >
                           <img
                             src={fullUrl}

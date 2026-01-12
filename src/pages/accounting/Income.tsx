@@ -47,8 +47,16 @@ export default function IncomePage() {
   const currency = useAppSelector((state) => state.currency.value);
 
   const incomeColumns: ColumnDef<Income>[] = [
-    { accessorKey: "id", header: "ID" },
-    { accessorKey: "title", header: "Title" },
+    {
+      accessorKey: "id",
+      header: "ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+    },
     { accessorKey: "description", header: "Description" },
     {
       accessorKey: "creditHead",
@@ -87,7 +95,7 @@ export default function IncomePage() {
       <DataTable
         columns={incomeColumns}
         data={incomes}
-        pageIndex={page-1}
+        pageIndex={page - 1}
         pageSize={limit}
         totalCount={fetchedIncomes?.pagination?.total || 0}
         onPageChange={setPage}

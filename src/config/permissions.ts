@@ -9,6 +9,9 @@ export const SuperAdminPermission = {
 };
 export const DashboardPermission = {
   VIEW: "dashboard.view" as const,
+  STATS: "dashboard.stats" as const,
+  GRAPH: "dashboard.graph" as const,
+  LIST: "dashboard.list" as const,
 };
 
 // --- Products ---
