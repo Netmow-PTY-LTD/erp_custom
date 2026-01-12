@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +52,12 @@ export default function Orders({ status }: { status?: string }) {
 
   // permissions
 
-  const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecordPayment =
+    userPermissions.includes(SalesPermission.PAYMENTS) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canUpdateDelivery =
+    userPermissions.includes(SalesPermission.UPDATE_DELIVERY) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const handleOpenUpdateDeliveryStatusModal = (order: any) => {
     setSelectedOrder(order);
@@ -212,13 +218,15 @@ export default function Orders({ status }: { status?: string }) {
                 Edit
               </Button>
             </Link> */}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleOpenUpdateDeliveryStatusModal(item)}
-            >
-              Update Delivery Status
-            </Button>
+            {canUpdateDelivery && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleOpenUpdateDeliveryStatusModal(item)}
+              >
+                Update Delivery Status
+              </Button>
+            )}
           </div>
         );
       },

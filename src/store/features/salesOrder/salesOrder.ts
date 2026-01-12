@@ -272,14 +272,14 @@ export const salesApiService = baseApi.injectEndpoints({
 
     assignStaffToOrder: builder.mutation<
       SalesResponse<any[]>,
-      { orderId: string | number; data: { staffIds: (string | number)[] } }
+      { orderId: string | number; data: { staff_ids: (string | number)[] } }
     >({
       query: ({ orderId, data }) => ({
         url: `/sales/orders/${orderId}/assign-staff`,
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["SalesOrdersByRoute"],
+      invalidatesTags: ["SalesOrdersByRoute", "SalesOrders"],
     }),
 
 
