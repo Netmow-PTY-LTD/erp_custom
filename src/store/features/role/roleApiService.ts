@@ -23,9 +23,10 @@ export const roleApiService = baseApi.injectEndpoints({
 
     // GET ALL ROLES (GET /list)
     getAllRoles: builder.query<RoleResponse<Role[]>, { page?: number; limit?: number; search?: string }>({
-      query: () => ({
+      query: (params) => ({
         url: "/roles/list",
         method: "GET",
+        params
       }),
       providesTags: ["Roles"],
     }),
