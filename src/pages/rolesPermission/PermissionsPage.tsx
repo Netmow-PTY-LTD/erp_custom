@@ -290,7 +290,7 @@ export default function PermissionsPage() {
                           );
 
                           return (
-                            <Card>
+                            <Card className="py-10">
                               <CardHeader className="flex flex-row items-center justify-between py-3">
                                 <CardTitle className="text-sm">
                                   Dashboard
@@ -337,7 +337,7 @@ export default function PermissionsPage() {
                             );
 
                             return (
-                              <Card key={groupName}>
+                              <Card key={groupName} className="py-10" > 
                                 <CardHeader className="flex flex-row items-center justify-between py-3">
                                   <CardTitle className="text-sm">
                                     {groupName}
@@ -352,7 +352,7 @@ export default function PermissionsPage() {
                                   </Button>
                                 </CardHeader>
 
-                                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-3 ">
                                   {values.map(permission => (
                                     <label
                                       key={permission}
