@@ -1,11 +1,11 @@
 "use client";
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { Button } from "@/components/ui/button";
+
 import { useGetIncomesQuery } from "@/store/features/accounting/accoutntingApiService";
 import { useAppSelector } from "@/store/store";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -43,8 +43,39 @@ export default function IncomePage() {
   });
 
   const incomes: Income[] = fetchedIncomes?.data || [];
-
   const currency = useAppSelector((state) => state.currency.value);
+
+  // Stats Data
+  const { data: allIncomesData } = useGetIncomesQuery({ limit: 1000 });
+  const allIncomes = allIncomesData?.data || [];
+
+  const totalIncome = allIncomes.reduce((sum: number, item: Income) => sum + Number(item.amount), 0);
+  const totalTransactions = allIncomes.length;
+  const avgTransaction = totalTransactions > 0 ? totalIncome / totalTransactions : 0;
+
+  const stats = [
+    {
+      label: "Total Income",
+      value: `${currency} ${totalIncome.toLocaleString()}`,
+      gradient: "from-blue-600 to-blue-400",
+      shadow: "shadow-blue-500/30",
+      icon: <DollarSign className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Transactions",
+      value: totalTransactions,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <TrendingUp className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Avg. Transaction",
+      value: `${currency} ${avgTransaction.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+      gradient: "from-violet-600 to-violet-400",
+      shadow: "shadow-violet-500/30",
+      icon: <CreditCard className="w-6 h-6 text-white" />,
+    },
+  ];
 
   const incomeColumns: ColumnDef<Income>[] = [
     {
@@ -81,16 +112,47 @@ export default function IncomePage() {
 
   return (
     <div>
-      <div className="flex justify-between">
-        <h2 className="text-2xl font-semibold mb-4">All Income</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">All Income</h2>
 
         <div className="flex gap-2">
           <Link to={"/dashboard/accounting/add-income"}>
-            <Button variant="outline-info">
-              <Plus className="h-4 w-4" /> Add Income
-            </Button>
+            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+              <Plus size={18} /> Add Income
+            </button>
           </Link>
         </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {stats.map((item, idx) => (
+          <div
+            key={idx}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+          >
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {item.value}
+                </h3>
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
+            </div>
+
+            {/* Progress/Indicator line (optional visual flair) */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
+          </div>
+        ))}
       </div>
       <DataTable
         columns={incomeColumns}

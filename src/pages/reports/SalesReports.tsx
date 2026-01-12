@@ -3,7 +3,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import {
   LineChart,
@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUp, ArrowDown, DollarSign, ShoppingCart } from "lucide-react";
+import { ArrowUp, DollarSign, ShoppingCart, Percent } from "lucide-react";
 import {
   useGetSalesChartDataQuery,
   useGetSalesSummaryQuery,
@@ -217,7 +217,7 @@ export default function SalesReportsPage() {
               onChange={(e) => setTempEndDate(e.target.value)}
             />
           </div>
-          <Button
+          <button
             onClick={() => {
               if (!tempStartDate || !tempEndDate) return;
 
@@ -229,47 +229,71 @@ export default function SalesReportsPage() {
               setStartDate(tempStartDate);
               setEndDate(tempEndDate);
             }}
+            className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none"
           >
             Filter
-          </Button>
+          </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <Kpi
-          title="Orders"
-          value={
-            salesSummaryIsLoading ? "—" : String(summary?.total_orders ?? 0)
-          }
-          icon={<ShoppingCart className="text-blue-500" />}
-        />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {[
+          {
+            label: "Orders",
+            value: salesSummaryIsLoading ? "—" : String(summary?.total_orders ?? 0),
+            gradient: "from-blue-600 to-blue-400",
+            shadow: "shadow-blue-500/30",
+            icon: <ShoppingCart className="w-6 h-6 text-white" />,
+          },
+          {
+            label: "Revenue",
+            value: salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_sales),
+            gradient: "from-emerald-600 to-emerald-400",
+            shadow: "shadow-emerald-500/30",
+            icon: <DollarSign className="w-6 h-6 text-white" />,
+          },
+          {
+            label: "Tax",
+            value: salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_tax),
+            gradient: "from-amber-600 to-amber-400",
+            shadow: "shadow-amber-500/30",
+            icon: <ArrowUp className="w-6 h-6 text-white" />,
+          },
+          {
+            label: "Discounts",
+            value: salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_discount),
+            gradient: "from-rose-600 to-rose-400",
+            shadow: "shadow-rose-500/30",
+            icon: <Percent className="w-6 h-6 text-white" />,
+          },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+          >
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
 
-        <Kpi
-          title="Revenue"
-          value={
-            salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_sales)
-          }
-          icon={<DollarSign className="text-green-500" />}
-        />
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  {item.value}
+                </h3>
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
+            </div>
 
-        <Kpi
-          title="Tax"
-          value={
-            salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_tax)
-          }
-          icon={<ArrowUp className="text-yellow-500" />}
-        />
-
-        <Kpi
-          title="Discounts"
-          value={
-            salesSummaryIsLoading
-              ? "—"
-              : formatCurrency(summary?.total_discount)
-          }
-          icon={<ArrowDown className="text-red-500" />}
-        />
+            {/* Progress/Indicator line */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Chart + Top Customers */}
@@ -364,26 +388,7 @@ export default function SalesReportsPage() {
   );
 }
 
-/* KPI Component */
-function Kpi({
-  title,
-  value,
-  icon,
-}: {
-  title: string;
-  value: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <Card className="flex items-center justify-between p-5">
-      <div>
-        <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl font-semibold mt-1">{value}</p>
-      </div>
-      {icon && <div className="">{icon}</div>}
-    </Card>
-  );
-}
+
 
 //   Privious code or design
 
