@@ -26,6 +26,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { setCurrency } from "@/store/currencySlice";
+import { sidebarItemLink } from "@/config/sidebarItemLInk";
+import { getFirstAllowedRoute } from "@/utils/permissionUtils";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -70,7 +72,12 @@ export function LoginForm({
 
         dispatch(setCurrency(companyProfileSettings?.data?.currency || "RM"));
 
-        navigate("/dashboard");
+        const firstRoute = getFirstAllowedRoute(
+          sidebarItemLink,
+          res?.data?.user?.role?.permissions || []
+        );
+
+        navigate(firstRoute);
       }
     } catch (error) {
       const err = error as {
