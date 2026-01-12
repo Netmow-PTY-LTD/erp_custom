@@ -187,7 +187,7 @@ export default function CreateRoutePage() {
   return (
     <div className="w-full pb-10">
       <Card className="w-full overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-xl">
-        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
           <div className="flex items-center gap-4">
             <button
               type="button"
@@ -206,7 +206,7 @@ export default function CreateRoutePage() {
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="pb-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

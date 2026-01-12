@@ -22,7 +22,6 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
@@ -129,7 +128,7 @@ export default function AddCustomerByStaffPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* BASIC INFORMATION */}
                 <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                                 <User className="w-6 h-6 text-white" />
@@ -140,7 +139,7 @@ export default function AddCustomerByStaffPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="pt-6">
+                    <CardContent className="pb-6">
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                             <Controller
                                 control={control}
@@ -255,7 +254,7 @@ export default function AddCustomerByStaffPage() {
 
                 {/* CONTACT DETAILS */}
                 <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                                 <Phone className="w-6 h-6 text-white" />
@@ -266,7 +265,7 @@ export default function AddCustomerByStaffPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="pt-6">
+                    <CardContent className="pb-6">
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                             <Controller
                                 control={control}
@@ -297,7 +296,7 @@ export default function AddCustomerByStaffPage() {
 
                 {/* ADDRESS DETAILS */}
                 <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                                 <MapPin className="w-6 h-6 text-white" />
@@ -308,7 +307,7 @@ export default function AddCustomerByStaffPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="pt-6">
+                    <CardContent className="pb-6">
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                             <Controller
                                 control={control}
@@ -435,7 +434,7 @@ export default function AddCustomerByStaffPage() {
 
                 {/* BUSINESS SETTINGS */}
                 <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                                 <Briefcase className="w-6 h-6 text-white" />
@@ -446,7 +445,7 @@ export default function AddCustomerByStaffPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="pt-6">
+                    <CardContent className="pb-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Controller
                                 control={control}
