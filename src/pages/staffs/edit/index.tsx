@@ -18,7 +18,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+<<<<<<< HEAD
 import { CalendarIcon, ChevronDown, Check, UserCog, Info, CheckCircle2 } from "lucide-react";
+=======
+import { CalendarIcon, ChevronDown, Check, Eye, EyeOff } from "lucide-react";
+>>>>>>> 8a8038805d869ef5826a5446c4abdbd092709800
 import {
   Popover,
   PopoverTrigger,
@@ -64,7 +68,8 @@ const StaffSchema = z.object({
   salary: z.number().optional(),
   status: z.enum(["active", "terminated", "on_leave"]),
   image: z.string().optional(),
-  gallery_items: z.array(z.string()).optional(),
+  gallery_items: z.array(z.string()).optional().nullable(),
+  password: z.string().min(4, "Password must be at least 4 characters").optional().or(z.literal("")),
 });
 
 type StaffFormValues = z.infer<typeof StaffSchema>;
@@ -74,6 +79,7 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 // =====================================================
 export default function EditStaffPage() {
   const [open, setOpen] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
@@ -103,6 +109,7 @@ export default function EditStaffPage() {
       status: "active",
       image: "",
       gallery_items: [],
+      password: "",
     },
   });
 
@@ -123,7 +130,8 @@ export default function EditStaffPage() {
         salary: staff?.salary || 0,
         status: staff.status === "inactive" ? "terminated" : staff.status,
         image: staff?.thumb_url || "",
-        gallery_items: staff?.gallery_items,
+        gallery_items: staff?.gallery_items || [],
+        password: "", // Usually we don't load the password from backend for security
       });
     }
   }, [staff, fetchedDepartments?.data, form]);
@@ -143,7 +151,8 @@ export default function EditStaffPage() {
       salary: values.salary || 0,
       status: values.status,
       thumb_url: values.image,
-      gallery_items: values.gallery_items,
+      gallery_items: values.gallery_items || [],
+      password: values.password || undefined,
     };
     try {
       // const fd = new FormData();
@@ -254,7 +263,7 @@ export default function EditStaffPage() {
                   />
                 </div>
 
-                {/* EMAIL + PHONE */}
+                {/* ROW 2: EMAIL + PASSWORD */}
                 <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
@@ -272,6 +281,41 @@ export default function EditStaffPage() {
 
                   <FormField
                     control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="pr-10"
+                              {...field}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors focus:outline-none"
+                            >
+                              {showPassword ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* ROW 3: PHONE + DEPARTMENT */}
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
+                  <FormField
+                    control={form.control}
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
@@ -283,10 +327,7 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* DEPARTMENT + POSITION */}
-                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="department"
@@ -361,6 +402,10 @@ export default function EditStaffPage() {
                     }}
                   />
 
+                </div>
+
+                {/* ROW 4: POSITION + HIRE DATE */}
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="position"
@@ -374,10 +419,6 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                {/* HIRE DATE + SALARY */}
-                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="hire_date"
@@ -412,9 +453,12 @@ export default function EditStaffPage() {
                                   field.onChange(date.toISOString());
                                 }
                               }}
+<<<<<<< HEAD
                             // onSelect={(date) =>
                             //   date && field.onChange(date.toISOString())
                             // }
+=======
+>>>>>>> 8a8038805d869ef5826a5446c4abdbd092709800
                             />
                           </PopoverContent>
                         </Popover>
@@ -422,7 +466,10 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
+                </div>
 
+                {/* ROW 5: SALARY + STATUS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="salary"
@@ -443,34 +490,32 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status *</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="terminated">Terminated</SelectItem>
+                            <SelectItem value="on_leave">On Leave</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-
-                {/* STATUS */}
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status *</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="terminated">Terminated</SelectItem>
-                          <SelectItem value="on_leave">On Leave</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
@@ -480,7 +525,7 @@ export default function EditStaffPage() {
                       <FormLabel>Profile Gallery</FormLabel>
 
                       <ImageUploaderPro
-                        value={field.value}
+                        value={field.value || []}
                         onChange={(file) => field.onChange(file)}
                         multiple
                       />
