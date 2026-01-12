@@ -415,7 +415,7 @@ export default function CreatePurchaseOrderPage() {
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
           {/* ---------------- SUPPLIER & DETAILS ---------------- */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <FileText className="w-6 h-6 text-white" />
@@ -426,7 +426,7 @@ export default function CreatePurchaseOrderPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pb-6">
 
               <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
                 {/* Supplier */}
@@ -495,7 +495,7 @@ export default function CreatePurchaseOrderPage() {
 
           {/* ---------------- ITEMS ---------------- */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
@@ -524,7 +524,7 @@ export default function CreatePurchaseOrderPage() {
                 </button>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pb-6">
 
               <div className="space-y-4">
                 {fields.map((item, index) => (
@@ -713,7 +713,7 @@ export default function CreatePurchaseOrderPage() {
               </div>
 
               {/* Summary */}
-              <div className="mt-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 rounded-xl border-2 border-blue-100 dark:border-blue-900">
+              <div className="mt-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 rounded-xl border-2 border-blue-100 dark:border-blue-900 max-w-[300px] ml-auto">
                 <div className="text-right space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="font-medium text-gray-600 dark:text-gray-400">Subtotal:</span>
@@ -727,7 +727,7 @@ export default function CreatePurchaseOrderPage() {
                     <span className="font-medium text-gray-600 dark:text-gray-400">Tax:</span>
                     <span className="font-semibold">{currency} {totalTax.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold border-t-2 border-blue-200 dark:border-blue-800 pt-3 mt-2">
+                  <div className="flex justify-between text-lg font-bold border-t-1 border-blue-200 dark:border-blue-800 pt-3 mt-2">
                     <span>Grand Total:</span>
                     <span className="text-blue-600 dark:text-blue-400">{currency} {grandTotal.toFixed(2)}</span>
                   </div>
