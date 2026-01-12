@@ -300,7 +300,7 @@ export default function InActiveCustomersList() {
         ))}
       </div>
 
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>Inactive Customers</CardTitle>
         </CardHeader>

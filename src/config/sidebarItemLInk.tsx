@@ -23,7 +23,6 @@ import {
   Ruler,
   Settings,
   ShieldCheck,
-  ShoppingBag,
   ShoppingCart,
   Truck,
   UserPlus,
@@ -387,116 +386,15 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/suppliers/:supplierId/edit",
         element: <EditSupplierPage />,
+        icon: UserPlus,
         allowedPermissions: [
           SupplierPermission.EDIT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "Purchase Orders",
-        url: "/dashboard/suppliers/purchase-orders",
-        element: <PurchaseOrdersList />,
-        icon: ShoppingBag,
-        allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_ORDERS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/purchase-orders/:purchaseId",
-        element: <ViewPurchaseOrderPage />,
-        allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/purchase-orders/:purchaseId/edit",
-        element: <EditPurchaseOrderPage />,
-        allowedPermissions: [
-          SupplierPermission.EDIT_PURCHASE_ORDER,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/purchase-orders/create",
-        element: <CreatePurchaseOrderPage />,
-        allowedPermissions: [
-          SupplierPermission.CREATE_PURCHASE_ORDER,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Purchase Invoices",
-        url: "/dashboard/purchase-invoices",
-        element: <PurchaseInvoicesList />,
-        icon: FileText,
-        allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_INVOICES,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/purchase-invoices/:id",
-        element: <PurchaseInvoicesDetails />,
-        allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_INVOICE_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/purchase-invoices/:id/preview",
-        element: <PurchaseInvoicePrintPreview />,
-        allowedPermissions: [
-          SupplierPermission.PREVIEW_PURCHASE_INVOICE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/purchase-payments/create",
-        element: <CreatePurchasePayments />,
-        allowedPermissions: [
-          SupplierPermission.CREATE_PURCHASE_PAYMENT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Purchase Payments",
-        url: "/dashboard/purchase-payments",
-        element: <PurchasePayments />,
-        icon: CreditCard,
-        allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_PAYMENTS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/purchase-payments/:id",
-        element: <PurchasePaymentsDetails />,
-        allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Purchase Orders Map",
-        url: "/dashboard/purchase-orders-map",
-        element: <PurchaseOrdersMapPage />,
-        icon: MapPin,
-        allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_ORDERS_MAP,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
     ],
   },
+
 
   // // RAW MATERIALS
   // {
@@ -893,6 +791,143 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+      {
+        title: "Sales Routes",
+        url: "/dashboard/sales/sales-routes",
+        element: <SalesRoutesPage />,
+        icon: MapPin,
+        allowedPermissions: [
+          SalesPermission.SALES_ROUTES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+    ],
+  },
+
+  //Purchase Orders
+
+  {
+    title: "Purchase Orders",
+    url: "#",
+    icon: Car,
+    allowedPermissions: [
+      SupplierPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "List of Purchase Orders",
+        url: "/dashboard/purchase-orders",
+        element: <PurchaseOrdersList />,
+        icon: List,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Add New Order",
+        url: "/dashboard/purchase-orders/create",
+        element: <CreatePurchaseOrderPage />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/:purchaseId",
+        element: <ViewPurchaseOrderPage />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/:purchaseId/edit",
+        element: <EditPurchaseOrderPage />,
+        allowedPermissions: [
+          SupplierPermission.EDIT_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/purchase-orders/create",
+        element: <CreatePurchaseOrderPage />,
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Purchase Invoices",
+        url: "/dashboard/purchase-invoices",
+        element: <PurchaseInvoicesList />,
+        icon: FileText,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-invoices/:id",
+        element: <PurchaseInvoicesDetails />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-invoices/:id/preview",
+        element: <PurchaseInvoicePrintPreview />,
+        allowedPermissions: [
+          SupplierPermission.PREVIEW_PURCHASE_INVOICE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-payments/create",
+        element: <CreatePurchasePayments />,
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Purchase Payments",
+        url: "/dashboard/purchase-payments",
+        element: <PurchasePayments />,
+        icon: CreditCard,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-payments/:id",
+        element: <PurchasePaymentsDetails />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Purchase Orders Map",
+        url: "/dashboard/purchase-orders-map",
+        element: <PurchaseOrdersMapPage />,
+        icon: MapPin,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_ORDERS_MAP,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
     ],
   },
 
@@ -1033,16 +1068,6 @@ export const sidebarItemLink = [
         icon: Truck,
         allowedPermissions: [
           SalesPermission.DELIVERY,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Sales Routes",
-        url: "/dashboard/sales/sales-routes",
-        element: <SalesRoutesPage />,
-        icon: MapPin,
-        allowedPermissions: [
-          SalesPermission.SALES_ROUTES,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
