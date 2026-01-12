@@ -26,7 +26,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader, ShieldAlert } from "lucide-react";
+import { Loader, ShieldAlert, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddCreditHeadMutation } from "@/store/features/accounting/accoutntingApiService";
@@ -51,7 +51,7 @@ export default function AddCreditHeadForm() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // Credit Heads
-  const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREATE_CREDIT_HEADS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canCreateCreditHeads = userPermissions.includes(AccountingPermission.CREATE_CREDIT_HEADS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -100,7 +100,10 @@ export default function AddCreditHeadForm() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button>Add Credit Head</Button>
+        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <PlusCircle size={18} />
+          Add Credit Head
+        </button>
       </SheetTrigger>
 
       <SheetContent side="right" className="max-w-[400px] w-full">

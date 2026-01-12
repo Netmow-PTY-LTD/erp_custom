@@ -65,26 +65,30 @@ export default function Products() {
     {
       label: "Total Products",
       value: totalProductsCount,
-      color: "bg-blue-600",
-      icon: <Boxes className="w-10 h-10 opacity-80" />,
+      gradient: "from-blue-600 to-blue-400",
+      shadow: "shadow-blue-500/30",
+      icon: <Boxes className="w-6 h-6 text-white" />,
     },
     {
       label: "Active Products",
       value: activeProductsCount,
-      color: "bg-green-700",
-      icon: <CheckCircle className="w-10 h-10 opacity-80" />,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <CheckCircle className="w-6 h-6 text-white" />,
     },
     {
       label: "Low Stock",
       value: lowStockCount,
-      color: "bg-red-600",
-      icon: <AlertTriangle className="w-10 h-10 opacity-80" />,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <AlertTriangle className="w-6 h-6 text-white" />,
     },
     {
       label: "Total Stock",
       value: totalStockCount,
-      color: "bg-cyan-500",
-      icon: <Boxes className="w-10 h-10 opacity-80" />,
+      gradient: "from-cyan-600 to-cyan-400",
+      shadow: "shadow-cyan-500/30",
+      icon: <Boxes className="w-6 h-6 text-white" />,
     },
   ];
 
@@ -284,23 +288,14 @@ export default function Products() {
           </button> */}
 
           <Link to="/dashboard/products/categories">
-            <button className="flex items-center gap-2 bg-cyan-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-500">
+            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none">
               <Tags size={18} />
               Categories
             </button>
           </Link>
 
-          {/* {
-            canCreateProduct && <Link to="/dashboard/products/create">
-              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
-                <PackagePlus size={18} />
-                Add Product
-              </button>
-            </Link>
-          } */}
-
           <Link to="/dashboard/products/create">
-            <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
+            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
               <PackagePlus size={18} />
               Add Product
             </button>
@@ -315,13 +310,28 @@ export default function Products() {
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`${item.color} text-white rounded-xl p-5 flex justify-between items-center shadow`}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
-            <div>
-              <h3 className="text-3xl font-bold">{item.value}</h3>
-              <p className="text-sm mt-1 opacity-90">{item.label}</p>
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {item.value}
+                </h3>
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
             </div>
-            {item.icon}
+
+            {/* Progress/Indicator line (optional visual flair) */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
           </div>
         ))}
       </div>

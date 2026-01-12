@@ -30,7 +30,7 @@ import { useAddRoleMutation } from "@/store/features/role/roleApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { RolePermission, SuperAdminPermission } from "@/config/permissions";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, PlusCircle } from "lucide-react";
 
 const statusOptions = [
   { value: "active", label: "Active" },
@@ -98,7 +98,10 @@ export default function AddNewRoleForm({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button>Add Role</Button>
+        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <PlusCircle size={18} />
+          Add Role
+        </button>
       </SheetTrigger>
 
       <SheetContent side="right" className="max-w-[400px] w-full">

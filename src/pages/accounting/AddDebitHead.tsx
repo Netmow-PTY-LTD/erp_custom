@@ -26,10 +26,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader, ShieldAlert } from "lucide-react";
+import { Loader, ShieldAlert, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import {useAddDebitHeadMutation } from "@/store/features/accounting/accoutntingApiService";
+import { useAddDebitHeadMutation } from "@/store/features/accounting/accoutntingApiService";
 import { useState } from "react";
 import { useAppSelector } from "@/store/store";
 import { AccountingPermission, SuperAdminPermission } from "@/config/permissions";
@@ -51,8 +51,8 @@ export default function AddDebitHeadForm() {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-// Debit Heads
-const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE_DEBIT_HEADS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // Debit Heads
+  const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE_DEBIT_HEADS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -108,7 +108,10 @@ const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button>Add Debit Head</Button>
+        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <PlusCircle size={18} />
+          Add Debit Head
+        </button>
       </SheetTrigger>
 
       <SheetContent side="right" className="max-w-[400px] w-full">
@@ -116,7 +119,7 @@ const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE
           <SheetTitle>Add Debit Head</SheetTitle>
         </SheetHeader>
         <div className="px-4">
-           {!canCreateDebitHeads? (
+          {!canCreateDebitHeads ? (
             <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
               <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
                 <ShieldAlert className="w-10 h-10 text-destructive" />
@@ -130,13 +133,13 @@ const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE
               </p>
               <Button
                 variant="outline"
-                onClick={() =>setOpen(false)}
+                onClick={() => setOpen(false)}
                 className="mt-4"
               >
                 Close
               </Button>
             </div>
-          ) :(<Form {...form}>
+          ) : (<Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleAddCreditHead)}
               className="space-y-5"
@@ -155,7 +158,7 @@ const canCreateDebitHeads = userPermissions.includes(AccountingPermission.CREATE
                 )}
               />
 
-               <FormField
+              <FormField
                 control={form.control}
                 name="code"
                 render={({ field }) => (
