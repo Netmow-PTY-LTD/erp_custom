@@ -13,7 +13,6 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Truck, CheckCircle, Clock, AlertTriangle } from "lucide-react";
-import { useAppSelector } from "@/store/store";
 import {
   Dialog,
   DialogContent,
