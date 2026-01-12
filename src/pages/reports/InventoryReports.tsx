@@ -10,6 +10,7 @@ import {
 } from "@/store/features/reports/reportApiService";
 import { useState } from "react";
 import { useAppSelector } from "@/store/store";
+import { DollarSign, AlertTriangle, Package } from "lucide-react";
 
 export type LowStockRow = {
   sku: string;
@@ -55,25 +56,60 @@ export default function InventoryReports() {
       <h2 className="text-2xl font-semibold">Inventory Reports</h2>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4">
-          <CardTitle className="text-sm text-gray-500">
-            Stock Valuation
-          </CardTitle>
-          <CardContent className="p-0 mt-2">
-            <p className="text-2xl font-bold">{currency} {totalValuation}</p>
-            <p className="text-gray-500 text-sm">Total Units: {totalUnits}</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          {
+            label: "Stock Valuation",
+            value: `${currency} ${totalValuation.toLocaleString()}`,
+            gradient: "from-blue-600 to-blue-400",
+            shadow: "shadow-blue-500/30",
+            icon: <DollarSign className="w-6 h-6 text-white" />,
+            subtitle: `Total Units: ${totalUnits.toLocaleString()}`,
+          },
+          {
+            label: "Low Stock Items",
+            value: lowStockCount,
+            gradient: "from-rose-600 to-rose-400",
+            shadow: "shadow-rose-500/30",
+            icon: <AlertTriangle className="w-6 h-6 text-white" />,
+          },
+          {
+            label: "Total Products",
+            value: totalUnits,
+            gradient: "from-emerald-600 to-emerald-400",
+            shadow: "shadow-emerald-500/30",
+            icon: <Package className="w-6 h-6 text-white" />,
+          },
+        ].map((item, idx) => (
+          <div
+            key={idx}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+          >
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
 
-        <Card className="p-4">
-          <CardTitle className="text-sm text-gray-500">
-            Low Stock Items
-          </CardTitle>
-          <CardContent className="p-0 mt-2">
-            <p className="text-2xl font-bold">{lowStockCount}</p>
-          </CardContent>
-        </Card>
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {item.value}
+                </h3>
+                {item.subtitle && (
+                  <p className="text-xs text-white/70 mt-1">{item.subtitle}</p>
+                )}
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
+            </div>
+
+            {/* Progress/Indicator line */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Low Stock List Table */}

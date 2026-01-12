@@ -2,7 +2,7 @@ import { Analytics } from "@/components/dashboard/components/Analytics";
 import { Overview } from "@/components/dashboard/components/Overview";
 import RecentCustomers from "@/components/dashboard/components/RecentCustomers";
 import RecentOrders from "@/components/dashboard/components/RecentOrders";
-import { Button } from "@/components/ui/button";
+
 import {
   Card,
   CardContent,
@@ -16,7 +16,7 @@ import {
   type DashboardStats,
 } from "@/store/features/admin/dashboardApiService";
 import { useAppSelector } from "@/store/store";
-import { ShoppingCart, Users } from "lucide-react";
+import { ShoppingCart, Users, DollarSign, Clock, AlertTriangle, UserCheck } from "lucide-react";
 import { Link } from "react-router";
 
 export default function Dashboard() {
@@ -25,151 +25,89 @@ export default function Dashboard() {
   const dashboardStats: DashboardStats | undefined = dashboardStatsData?.data;
   // console.log('dashboardStats', dashboardStats);
   const currency = useAppSelector((state) => state.currency.value);
+  // Stats configuration
+  const stats = [
+    {
+      label: "Total Revenue",
+      value: `${currency} ${dashboardStats?.revenue || 0}`,
+      gradient: "from-blue-600 to-blue-400",
+      shadow: "shadow-blue-500/30",
+      icon: <DollarSign className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Orders",
+      value: dashboardStats?.totalOrders || 0,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <ShoppingCart className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Pending Orders",
+      value: dashboardStats?.pendingOrders || 0,
+      gradient: "from-amber-600 to-amber-400",
+      shadow: "shadow-amber-500/30",
+      icon: <Clock className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Active Customers",
+      value: dashboardStats?.activeCustomers || 0,
+      gradient: "from-violet-600 to-violet-400",
+      shadow: "shadow-violet-500/30",
+      icon: <Users className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Low Stock",
+      value: dashboardStats?.lowStock || 0,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <AlertTriangle className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Active Staff",
+      value: dashboardStats?.activeStaff || 0,
+      gradient: "from-cyan-600 to-cyan-400",
+      shadow: "shadow-cyan-500/30",
+      icon: <UserCheck className="w-6 h-6 text-white" />,
+    },
+  ];
+
   return (
     <>
       <div className="mb-6 flex items-center justify-between space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        {/* <div className="flex items-center space-x-2">
-          <Button>Download</Button>
-        </div> */}
       </div>
       <Tabs
         orientation="vertical"
         defaultValue="overview"
         className="space-y-4"
       >
-        {/* <div className="w-full overflow-x-auto pb-2">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics" disabled>
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="reports" disabled>
-              Reports
-            </TabsTrigger>
-            <TabsTrigger value="notifications" disabled>
-              Notifications
-            </TabsTrigger>
-          </TabsList>
-        </div> */}
         <TabsContent value="overview" className="space-y-8">
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Revenue
-                </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="text-muted-foreground h-4 w-4"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {currency} {dashboardStats?.revenue}
+          {/* Stats Cards */}
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            {stats.map((item, idx) => (
+              <div
+                key={idx}
+                className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.05] hover:translate-y-[-4px]`}
+              >
+                {/* Background Pattern */}
+                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10 blur-2xl" />
+                <div className="absolute -bottom-6 -left-6 h-20 w-20 rounded-full bg-black/10 blur-2xl" />
+
+                <div className="relative flex flex-col justify-between h-full space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div className="rounded-xl bg-white/20 p-2 backdrop-blur-sm">
+                      {item.icon}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white tracking-tight">
+                      {item.value}
+                    </h3>
+                    <p className="text-xs font-medium text-white/80 uppercase tracking-wider mt-1">{item.label}</p>
+                  </div>
                 </div>
-                {/* <p className='text-muted-foreground text-xs'>
-                    +20.1% from last month
-                  </p> */}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Orders
-                </CardTitle>
-                <ShoppingCart className="w-4 h-4" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats?.totalOrders}
-                </div>
-                {/* <p className='text-muted-foreground text-xs'>
-                    +180.1% from last month
-                  </p> */}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Pending Orders
-                </CardTitle>
-                <ShoppingCart className="w-4 h-4" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats?.pendingOrders}
-                </div>
-                {/* <p className='text-muted-foreground text-xs'>
-                    +180.1% from last month
-                  </p> */}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Active Customers
-                </CardTitle>
-                <Users className="w-4 h-4" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats?.activeCustomers}
-                </div>
-                {/* <p className='text-muted-foreground text-xs'>
-                    +19% from last month
-                  </p> */}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="text-muted-foreground h-4 w-4"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats?.lowStock}
-                </div>
-                {/* <p className='text-muted-foreground text-xs'>
-                    +201 since last hour
-                  </p> */}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Active Staffs
-                </CardTitle>
-                <Users className="w-4 h-4" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats?.activeStaff}
-                </div>
-                {/* <p className='text-muted-foreground text-xs'>
-                    +180.1% from last month
-                  </p> */}
-              </CardContent>
-            </Card>
+              </div>
+            ))}
           </div>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
             <Card className="col-span-1 lg:col-span-4">
@@ -188,7 +126,9 @@ export default function Dashboard() {
                   <CardDescription>Latest signups</CardDescription>
                 </div>
                 <Link to="/dashboard/customers">
-                  <Button variant="outline-info">View All</Button>
+                  <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                    View All
+                  </button>
                 </Link>
               </CardHeader>
               <CardContent>
@@ -202,9 +142,11 @@ export default function Dashboard() {
                 <CardTitle>Recent Sales Orders</CardTitle>
                 <CardDescription>Manage your orders</CardDescription>
               </div>
-               <Link to="/dashboard/sales/orders">
-                  <Button variant="outline-info">View All Orders</Button>
-                </Link>
+              <Link to="/dashboard/sales/orders">
+                <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                  View All Orders
+                </button>
+              </Link>
             </CardHeader>
             <CardContent>
               <RecentOrders />

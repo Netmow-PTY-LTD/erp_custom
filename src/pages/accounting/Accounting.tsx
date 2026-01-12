@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import {
   LineChart,
   Line,
@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Plus } from "lucide-react";
+import { Plus, Calendar, CalendarDays, CalendarRange, CalendarClock } from "lucide-react";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
 import { useGetAccountingChartDataQuery, useGetAccountingOverviewQuery } from "@/store/features/accounting/accoutntingApiService";
@@ -63,15 +63,15 @@ export default function AccountingOverview() {
 
         <div className="flex gap-2">
           <Link to={"/dashboard/accounting/add-income"}>
-            <Button variant="outline-info">
-              <Plus className="h-4 w-4" /> Add Income
-            </Button>
+            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-emerald-500/40 active:translate-y-0 active:shadow-none">
+              <Plus size={18} /> Add Income
+            </button>
           </Link>
 
           <Link to={"/dashboard/accounting/add-expanse"}>
-            <Button variant="info">
-              <Plus className="h-4 w-4" /> Add Expense
-            </Button>
+            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-rose-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-rose-500/40 active:translate-y-0 active:shadow-none">
+              <Plus size={18} /> Add Expense
+            </button>
           </Link>
         </div>
       </div>
@@ -85,10 +85,10 @@ export default function AccountingOverview() {
               period === "daily"
                 ? "Today"
                 : period === "weekly"
-                ? "This Week"
-                : period === "monthly"
-                ? "This Month"
-                : "This Year";
+                  ? "This Week"
+                  : period === "monthly"
+                    ? "This Month"
+                    : "This Year";
 
             const income = Number(data.income) || 0;
             const expense = Number(data.expense) || 0;
@@ -113,53 +113,70 @@ export default function AccountingOverview() {
 
             const netProfit = data.income - data.expense;
 
+            // Assign gradient & icon based on period
+            let gradientStr = "";
+            let shadowStr = "";
+            let IconComp = null;
+
+            if (period === "daily") {
+              gradientStr = "from-blue-600 to-blue-400";
+              shadowStr = "shadow-blue-500/30";
+              IconComp = <Calendar className="w-6 h-6 text-white" />;
+            } else if (period === "weekly") {
+              gradientStr = "from-emerald-600 to-emerald-400";
+              shadowStr = "shadow-emerald-500/30";
+              IconComp = <CalendarDays className="w-6 h-6 text-white" />;
+            } else if (period === "monthly") {
+              gradientStr = "from-amber-600 to-amber-400";
+              shadowStr = "shadow-amber-500/30";
+              IconComp = <CalendarRange className="w-6 h-6 text-white" />;
+            } else { // yearly
+              gradientStr = "from-violet-600 to-violet-400";
+              shadowStr = "shadow-violet-500/30";
+              IconComp = <CalendarClock className="w-6 h-6 text-white" />;
+            }
+
+
             return (
-              <Card
+              <div
                 key={period}
-                className="rounded-xl shadow border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700"
+                className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradientStr} p-6 shadow-lg ${shadowStr} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
               >
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {periodLabel}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-gray-900 dark:text-gray-100">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Income
-                      </span>
-                      <p className="font-semibold text-lg">
-                        {currency} {data.income.toLocaleString()}.00
-                      </p>
-                    </div>
-                    <span className="font-semibold">{incomePercent}%</span>
+                {/* Background Pattern */}
+                <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+                <div className="relative flex items-start justify-between mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-white/90 uppercase tracking-widest">{periodLabel}</p>
+                    <h3 className="mt-2 text-2xl font-bold text-white">
+                      Net: {currency} {netProfit.toLocaleString()}.00
+                    </h3>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Expense
-                      </span>
-                      <p className="font-semibold text-lg">
-                        {currency} {data.expense.toLocaleString()}.00
-                      </p>
-                    </div>
-                    <span className="font-semibold">
-                      {expensePercent.toFixed(0)}%
-                    </span>
+                  <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                    {IconComp}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Net Profit
-                      </span>
-                      <p className="font-semibold text-lg">
-                        {currency} {netProfit.toLocaleString()}.00
-                      </p>
-                    </div>
+                </div>
+
+                <div className="relative space-y-2">
+                  <div className="flex justify-between text-white/90 text-sm">
+                    <span>Income</span>
+                    <span className="font-semibold">{currency} {data.income.toLocaleString()}</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="w-full bg-black/20 rounded-full h-1.5 mb-1">
+                    <div className="bg-white/80 h-1.5 rounded-full" style={{ width: `${incomePercent}%` }}></div>
+                  </div>
+
+                  <div className="flex justify-between text-white/90 text-sm pt-1">
+                    <span>Expense</span>
+                    <span className="font-semibold">{currency} {data.expense.toLocaleString()}</span>
+                  </div>
+                  <div className="w-full bg-black/20 rounded-full h-1.5">
+                    <div className="bg-white/40 h-1.5 rounded-full" style={{ width: `${expensePercent}%` }}></div>
+                  </div>
+                </div>
+
+              </div>
             );
           })}
       </div>

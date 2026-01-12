@@ -29,21 +29,25 @@ export default function UsersList() {
     {
       label: "Active Users",
       value: activeUsers,
-      color: "bg-green-600",
-      icon: <UserCheck className="w-10 h-10 opacity-80" />,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <UserCheck className="w-6 h-6 text-white" />,
     },
     {
       label: "Total Users",
       value: totalUsers,
-      color: "bg-blue-600",
-      icon: <Users className="w-10 h-10 opacity-80" />,
+      gradient: "from-blue-600 to-blue-400",
+      shadow: "shadow-blue-500/30",
+      icon: <Users className="w-6 h-6 text-white" />,
     },
     {
       label: "Admins",
       value: adminUsers,
-      color: "bg-purple-600",
-      icon: <UserPlus className="w-10 h-10 opacity-80" />,
+      gradient: "from-purple-600 to-purple-400",
+      shadow: "shadow-purple-500/30",
+      icon: <UserPlus className="w-6 h-6 text-white" />,
     },
+    // Adding a 4th dummy card for grid balance if desired, or keep 3. keeping 3 for now but adjusted styles.
   ];
 
   // -------------------- TABLE COLUMNS --------------------
@@ -104,7 +108,7 @@ export default function UsersList() {
         <h2 className="text-3xl font-semibold">All Users</h2>
 
         <Link to="/dashboard/users/add">
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-500">
+          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
             <UserPlus size={18} />
             Add User
           </button>
@@ -116,13 +120,28 @@ export default function UsersList() {
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`${item.color} text-white rounded-xl p-5 flex justify-between items-center shadow`}
+            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
-            <div>
-              <h3 className="text-3xl font-bold">{item.value}</h3>
-              <p className="text-sm mt-1 opacity-90">{item.label}</p>
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {item.value}
+                </h3>
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
             </div>
-            {item.icon}
+
+            {/* Progress/Indicator line (optional visual flair) */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
           </div>
         ))}
       </div>
