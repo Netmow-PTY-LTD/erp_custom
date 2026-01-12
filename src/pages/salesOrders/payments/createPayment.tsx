@@ -21,7 +21,8 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, CreditCard, Receipt, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
@@ -171,8 +172,8 @@ export default function CreatePaymentPage() {
             {selected
               ? `${selected?.invoice_number}`
               : customerId
-              ? "Select Invoice..."
-              : "Select Customer first"}
+                ? "Select Invoice..."
+                : "Select Customer first"}
           </Button>
         </PopoverTrigger>
 
@@ -252,7 +253,7 @@ export default function CreatePaymentPage() {
   const invoice = allInvoices?.find((inv) => inv.id === watchInvoice);
 
 
-  
+
 
   console.log("INVOICE:", invoice);
 
@@ -294,73 +295,86 @@ export default function CreatePaymentPage() {
 
 
 
-const isAmountInvalid =
-  !invoice ||
-  !watchAmount ||
-  isNaN(Number(watchAmount)) ||
-  Number(watchAmount) <= 0 ||
-  Number(watchAmount) > Number(invoice?.remaining_balance ?? 0);
+  const isAmountInvalid =
+    !invoice ||
+    !watchAmount ||
+    isNaN(Number(watchAmount)) ||
+    Number(watchAmount) <= 0 ||
+    Number(watchAmount) > Number(invoice?.remaining_balance ?? 0);
 
 
   return (
-    <div className="w-full">
-      {/* BACK BUTTON */}
-      <div className="flex items-center gap-2 mb-6">
+    <div className="w-full max-w-7xl mx-auto py-6">
+      {/* BACK BUTTON & HEADER */}
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+            Record Payment
+          </h1>
+          <p className="text-muted-foreground mt-2">Record a new payment for customer invoice</p>
+        </div>
         <Link to="/dashboard/sales/payments">
-          <Button variant="outline" className="flex items-center gap-2">
-            <ChevronLeft size={16} />
-            Back to Payments
-          </Button>
+          <button className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" /> Back to Payments
+          </button>
         </Link>
       </div>
 
-      <h1 className="text-2xl font-bold mb-6">Record Payment</h1>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT FORM */}
-        <div className="lg:col-span-2 rounded-lg border p-6 bg-white">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <h2 className="text-lg font-semibold mb-4">Payment Details</h2>
+        <Card className="lg:col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-green-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-950/30 border-b-2 border-green-100 dark:border-green-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-green-600 to-green-500 rounded-xl shadow-lg shadow-green-500/30">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Payment Details</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Customer, invoice, amount, and payment method</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  {/* CUSTOMER */}
+                  <FormField
+                    name="customer_id"
+                    control={form.control}
+                    rules={{ required: "Customer required" }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Customer</FormLabel>
+                        <FormControl>
+                          <CustomerSelectField field={field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                {/* CUSTOMER */}
-                <FormField
-                  name="customer_id"
-                  control={form.control}
-                  rules={{ required: "Customer required" }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Customer</FormLabel>
-                      <FormControl>
-                        <CustomerSelectField field={field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  {/* INVOICE OPTIONAL */}
 
-                {/* INVOICE OPTIONAL */}
+                  <FormField
+                    name="invoice_id"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Invoice </FormLabel>
+                        <FormControl>
+                          <InvoiceSelectField
+                            field={field}
+                            customerId={watchCustomer}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  name="invoice_id"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Invoice </FormLabel>
-                      <FormControl>
-                        <InvoiceSelectField
-                          field={field}
-                          customerId={watchCustomer}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* AMOUNT */}
-                {/* <FormField
+                  {/* AMOUNT */}
+                  {/* <FormField
                   control={form.control}
                   name="amount"
                   render={({ field }) => (
@@ -381,129 +395,149 @@ const isAmountInvalid =
                     </FormItem>
                   )}
                 /> */}
-              <FormField
-  name="amount"
-  control={form.control}
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>
-        Amount ({currency}) <span className="text-red-500">*</span>
-      </FormLabel>
+                  <FormField
+                    name="amount"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Amount ({currency}) <span className="text-red-500">*</span>
+                        </FormLabel>
 
-      <FormControl>
-        <Input
-          type="number"
-          step="0.01"
-          placeholder="Enter amount"
-          value={field.value ?? ""}
-          onChange={(e) => {
-            const raw = e.target.value;
-
-            // Allow clearing input
-            if (raw === "") {
-              form.clearErrors("amount");
-              field.onChange("");
-              return;
-            }
-
-            const value = Number(raw);
-            if (isNaN(value)) return;
-
-            if (invoice) {
-              const max = Number(
-                invoice.remaining_balance ??
-                  (Number(invoice.total_payable || 0) -
-                    Number(invoice.paid_amount || 0))
-              );
-
-              if (value > max) {
-                form.setError("amount", {
-                  type: "manual",
-                  message: `Amount cannot exceed remaining balance (${currency} ${max.toFixed(
-                    2
-                  )})`,
-                });
-              } else {
-                form.clearErrors("amount");
-              }
-            }
-
-            // Keep string for RHF (important!)
-            field.onChange(raw);
-          }}
-        />
-      </FormControl>
-
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
-                
-                {/* METHOD */}
-                <FormField
-                  control={form.control}
-                  name="payment_method"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Payment Method <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
                         <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Method" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="cash">Cash</SelectItem>
-                          <SelectItem value="bank_transfer">
-                            Bank Transfer
-                          </SelectItem>
-                          <SelectItem value="credit_card">
-                            Credit Card
-                          </SelectItem>
-                          <SelectItem value="cheque">Cheque</SelectItem>
-                          <SelectItem value="online">Online</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                          <Input
+                            type="number"
+                            step="0.01"
+                            placeholder="Enter amount"
+                            value={field.value ?? ""}
+                            onChange={(e) => {
+                              const raw = e.target.value;
 
-                {/* PAYMENT DATE */}
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Payment Date <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <div className="relative">
+                              // Allow clearing input
+                              if (raw === "") {
+                                form.clearErrors("amount");
+                                field.onChange("");
+                                return;
+                              }
+
+                              const value = Number(raw);
+                              if (isNaN(value)) return;
+
+                              if (invoice) {
+                                const max = Number(
+                                  invoice.remaining_balance ??
+                                  (Number(invoice.total_payable || 0) -
+                                    Number(invoice.paid_amount || 0))
+                                );
+
+                                if (value > max) {
+                                  form.setError("amount", {
+                                    type: "manual",
+                                    message: `Amount cannot exceed remaining balance (${currency} ${max.toFixed(
+                                      2
+                                    )})`,
+                                  });
+                                } else {
+                                  form.clearErrors("amount");
+                                }
+                              }
+
+                              // Keep string for RHF (important!)
+                              field.onChange(raw);
+                            }}
+                          />
+                        </FormControl>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+
+                  {/* METHOD */}
+                  <FormField
+                    control={form.control}
+                    name="payment_method"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Payment Method <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select Method" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="bank_transfer">
+                              Bank Transfer
+                            </SelectItem>
+                            <SelectItem value="credit_card">
+                              Credit Card
+                            </SelectItem>
+                            <SelectItem value="cheque">Cheque</SelectItem>
+                            <SelectItem value="online">Online</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* PAYMENT DATE */}
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Payment Date <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input type="date" className="block" {...field} />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* REFERENCE */}
+                  <FormField
+                    control={form.control}
+                    name="reference"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Reference Number</FormLabel>
                         <FormControl>
-                          <Input type="date" className="block" {...field} />
+                          <Input
+                            placeholder="e.g., Cheque #, Transaction ID"
+                            {...field}
+                          />
                         </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                {/* REFERENCE */}
+                {/* NOTES */}
                 <FormField
                   control={form.control}
-                  name="reference"
+                  name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Reference Number</FormLabel>
+                      <FormLabel>Notes</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="e.g., Cheque #, Transaction ID"
+                        <Textarea
+                          placeholder="Additional payment notes..."
+                          className="h-28"
                           {...field}
                         />
                       </FormControl>
@@ -511,45 +545,45 @@ const isAmountInvalid =
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* NOTES */}
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Additional payment notes..."
-                        className="h-28"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* BUTTONS */}
-              <div className="flex items-center gap-4">
-                <Button disabled={isAmountInvalid} type="submit" className="bg-blue-600 hover:bg-blue-700">
-                  Record Payment
-                </Button>
-                <Button type="button" variant="secondary">
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
+                {/* BUTTONS */}
+                <div className="flex items-center gap-4 pt-4">
+                  <button
+                    disabled={isAmountInvalid}
+                    type="submit"
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-8 py-3 font-semibold text-white shadow-lg shadow-green-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-green-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Record Payment</span>
+                  </button>
+                  <Link to="/dashboard/sales/payments">
+                    <button
+                      type="button"
+                      className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+                    >
+                      Cancel
+                    </button>
+                  </Link>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
 
         {/* RIGHT SIDE INFO */}
-
-        <div>
-          <div className="rounded-lg border p-6 bg-white">
-            <h2 className="text-lg font-semibold mb-4">Payment Summary</h2>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-green-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-950/30 border-b-2 border-green-100 dark:border-green-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-green-600 to-green-500 rounded-xl shadow-lg shadow-green-500/30">
+                <Receipt className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Payment Summary</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Review payment information</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
 
             <div className="text-sm space-y-3 leading-relaxed">
               <p>
@@ -628,10 +662,10 @@ const isAmountInvalid =
                   );
                 })()}
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </CardContent>
+        </Card>
+      </div >
+    </div >
   );
 }
 

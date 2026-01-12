@@ -20,7 +20,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { CalendarIcon, ChevronDown, Check } from "lucide-react";
+import { CalendarIcon, ChevronDown, Check, UserPlus, Info, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -57,6 +57,7 @@ const StaffSchema = z.object({
   first_name: z.string().min(1, "Required"),
   last_name: z.string().min(1, "Required"),
   email: z.string().min(1, "Required").email("Invalid email"),
+  password: z.string().min(4, "Password must be at least 4 characters"),
   phone: z.string().optional(),
   department: z.number().min(1, "Required"),
   position: z.string().optional(),
@@ -68,7 +69,7 @@ const StaffSchema = z.object({
   // address: z.string().optional(),
   status: z.enum(["active", "terminated", "on_leave"]),
   image: z.string().optional(),
-  gallery_items: z.array(z.string()).optional(),
+  gallery_items: z.array(z.string()).optional().nullable(),
 });
 
 type StaffFormValues = z.infer<typeof StaffSchema>;
@@ -78,6 +79,7 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 // =====================================================
 export default function AddStaffPage() {
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [addStaff, { isLoading }] = useAddStaffMutation();
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
@@ -99,6 +101,7 @@ export default function AddStaffPage() {
       first_name: "",
       last_name: "",
       email: "",
+      password: "",
       phone: "",
       department: 0,
       position: "",
@@ -119,6 +122,7 @@ export default function AddStaffPage() {
       first_name: values.first_name,
       last_name: values.last_name,
       email: values.email,
+      password: values.password,
       phone: values.phone,
       department_id: values.department,
       position: values.position,
@@ -126,7 +130,7 @@ export default function AddStaffPage() {
       salary: values.salary,
       status: values.status,
       thumb_url: values.image,
-      gallery_items: values.gallery_items,
+      gallery_items: values.gallery_items || [],
     };
 
     try {
@@ -165,19 +169,31 @@ export default function AddStaffPage() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl mx-auto py-6">
       {/* PAGE TITLE */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-semibold">Add New Staff Member</h1>
-
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Add New Staff Member
+          </h1>
+          <p className="text-muted-foreground mt-2">Create a new staff profile with complete information</p>
+        </div>
         <BackButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT SIDE FORM */}
-        <Card className="col-span-2 shadow-sm border rounded-xl">
-          <CardHeader>
-            <CardTitle>Staff Information</CardTitle>
+        <Card className="col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <UserPlus className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Staff Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Personal and employment details</p>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent>
@@ -256,6 +272,42 @@ export default function AddStaffPage() {
                   />
                   <FormField
                     control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Password <span className="text-red-600">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="pr-10"
+                              {...field}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors focus:outline-none"
+                            >
+                              {showPassword ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {/* ROW 3 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  <FormField
+                    control={form.control}
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
@@ -267,10 +319,6 @@ export default function AddStaffPage() {
                       </FormItem>
                     )}
                   />
-                </div>
-                {/* ROW 3 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-
                   <FormField
                     control={form.control}
                     name="department"
@@ -344,6 +392,12 @@ export default function AddStaffPage() {
                       );
                     }}
                   />
+
+                </div>
+
+
+                {/* ROW 4 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                   <FormField
                     control={form.control}
                     name="position"
@@ -359,12 +413,6 @@ export default function AddStaffPage() {
                       </FormItem>
                     )}
                   />
-                </div>
-
-
-                {/* ROW 4 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-
                   <FormField
                     control={form.control}
                     name="hire_date"
@@ -408,28 +456,7 @@ export default function AddStaffPage() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="salary"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Salary {`${currency ? `(${currency})` : ""}`}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="salary i.e. 1000"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(e.target.valueAsNumber)
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+
 
                 </div>
 
@@ -452,35 +479,55 @@ export default function AddStaffPage() {
                   )}
                 /> */}
 
-                {/* STATUS */}
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Status <span className="text-red-600">*</span>
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                  <FormField
+                    control={form.control}
+                    name="salary"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Salary {`${currency ? `(${currency})` : ""}`}
+                        </FormLabel>
                         <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
+                          <Input
+                            type="number"
+                            placeholder="salary i.e. 1000"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(e.target.valueAsNumber)
+                            }
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="terminated">Terminated</SelectItem>
-                          <SelectItem value="on_leave">On Leave</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Status <span className="text-red-600">*</span>
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="gallery_items"
@@ -489,7 +536,7 @@ export default function AddStaffPage() {
                       <FormLabel>Profile Gallery</FormLabel>
 
                       <ImageUploaderPro
-                        value={field.value}
+                        value={field.value || []}
                         onChange={(file) => field.onChange(file)}
                         multiple
                       />
@@ -500,15 +547,24 @@ export default function AddStaffPage() {
                 />
 
                 {/* BUTTONS */}
-                <div className="flex justify-end gap-3 pt-4">
-                  {/* <Button variant="outline">Cancel</Button> */}
-                  <Button
+                <div className="flex justify-end gap-4 pt-6">
+                  <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
                     disabled={isLoading}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
                   >
-                    {isLoading ? "Saving..." : "Save Staff Member"}
-                  </Button>
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span>Save Staff Member</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </form>
             </Form>
@@ -516,15 +572,34 @@ export default function AddStaffPage() {
         </Card>
 
         {/* RIGHT SIDE INFO BOX */}
-        <Card className="shadow-sm border rounded-xl h-fit">
-          <CardHeader>
-            <CardTitle>Information</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg h-fit">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <Info className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Important notes</p>
+              </div>
+            </div>
           </CardHeader>
 
-          <CardContent className="space-y-4 text-sm">
-            <p>ℹ️ Employee ID will be generated automatically.</p>
-            <p>❗ Fields marked with * are required.</p>
-            <p>🛡️ Email addresses must be unique.</p>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Employee ID will be generated automatically.</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Fields marked with <span className="text-red-600 font-semibold">*</span> are required.</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Email addresses must be unique.</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

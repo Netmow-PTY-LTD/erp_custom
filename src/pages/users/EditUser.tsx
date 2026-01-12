@@ -27,7 +27,9 @@ import React, { useState } from "react";
 const editUserSchema = z.object({
   name: z.string().min(1, "Required"),
   email: z.email("Invalid email"),
+  password: z.string().min(1, "Required"),
   role_id: z.number().min(1, "Required"),
+  status: z.string().optional(),
 });
 
 type EditUserFormValues = z.infer<typeof editUserSchema>;
@@ -52,7 +54,9 @@ export default function EditUserPage() {
     defaultValues: {
       name: "",
       email: "",
+      password: "",
       role_id: undefined,
+      status: "active",
     },
   });
 
@@ -66,7 +70,9 @@ export default function EditUserPage() {
       reset({
         name: user.name,
         email: user.email,
+        password: user.password,
         role_id: user.role_id,
+        status: user.status,
       });
     }
   }, [userData, reset]);
@@ -136,6 +142,17 @@ export default function EditUserPage() {
                 </Field>
               )}
             />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Password</FieldLabel>
+                  <Input placeholder="******" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
 
             {/* ROLE */}
             <Controller
@@ -162,6 +179,40 @@ export default function EditUserPage() {
                             {role?.display_name}
                           </SelectItem>
                         ))}
+                    </SelectContent>
+                  </Select>
+
+
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={form.control}
+              name="status"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Status</FieldLabel>
+
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="active">
+                        Active
+                      </SelectItem>
+                      <SelectItem value="terminated">
+                        Terminated
+                      </SelectItem>
+                      <SelectItem value="on_leave">
+                        On Leave
+                      </SelectItem>
                     </SelectContent>
                   </Select>
 

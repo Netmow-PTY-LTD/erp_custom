@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -78,7 +79,7 @@ export default function CreateSalesOrderPage() {
   const [createInvoice] = useAddSalesInvoiceMutation();
 
   const currency = useAppSelector((state) => state.currency.value);
-  
+
 
   const form = useForm<SalesOrderFormValues>({
     resolver: zodResolver(orderSchema),
@@ -233,7 +234,7 @@ export default function CreateSalesOrderPage() {
     });
     const list = Array.isArray(data?.data) ? data.data : [];
     const selected = list.find((c) => c.id === field.value);
-    
+
     if (customerIdFromParam) {
       const preselected = list.find(
         (c) => c.id === Number(customerIdFromParam)
@@ -348,131 +349,222 @@ export default function CreateSalesOrderPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center flex-wrap gap-2">
-        <h1 className="text-3xl font-bold">Create Sales Order</h1>
-        <Link to="/dashboard/sales/orders" className="ml-auto">
-          <Button variant="outline">
+    <div className="space-y-6 max-w-7xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Create Sales Order
+          </h1>
+          <p className="text-muted-foreground mt-2">Create a new sales order with customer and product details</p>
+        </div>
+        <Link to="/dashboard/sales/orders">
+          <button className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" /> Back to Orders
-          </Button>
+          </button>
         </Link>
       </div>
 
       <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
           {/* Customer & Shipping */}
-          <div className="border rounded-md p-4 space-y-4">
-            <h2 className="font-semibold mb-4">Customer & Shipping</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-              <FormField
-                name="customer_id"
-                control={control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Customer</FormLabel>
-                    <FormControl>
-                      <CustomerSelectField field={field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Customer & Shipping</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Select customer and shipping details</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                <FormField
+                  name="customer_id"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer</FormLabel>
+                      <FormControl>
+                        <CustomerSelectField field={field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                name="order_date"
-                control={control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order Date</FormLabel>
-                    <Input type="date" {...field} className="block" />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  name="order_date"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Order Date</FormLabel>
+                      <Input type="date" {...field} className="block" />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                name="due_date"
-                control={control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Due Date</FormLabel>
-                    <Input type="date" {...field} className="block" />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  name="due_date"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Due Date</FormLabel>
+                      <Input type="date" {...field} className="block" />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                name="shipping_address"
-                control={control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Shipping Address</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter shipping address"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
+                <FormField
+                  name="shipping_address"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Shipping Address</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter shipping address"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Order Items */}
-          <div className="border rounded-md p-4 space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="font-semibold">Order Items</h2>
-              <Button
-                type="button"
-                onClick={() =>
-                  append({
-                    product_id: 0,
-                    quantity: 1,
-                    unit_price: 0,
-                    discount: 0,
-                    sales_tax: 0,
-                  })
-                }
-              >
-                + Add Item
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              {fields.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-gray-50 p-3 rounded"
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                    <ShoppingCart className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Order Items</CardTitle>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Add products to the order</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    append({
+                      product_id: 0,
+                      quantity: 1,
+                      unit_price: 0,
+                      discount: 0,
+                      sales_tax: 0,
+                    })
+                  }
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none"
                 >
-                  <FormField
-                    name={`items.${index}.product_id`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-4">
-                        <FormLabel>Product</FormLabel>
-                        <FormControl>
-                          <ProductSelectField
-                            field={field}
-                            onSelectTax={(tax) => {
-                              setValue(`items.${index}.sales_tax`, tax);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <Plus className="w-4 h-4" /> Add Item
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
 
-                  <FormField
-                    name={`items.${index}.unit_price`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-2">
-                        <FormLabel>Unit Price ({currency})</FormLabel>
-                        <FormControl>
+              <div className="space-y-3">
+                {fields.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-gray-50 p-3 rounded"
+                  >
+                    <FormField
+                      name={`items.${index}.product_id`}
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-4">
+                          <FormLabel>Product</FormLabel>
+                          <FormControl>
+                            <ProductSelectField
+                              field={field}
+                              onSelectTax={(tax) => {
+                                setValue(`items.${index}.sales_tax`, tax);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name={`items.${index}.unit_price`}
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-2">
+                          <FormLabel>Unit Price ({currency})</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={0}
+                              {...field}
+                              className="bg-white"
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name={`items.${index}.quantity`}
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-1">
+                          <FormLabel>Qty</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              className="bg-white"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name={`items.${index}.discount`}
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-1">
+                          <FormLabel>Discount</FormLabel>
+                          <Input
+                            type="number"
+                            min={0}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            className="bg-white"
+                          />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name={`items.${index}.sales_tax`}
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-1">
+                          <FormLabel>Tax %</FormLabel>
                           <Input
                             type="number"
                             min={0}
@@ -481,141 +573,101 @@ export default function CreateSalesOrderPage() {
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
+                            readOnly
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    name={`items.${index}.quantity`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-1">
-                        <FormLabel>Qty</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={1}
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                            className="bg-white"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    name={`items.${index}.discount`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-1">
-                        <FormLabel>Discount</FormLabel>
-                        <Input
-                          type="number"
-                          min={0}
-                          {...field}
-                          onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          className="bg-white"
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name={`items.${index}.sales_tax`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-1">
-                        <FormLabel>Tax %</FormLabel>
-                        <Input
-                          type="number"
-                          min={0}
-                          {...field}
-                          className="bg-white"
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          readOnly
-                        />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="sm:col-span-1">
-                    <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">
-                      Tax Amount
-                    </label>
-                    <Input
-                      type="number"
-                      value={
-                        calculatedItems[index]?.taxAmount.toFixed(2) ?? "0.00"
-                      }
-                      readOnly
-                      className="bg-gray-100 cursor-not-allowed"
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  <div className="sm:col-span-1 font-semibold text-right self-center">
-                    {currency} {calculatedItems[index]?.total.toFixed(2)}
-                  </div>
+                    <div className="sm:col-span-1">
+                      <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">
+                        Tax Amount
+                      </label>
+                      <Input
+                        type="number"
+                        value={
+                          calculatedItems[index]?.taxAmount.toFixed(2) ?? "0.00"
+                        }
+                        readOnly
+                        className="bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
 
-                  <div className="sm:flex sm:justify-end mt-2 sm:mt-0">
-                    <Button
-                      type="button"
-                      variant="outline-destructive"
-                      size="sm"
-                      onClick={() => remove(index)}
-                    >
-                      X
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    <div className="sm:col-span-1 font-semibold text-right self-center">
+                      {currency} {calculatedItems[index]?.total.toFixed(2)}
+                    </div>
 
-            {/* Order Summary */}
-            <div className="border-t mt-4 pt-4 space-y-2 text-right">
-              <div className="flex justify-end gap-4">
-                <div className="font-semibold">Subtotal:</div>
-                <div>
-                  {currency} {totalSubtotal.toFixed(2)}
+                    <div className="sm:flex sm:justify-end mt-2 sm:mt-0">
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-red-300 dark:border-red-600 font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                      >
+                        <X className="w-4 h-4" /> Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </CardContent>
+          </Card>
+
+          {/* Order Summary */}
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Receipt className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Order Summary</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Total calculations</p>
                 </div>
               </div>
-              <div className="flex justify-end gap-4">
-                <div className="font-semibold">Total Discount:</div>
-                <div>
-                  {currency} {totalDiscount.toFixed(2)}
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b">
+                  <div className="font-semibold text-gray-700 dark:text-gray-300">Subtotal:</div>
+                  <div className="text-lg font-medium">{currency} {totalSubtotal.toFixed(2)}</div>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b">
+                  <div className="font-semibold text-gray-700 dark:text-gray-300">Total Discount:</div>
+                  <div className="text-lg font-medium text-red-600">- {currency} {totalDiscount.toFixed(2)}</div>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b">
+                  <div className="font-semibold text-gray-700 dark:text-gray-300">Total Tax:</div>
+                  <div className="text-lg font-medium">{currency} {totalTax.toFixed(2)}</div>
+                </div>
+                <div className="flex justify-between items-center py-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-lg px-4 mt-4">
+                  <div className="text-xl font-bold text-gray-900 dark:text-gray-100">Grand Total:</div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currency} {grandTotal.toFixed(2)}</div>
                 </div>
               </div>
-              <div className="flex justify-end gap-4">
-                <div className="font-semibold">Total Tax:</div>
-                <div>
-                  {currency} {totalTax.toFixed(2)}
-                </div>
-              </div>
-              <div className="flex justify-end gap-4 text-lg font-bold">
-                <div>Total:</div>
-                <div>
-                  {currency} {grandTotal.toFixed(2)}
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Submit */}
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isLoading} className="px-6">
-              {isLoading ? "Creating..." : "Create Sales Order"}
-            </Button>
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Creating...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Create Sales Order</span>
+                </>
+              )}
+            </button>
           </div>
         </form>
       </Form>

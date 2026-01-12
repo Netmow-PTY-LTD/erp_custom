@@ -18,7 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CalendarIcon, ChevronDown, Check } from "lucide-react";
+import { CalendarIcon, ChevronDown, Check, UserCog, Info, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -64,7 +64,8 @@ const StaffSchema = z.object({
   salary: z.number().optional(),
   status: z.enum(["active", "terminated", "on_leave"]),
   image: z.string().optional(),
-  gallery_items: z.array(z.string()).optional(),
+  gallery_items: z.array(z.string()).optional().nullable(),
+  password: z.string().min(4, "Password must be at least 4 characters").optional().or(z.literal("")),
 });
 
 type StaffFormValues = z.infer<typeof StaffSchema>;
@@ -74,6 +75,7 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 // =====================================================
 export default function EditStaffPage() {
   const [open, setOpen] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
@@ -103,6 +105,7 @@ export default function EditStaffPage() {
       status: "active",
       image: "",
       gallery_items: [],
+      password: "",
     },
   });
 
@@ -123,7 +126,8 @@ export default function EditStaffPage() {
         salary: staff?.salary || 0,
         status: staff.status === "inactive" ? "terminated" : staff.status,
         image: staff?.thumb_url || "",
-        gallery_items: staff?.gallery_items,
+        gallery_items: staff?.gallery_items || [],
+        password: "", // Usually we don't load the password from backend for security
       });
     }
   }, [staff, fetchedDepartments?.data, form]);
@@ -143,7 +147,8 @@ export default function EditStaffPage() {
       salary: values.salary || 0,
       status: values.status,
       thumb_url: values.image,
-      gallery_items: values.gallery_items,
+      gallery_items: values.gallery_items || [],
+      password: values.password || undefined,
     };
     try {
       // const fd = new FormData();
@@ -172,19 +177,31 @@ export default function EditStaffPage() {
   if (isFetching) return <p>Loading...</p>;
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl mx-auto py-6">
       {/* PAGE TITLE */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-semibold">Edit Staff Member</h1>
-
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Edit Staff Member
+          </h1>
+          <p className="text-muted-foreground mt-2">Update staff profile and employment details</p>
+        </div>
         <BackButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT FORM */}
-        <Card className="col-span-2 shadow-sm border rounded-xl">
-          <CardHeader>
-            <CardTitle>Staff Information</CardTitle>
+        <Card className="col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <UserCog className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Staff Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Personal and employment details</p>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent>
@@ -242,7 +259,7 @@ export default function EditStaffPage() {
                   />
                 </div>
 
-                {/* EMAIL + PHONE */}
+                {/* ROW 2: EMAIL + PASSWORD */}
                 <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
@@ -260,6 +277,41 @@ export default function EditStaffPage() {
 
                   <FormField
                     control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="••••••••"
+                              className="pr-10"
+                              {...field}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors focus:outline-none"
+                            >
+                              {showPassword ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* ROW 3: PHONE + DEPARTMENT */}
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
+                  <FormField
+                    control={form.control}
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
@@ -271,10 +323,7 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* DEPARTMENT + POSITION */}
-                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="department"
@@ -349,6 +398,10 @@ export default function EditStaffPage() {
                     }}
                   />
 
+                </div>
+
+                {/* ROW 4: POSITION + HIRE DATE */}
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="position"
@@ -362,10 +415,6 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
-                </div>
-
-                {/* HIRE DATE + SALARY */}
-                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="hire_date"
@@ -400,9 +449,7 @@ export default function EditStaffPage() {
                                   field.onChange(date.toISOString());
                                 }
                               }}
-                              // onSelect={(date) =>
-                              //   date && field.onChange(date.toISOString())
-                              // }
+
                             />
                           </PopoverContent>
                         </Popover>
@@ -410,7 +457,10 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
+                </div>
 
+                {/* ROW 5: SALARY + STATUS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6">
                   <FormField
                     control={form.control}
                     name="salary"
@@ -431,34 +481,32 @@ export default function EditStaffPage() {
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status *</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="terminated">Terminated</SelectItem>
+                            <SelectItem value="on_leave">On Leave</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-
-                {/* STATUS */}
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status *</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="terminated">Terminated</SelectItem>
-                          <SelectItem value="on_leave">On Leave</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 <FormField
                   control={form.control}
@@ -468,7 +516,7 @@ export default function EditStaffPage() {
                       <FormLabel>Profile Gallery</FormLabel>
 
                       <ImageUploaderPro
-                        value={field.value}
+                        value={field.value || []}
                         onChange={(file) => field.onChange(file)}
                         multiple
                       />
@@ -479,14 +527,24 @@ export default function EditStaffPage() {
                 />
 
                 {/* SAVE BUTTON */}
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button
+                <div className="flex justify-end gap-4 pt-6">
+                  <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
                     disabled={isUpdating}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
                   >
-                    {isUpdating ? "Updating..." : "Save Changes"}
-                  </Button>
+                    {isUpdating ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Updating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span>Save Changes</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </form>
             </Form>
@@ -494,15 +552,34 @@ export default function EditStaffPage() {
         </Card>
 
         {/* RIGHT INFO BOX */}
-        <Card className="shadow-sm border rounded-xl h-fit">
-          <CardHeader>
-            <CardTitle>Information</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg h-fit">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <Info className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Important notes</p>
+              </div>
+            </div>
           </CardHeader>
 
-          <CardContent className="text-sm space-y-4">
-            <p>ℹ️ You can update any field of this staff member.</p>
-            <p>❗ Email must remain unique.</p>
-            <p>🖼️ Uploading a new image will replace the old one.</p>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">You can update any field of this staff member.</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Email must remain unique.</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Uploading a new image will replace the old one.</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
