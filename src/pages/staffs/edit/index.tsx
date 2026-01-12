@@ -18,11 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-<<<<<<< HEAD
-import { CalendarIcon, ChevronDown, Check, UserCog, Info, CheckCircle2 } from "lucide-react";
-=======
-import { CalendarIcon, ChevronDown, Check, Eye, EyeOff } from "lucide-react";
->>>>>>> 8a8038805d869ef5826a5446c4abdbd092709800
+import { CalendarIcon, ChevronDown, Check, UserCog, Info, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -453,12 +449,7 @@ export default function EditStaffPage() {
                                   field.onChange(date.toISOString());
                                 }
                               }}
-<<<<<<< HEAD
-                            // onSelect={(date) =>
-                            //   date && field.onChange(date.toISOString())
-                            // }
-=======
->>>>>>> 8a8038805d869ef5826a5446c4abdbd092709800
+
                             />
                           </PopoverContent>
                         </Popover>

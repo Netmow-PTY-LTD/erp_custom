@@ -20,11 +20,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-<<<<<<< HEAD
-import { CalendarIcon, ChevronDown, Check, UserPlus, Info, CheckCircle2 } from "lucide-react";
-=======
-import { CalendarIcon, ChevronDown, Check, Eye, EyeOff } from "lucide-react";
->>>>>>> 8a8038805d869ef5826a5446c4abdbd092709800
+import { CalendarIcon, ChevronDown, Check, UserPlus, Info, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
