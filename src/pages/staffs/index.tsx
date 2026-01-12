@@ -138,7 +138,7 @@ export default function Staffs() {
       header: "Employee ID #",
       meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[140px]" } as any,
       cell: ({ row }) => (
-        <span className="font-medium">EMP-{row.getValue("id")}</span>
+        <span className="font-medium">{row.getValue("id")}</span>
       ),
     },
 
