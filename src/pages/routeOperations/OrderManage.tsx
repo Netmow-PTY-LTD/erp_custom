@@ -158,7 +158,7 @@ const OrderManage = () => {
             for (const orderId of ordersToAssign) {
                 await assignStaff({
                     orderId,
-                    data: { staffIds: selectedStaffIds }
+                    data: { staff_ids: selectedStaffIds }
                 }).unwrap();
             }
 
