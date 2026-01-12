@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 //import { ImageUploader } from "@/components/form/ImageUploader";
 import { useNavigate } from "react-router";
-import { Check, ChevronDown, Loader } from "lucide-react";
+import { Check, ChevronDown, Loader, Package, Image as ImageIcon, Tag, DollarSign, Truck, CheckCircle2 } from "lucide-react";
 import {
   useAddProductMutation,
   useGetAllCategoriesQuery,
@@ -171,17 +171,30 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold">Add Product</h1>
+    <div className="space-y-6 max-w-5xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Add Product
+          </h1>
+          <p className="text-muted-foreground mt-2">Create a new product with details</p>
+        </div>
         <BackButton />
       </div>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* BASIC INFO */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Info</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Basic Information</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Product name, SKU, and description</p>
+                </div>
+              </div>
             </CardHeader>
 
             <CardContent className="grid gap-4 md:grid-cols-2">
@@ -248,8 +261,19 @@ export default function AddProductPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <ImageIcon className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Product Gallery</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload multiple product images</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
               <Controller
                 control={control}
                 name="gallery_items"
@@ -269,9 +293,17 @@ export default function AddProductPage() {
           </Card>
 
           {/* CLASSIFICATION */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Classification</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Tag className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Classification</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Category, unit, and status</p>
+                </div>
+              </div>
             </CardHeader>
 
             <CardContent className="grid gap-4 md:grid-cols-3">
@@ -453,9 +485,17 @@ export default function AddProductPage() {
           </Card>
 
           {/* PRICING & STOCK */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing & Stock</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Pricing & Stock</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Prices, stock levels, and taxes</p>
+                </div>
+              </div>
             </CardHeader>
 
             <CardContent className="grid gap-4 md:grid-cols-3">
@@ -600,9 +640,17 @@ export default function AddProductPage() {
           </Card>
 
           {/* LOGISTICS */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Logistics</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Truck className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Logistics</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Weight and dimensions</p>
+                </div>
+              </div>
             </CardHeader>
 
             <CardContent className="grid gap-4 md:grid-cols-2">
@@ -680,17 +728,31 @@ export default function AddProductPage() {
           </Card>
 
           {/* SUBMIT */}
-          <div className="flex justify-end">
-            <Button className="w-full" type="submit" disabled={isLoading}>
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/products')}
+              className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+            >
               {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <Loader className="w-4 h-4 animate-spin" />
-                  Saving...
-                </div>
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Saving...</span>
+                </>
               ) : (
-                "Add Product"
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Add Product</span>
+                </>
               )}
-            </Button>
+            </button>
           </div>
         </form>
       </Form>

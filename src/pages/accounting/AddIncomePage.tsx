@@ -29,7 +29,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, FileText, CreditCard, CheckCircle2, TrendingUp } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -118,14 +118,29 @@ export default function AddIncomePage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <h1 className="text-3xl font-bold">Add Income</h1>
+    <div className="space-y-6 max-w-5xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
+            Add Income
+          </h1>
+          <p className="text-muted-foreground mt-2">Record a new income transaction</p>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFO */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Info</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-green-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-950/30 border-b-2 border-green-100 dark:border-green-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-green-600 to-green-500 rounded-xl shadow-lg shadow-green-500/30">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Basic Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Income title, category, and description</p>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent className="grid gap-4 md:grid-cols-2">
@@ -275,9 +290,17 @@ export default function AddIncomePage() {
         </Card>
 
         {/* PAYMENT INFO */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-green-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-950/30 border-b-2 border-green-100 dark:border-green-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-green-600 to-green-500 rounded-xl shadow-lg shadow-green-500/30">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Payment Details</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Amount, payment method, and reference</p>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent className="grid gap-4 md:grid-cols-2">
@@ -342,10 +365,24 @@ export default function AddIncomePage() {
         </Card>
 
         {/* SUBMIT BUTTON */}
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Income"}
-          </Button>
+        <div className="flex justify-end gap-4 pt-4">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-8 py-3 font-semibold text-white shadow-lg shadow-green-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-green-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <TrendingUp className="w-5 h-5" />
+                <span>Save Income</span>
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>
