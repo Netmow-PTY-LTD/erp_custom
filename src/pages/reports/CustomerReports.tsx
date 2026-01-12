@@ -41,6 +41,8 @@ export default function CustomerReports() {
   const [search, setSearch] = useState("");
   const limit = 10;
 
+
+
   const [accountsReceivablePage, setAccountsReceivablePage] = useState(1);
   const [accountsReceivableSearch, setAccountsReceivableSearch] = useState("");
   const [accountsReceivableLimit] = useState(10);
@@ -58,6 +60,17 @@ export default function CustomerReports() {
     (sum: number, item: SalesCustomer) => sum + Number(item.sales),
     0
   ) || 0;
+
+  const {
+    data: accountsReceivableData,
+    isFetching: accountsReceivableIsFetching,
+  } = useGetAccountsReceivableReportQuery({
+    page: accountsReceivablePage,
+    limit: accountsReceivableLimit,
+    search: accountsReceivableSearch,
+  });
+
+  console.log("Accounts Receivable Data:", accountsReceivableData);
   const totalOutstanding = accountsReceivableData?.data?.reduce(
     (sum: number, item: AR) => sum + Number(item.balance),
     0
@@ -102,17 +115,6 @@ export default function CustomerReports() {
       cell: ({ row }) => <>{row.getValue("sales") as number}</>,
     },
   ];
-
-  const {
-    data: accountsReceivableData,
-    isFetching: accountsReceivableIsFetching,
-  } = useGetAccountsReceivableReportQuery({
-    page: accountsReceivablePage,
-    limit: accountsReceivableLimit,
-    search: accountsReceivableSearch,
-  });
-
-  console.log("Accounts Receivable Data:", accountsReceivableData);
 
   const arColumns: ColumnDef<AR>[] = [
     {

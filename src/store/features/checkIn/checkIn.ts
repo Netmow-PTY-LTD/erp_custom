@@ -99,6 +99,7 @@ export type StaffAttendance = {
 };
 
 export type AttendanceResponse<T> = {
+  status: boolean;
   success: boolean;
   message: string;
   data: T;
