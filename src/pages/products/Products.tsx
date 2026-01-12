@@ -335,7 +335,7 @@ export default function Products() {
           </div>
         ))}
       </div>
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>All Products</CardTitle>
         </CardHeader>

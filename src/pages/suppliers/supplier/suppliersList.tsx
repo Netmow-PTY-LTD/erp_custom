@@ -230,7 +230,7 @@ export default function SuppliersList() {
         ))}
       </div>
 
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>All Suppliers</CardTitle>
           <CardDescription>Manage your supplier list</CardDescription>

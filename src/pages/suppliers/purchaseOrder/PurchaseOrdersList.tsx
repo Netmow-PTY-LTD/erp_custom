@@ -301,7 +301,7 @@ export default function PurchaseOrdersList() {
         ))}
       </div>
 
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>All Purchase Orders</CardTitle>
           <CardDescription>Manage all your purchase orders</CardDescription>

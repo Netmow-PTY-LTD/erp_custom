@@ -231,7 +231,7 @@ export default function SalesRoutesPage() {
           </div>
         ))}
       </div>
-      <Card className="shadow-sm">
+      <Card className="shadow-sm py-6">
         <CardContent>
 
 
