@@ -18,7 +18,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { CalendarIcon, ChevronDown, Check } from "lucide-react";
+import { CalendarIcon, ChevronDown, Check, UserCog, Info, CheckCircle2 } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -172,19 +172,31 @@ export default function EditStaffPage() {
   if (isFetching) return <p>Loading...</p>;
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl mx-auto py-6">
       {/* PAGE TITLE */}
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-semibold">Edit Staff Member</h1>
-
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Edit Staff Member
+          </h1>
+          <p className="text-muted-foreground mt-2">Update staff profile and employment details</p>
+        </div>
         <BackButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT FORM */}
-        <Card className="col-span-2 shadow-sm border rounded-xl">
-          <CardHeader>
-            <CardTitle>Staff Information</CardTitle>
+        <Card className="col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <UserCog className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Staff Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Personal and employment details</p>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent>
@@ -400,9 +412,9 @@ export default function EditStaffPage() {
                                   field.onChange(date.toISOString());
                                 }
                               }}
-                              // onSelect={(date) =>
-                              //   date && field.onChange(date.toISOString())
-                              // }
+                            // onSelect={(date) =>
+                            //   date && field.onChange(date.toISOString())
+                            // }
                             />
                           </PopoverContent>
                         </Popover>
@@ -479,14 +491,24 @@ export default function EditStaffPage() {
                 />
 
                 {/* SAVE BUTTON */}
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button
+                <div className="flex justify-end gap-4 pt-6">
+                  <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
                     disabled={isUpdating}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
                   >
-                    {isUpdating ? "Updating..." : "Save Changes"}
-                  </Button>
+                    {isUpdating ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Updating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span>Save Changes</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </form>
             </Form>
@@ -494,15 +516,34 @@ export default function EditStaffPage() {
         </Card>
 
         {/* RIGHT INFO BOX */}
-        <Card className="shadow-sm border rounded-xl h-fit">
-          <CardHeader>
-            <CardTitle>Information</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg h-fit">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <Info className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Important notes</p>
+              </div>
+            </div>
           </CardHeader>
 
-          <CardContent className="text-sm space-y-4">
-            <p>ℹ️ You can update any field of this staff member.</p>
-            <p>❗ Email must remain unique.</p>
-            <p>🖼️ Uploading a new image will replace the old one.</p>
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">You can update any field of this staff member.</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Email must remain unique.</p>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5"></div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Uploading a new image will replace the old one.</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

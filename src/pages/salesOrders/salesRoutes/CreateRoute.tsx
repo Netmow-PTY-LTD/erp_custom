@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Maximize, Navigation } from "lucide-react";
+import { ArrowLeft, MapPin, Maximize, Navigation, Route, CheckCircle2 } from "lucide-react";
 
 import {
   Form,
@@ -186,14 +186,23 @@ export default function CreateRoutePage() {
 
   return (
     <div className="w-full pb-10">
-      <Card className="w-full shadow-lg border-none">
-        <CardHeader className="flex flex-row items-center gap-4 bg-slate-50/50 rounded-t-xl border-b mb-6">
-          <Button variant="outline" size="icon" onClick={() => navigate(-1)} className="bg-white">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <CardTitle className="text-2xl font-bold tracking-tight">Create Sales Route</CardTitle>
-            <p className="text-sm text-muted-foreground">Define your delivery or sales territory</p>
+      <Card className="w-full overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="p-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+              <Route className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-100">Create Sales Route</CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Define your delivery or sales territory with geofencing</p>
+            </div>
           </div>
         </CardHeader>
 
@@ -368,12 +377,20 @@ export default function CreateRoutePage() {
               </div>
 
               <div className="flex justify-end items-center gap-4 pt-8 border-t">
-                <Button type="button" variant="ghost" onClick={() => navigate(-1)} className="text-slate-500 hover:text-slate-700">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+                >
                   Discard Changes
-                </Button>
-                <Button type="submit" size="lg" className="px-12 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200">
-                  Save Route
-                </Button>
+                </button>
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-10 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg"
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Save Route</span>
+                </button>
               </div>
             </form>
           </Form>
