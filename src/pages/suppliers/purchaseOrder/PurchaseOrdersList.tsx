@@ -107,10 +107,12 @@ export default function PurchaseOrdersList() {
     {
       accessorKey: "po_number",
       header: "PO Number",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any
     },
     {
       accessorKey: "supplier",
       header: "Supplier",
+      meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => `${row.original.supplier?.name || "N/A"}`,
     },
     {
@@ -153,13 +155,13 @@ export default function PurchaseOrdersList() {
       cell: ({ row }) =>
         `${row.original.discount_amount.toFixed(2)}`,
     },
-     {
+    {
       accessorKey: "tax_amount",
       header: `Tax Amount (${currency})`,
       cell: ({ row }) =>
         `${row.original.tax_amount.toFixed(2)}`,
     },
-     {
+    {
       accessorKey: "total_payable_amount",
       header: `Total Payable (${currency})`,
       cell: ({ row }) =>
@@ -170,7 +172,7 @@ export default function PurchaseOrdersList() {
       header: "Actions",
       cell: ({ row }) => {
         const po = row.original;
-          const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
+        const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/purchase-orders/${po.id}`}>

@@ -40,53 +40,53 @@ export default function Products() {
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
-const {data: productStatsData} = useGetProductStatsQuery(undefined);
+  const { data: productStatsData } = useGetProductStatsQuery(undefined);
 
-//const productStats = productStatsData?.data;
-console.log("productStats", productStatsData);
+  //const productStats = productStatsData?.data;
+  console.log("productStats", productStatsData);
 
-const totalProductsCount = productStatsData?.data?.filter(
-  (p: { label: string; value: number }) => p.label === "Total Products"
-)?.[0]?.value || 0;
+  const totalProductsCount = productStatsData?.data?.filter(
+    (p: { label: string; value: number }) => p.label === "Total Products"
+  )?.[0]?.value || 0;
 
-const activeProductsCount = productStatsData?.data?.filter(
-  (p: { label: string; value: number }) => p.label === "Active Products"
-)?.[0]?.value || 0;
+  const activeProductsCount = productStatsData?.data?.filter(
+    (p: { label: string; value: number }) => p.label === "Active Products"
+  )?.[0]?.value || 0;
 
-const lowStockCount = productStatsData?.data?.filter(
-  (p: { label: string; value: number }) => p.label === "Low Stock"
-)?.[0]?.value || 0;
+  const lowStockCount = productStatsData?.data?.filter(
+    (p: { label: string; value: number }) => p.label === "Low Stock"
+  )?.[0]?.value || 0;
 
-const totalStockCount = productStatsData?.data?.filter(
-  (p: { label: string; value: number }) => p.label === "Total Stock"
-)?.[0]?.value || 0;
+  const totalStockCount = productStatsData?.data?.filter(
+    (p: { label: string; value: number }) => p.label === "Total Stock"
+  )?.[0]?.value || 0;
 
-const stats = [
-  {
-    label: "Total Products",
-    value: totalProductsCount,
-    color: "bg-blue-600",
-    icon: <Boxes className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Active Products",
-    value: activeProductsCount,
-    color: "bg-green-700",
-    icon: <CheckCircle className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Low Stock",
-    value: lowStockCount,
-    color: "bg-red-600",
-    icon: <AlertTriangle className="w-10 h-10 opacity-80" />,
-  },
-  {
-    label: "Total Stock",
-    value: totalStockCount,
-    color: "bg-cyan-500",
-    icon: <Boxes className="w-10 h-10 opacity-80" />,
-  },
-];
+  const stats = [
+    {
+      label: "Total Products",
+      value: totalProductsCount,
+      color: "bg-blue-600",
+      icon: <Boxes className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Active Products",
+      value: activeProductsCount,
+      color: "bg-green-700",
+      icon: <CheckCircle className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Low Stock",
+      value: lowStockCount,
+      color: "bg-red-600",
+      icon: <AlertTriangle className="w-10 h-10 opacity-80" />,
+    },
+    {
+      label: "Total Stock",
+      value: totalStockCount,
+      color: "bg-cyan-500",
+      icon: <Boxes className="w-10 h-10 opacity-80" />,
+    },
+  ];
 
   const {
     data: fetchedProducts,
@@ -146,10 +146,12 @@ const stats = [
     {
       accessorKey: "sku",
       header: "SKU",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
     },
     {
       accessorKey: "name",
       header: "Product Name",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
     },
     {
       accessorKey: "thumb_url",

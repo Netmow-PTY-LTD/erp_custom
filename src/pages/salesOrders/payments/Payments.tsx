@@ -30,23 +30,20 @@ export default function Payments() {
     {
       accessorKey: "id",
       header: "Payment #",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any,
       cell: ({ row }) => <span className="font-medium">PAY-{row.original.id}</span>,
     },
     {
       accessorKey: "order.order_number",
       header: "Order #",
+      meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => row.original.order?.order_number ?? "-",
     },
     {
       accessorKey: "order.customer_id",
       header: "Customer",
       cell: ({ row }) => (
-        <div>
-          <div className="font-semibold">{row.original.order?.customer.name}</div>
-          <div className="text-xs text-muted-foreground">
-            ID: {row.original.order?.customer_id}
-          </div>
-        </div>
+        <div className="font-semibold">{row.original.order?.customer.name}</div>
       ),
     },
     // {
@@ -69,8 +66,8 @@ export default function Payments() {
           method === "cash"
             ? "bg-yellow-500"
             : method === "bank_transfer"
-            ? "bg-blue-500"
-            : "bg-purple-500";
+              ? "bg-blue-500"
+              : "bg-purple-500";
 
         return <Badge className={color}>{method}</Badge>;
       },

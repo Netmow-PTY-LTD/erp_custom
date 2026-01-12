@@ -88,8 +88,14 @@ export default function SuppliersList() {
 
   const supplierColumns: ColumnDef<Supplier>[] = [
     {
+      accessorKey: "id",
+      header: "ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
+    },
+    {
       accessorKey: "name",
       header: "Name",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
     },
     {
       accessorKey: "contact_person",
