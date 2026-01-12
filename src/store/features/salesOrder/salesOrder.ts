@@ -279,7 +279,7 @@ export const salesApiService = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["SalesOrdersByRoute"],
+      invalidatesTags: ["SalesOrdersByRoute", "SalesOrders"],
     }),
 
 
