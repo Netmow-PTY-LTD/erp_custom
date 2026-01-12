@@ -99,6 +99,9 @@ export const StaffPermission = {
 export const SalesPermission = {
   VIEW: "sales.view" as const,
   ORDERS: "sales.orders.view" as const,
+  PENDING_ORDERS: "sales.orders.pending.view" as const,
+  CONFIRMED_ORDERS: "sales.orders.confirmed.view" as const,
+  DELIVERED_ORDERS: "sales.orders.delivered.view" as const,
   ORDER_DETAILS: "sales.orders.details.view" as const,
   CREATE_ORDER: "sales.orders.create" as const,
   EDIT_ORDER: "sales.orders.edit" as const,
