@@ -48,8 +48,16 @@ export default function UsersList() {
 
   // -------------------- TABLE COLUMNS --------------------
   const userColumns: ColumnDef<User>[] = [
-    { accessorKey: "id", header: "User ID" },
-    { accessorKey: "name", header: "Name" },
+    {
+      accessorKey: "id",
+      header: "User ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+    },
     { accessorKey: "email", header: "Email" },
     { accessorKey: "role.name", header: "Role" },
 

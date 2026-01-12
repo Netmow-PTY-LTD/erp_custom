@@ -42,14 +42,14 @@ export default function InActiveCustomersList() {
   const pageSize = 10;
   const currentPage = pageIndex + 1;
 
-  const currency = useAppSelector((state) => state.currency.value); 
+  const currency = useAppSelector((state) => state.currency.value);
 
   // Fetch customers with pagination and search
   const { data, isLoading, error } = useGetInactiveCustomersQuery({
     page: currentPage,
     limit: pageSize,
     search: searchTerm || undefined,
- 
+
   });
 
   const [deleteCustomer, { isLoading: isDeleting }] =
@@ -119,24 +119,33 @@ export default function InActiveCustomersList() {
 
 
   const customerColumns: ColumnDef<Customer>[] = [
-    { accessorKey: "id", header: "ID" },
-    { accessorKey: "name", header: "Name" },
-     { accessorKey: "thumb_url", header: "Image" ,
-          cell: ({ row }) => {
-            const thumbUrl = row.getValue("thumb_url") as string;
-            return thumbUrl ? (
-              <img
-                src={thumbUrl}
-                alt="Customer"
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <User className="w-5 h-5 text-gray-500" />
-              </div>
-            );
-          },
-        },
+    {
+      accessorKey: "id",
+      header: "ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+    },
+    {
+      accessorKey: "thumb_url", header: "Image",
+      cell: ({ row }) => {
+        const thumbUrl = row.getValue("thumb_url") as string;
+        return thumbUrl ? (
+          <img
+            src={thumbUrl}
+            alt="Customer"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+            <User className="w-5 h-5 text-gray-500" />
+          </div>
+        );
+      },
+    },
     {
       accessorKey: "customer_type",
       header: "Type",

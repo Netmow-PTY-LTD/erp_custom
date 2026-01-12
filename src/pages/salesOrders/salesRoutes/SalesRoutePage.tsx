@@ -32,8 +32,14 @@ export default function SalesRoutesPage() {
 
   const RoutesColumns: ColumnDef<SalesRoute>[] = [
     {
+      accessorKey: "id",
+      header: "ID",
+      meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any,
+    },
+    {
       accessorKey: "route_name",
       header: "Route Name",
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => (
         <Link
           to={`/dashboard/sales-routes/${row.original.id}`}
