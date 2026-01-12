@@ -112,6 +112,7 @@ export const SalesPermission = {
   PAYMENT_DETAILS: "sales.payments.details.view" as const,
   CREATE_PAYMENT: "sales.payments.create" as const,
   DELIVERY: "sales.delivery.view" as const,
+  UPDATE_DELIVERY: "sales.delivery.update" as const,
   SALES_ROUTES: "sales.routes.view" as const,
   DETAILS_SALES_ROUTES: "sales.routes.details" as const,
   CREATE_ROUTE: "sales.routes.create" as const,
