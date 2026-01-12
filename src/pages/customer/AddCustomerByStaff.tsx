@@ -31,6 +31,7 @@ import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
 import { BackButton } from "@/components/BackButton";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { User, CheckCircle2, Phone, MapPin, Briefcase } from "lucide-react";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -114,20 +115,32 @@ export default function AddCustomerByStaffPage() {
     };
 
     return (
-        <div className="space-y-6 max-w-4xl mx-auto py-6">
-            <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
-                <h1 className="text-3xl font-bold">Add Customer</h1>
+        <div className="space-y-6 max-w-5xl mx-auto py-6">
+            <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+                <div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                        Add Customer
+                    </h1>
+                    <p className="text-muted-foreground mt-2">Create a new customer profile (Staff)</p>
+                </div>
                 <BackButton />
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* BASIC INFORMATION */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Information</CardTitle>
+                <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                                <User className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Basic Information</CardTitle>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Customer name, type, and images</p>
+                            </div>
+                        </div>
                     </CardHeader>
-
-                    <CardContent className="space-y-4">
+                    <CardContent className="pt-6">
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                             <Controller
                                 control={control}
@@ -152,60 +165,6 @@ export default function AddCustomerByStaffPage() {
                                     </Field>
                                 )}
                             />
-
-                            <Controller
-                                control={control}
-                                name="thumb_url"
-                                render={({ field, fieldState }) => (
-                                    <div>
-                                        <Field>
-                                            <FieldLabel>Primary Image</FieldLabel>
-                                            <div className="max-w-xs">
-                                                <ImageUploaderPro
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                />
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mt-2">
-                                                Optional. Single primary image. Recommended size: 400×400 px.
-                                            </p>
-                                            <FieldError>{fieldState?.error?.message}</FieldError>
-                                        </Field>
-                                    </div>
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="gallery_items"
-                                render={({ field, fieldState }) => (
-                                    <div className="md:col-span-2">
-                                        <Field>
-                                            <FieldLabel>Gallery (max 2)</FieldLabel>
-                                            <div className="max-w-xs">
-                                                <ImageUploaderPro
-                                                    multiple
-                                                    value={field.value || []}
-                                                    onChange={(v) => {
-                                                        const arr = Array.isArray(v) ? v : v ? [v] : [];
-                                                        if (arr.length > 10) {
-                                                            toast.error("You can upload up to 10 images only");
-                                                            arr.splice(10);
-                                                        }
-                                                        field.onChange(arr);
-                                                    }}
-                                                />
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mt-2">
-                                                Optional. Upload up to 10 additional images for the customer.
-                                            </p>
-                                            <FieldError>{fieldState?.error?.message}</FieldError>
-                                        </Field>
-                                    </div>
-                                )}
-                            />
-
-
 
                             <Controller
                                 control={control}
@@ -241,10 +200,80 @@ export default function AddCustomerByStaffPage() {
 
                             <Controller
                                 control={control}
+                                name="thumb_url"
+                                render={({ field, fieldState }) => (
+                                    <div>
+                                        <Field>
+                                            <FieldLabel>Primary Image</FieldLabel>
+                                            <div className="max-w-xs">
+                                                <ImageUploaderPro
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                />
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mt-2">
+                                                Optional. Single primary image. Recommended size: 400×400 px.
+                                            </p>
+                                            <FieldError>{fieldState?.error?.message}</FieldError>
+                                        </Field>
+                                    </div>
+                                )}
+                            />
+
+                            <Controller
+                                control={control}
+                                name="gallery_items"
+                                render={({ field, fieldState }) => (
+                                    <div className="md:col-span-2">
+                                        <Field>
+                                            <FieldLabel>Gallery (max 10)</FieldLabel>
+                                            <div className="max-w-xs">
+                                                <ImageUploaderPro
+                                                    multiple
+                                                    value={field.value || []}
+                                                    onChange={(v) => {
+                                                        const arr = Array.isArray(v) ? v : v ? [v] : [];
+                                                        if (arr.length > 10) {
+                                                            toast.error("You can upload up to 10 images only");
+                                                            arr.splice(10);
+                                                        }
+                                                        field.onChange(arr);
+                                                    }}
+                                                />
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mt-2">
+                                                Optional. Upload up to 10 additional images for the customer.
+                                            </p>
+                                            <FieldError>{fieldState?.error?.message}</FieldError>
+                                        </Field>
+                                    </div>
+                                )}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* CONTACT DETAILS */}
+                <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                                <Phone className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Contact Details</CardTitle>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Email and phone information</p>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                            <Controller
+                                control={control}
                                 name="email"
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Email</FieldLabel>
+                                        <FieldLabel>Email *</FieldLabel>
                                         <Input type="email" placeholder="Enter email" {...field} />
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
@@ -263,7 +292,23 @@ export default function AddCustomerByStaffPage() {
                                 )}
                             />
                         </div>
+                    </CardContent>
+                </Card>
 
+                {/* ADDRESS DETAILS */}
+                <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                                <MapPin className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Address Details</CardTitle>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Location and geographical information</p>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                             <Controller
                                 control={control}
@@ -289,19 +334,17 @@ export default function AddCustomerByStaffPage() {
                                 )}
                             />
 
-                            <div className="grid gap-4">
-                                <Controller
-                                    control={control}
-                                    name="city"
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel>City</FieldLabel>
-                                            <Input placeholder="City" {...field} />
-                                            <FieldError>{fieldState.error?.message}</FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </div>
+                            <Controller
+                                control={control}
+                                name="city"
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>City</FieldLabel>
+                                        <Input placeholder="City" {...field} />
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -387,7 +430,23 @@ export default function AddCustomerByStaffPage() {
                                 )}
                             />
                         </div>
+                    </CardContent>
+                </Card>
 
+                {/* BUSINESS SETTINGS */}
+                <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                                <Briefcase className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Business Settings</CardTitle>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Credit limit, status, and sales route</p>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Controller
                                 control={control}
@@ -446,7 +505,7 @@ export default function AddCustomerByStaffPage() {
 
                         <Controller
                             control={control}
-                            name="salesRouteId" // single route
+                            name="salesRouteId"
                             rules={{ required: "Select a sales route" }}
                             render={({ field, fieldState }) => (
                                 <SalesRouteSelectField
@@ -455,15 +514,35 @@ export default function AddCustomerByStaffPage() {
                                 />
                             )}
                         />
-
                     </CardContent>
                 </Card>
 
                 {/* SUBMIT */}
-                <div className="flex justify-end">
-                    <Button type="submit" disabled={isLoading}>
-                        {isLoading ? "Creating..." : "Save Customer"}
-                    </Button>
+                <div className="flex justify-end gap-4 pt-4">
+                    <button
+                        type="button"
+                        onClick={() => navigate('/dashboard/customers/inactive')}
+                        className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+                    >
+                        {isLoading ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                <span>Creating...</span>
+                            </>
+                        ) : (
+                            <>
+                                <CheckCircle2 className="w-5 h-5" />
+                                <span>Save Customer</span>
+                            </>
+                        )}
+                    </button>
                 </div>
             </form>
         </div>

@@ -38,6 +38,8 @@ import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileText, Package, CheckCircle2, ShoppingCart } from "lucide-react";
 
 const orderSchema = z
   .object({
@@ -398,111 +400,140 @@ export default function CreatePurchaseOrderPage() {
 
   /* ---------------------------------------- */
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Create Purchase Order</h1>
-
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Create Purchase Order
+          </h1>
+          <p className="text-muted-foreground mt-2">Create a new purchase order for your supplier</p>
+        </div>
         <BackButton />
       </div>
 
       <Form {...form}>
         <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
           {/* ---------------- SUPPLIER & DETAILS ---------------- */}
-          <div className="border rounded-md p-4">
-            <h2 className="font-semibold mb-4">Supplier & Details</h2>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Supplier & Order Details</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Select supplier and set order dates</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-6">
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
-              {/* Supplier */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 items-start gap-4">
+                {/* Supplier */}
+                <FormField
+                  name="supplierId"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Supplier</FormLabel>
+                      <FormControl>
+                        <SupplierSelectField field={field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Order Date */}
+                <FormField
+                  name="order_date"
+                  control={control}
+                  rules={{ required: "Order Date is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Order Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} className="block" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Expected Date */}
+                <FormField
+                  name="expected_delivery_date"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Expected Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} className="block" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Notes */}
               <FormField
-                name="supplierId"
+                name="notes"
                 control={control}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Supplier</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <SupplierSelectField field={field} />
+                      <Textarea placeholder="Optional notes..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              {/* Order Date */}
-              <FormField
-                name="order_date"
-                control={control}
-                rules={{ required: "Order Date is required" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} className="block" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Expected Date */}
-              <FormField
-                name="expected_delivery_date"
-                control={control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Expected Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} className="block" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Notes */}
-            <FormField
-              name="notes"
-              control={control}
-              render={({ field }) => (
-                <FormItem className="mt-4">
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Optional notes..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+            </CardContent>
+          </Card>
 
           {/* ---------------- ITEMS ---------------- */}
-          <div className="border rounded-md p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold">Order Items</h2>
-              <Button
-                type="button"
-                onClick={() =>
-                  append({
-                    productId: 0,
-                    quantity: 1,
-                    unit_cost: 0,
-                    discount: 0,
-                    purchase_tax: 0,
-                  })
-                }
-              >
-                + Add Item
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              {fields.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-gray-50 p-3 rounded"
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                    <Package className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Order Items</CardTitle>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Add products to this purchase order</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    append({
+                      productId: 0,
+                      quantity: 1,
+                      unit_cost: 0,
+                      discount: 0,
+                      purchase_tax: 0,
+                    })
+                  }
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-2 font-medium text-white shadow-lg shadow-emerald-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-emerald-500/50"
                 >
-                  {/* Product */}
-                  {/* <FormField
+                  <ShoppingCart className="w-4 h-4" />
+                  Add Item
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-6">
+
+              <div className="space-y-4">
+                {fields.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-200"
+                  >
+                    {/* Product */}
+                    {/* <FormField
                     name={`items.${index}.productId`}
                     control={control}
                     rules={{ required: "Product required" }}
@@ -516,130 +547,130 @@ export default function CreatePurchaseOrderPage() {
                       </FormItem>
                     )}
                   /> */}
-                  <FormField
-                    name={`items.${index}.productId`}
-                    control={control}
-                    rules={{ required: "Product required" }}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-4">
-                        <FormLabel>Product</FormLabel>
-                        <FormControl>
-                          <ProductSelectField
-                            field={field}
-                            index={index}
-                            setValue={form.setValue}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Unit Price */}
-                  <FormField
-                    name={`items.${index}.unit_cost`}
-                    control={control}
-                    rules={{ required: "Price required" }}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-2">
-                        <FormLabel>Unit Price</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Quantity */}
-                  <FormField
-                    name={`items.${index}.quantity`}
-                    control={control}
-                    rules={{ required: "Quantity required" }}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-1">
-                        <FormLabel>Quantity</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* discount */}
-                  <FormField
-                    name={`items.${index}.discount`}
-                    control={control}
-                    rules={{ required: "Discount required" }}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-1">
-                        <FormLabel>Discount</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name={`items.${index}.purchase_tax`}
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem className="sm:col-span-1">
-                        <FormLabel>Tax</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                            readOnly
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="sm:col-span-1">
-                    <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">
-                      Tax Amount
-                    </label>
-                    <Input
-                      type="number"
-                      value={
-                        ((items[index].quantity * items[index].unit_cost -
-                          items[index].discount) *
-                          (items[index].purchase_tax || 0)) /
-                        100
-                      }
-                      readOnly
-                      className="bg-gray-100 cursor-not-allowed"
+                    <FormField
+                      name={`items.${index}.productId`}
+                      control={control}
+                      rules={{ required: "Product required" }}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-4">
+                          <FormLabel>Product</FormLabel>
+                          <FormControl>
+                            <ProductSelectField
+                              field={field}
+                              index={index}
+                              setValue={form.setValue}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
 
-                  {/* Line Total */}
-                  {/* <div className="col-span-1">
+                    {/* Unit Price */}
+                    <FormField
+                      name={`items.${index}.unit_cost`}
+                      control={control}
+                      rules={{ required: "Price required" }}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-2">
+                          <FormLabel>Unit Price</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Quantity */}
+                    <FormField
+                      name={`items.${index}.quantity`}
+                      control={control}
+                      rules={{ required: "Quantity required" }}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-1">
+                          <FormLabel>Quantity</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* discount */}
+                    <FormField
+                      name={`items.${index}.discount`}
+                      control={control}
+                      rules={{ required: "Discount required" }}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-1">
+                          <FormLabel>Discount</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name={`items.${index}.purchase_tax`}
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-1">
+                          <FormLabel>Tax</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              readOnly
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="sm:col-span-1">
+                      <label className="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 data-[error=true]:text-destructive mb-2">
+                        Tax Amount
+                      </label>
+                      <Input
+                        type="number"
+                        value={
+                          ((items[index].quantity * items[index].unit_cost -
+                            items[index].discount) *
+                            (items[index].purchase_tax || 0)) /
+                          100
+                        }
+                        readOnly
+                        className="bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+
+                    {/* Line Total */}
+                    {/* <div className="col-span-1">
                     <FormLabel>Total</FormLabel>
                     <div className="font-semibold">
                       {currency} {(
@@ -650,77 +681,87 @@ export default function CreatePurchaseOrderPage() {
                     </div>
                   </div> */}
 
-                  {/* Line Total */}
-                  <div className="sm:col-span-1">
-                    <FormLabel>Total</FormLabel>
-                    <div className="font-semibold">
-                      {currency}{" "}
-                      {(
-                        items[index].quantity * items[index].unit_cost -
-                        items[index].discount +
-                        ((items[index].quantity * items[index].unit_cost -
-                          items[index].discount) *
-                          (items[index].purchase_tax || 0)) /
-                        100
-                      ).toFixed(2)}
+                    {/* Line Total */}
+                    <div className="sm:col-span-1">
+                      <FormLabel>Total</FormLabel>
+                      <div className="font-semibold">
+                        {currency}{" "}
+                        {(
+                          items[index].quantity * items[index].unit_cost -
+                          items[index].discount +
+                          ((items[index].quantity * items[index].unit_cost -
+                            items[index].discount) *
+                            (items[index].purchase_tax || 0)) /
+                          100
+                        ).toFixed(2)}
+                      </div>
+                    </div>
+
+                    {/* Remove */}
+                    <div className="col-span-1 flex justify-end">
+                      <Button
+                        type="button"
+                        variant="outline-destructive"
+                        size="sm"
+                        onClick={() => remove(index)}
+                      >
+                        X
+                      </Button>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  {/* Remove */}
-                  <div className="col-span-1 flex justify-end">
-                    <Button
-                      type="button"
-                      variant="outline-destructive"
-                      size="sm"
-                      onClick={() => remove(index)}
-                    >
-                      X
-                    </Button>
+              {/* Summary */}
+              <div className="mt-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 p-6 rounded-xl border-2 border-blue-100 dark:border-blue-900 max-w-[300px] ml-auto">
+                <div className="text-right space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Subtotal:</span>
+                    <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-red-600 dark:text-red-400">
+                    <span className="font-medium">Discount:</span>
+                    <span className="font-semibold">- {currency} {totalDiscount.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Tax:</span>
+                    <span className="font-semibold">{currency} {totalTax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold border-t-1 border-blue-200 dark:border-blue-800 pt-3 mt-2">
+                    <span>Grand Total:</span>
+                    <span className="text-blue-600 dark:text-blue-400">{currency} {grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Summary */}
-            {/* <div className="mt-4 text-right pr-2 space-y-1 text-sm">
-              <div>
-                Subtotal: {currency} {(subtotal + totalDiscount).toFixed(2)}
               </div>
-
-              <div className="text-red-600">
-                Discount: - {currency} {totalDiscount.toFixed(2)}
-              </div>
-
-              <div>
-                Tax ({TAX_RATE}%): {currency} {taxAmount.toFixed(2)}
-              </div>
-
-              <div className="font-bold text-lg border-t pt-2">
-                Total: {currency} {grandTotal.toFixed(2)}
-              </div>
-            </div> */}
-
-            <div className="mt-4 text-right pr-2 space-y-1 text-sm">
-              <div>
-                Subtotal: {currency} {subtotal.toFixed(2)}
-              </div>
-              <div className="text-red-600">
-                Discount: - {currency} {totalDiscount.toFixed(2)}
-              </div>
-              <div>
-                Tax: {currency} {totalTax.toFixed(2)}
-              </div>
-              <div className="font-bold text-lg border-t pt-2">
-                Total: {currency} {grandTotal.toFixed(2)}
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Submit */}
-          <div className="flex justify-end">
-            <Button className="px-6" type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Purchase Order"}
-            </Button>
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/suppliers/purchase-orders')}
+              className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Creating...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Create Purchase Order</span>
+                </>
+              )}
+            </button>
           </div>
         </form>
       </Form>

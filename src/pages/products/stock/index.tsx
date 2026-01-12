@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Package, AlertTriangle, XCircle, DollarSign } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import AddStockForm from "@/components/products/AddStockForm";
 import type { Product } from "@/types/types";
@@ -147,12 +147,121 @@ export default function StockManagement() {
     },
   ];
 
+  // Calculate statistics
+  const totalProducts = products.length;
+  const lowStockProducts = products.filter(p => p.stock_quantity <= p.min_stock_level && p.stock_quantity > 0).length;
+  const outOfStockProducts = products.filter(p => p.stock_quantity === 0).length;
+  const totalStockValue = products.reduce((sum, p) => sum + (p.stock_quantity * p.cost), 0);
+
   return (
-    <div className="space-y-8">
-      <div className="flex">
-        <h1 className="text-2xl font-bold">Stock Management</h1>
-        <div className="ml-auto">
-          <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-wrap justify-between items-start gap-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Stock Management
+          </h1>
+          <p className="text-muted-foreground mt-2">Monitor and manage product inventory</p>
+        </div>
+        <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Total Products */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-400 p-6 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+          {/* Background Pattern */}
+          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+          <div className="relative flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/90">Total Products</p>
+              <h3 className="mt-2 text-3xl font-bold text-white">
+                {totalProducts}
+              </h3>
+            </div>
+            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+              <Package className="w-6 h-6 text-white" />
+            </div>
+          </div>
+
+          {/* Progress/Indicator line */}
+          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+            <div className="h-full w-2/3 rounded-full bg-white/40" />
+          </div>
+        </div>
+
+        {/* Low Stock */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600 to-orange-400 p-6 shadow-lg shadow-orange-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+          {/* Background Pattern */}
+          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+          <div className="relative flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/90">Low Stock</p>
+              <h3 className="mt-2 text-3xl font-bold text-white">
+                {lowStockProducts}
+              </h3>
+            </div>
+            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+          </div>
+
+          {/* Progress/Indicator line */}
+          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+            <div className="h-full w-2/3 rounded-full bg-white/40" />
+          </div>
+        </div>
+
+        {/* Out of Stock */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-600 to-red-400 p-6 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+          {/* Background Pattern */}
+          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+          <div className="relative flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/90">Out of Stock</p>
+              <h3 className="mt-2 text-3xl font-bold text-white">
+                {outOfStockProducts}
+              </h3>
+            </div>
+            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+              <XCircle className="w-6 h-6 text-white" />
+            </div>
+          </div>
+
+          {/* Progress/Indicator line */}
+          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+            <div className="h-full w-2/3 rounded-full bg-white/40" />
+          </div>
+        </div>
+
+        {/* Total Stock Value */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 to-green-400 p-6 shadow-lg shadow-green-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+          {/* Background Pattern */}
+          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+          <div className="relative flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/90">Total Stock Value</p>
+              <h3 className="mt-2 text-3xl font-bold text-white">
+                {currency} {totalStockValue.toFixed(2)}
+              </h3>
+            </div>
+            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+          </div>
+
+          {/* Progress/Indicator line */}
+          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+            <div className="h-full w-2/3 rounded-full bg-white/40" />
+          </div>
         </div>
       </div>
 

@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, FileText, CreditCard, TrendingDown, CheckCircle2 } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -80,14 +80,14 @@ export default function AddExpensePage() {
   const { control, handleSubmit, reset } = form;
 
   const { data } = useGetAllDebitHeadsQuery({
-      page,
-      limit,
-      search,
-    });
-    const debitHeads: DebitHead[] = data?.data || [];
-  
-    console.log("Debit Heads", debitHeads);
-    const currency = useAppSelector((state) => state.currency.value);
+    page,
+    limit,
+    search,
+  });
+  const debitHeads: DebitHead[] = data?.data || [];
+
+  console.log("Debit Heads", debitHeads);
+  const currency = useAppSelector((state) => state.currency.value);
 
   const onSubmit: SubmitHandler<ExpenseFormValues> = async (values) => {
     const payload = {
@@ -115,17 +115,32 @@ export default function AddExpensePage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <h1 className="text-3xl font-bold">Add Expense</h1>
+    <div className="space-y-6 max-w-5xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-400 bg-clip-text text-transparent">
+            Add Expense
+          </h1>
+          <p className="text-muted-foreground mt-2">Record a new expense transaction</p>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFO */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Info</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-red-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-2 border-red-100 dark:border-red-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Basic Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Expense title, category, and description</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
-          
+
             {/* TITLE */}
             <Controller
               control={control}
@@ -240,19 +255,19 @@ export default function AddExpensePage() {
               }}
             />
 
-              {/* DATE */}
+            {/* DATE */}
             <div className="md:col-span-2">
               <Controller
-              control={control}
-              name="expense_date"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Date</FieldLabel>
-                  <Input type="date" {...field} className="block" />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
+                control={control}
+                name="expense_date"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Date</FieldLabel>
+                    <Input type="date" {...field} className="block" />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
             </div>
 
             {/* DESCRIPTION */}
@@ -277,9 +292,17 @@ export default function AddExpensePage() {
         </Card>
 
         {/* PAYMENT DETAILS */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-red-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-2 border-red-100 dark:border-red-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
+                <CreditCard className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Payment Details</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Amount, payment method, and reference</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             {/* AMOUNT */}
@@ -344,10 +367,24 @@ export default function AddExpensePage() {
         </Card>
 
         {/* SUBMIT BUTTON */}
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Save Expense"}
-          </Button>
+        <div className="flex justify-end gap-4 pt-4">
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 px-8 py-3 font-semibold text-white shadow-lg shadow-red-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-red-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <TrendingDown className="w-5 h-5" />
+                <span>Save Expense</span>
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>

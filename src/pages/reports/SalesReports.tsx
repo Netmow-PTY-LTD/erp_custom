@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUp, DollarSign, ShoppingCart, Percent } from "lucide-react";
+import { ArrowUp, DollarSign, ShoppingCart, Percent, TrendingUp, Users, Package, BarChart3, Calendar } from "lucide-react";
 import {
   useGetSalesChartDataQuery,
   useGetSalesSummaryQuery,
@@ -196,7 +196,12 @@ export default function SalesReportsPage() {
     <div className="space-y-6 px-4 md:px-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-bold">Sales Reports</h1>
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Sales Reports
+          </h1>
+          <p className="text-muted-foreground mt-2">Analyze sales performance, revenue, and top products</p>
+        </div>
         <div className="flex flex-wrap gap-2 items-end">
           <div className="flex flex-col">
             <label className="text-sm text-muted-foreground">From</label>
@@ -299,22 +304,44 @@ export default function SalesReportsPage() {
       {/* Chart + Top Customers */}
       <div className="">
         {/* Revenue Chart */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex-row justify-between items-center">
-            <CardTitle>Revenue by Day</CardTitle>
-            <span className="text-sm text-muted-foreground">
-              {startDate} → {endDate}
-            </span>
+        <Card className="lg:col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg shadow-lg shadow-blue-500/30">
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-bold text-gray-800 dark:text-gray-100">Revenue by Day</CardTitle>
+                  <p className="text-sm text-gray-500 mt-0.5">Daily revenue performance</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1 bg-white/50 rounded-lg border text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4" />
+                <span>{startDate} → {endDate}</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[350px] pt-6">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={revenueData}
-                margin={{ top: 10, right: 20, bottom: 10, left: 0 }}
+                margin={{ top: 10, right: 30, bottom: 0, left: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12, fill: '#64748B' }}
+                  axisLine={false}
+                  tickLine={false}
+                  dy={10}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: '#64748B' }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(value) => `${currency}${value}`}
+                />
                 <Tooltip
                   formatter={(value) => {
                     const num = typeof value === "number" ? value : 0;
@@ -335,10 +362,17 @@ export default function SalesReportsPage() {
       </div>
 
       {/* Top Customers */}
-      <Card>
-        <CardHeader className="flex-row justify-between">
-          <CardTitle>Top Customers</CardTitle>
-          <span className="text-sm text-muted-foreground">By sales</span>
+      <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg shadow-lg shadow-blue-500/30">
+              <Users className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-bold text-gray-800 dark:text-gray-100">Top Customers</CardTitle>
+              <p className="text-sm text-gray-500 mt-0.5">Highest spending customers</p>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {topCustomers?.length > 0 ? (
@@ -364,10 +398,17 @@ export default function SalesReportsPage() {
       </Card>
 
       {/* Top Products */}
-      <Card>
-        <CardHeader className="flex-row justify-between">
-          <CardTitle>Top Products</CardTitle>
-          <span className="text-sm text-muted-foreground">By sales</span>
+      <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+          <div className="flex items-center gap-4">
+            <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg shadow-lg shadow-blue-500/30">
+              <Package className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-bold text-gray-800 dark:text-gray-100">Top Products</CardTitle>
+              <p className="text-sm text-gray-500 mt-0.5">Best selling items</p>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <DataTable

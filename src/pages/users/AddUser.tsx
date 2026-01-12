@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
+import { UserPlus, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import { useAddUserMutation } from "@/store/features/users/usersApiService";
@@ -80,18 +81,33 @@ export default function AddUserPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
-        <h1 className="text-3xl font-bold">Add User</h1>
+    <div className="space-y-6 max-w-5xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Add User
+          </h1>
+          <p className="text-muted-foreground mt-2">Create a new user account with role assignment</p>
+        </div>
         <Link to="/dashboard/users/list">
-          <Button variant="outline">← Back to Users</Button>
+          <button className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" /> Back to Users
+          </button>
         </Link>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>User Details</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <UserPlus className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">User Details</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Name, email, password, and role</p>
+              </div>
+            </div>
           </CardHeader>
 
           <CardContent className="grid gap-4 md:grid-cols-2">
@@ -188,11 +204,24 @@ export default function AddUserPage() {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isAdding}>
-            {" "}
-            {isAdding ? "Creating..." : "Create User"}
-          </Button>
+        <div className="flex justify-end gap-4 pt-4">
+          <button
+            type="submit"
+            disabled={isAdding}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+          >
+            {isAdding ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Creating...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                <span>Create User</span>
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>
