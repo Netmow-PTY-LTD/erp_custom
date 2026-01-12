@@ -16,10 +16,14 @@ interface AddressAutocompleteProps extends React.InputHTMLAttributes<HTMLInputEl
         latitude: number;
         longitude: number;
     }) => void;
+    /** Desired accuracy in meters before stopping watch (default 50) */
+    desiredAccuracyMeters?: number;
+    /** How long to attempt high-accuracy positioning before falling back (ms, default 15000) */
+    geolocationTimeoutMs?: number;
 }
-
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompleteProps>(
-    ({ className, onAddressSelect, value, onChange, ...props }, ref) => {
+    ({ className, onAddressSelect, value, onChange,  desiredAccuracyMeters = 50, geolocationTimeoutMs = 15000, ...props }, ref) => {
         const { isLoaded, loadError } = useGoogleMapsScript();
         const [inputValue, setInputValue] = useState(value as string || "");
         const [predictions, setPredictions] = useState<any[]>([]);
@@ -140,94 +144,175 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
             }
 
             setIsGeolocating(true);
+
+            let watchId: number | null = null;
+            let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
             try {
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const { latitude, longitude } = position.coords;
-                        // Reverse geocode to get address details
-                        geocoderRef.current.geocode(
-                            { location: { lat: latitude, lng: longitude } },
-                            (results: any, status: any) => {
-                                if (status === (window as any).google.maps.GeocoderStatus.OK && results && results.length > 0) {
-                                    const placeResult = results[0];
+                let bestPos: GeolocationPosition | null = null;
 
-                                    // Extract address components
-                                    let address = "";
-                                    let city = "";
-                                    let state = "";
-                                    let postalCode = "";
-                                    let country = "";
+                const clearWatchAndTimeout = () => {
+                    try {
+                        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    } catch (e) {
+                        /* ignore */
+                    }
+                    if (timeoutId) clearTimeout(timeoutId);
+                };
 
-                                    if (placeResult.address_components) {
-                                        placeResult.address_components.forEach((component: any) => {
-                                            const types = component.types;
-
-                                            if (types.includes("street_number")) {
-                                                address += component.long_name + " ";
-                                            }
-                                            if (types.includes("route")) {
-                                                address += component.long_name;
-                                            }
-                                            if (types.includes("locality")) {
-                                                city = component.long_name;
-                                            }
-                                            if (!city && types.includes("sublocality_level_1")) {
-                                                city = component.long_name;
-                                            }
-                                            if (types.includes("administrative_area_level_1")) {
-                                                state = component.long_name;
-                                            }
-                                            if (types.includes("postal_code")) {
-                                                postalCode = component.long_name;
-                                            }
-                                            if (types.includes("country")) {
-                                                country = component.long_name;
-                                            }
-                                        });
-                                    }
-
-                                    address = address.trim() || placeResult.formatted_address;
-                                    setInputValue(placeResult.formatted_address);
-
-                                    onAddressSelect({
-                                        address,
-                                        city,
-                                        state,
-                                        postalCode,
-                                        country,
-                                        latitude,
-                                        longitude,
-                                    });
-
-                                    setIsOpen(false);
-                                } else {
-                                    console.error("Geocoding failed:", status);
-                                    alert("Could not find address for your location");
-                                }
-                                setIsGeolocating(false);
-                            }
-                        );
-                    },
-                    (error) => {
-                        console.error("Geolocation error:", error);
-                        let message = "Unable to get your location";
-                        if (error.code === error.PERMISSION_DENIED) {
-                            message = "Location permission denied. Please enable location access.";
-                        } else if (error.code === error.POSITION_UNAVAILABLE) {
-                            message = "Location information is unavailable.";
-                        } else if (error.code === error.TIMEOUT) {
-                            message = "Location request timed out.";
-                        }
-                        alert(message);
-                        setIsGeolocating(false);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0,
+                const onPosition = (position: GeolocationPosition) => {
+                    // prefer reading with smaller accuracy value
+                    if (!bestPos || (position.coords.accuracy && position.coords.accuracy < (bestPos.coords.accuracy || Infinity))) {
+                        bestPos = position;
                     }
 
-                );
+                    // If we reached desired accuracy, stop watching and use it
+                    if (position.coords.accuracy && position.coords.accuracy <= desiredAccuracyMeters) {
+                        clearWatchAndTimeout();
+                        proceedWithPosition(bestPos);
+                    }
+                };
+
+                const onError = (error: GeolocationPositionError) => {
+                    console.error("Geolocation error:", error);
+                    // we'll fall back after timeout
+                };
+
+                // Start watch to collect multiple readings and choose the most accurate one
+                watchId = navigator.geolocation.watchPosition(onPosition, onError, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: geolocationTimeoutMs,
+                });
+
+                // After timeout, stop watching and use best reading (if any) or fallback
+                timeoutId = setTimeout(async () => {
+                    try {
+                        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    } catch (e) {
+                        /* ignore */
+                    }
+
+                    if (bestPos) {
+                        proceedWithPosition(bestPos);
+                    } else if (GOOGLE_MAPS_API_KEY) {
+                        // Try Google Geolocation Web API as a fallback (may use IP and be less accurate)
+                        try {
+                            const res = await fetch(`https://www.googleapis.com/geolocation/v1/geolocate?key=${GOOGLE_MAPS_API_KEY}`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ considerIp: true }),
+                            });
+
+                            if (res.ok) {
+                                const json = await res.json();
+                                if (json && json.location) {
+                                    const { lat, lng } = json.location;
+                                    proceedWithCoords(lat, lng);
+                                    return;
+                                }
+                            }
+                            console.error("Google Geolocation API failed:", res.statusText || res.status);
+                            alert("Could not get a precise location. Please try again or enter address manually.");
+                        } catch (err) {
+                            console.error("Google Geolocation API error:", err);
+                            alert("Could not get a precise location. Please try again or enter address manually.");
+                        }
+                    } else {
+                        alert("Could not get a precise location. Please try again or enter address manually.");
+                    }
+
+                    setIsGeolocating(false);
+                }, geolocationTimeoutMs + 500); // small buffer
+
+                // Helper: reverse geocode and extract address details
+                const proceedWithPosition = (position: GeolocationPosition | null) => {
+                    if (!position) {
+                        setIsGeolocating(false);
+                        alert("Unable to determine location");
+                        return;
+                    }
+                    const { latitude, longitude } = position.coords as any;
+                    proceedWithCoords(latitude, longitude);
+                };
+
+                const proceedWithCoords = (latitude: number, longitude: number) => {
+                    // Reverse geocode to get address details
+                    geocoderRef.current.geocode(
+                        { location: { lat: latitude, lng: longitude } },
+                        (results: any, status: any) => {
+                            if (status === (window as any).google.maps.GeocoderStatus.OK && results && results.length > 0) {
+                                const placeResult = results[0];
+
+                                // Extract address components
+                                let address = "";
+                                let city = "";
+                                let state = "";
+                                let postalCode = "";
+                                let country = "";
+
+                                if (placeResult.address_components) {
+                                    placeResult.address_components.forEach((component: any) => {
+                                        const types = component.types;
+
+                                        if (types.includes("street_number")) {
+                                            address += component.long_name + " ";
+                                        }
+                                        if (types.includes("route")) {
+                                            address += component.long_name;
+                                        }
+                                        if (types.includes("locality")) {
+                                            city = component.long_name;
+                                        }
+                                        if (!city && types.includes("sublocality_level_1")) {
+                                            city = component.long_name;
+                                        }
+                                        if (types.includes("administrative_area_level_1")) {
+                                            state = component.long_name;
+                                        }
+                                        if (types.includes("postal_code")) {
+                                            postalCode = component.long_name;
+                                        }
+                                        if (types.includes("country")) {
+                                            country = component.long_name;
+                                        }
+                                    });
+                                }
+
+                                address = address.trim() || placeResult.formatted_address;
+                                setInputValue(placeResult.formatted_address);
+
+                                onAddressSelect({
+                                    address,
+                                    city,
+                                    state,
+                                    postalCode,
+                                    country,
+                                    latitude,
+                                    longitude,
+                                });
+
+                                setIsOpen(false);
+                            } else {
+                                console.error("Geocoding failed:", status);
+                                alert("Could not find address for your location");
+                            }
+                            setIsGeolocating(false);
+                        }
+                    );
+
+                    // cleanup
+                    try {
+                        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    } catch (e) {
+                        /* ignore */
+                    }
+                    if (timeoutId) clearTimeout(timeoutId);
+                };
+
             } catch (error) {
                 console.error("Error getting current location:", error);
                 alert("Error getting your location");
