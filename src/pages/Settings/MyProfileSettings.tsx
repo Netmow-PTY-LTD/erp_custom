@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import {
-    useUpdateUserMutation,
-} from "@/store/features/users/usersApiService";
+    useAuthUserQuery,
+    useUpdateProfileMutation,
+} from "@/store/features/auth/authApiService";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
-import { useAuthUserQuery } from "@/store/features/auth/authApiService";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const profileSchema = z.object({
@@ -19,7 +19,7 @@ const profileSchema = z.object({
     email: z.string().optional(),
     phone: z.string().optional(),
     password: z.string().optional(),
-    profile_image: z.string().optional(),
+    thumb_url: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -34,7 +34,7 @@ export default function EditProfilePage() {
             email: "",
             phone: "",
             password: "",
-            profile_image: "",
+            thumb_url: "",
         },
     });
 
@@ -54,34 +54,41 @@ export default function EditProfilePage() {
                 role: currentUser?.role?.display_name ?? "",
                 email: currentUser?.email ?? "",
                 phone: currentUser?.phone ?? "",
-                profile_image: currentUser?.profile_image ?? "",
+                thumb_url: currentUser?.thumb_url ?? "",
             });
         }
     }, [currentUser, form]);
 
 
-    const [updateUser] = useUpdateUserMutation();
+    const [updateProfile] = useUpdateProfileMutation();
 
     const onSubmit: SubmitHandler<ProfileFormValues> = async (values) => {
-        if (!currentUser?.id) {
-            toast.error("User not found");
-            return;
-        }
-
         console.log("Updated profile:", values);
+        const payload = {
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            password: values.password,
+            thumb_url: values.thumb_url,
+        };
         try {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { role, ...updateData } = values;
-            const res = await updateUser({ id: currentUser.id, body: updateData }).unwrap();
+            //const { role, ...updateData } = values;
+            const res = await updateProfile(payload).unwrap();
             console.log("Profile updated successfully:", res);
             if (res.status) {
                 toast.success(res.message || "Profile updated successfully");
             }
         } catch (error) {
             console.error("Error updating profile:", error);
+            const err = error as {
+                data: {
+                    message: string;
+                };
+            };
             toast.error(
-                "Error updating profile" +
-                (error instanceof Error ? ": " + error.message : "")
+                "Error updating profile:" +
+                (err?.data?.message ?? "Something went wrong")
             );
         }
     };
@@ -104,7 +111,7 @@ export default function EditProfilePage() {
                 {/* LOGO */}
                 <Controller
                     control={control}
-                    name="profile_image"
+                    name="thumb_url"
                     render={({ field, fieldState }) => (
                         <Field>
                             <FieldLabel>Profile Image</FieldLabel>

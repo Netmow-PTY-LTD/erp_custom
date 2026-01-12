@@ -18,7 +18,7 @@ export type User = {
   role_id: number;
   role: Role;
   phone: string;
-  profile_image: string;
+  thumb_url: string;
   password?: string;
   created_at: string; // or Date if you want: Date
 };
