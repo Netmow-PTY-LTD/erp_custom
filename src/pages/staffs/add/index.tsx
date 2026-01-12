@@ -472,8 +472,6 @@ export default function AddStaffPage() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="terminated">Terminated</SelectItem>
-                          <SelectItem value="on_leave">On Leave</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

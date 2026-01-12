@@ -28,8 +28,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
 
-export default function Orders() {
+export default function Orders({ status }: { status?: string }) {
+  const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1); // backend starts from 1
   const [limit] = useState(10);
@@ -38,6 +41,7 @@ export default function Orders() {
     page,
     limit,
     search,
+    status,
   });
 
   const orders = data?.data ?? [];
@@ -48,6 +52,16 @@ export default function Orders() {
   // permissions
 
   const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+  const handleOpenUpdateDeliveryStatusModal = (order: any) => {
+    setSelectedOrder(order);
+    setIsUpdateDeliveryStatusModalOpen(true);
+  };
+
+  const handleCloseUpdateDeliveryStatusModal = () => {
+    setIsUpdateDeliveryStatusModalOpen(false);
+    setSelectedOrder(null);
+  };
 
   const { data: fetchedOrdersStats } = useGetSalesOrdersStatsQuery(undefined);
   console.log("fetchedOrdersStats", fetchedOrdersStats);
@@ -194,6 +208,13 @@ export default function Orders() {
                 Edit
               </Button>
             </Link> */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleOpenUpdateDeliveryStatusModal(item)}
+            >
+              Update Delivery Status
+            </Button>
           </div>
         );
       },
@@ -204,7 +225,7 @@ export default function Orders() {
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">
-          Sales Orders Management
+          Sales Orders Management ({status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : ""})
         </h1>
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/sales/invoices">
@@ -250,7 +271,7 @@ export default function Orders() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>All Orders</CardTitle>
+          <CardTitle>{status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : "All "}Orders</CardTitle>
           <CardDescription>Manage your orders</CardDescription>
         </CardHeader>
         <CardContent>
@@ -269,6 +290,11 @@ export default function Orders() {
           />
         </CardContent>
       </Card>
+      <UpdateDeliveryStatusModal
+        isOpen={isUpdateDeliveryStatusModalOpen}
+        onClose={handleCloseUpdateDeliveryStatusModal}
+        selectedOrder={selectedOrder}
+      />
     </div>
   );
 }

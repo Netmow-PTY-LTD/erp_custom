@@ -28,6 +28,8 @@ import {
   Truck,
   UserPlus,
   Users,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Products from "../pages/products/Products";
@@ -42,6 +44,9 @@ import Payments from "@/pages/salesOrders/payments/Payments";
 import CreateOrderPage from "@/pages/salesOrders/order/createOrder";
 import EditOrderPage from "@/pages/salesOrders/order/editOrder";
 import OrderDetails from "@/pages/salesOrders/order/OrderDetails";
+import PendingOrders from "@/pages/salesOrders/order/PendingOrders";
+import ConfirmedOrders from "@/pages/salesOrders/order/ConfirmedOrders";
+import DeliveredOrders from "@/pages/salesOrders/order/DeliveredOrders";
 import AddIncomePage from "@/pages/accounting/AddIncomePage";
 import AddExpensePage from "@/pages/accounting/AddExpanse";
 import Expenses from "@/pages/accounting/Expenses";
@@ -903,6 +908,36 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/orders",
         element: <Orders />,
         icon: List,
+        allowedPermissions: [
+          SalesPermission.ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Pending Orders",
+        url: "/dashboard/sales/orders/pending",
+        element: <PendingOrders />,
+        icon: Clock,
+        allowedPermissions: [
+          SalesPermission.ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Confirmed Orders",
+        url: "/dashboard/sales/orders/confirmed",
+        element: <ConfirmedOrders />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SalesPermission.ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Delivered Orders",
+        url: "/dashboard/sales/orders/delivered",
+        element: <DeliveredOrders />,
+        icon: Truck,
         allowedPermissions: [
           SalesPermission.ORDERS,
           SuperAdminPermission.ACCESS_ALL,
