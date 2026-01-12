@@ -27,7 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAddProductCategoryMutation } from "@/store/features/admin/productsApiService";
-import { Loader, ShieldAlert } from "lucide-react";
+import { Loader, ShieldAlert, PlusCircle } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
 import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
@@ -52,10 +52,7 @@ export default function AddProductCategoryForm({
 }) {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canCreateCategory = userPermissions.includes(ProductPermission.CREATE_CATEGORIES)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-
-
-
+  const canCreateCategory = userPermissions.includes(ProductPermission.CREATE_CATEGORIES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const form = useForm({
     resolver: zodResolver(categorySchema),
@@ -98,7 +95,10 @@ export default function AddProductCategoryForm({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button>Add Category</Button>
+        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <PlusCircle size={18} />
+          Add Category
+        </button>
       </SheetTrigger>
 
       <SheetContent side="right" className="max-w-[400px] w-full">
