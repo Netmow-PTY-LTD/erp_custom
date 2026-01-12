@@ -20,6 +20,7 @@ export interface SalesOrderItem {
 }
 
 export interface SalesOrder {
+  assignedStaff: never[];
   delivery_status: any;
   delivery: any;
   delivery_date: string | number | Date;

@@ -50,6 +50,7 @@ const dummyStaff = [
 const OrderManage = () => {
     // Local interface for UI representation
     interface Order {
+        total_amount: number;
         id: number | string;
         order_number: string;
         customer: string;
@@ -77,9 +78,11 @@ const OrderManage = () => {
         order_number: apiOrder.order_number,
         customer: apiOrder.customer?.name || "Unknown",
         date: apiOrder.order_date ? new Date(apiOrder.order_date).toLocaleDateString() : "N/A",
-        total: Number(apiOrder.total_payable_amount) || 0,
+        total: Number(apiOrder.total_amount) || 0,
+        total_amount: Number(apiOrder.total_amount) || 0,
         status: apiOrder.status,
-        assignedTo: [], // Mocked as API doesn't support assignedTo yet
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        assignedTo: (apiOrder.assignedStaff || []).map((staff: any) => staff.id.toString()),
         items: (apiOrder.items || []).map((item: SalesOrderItem) => ({
             name: item.product?.name || "Unknown Item",
             qty: item.quantity,
@@ -155,10 +158,12 @@ const OrderManage = () => {
             // Assuming the API takes one orderId at a time for now based on the store definition
             // If the backend supports bulk, we should update the store definition.
 
+            
+            const staffIds: number[] = selectedStaffIds.map(id => Number(id));
             for (const orderId of ordersToAssign) {
                 await assignStaff({
                     orderId,
-                    data: { staffIds: selectedStaffIds }
+                    data: { staff_ids: staffIds }
                 }).unwrap();
             }
 
@@ -179,6 +184,18 @@ const OrderManage = () => {
     };
 
     const getStaffDetails = (id: string) => {
+        // Try to get from staffData first
+        if (staffData?.data) {
+            const staff = staffData.data.find((s) => s.id.toString() === id);
+            if (staff) {
+                return {
+                    id: staff.id.toString(),
+                    name: `${staff.first_name} ${staff.last_name}`,
+                    role: staff.position
+                };
+            }
+        }
+        // Fallback to dummy staff
         return dummyStaff.find((s) => s.id === id);
     };
 
@@ -293,7 +310,7 @@ const OrderManage = () => {
                                             <span className="text-sm text-muted-foreground italic">Unassigned</span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-right font-semibold">${(order.total || 0).toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-semibold">${(order.total_amount || 0).toLocaleString()}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1">
                                             <Button
@@ -471,7 +488,7 @@ const OrderManage = () => {
                                                     ))}
                                                     <TableRow className="bg-muted/50 font-medium">
                                                         <TableCell colSpan={3} className="text-right">Grand Total</TableCell>
-                                                        <TableCell className="text-right text-primary">${(Number(detailedOrderData.data.total_payable_amount) || 0).toLocaleString()}</TableCell>
+                                                        <TableCell className="text-right text-primary">${(Number(detailedOrderData.data.total_amount) || 0).toLocaleString()}</TableCell>
                                                     </TableRow>
                                                 </TableBody>
                                             </Table>
