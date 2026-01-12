@@ -16,11 +16,11 @@ export interface Staff {
   status: StaffStatus; // Restricted to known statuses
   thumb_url: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  gallery_items: string[] | any[]; 
+  gallery_items: string[] | any[] | null;
   created_at: string;
   updated_at: string;
   department: Department;
-  
+
   // Nullable fields
   address: string | null;
   city: string | null;
