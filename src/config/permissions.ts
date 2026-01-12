@@ -11,7 +11,9 @@ export const DashboardPermission = {
   VIEW: "dashboard.view" as const,
   STATS: "dashboard.stats" as const,
   GRAPH: "dashboard.graph" as const,
-  LIST: "dashboard.list" as const,
+  // LIST: "dashboard.list" as const,
+  RECENT_SALES_LIST: "dashboard.recent_sales.list" as const,
+  RECENT_CUSTOMERS_LIST: "dashboard.recent_customers.list" as const,
 };
 
 // --- Products ---
