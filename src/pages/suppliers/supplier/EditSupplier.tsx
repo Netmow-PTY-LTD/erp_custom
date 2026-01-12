@@ -9,9 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router";
+import { Building2, MapPin, User, CheckCircle2 } from "lucide-react";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 import {
   useGetSupplierByIdQuery,
@@ -131,43 +131,121 @@ export default function EditSupplierPage() {
   if (isFetching) return <p>Loading supplier data...</p>;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-6">
-     
-        <div className="flex justify-between items-center">
-             <h1 className="text-3xl font-bold">Update Supplier</h1>
-             <BackButton/>
-           </div>
+    <div className="space-y-6 max-w-5xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Update Supplier
+          </h1>
+          <p className="text-muted-foreground mt-2">Update supplier profile and contact information</p>
+        </div>
+        <BackButton />
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFORMATION */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <Building2 className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Basic Information</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Essential supplier details and contact information</p>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
-            {["name", "code", "email", "phone", "contactPerson", "paymentTerms"].map((fieldName) => (
-              <Controller
-                key={fieldName}
-                control={control}
-                name={fieldName as any}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>{fieldName === "contactPerson" ? "Contact Person" : fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}</FieldLabel>
-                    <Input placeholder={fieldName} {...field} />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            ))}
+          <CardContent className="grid gap-4 md:grid-cols-2 pb-6">
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Name</FieldLabel>
+                  <Input placeholder="Supplier Name" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="code"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Supplier Code (optional)</FieldLabel>
+                  <Input placeholder="e.g., SUP001" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Email</FieldLabel>
+                  <Input type="email" placeholder="supplier@example.com" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Phone</FieldLabel>
+                  <Input placeholder="+60 123-456-7890" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="contactPerson"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Contact Person</FieldLabel>
+                  <Input placeholder="John Doe" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="paymentTerms"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Payment Terms</FieldLabel>
+                  <Input placeholder="e.g., Net 30" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
           </CardContent>
         </Card>
 
         {/* ADDRESS */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Address Details</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <MapPin className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Address Details</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Location and geographical information</p>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
+          <CardContent className="grid gap-4 md:grid-cols-2 pb-6">
+
             <Controller
               control={control}
               name="address"
@@ -192,40 +270,114 @@ export default function EditSupplierPage() {
               )}
             />
 
-            {["state", "postal_code", "city", "country", "latitude", "longitude"].map((fieldName) => (
-              <Controller
-                key={fieldName}
-                control={control}
-                name={fieldName as any}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>{fieldName.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}</FieldLabel>
+            <Controller
+              control={control}
+              name="state"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>State / Province</FieldLabel>
+                  <Input placeholder="State" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
 
-                    <Input
-                      type={["latitude", "longitude"].includes(fieldName) ? "number" : "text"}
-                      placeholder={fieldName}
-                      value={field.value || ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          ["latitude", "longitude"].includes(fieldName) ? (e.target.value ? Number(e.target.value) : undefined) : e.target.value
-                        )
-                      }
-                    />
+            <Controller
+              control={control}
+              name="postal_code"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Postal Code</FieldLabel>
+                  <Input placeholder="Postal code" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
 
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            ))}
+            <Controller
+              control={control}
+              name="city"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>City</FieldLabel>
+                  <Input placeholder="City" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="country"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Country</FieldLabel>
+                  <Input placeholder="Country" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+
+            <Controller
+              control={control}
+              name="latitude"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Latitude (Optional)</FieldLabel>
+                  <Input
+                    type="number"
+                    step="any"
+                    placeholder="e.g. 40.7128"
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined
+                      )
+                    }
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="longitude"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Longitude (Optional)</FieldLabel>
+                  <Input
+                    type="number"
+                    step="any"
+                    placeholder="e.g. -74.0060"
+                    value={field.value || ""}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : undefined
+                      )
+                    }
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
           </CardContent>
         </Card>
 
         {/* STATUS */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Status</CardTitle>
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Status</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Set supplier availability status</p>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pb-6">
             <Controller
               control={control}
               name="status"
@@ -249,10 +401,31 @@ export default function EditSupplierPage() {
         </Card>
 
         {/* SUBMIT */}
-        <div className="flex justify-end">
-          <Button type="submit" disabled={isUpdating}>
-            {isUpdating ? "Updating..." : "Update Supplier"}
-          </Button>
+        <div className="flex justify-end gap-4 pt-6">
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard/suppliers')}
+            className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isUpdating}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+          >
+            {isUpdating ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Updating...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                <span>Save Supplier</span>
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>

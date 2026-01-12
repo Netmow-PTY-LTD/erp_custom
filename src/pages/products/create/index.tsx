@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 //import { ImageUploader } from "@/components/form/ImageUploader";
 import { useNavigate } from "react-router";
-import { Check, ChevronDown, Loader, Package, Image as ImageIcon, Tag, DollarSign, Truck, CheckCircle2 } from "lucide-react";
+import { Check, ChevronDown, Package, Image as ImageIcon, Tag, DollarSign, Truck, CheckCircle2 } from "lucide-react";
 import {
   useAddProductMutation,
   useGetAllCategoriesQuery,
@@ -185,7 +185,7 @@ export default function AddProductPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* BASIC INFO */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <Package className="w-6 h-6 text-white" />
@@ -197,7 +197,7 @@ export default function AddProductPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-2">
+            <CardContent className="grid gap-4 md:grid-cols-2 pb-3">
               {/* SKU */}
               <Controller
                 control={control}
@@ -262,7 +262,7 @@ export default function AddProductPage() {
           </Card>
 
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <ImageIcon className="w-6 h-6 text-white" />
@@ -273,7 +273,7 @@ export default function AddProductPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pb-3">
               <Controller
                 control={control}
                 name="gallery_items"
@@ -294,7 +294,7 @@ export default function AddProductPage() {
 
           {/* CLASSIFICATION */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <Tag className="w-6 h-6 text-white" />
@@ -306,7 +306,7 @@ export default function AddProductPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-3">
+            <CardContent className="grid gap-4 md:grid-cols-3 pb-6">
               {/* CATEGORY */}
               <Controller
                 control={control}
@@ -486,7 +486,7 @@ export default function AddProductPage() {
 
           {/* PRICING & STOCK */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <DollarSign className="w-6 h-6 text-white" />
@@ -498,7 +498,7 @@ export default function AddProductPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-3">
+            <CardContent className="grid gap-4 md:grid-cols-3 pb-6">
               <Controller
                 control={control}
                 name="price"
@@ -641,7 +641,7 @@ export default function AddProductPage() {
 
           {/* LOGISTICS */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                   <Truck className="w-6 h-6 text-white" />
@@ -653,7 +653,7 @@ export default function AddProductPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-2">
+            <CardContent className="grid gap-4 md:grid-cols-2 pb-6">
               {/* WEIGHT */}
               <Controller
                 control={control}

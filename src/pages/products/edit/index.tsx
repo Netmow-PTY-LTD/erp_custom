@@ -21,7 +21,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Package, Image as ImageIcon, Tag, DollarSign, Truck, CheckCircle2 } from "lucide-react";
 import {
   useGetAllCategoriesQuery,
   useGetAllUnitsQuery,
@@ -159,7 +159,7 @@ export default function EditProductPage() {
     }
   }, [fetchedProduct?.data, form]);
 
-  const [updateProduct] = useUpdateProductMutation();
+  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
   const onSubmit = async (values: ProductFormValues) => {
     console.log(values);
 
@@ -191,36 +191,49 @@ export default function EditProductPage() {
       }).unwrap();
       console.log("Product added successfully:", res);
       if (res.status) {
-        toast.success("Product added successfully");
+        toast.success("Product updated successfully");
         // Navigate back to products list or reset form
         navigate("/dashboard/products");
       } else {
-        toast.error("Failed to add product: " + res.message);
+        toast.error("Failed to update product: " + res.message);
       }
     } catch (error) {
-      console.error("Error adding product:", error);
-      toast.error("Failed to add product");
+      console.error("Error updating product:", error);
+      toast.error("Failed to update product");
       if (error instanceof Error) {
-        toast.error("Failed to add product: " + error.message);
+        toast.error("Failed to update product: " + error.message);
       }
     }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <h1 className="text-3xl font-bold">Edit Product</h1>
+    <div className="space-y-6 max-w-5xl mx-auto py-6">
+      <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            Edit Product
+          </h1>
+          <p className="text-muted-foreground mt-2">Update product details and specifications</p>
+        </div>
         <BackButton />
       </div>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* BASIC INFO */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Info</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Package className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Basic Information</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Product name, SKU, and description</p>
+                </div>
+              </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-2">
+            <CardContent className="grid gap-4 md:grid-cols-2 pb-3">
               {/* SKU */}
               <Controller
                 control={control}
@@ -284,8 +297,19 @@ export default function EditProductPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <ImageIcon className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Product Gallery</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Update product and gallery images</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-3">
               <Controller
                 control={control}
                 name="gallery_items"
@@ -305,12 +329,20 @@ export default function EditProductPage() {
           </Card>
 
           {/* CLASSIFICATION */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Classification</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Tag className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Classification</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Category, unit, and status</p>
+                </div>
+              </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-3">
+            <CardContent className="grid gap-4 md:grid-cols-3 pb-6">
               {/* CATEGORY */}
               <Controller
                 control={control}
@@ -481,12 +513,20 @@ export default function EditProductPage() {
           </Card>
 
           {/* PRICING & STOCK */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing & Stock</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Pricing & Stock</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Prices, stock levels, and taxes</p>
+                </div>
+              </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-3">
+            <CardContent className="grid gap-4 md:grid-cols-3 pb-6">
               <Controller
                 control={control}
                 name="price"
@@ -628,12 +668,20 @@ export default function EditProductPage() {
           </Card>
 
           {/* LOGISTICS */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Logistics</CardTitle>
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Truck className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Logistics</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Weight and dimensions</p>
+                </div>
+              </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-2">
+            <CardContent className="grid gap-4 md:grid-cols-2 pb-6">
               {/* WEIGHT */}
               <Controller
                 control={control}
@@ -696,8 +744,31 @@ export default function EditProductPage() {
           </Card>
 
           {/* SUBMIT */}
-          <div className="flex justify-end">
-            <Button type="submit">Update Product</Button>
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/products')}
+              className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isUpdating}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+            >
+              {isUpdating ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Updating...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Update Product</span>
+                </>
+              )}
+            </button>
           </div>
         </form>
       </Form>
