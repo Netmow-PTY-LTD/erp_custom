@@ -127,7 +127,7 @@ export default function AssignRoutePage() {
     try {
       const res = await assignStaff({
         routeId,
-        body: { staff: staffIds },
+        body: { staff_ids: staffIds },
       }).unwrap();
 
       if (res.status) {

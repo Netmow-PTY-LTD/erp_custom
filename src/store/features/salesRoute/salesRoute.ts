@@ -21,7 +21,7 @@ export interface SalesRouteResponse<T> {
 
 
 interface AssignStaffRequestBody {
-  staff: number[];
+ staff_ids: number[];
 }
 
 // ----------------------
