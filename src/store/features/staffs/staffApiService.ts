@@ -6,7 +6,7 @@ export type StaffResponse<T> = {
   status: boolean;
   message: string;
   data: T;
-   pagination?: {
+  pagination?: {
     total: number;
     page: number;
     limit: number;
@@ -23,6 +23,45 @@ export type StaffQueryParams = {
   department?: string;   // Department filter
   search?: string;       // Search by name, email, or position
 };
+
+
+
+
+
+
+export type RouteStatus = "Active" | "Pending";
+
+export interface Route {
+  id: number;
+  name: string;
+  status: RouteStatus;
+  orders: number;
+}
+
+export interface StaffStats {
+  completedOrders: number;
+  rating: number;
+}
+
+export interface StaffWiseRoutes {
+  id: number;
+  name: string;
+  role: "Sales Representative" | "Delivery Driver" | "Area Manager";
+  email: string;
+  phone: string;
+  active: boolean;
+  routes: Route[];
+  stats: StaffStats;
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -52,7 +91,7 @@ export const staffApiService = baseApi.injectEndpoints({
     }),
 
     // GET SINGLE STAFF BY ID
-    getStaffById: builder.query< StaffResponse<Staff>, string | number>({
+    getStaffById: builder.query<StaffResponse<Staff>, string | number>({
       query: (id) => ({
         url: `/staffs/${id}`,
         method: "GET",
@@ -79,6 +118,16 @@ export const staffApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Staffs"],
     }),
 
+    // Staff wise routes
+    getAllStaffWiseRoutes: builder.query<StaffResponse<StaffWiseRoutes[]>, StaffQueryParams>({
+      query: (params) => ({
+        url: "/staffs/routes",
+        method: "GET",
+        params
+      }),
+      providesTags: ["staffRoutes"],
+    }),
+
   }),
 });
 
@@ -88,4 +137,5 @@ export const {
   useGetStaffByIdQuery,
   useUpdateStaffMutation,
   useDeleteStaffMutation,
+  useGetAllStaffWiseRoutesQuery,
 } = staffApiService;
