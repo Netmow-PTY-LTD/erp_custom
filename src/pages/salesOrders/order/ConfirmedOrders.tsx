@@ -35,7 +35,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
 
- export function ConfirmedOrders() {
+export function ConfirmedOrders() {
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
@@ -269,12 +269,11 @@ import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
 
 
 
-      const confirmOrderStatusOptions = [
+  const confirmOrderStatusOptions = [
+    { value: "confirmed", label: "Confirmed" },
     { value: "in_transit", label: "In Transit" },
-    { value: "delivered", label: "Delivered" },
     { value: "returned", label: "Returned" },
-    
-];
+  ] as const;
 
 
 
@@ -369,6 +368,7 @@ import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
         statusOptions={confirmOrderStatusOptions}
+        defaultStatus="in_transit"
       />
     </div>
   );

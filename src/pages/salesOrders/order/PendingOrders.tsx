@@ -265,10 +265,12 @@ export default function PendingOrders() {
 
 
 
-      const pendingStatusOptions = [
+  const pendingStatusOptions = [
     { value: "pending", label: "Pending" },
     { value: "confirmed", label: "Confirmed" },
-];
+    { value: "failed", label: "Failed" },
+    { value: "cancelled", label: "Cancelled" },
+  ] as const;
 
 
 
@@ -366,6 +368,7 @@ export default function PendingOrders() {
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
         statusOptions={pendingStatusOptions}
+        defaultStatus="confirmed"
       />
     </div>
   );

@@ -985,7 +985,7 @@ export const sidebarItemLink = [
         title: "In-Transit Orders",
         url: "/dashboard/sales/orders/intransit-order",
         element: <IntransitOrder />,
-        icon: CheckCircle,
+        icon: Truck,
         allowedPermissions: [
           SalesPermission.INTRANSIT_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
@@ -995,7 +995,7 @@ export const sidebarItemLink = [
         title: "Delivered Orders",
         url: "/dashboard/sales/orders/delivered",
         element: <DeliveredOrders />,
-        icon: Truck,
+        icon: Package,
         allowedPermissions: [
           SalesPermission.DELIVERED_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
@@ -1432,11 +1432,11 @@ export const sidebarItemLink = [
     title: "Help",
     url: "/dashboard/help",
     icon: Map,
-      element: <Help />,
+    element: <Help />,
     allowedPermissions: [
       HelpPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
-   
+
   },
 ];

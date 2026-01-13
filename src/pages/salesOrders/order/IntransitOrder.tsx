@@ -264,14 +264,13 @@ export default function IntransitOrder() {
 
 
 
-      const orderStatusOptions = [
-    { value: "pending", label: "Pending" },
+  const orderStatusOptions = [
     { value: "in_transit", label: "In Transit" },
     { value: "delivered", label: "Delivered" },
     { value: "failed", label: "Failed" },
     { value: "returned", label: "Returned" },
-    { value: "confirmed", label: "Confirmed" },
-];
+    { value: "cancelled", label: "Cancelled" },
+  ] as const;
 
 
 
@@ -366,6 +365,7 @@ export default function IntransitOrder() {
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
         statusOptions={orderStatusOptions}
+        defaultStatus="delivered"
       />
     </div>
   );

@@ -45,6 +45,7 @@
 //                 "failed",
 //                 "returned",
 //                 "confirmed",
+//                 "cancelled",
 //             ];
 //             if (requiredStatuses.includes(data.status)) {
 //                 return !!data.delivery_date;
@@ -229,23 +230,32 @@ import { useUpdateSalesOrderStatusMutation } from "@/store/features/salesOrder/s
 
 /* ---------------- TYPES ---------------- */
 
-export interface StatusOption {
-    value: string;
-    label: string;
-}
+// export interface StatusOption {
+//     value: string;
+//     label: string;
+// }
 
 interface UpdateDeliveryStatusModalProps {
     isOpen: boolean;
     onClose: () => void;
     selectedOrder: any;
-    statusOptions: StatusOption[];
+    statusOptions: readonly { value: DeliveryFormValues["status"]; label: string }[];
+    defaultStatus?: DeliveryFormValues["status"];
 }
 
 /* ---------------- SCHEMA ---------------- */
 
 const deliverySchema = z
     .object({
-        status: z.string(),
+        status: z.enum([
+            "pending",
+            "in_transit",
+            "delivered",
+            "failed",
+            "returned",
+            "confirmed",
+            "cancelled",
+        ]),
         delivery_date: z.string().optional(),
         notes: z.string().optional(),
     })
@@ -258,6 +268,7 @@ const deliverySchema = z
                 "failed",
                 "returned",
                 "confirmed",
+                "cancelled",
             ];
             if (requiredStatuses.includes(data.status)) {
                 return !!data.delivery_date;
@@ -279,6 +290,7 @@ export default function UpdateDeliveryStatusModal({
     onClose,
     selectedOrder,
     statusOptions,
+    defaultStatus,
 }: UpdateDeliveryStatusModalProps) {
     const form = useForm<DeliveryFormValues>({
         resolver: zodResolver(deliverySchema),
@@ -292,16 +304,16 @@ export default function UpdateDeliveryStatusModal({
     useEffect(() => {
         if (selectedOrder) {
             form.reset({
-                status: selectedOrder.delivery_status || "pending",
+                status: defaultStatus || selectedOrder.delivery_status || "pending",
                 delivery_date: selectedOrder.delivery?.delivery_date
                     ? new Date(selectedOrder.delivery.delivery_date)
-                          .toISOString()
-                          .split("T")[0]
+                        .toISOString()
+                        .split("T")[0]
                     : "",
                 notes: selectedOrder.delivery?.notes || "",
             });
         }
-    }, [selectedOrder, form]);
+    }, [selectedOrder, form, defaultStatus]);
 
     const [updateOrder] = useUpdateSalesOrderStatusMutation();
 
@@ -342,7 +354,9 @@ export default function UpdateDeliveryStatusModal({
                             <label className="block font-semibold mb-1">Status</label>
                             <Select
                                 value={form.watch("status")}
-                                onValueChange={(v) => form.setValue("status", v)}
+                                onValueChange={(v) =>
+                                    form.setValue("status", v as DeliveryFormValues["status"])
+                                }
                             >
                                 <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select Status" />
