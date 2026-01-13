@@ -36,6 +36,8 @@ import { useGetAllSalesOrdersQuery, useGetSalesOrderByIdQuery, useAssignStaffToO
 import { Input } from "@/components/ui/input";
 import type { SalesOrder, SalesOrderItem } from "@/types/salesOrder.types";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
+import { useAppSelector } from "@/store/store";
+import { selectCurrency } from "@/store/currencySlice";
 
 // Mock Data
 const dummyStaff = [
@@ -159,7 +161,7 @@ const OrderManage = () => {
             // Assuming the API takes one orderId at a time for now based on the store definition
             // If the backend supports bulk, we should update the store definition.
 
-            
+
             const staffIds: number[] = selectedStaffIds.map(id => Number(id));
             for (const orderId of ordersToAssign) {
                 await assignStaff({
@@ -199,6 +201,10 @@ const OrderManage = () => {
         // Fallback to dummy staff
         return dummyStaff.find((s) => s.id === id);
     };
+
+
+     const currency = useAppSelector(selectCurrency);
+
 
     return (
         <div className="p-6 space-y-6 h-full flex flex-col">
@@ -311,7 +317,7 @@ const OrderManage = () => {
                                             <span className="text-sm text-muted-foreground italic">Unassigned</span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-right font-semibold">${(order.total_amount || 0).toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-semibold">{currency} {(order.total_amount || 0).toLocaleString()}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1">
                                             <Button
@@ -400,7 +406,7 @@ const OrderManage = () => {
                         </div>
                     ) : detailedOrderData?.data ? (
                         <>
-                            <SheetHeader className="mb-6">
+                            <SheetHeader>
                                 <div className="flex items-center justify-between">
                                     <SheetTitle className="text-2xl font-bold flex items-center gap-2">
                                         {detailedOrderData.data.order_number}
@@ -414,7 +420,7 @@ const OrderManage = () => {
                                 </SheetDescription>
                             </SheetHeader>
 
-                            <ScrollArea className="h-[calc(100vh-10rem)] pr-4">
+                            <ScrollArea className="h-[calc(100vh-10rem)] px-4">
                                 <div className="space-y-6">
                                     {/* Customer Info */}
                                     <div className="space-y-3">
@@ -474,7 +480,7 @@ const OrderManage = () => {
                                                         ))}
                                                     </div>
                                                 </ScrollArea>
-                                                <Button variant="outline" size="sm" className="w-full rounded-none border-t" onClick={() => {
+                                                <Button variant="outline" size="sm" className="w-full rounded-none" onClick={() => {
                                                     if (detailedOrderData.data) openAssignDialog([detailedOrderData.data.id]);
                                                 }}>
                                                     Reassign Staff

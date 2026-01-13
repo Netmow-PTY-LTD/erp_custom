@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useRef, useCallback, type ChangeEvent } from "react";
+import { Calendar } from "lucide-react";
 
 interface Order {
     id: string;
@@ -49,6 +50,8 @@ const RouteWiseOrder = () => {
     const [selectedRouteId, setSelectedRouteId] = useState<string | number | null>(null);
     const [routeSearch, setRouteSearch] = useState("");
     const [orderSearch, setOrderSearch] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
     const [page, setPage] = useState(1);
     const [allRoutes, setAllRoutes] = useState<Route[]>([]);
     const [hasMore, setHasMore] = useState(true);
@@ -113,20 +116,38 @@ const RouteWiseOrder = () => {
 
     // Filter orders locally for the selected route (assuming API returns orders in the route object)
     // Note: If API doesn't return orders, this needs separate fetching, but following current pattern:
-    const filteredOrders = selectedRoute?.orders?.filter((order: Order) =>
-        (order.customer && String(order.customer).toLowerCase().includes(orderSearch.toLowerCase())) ||
-        (order.id && String(order.id).toLowerCase().includes(orderSearch.toLowerCase()))
-    ) || [];
+    const filteredOrders = selectedRoute?.orders?.filter((order: Order) => {
+        // Search filter
+        const matchesSearch = (order.customer && String(order.customer).toLowerCase().includes(orderSearch.toLowerCase())) ||
+            (order.id && String(order.id).toLowerCase().includes(orderSearch.toLowerCase()));
+
+        // Date filter
+        let matchesDateRange = true;
+        if (startDate || endDate) {
+            const orderDate = new Date(order.date);
+            if (startDate) {
+                const start = new Date(startDate);
+                matchesDateRange = orderDate >= start;
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999); // Include the entire end date
+                matchesDateRange = matchesDateRange && orderDate <= end;
+            }
+        }
+
+        return matchesSearch && matchesDateRange;
+    }) || [];
 
     const totalAmount = filteredOrders?.reduce((sum: number, order: Order) => sum + (order.amount || 0), 0) || 0;
- const currency = useAppSelector(selectCurrency);
+    const currency = useAppSelector(selectCurrency);
 
 
     return (
-        <div className="flex h-[calc(100vh-6rem)] gap-4 p-4 overflow-hidden bg-background">
+        <div className="flex h-[calc(100vh-6rem)] gap-6 p-6 overflow-hidden bg-background">
             {/* Left Sidebar: Route List */}
-            <Card className="w-1/3 flex flex-col h-full border-r shadow-sm">
-                <CardHeader className="pb-3 border-b bg-card">
+            <Card className="w-1/3 flex flex-col h-full border-r shadow-sm p-2">
+                <CardHeader className="pb-4 border-b bg-card">
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-primary" />
                         Routes
@@ -141,8 +162,8 @@ const RouteWiseOrder = () => {
                         />
                     </div>
                 </CardHeader>
-                <ScrollArea className="flex-1">
-                    <div className="p-2 space-y-2">
+                <ScrollArea className="flex-1 ">
+                    <div className="p-3 space-y-2">
                         {allRoutes.map((route, index) => {
                             if (allRoutes.length === index + 1) {
                                 return (
@@ -215,47 +236,86 @@ const RouteWiseOrder = () => {
                         )}
                     </div>
                 </ScrollArea>
-                <div className="p-3 border-t bg-muted/20 text-xs text-center text-muted-foreground">
+                <div className="p-4 border-t bg-muted/20 text-xs text-center text-muted-foreground">
                     Showing {allRoutes.length} routes
                 </div>
             </Card>
 
             {/* Right Panel: Order Details */}
-            <Card className="flex-1 flex flex-col h-full shadow-sm overflow-hidden">
+            <Card className="flex-1 flex flex-col h-full shadow-sm overflow-hidden p-2">
                 {selectedRoute ? (
                     <>
                         {/* Header Section */}
-                        <CardHeader className="pb-4 border-b bg-card/50 backdrop-blur-sm">
+                        <CardHeader className="pb-5 border-b bg-card/50 backdrop-blur-sm">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <CardTitle className="text-2xl font-bold flex items-center gap-2">
                                         {selectedRoute.name}
                                     </CardTitle>
-                                    <CardDescription className="flex items-center gap-2 mt-1">
+                                    <CardDescription className="flex items-center gap-2 mt-2">
                                         <MapPin className="h-3.5 w-3.5" />
                                         {selectedRoute.region}
                                     </CardDescription>
                                 </div>
-                                <div className="flex flex-col items-end gap-1">
+                                <div className="flex flex-col items-end gap-2">
                                     <div className="text-sm text-muted-foreground font-medium">Total Volume</div>
-                                    <div className="text-2xl font-bold text-primary flex items-center">
-                                       {currency}   {totalAmount.toLocaleString()}
-                                       
+                                    <div className="text-2xl font-bold text-primary flex items-center gap-1">
+                                        {currency} {totalAmount.toLocaleString()}
+
                                     </div>
                                 </div>
                             </div>
 
                             {/* Toolbar */}
-                            <div className="flex items-center gap-3 mt-4">
-                                <div className="relative flex-1 max-w-sm">
+                            <div className="flex flex-col gap-4 mt-6 lg:flex-row lg:items-center lg:justify-between">
+                                <div className="relative w-full lg:flex-1 lg:max-w-md">
                                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Search orders, customers..."
-                                        className="pl-8"
+                                        className="pl-8 w-full"
                                         value={orderSearch}
                                         onChange={(e) => setOrderSearch(e.target.value)}
                                     />
                                 </div>
+
+                                <div className="flex flex-wrap items-center gap-2 border rounded-md px-3 py-2 bg-background">
+                                    {/* Icon */}
+                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+
+                                    {/* From date */}
+                                    <Input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="h-8 w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
+                                    />
+
+                                    {/* Separator */}
+                                    <span className="text-muted-foreground text-sm">–</span>
+
+                                    {/* To date */}
+                                    <Input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="h-8 w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
+                                    />
+
+                                    {/* Clear button */}
+                                    {(startDate || endDate) && (
+                                        <button
+                                            onClick={() => {
+                                                setStartDate("")
+                                                setEndDate("")
+                                            }}
+                                            className="ml-1 text-muted-foreground hover:text-foreground transition"
+                                            aria-label="Clear date range"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+
                                 {/* <div className="flex gap-2 ml-auto">
                                     <Button variant="outline" size="sm" className="gap-2">
                                         <Filter className="h-4 w-4" />
@@ -270,7 +330,7 @@ const RouteWiseOrder = () => {
                         </CardHeader>
 
                         {/* Order List Table */}
-                        <div className="flex-1 overflow-auto bg-muted/5">
+                        <div className="flex-1 overflow-auto bg-muted/5 px-2">
                             <Table>
                                 <TableHeader className="sticky top-0 z-10 bg-background shadow-sm">
                                     <TableRow>
@@ -312,7 +372,7 @@ const RouteWiseOrder = () => {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right font-semibold">
-                                                   {currency} {order.amount.toLocaleString()}
+                                                    {currency} {order.amount.toLocaleString()}
                                                 </TableCell>
                                             </TableRow>
                                         ))
@@ -329,7 +389,7 @@ const RouteWiseOrder = () => {
                                 </TableBody>
                             </Table>
                         </div>
-                        <div className="p-3 border-t bg-card text-xs text-muted-foreground flex justify-between">
+                        <div className="p-4 border-t bg-card text-xs text-muted-foreground flex justify-between">
                             <span>Total Orders: {filteredOrders?.length || 0}</span>
                             <span>Selected Route: {selectedRoute.id}</span>
                         </div>

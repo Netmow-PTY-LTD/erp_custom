@@ -308,7 +308,7 @@ export default function Customers() {
         ))}
       </div>
 
-      <Card className="py-6">
+      <Card className="pt-6 pb-2">
         <CardHeader>
           <CardTitle>All Customers</CardTitle>
         </CardHeader>

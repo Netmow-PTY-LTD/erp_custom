@@ -7,6 +7,7 @@
 export const SuperAdminPermission = {
   ACCESS_ALL: "*" as const,
 };
+
 export const DashboardPermission = {
   VIEW: "dashboard.view" as const,
   STATS: "dashboard.stats" as const,
@@ -207,6 +208,12 @@ export const RouteOperationPermission = {
   STAFF_WISE_ROUTE: "route_operations.staff_wise_route.view" as const,
 };
 
+// --- Help ---
+export const HelpPermission = {
+  VIEW: "help.view" as const,
+
+};
+
 //   for sidebar
 export const PERMISSION_GROUPS = {
 
@@ -224,6 +231,7 @@ export const PERMISSION_GROUPS = {
   RawMaterials: RawMaterialPermission,
   Production: ProductionPermission,
   RouteOperations: RouteOperationPermission,
+  Help: HelpPermission,
 } as const;
 
 
@@ -244,4 +252,5 @@ export type PermissionType =
   | typeof ReportPermission[keyof typeof ReportPermission]
   | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
   | typeof ProductionPermission[keyof typeof ProductionPermission]
-  | typeof RouteOperationPermission[keyof typeof RouteOperationPermission];
+  | typeof RouteOperationPermission[keyof typeof RouteOperationPermission]
+  | typeof HelpPermission[keyof typeof HelpPermission];
