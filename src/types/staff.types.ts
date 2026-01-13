@@ -1,5 +1,5 @@
-
 import type { Department } from "./types";
+import type { Role } from "./users.types";
 
 export type StaffStatus = "active" | "inactive" | "terminated" | "on_leave";
 
@@ -29,6 +29,7 @@ export interface Staff {
   postal_code: string | null;
   notes: string | null;
   role_id: number | null;
+  role?: Role | null;
   // Payroll info
   basic_salary?: number;
   bank_details?: {
