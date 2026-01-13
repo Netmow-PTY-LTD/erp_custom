@@ -183,7 +183,7 @@ export default function AddStaffPage() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl mx-auto">
       {/* PAGE TITLE */}
       <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
         <div>

@@ -104,8 +104,8 @@ export default function AddSupplierPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto py-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="flex flex-wrap justify-between items-center">
         <h1 className="text-3xl font-bold">Add Supplier</h1>
         <BackButton />
       </div>

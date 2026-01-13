@@ -190,9 +190,9 @@ export default function CategoryPage() {
 
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="space-y-6">
       {/* Header and Add Category Button */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-4">
         <h1 className="text-2xl font-bold">Product Categories</h1>
         {/* Add Category form */}
         <AddProductCategoryForm open={sheetOpen} setOpen={setSheetOpen} />

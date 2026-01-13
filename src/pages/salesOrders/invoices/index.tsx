@@ -110,23 +110,45 @@ export default function Invoices() {
     },
     {
       accessorKey: "total_amount",
-      header: `Total Amount (${currency})`,
-      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_amount")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">Total Amount ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("total_amount")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "total_payable",
-      header: `Total Payable (${currency})`,
-      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("total_payable")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">Total Payable ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("total_payable")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "paid_amount",
-      header: `Paid Amount (${currency})`,
-      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("paid_amount")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">Paid Amount ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("paid_amount")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "remaining_balance",
-      header: `Due Amount (${currency})`,
-      cell: ({ row }) => <span>{currency} {parseFloat(row.getValue("remaining_balance")).toFixed(2)}</span>,
+      header: () => <div className="text-right">Due Amount ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("remaining_balance")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "status",

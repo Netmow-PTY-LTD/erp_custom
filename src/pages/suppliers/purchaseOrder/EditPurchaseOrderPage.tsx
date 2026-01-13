@@ -66,7 +66,7 @@ export default function EditPurchaseOrderPage() {
   /* ---------------- Searchable selects ---------------- */
 
 
- function SupplierSelectField({
+  function SupplierSelectField({
     field,
   }: {
     field: { value?: string; onChange: (v: string) => void };
@@ -137,75 +137,75 @@ export default function EditPurchaseOrderPage() {
 
 
 
-  
+
   function ProductSelectField({
-      field,
-    }: {
-      field: { value?: string; onChange: (v: string) => void };
-    }) {
-      const [open, setOpen] = useState(false);
-      const [query, setQuery] = useState("");
-  
-      const { data, isLoading } = useGetAllProductsQuery({
-        page: 1,
-        limit: 50,
-        search: query,
-      });
-  
-      const list = Array.isArray(data?.data) ? data.data : [];
-  
-      const selected = list.find(
-        (p) => String(p.id) === String(field.value)
-      );
-  
-      return (
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              {selected
-                ? `${selected.name} (SKU: ${selected.sku})`
-                : "Select Product..."}
-            </Button>
-          </PopoverTrigger>
-  
-          <PopoverContent className="w-[320px] p-0">
-            <Command>
-              <CommandInput
-                placeholder="Search products..."
-                onValueChange={(value) => setQuery(value)}
-              />
-  
-              <CommandList>
-                <CommandEmpty>No products found.</CommandEmpty>
-  
-                <CommandGroup>
-                  {isLoading && (
-                    <div className="py-2 px-3 text-sm text-gray-500">
-                      Loading...
-                    </div>
-                  )}
-  
-                  {!isLoading &&
-                    list.map((product) => (
-                      <CommandItem
-                        key={product.id}
-                        onSelect={() => {
-                          field.onChange(String(product.id));
-                          setOpen(false);
-                        }}
-                      >
-                        {product.name} (SKU: {product.sku})
-                      </CommandItem>
-                    ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      );
-    }
-  
-  
+    field,
+  }: {
+    field: { value?: string; onChange: (v: string) => void };
+  }) {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+
+    const { data, isLoading } = useGetAllProductsQuery({
+      page: 1,
+      limit: 50,
+      search: query,
+    });
+
+    const list = Array.isArray(data?.data) ? data.data : [];
+
+    const selected = list.find(
+      (p) => String(p.id) === String(field.value)
+    );
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-full justify-between">
+            {selected
+              ? `${selected.name} (SKU: ${selected.sku})`
+              : "Select Product..."}
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-[320px] p-0">
+          <Command>
+            <CommandInput
+              placeholder="Search products..."
+              onValueChange={(value) => setQuery(value)}
+            />
+
+            <CommandList>
+              <CommandEmpty>No products found.</CommandEmpty>
+
+              <CommandGroup>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+
+                {!isLoading &&
+                  list.map((product) => (
+                    <CommandItem
+                      key={product.id}
+                      onSelect={() => {
+                        field.onChange(String(product.id));
+                        setOpen(false);
+                      }}
+                    >
+                      {product.name} (SKU: {product.sku})
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+
 
 
 
@@ -264,7 +264,7 @@ export default function EditPurchaseOrderPage() {
   if (poLoading) return <div>Loading Purchase Order...</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex flex-wrap items-center">
         <h1 className="text-3xl font-bold">Edit Purchase Order</h1>
         <Link to="/dashboard/suppliers/purchase-orders" className="ml-auto">

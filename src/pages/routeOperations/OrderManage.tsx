@@ -203,7 +203,7 @@ const OrderManage = () => {
     };
 
 
-     const currency = useAppSelector(selectCurrency);
+    const currency = useAppSelector(selectCurrency);
 
 
     return (
@@ -257,7 +257,7 @@ const OrderManage = () => {
                             <TableHead>Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Assigned Staff</TableHead>
-                            <TableHead className="text-right">Total</TableHead>
+                            <TableHead className="text-right">Total ({currency})</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -317,7 +317,7 @@ const OrderManage = () => {
                                             <span className="text-sm text-muted-foreground italic">Unassigned</span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-right font-semibold">{currency} {(order.total_amount || 0).toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-semibold">{(order.total_amount || 0).toFixed(2)}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1">
                                             <Button

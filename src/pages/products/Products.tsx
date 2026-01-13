@@ -33,9 +33,18 @@ import { useAppSelector } from "@/store/store";
 import { selectCurrency } from "@/store/currencySlice";
 // import { ProductPermission } from "@/config/permissions";
 
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+
 export default function Products() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [previewData, setPreviewData] = useState<{
+    images: string[];
+    index: number;
+  } | null>(null);
   const limit = 10;
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
@@ -164,9 +173,68 @@ export default function Products() {
         <img
           src={row.original.thumb_url}
           alt={row.original.name}
-          className="w-10 h-10 rounded-full"
+          className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() =>
+            setPreviewData({
+              images: [
+                row.original.thumb_url,
+                ...(row.original.gallery_items || []),
+              ].filter(Boolean),
+              index: 0,
+            })
+          }
         />
       ),
+    },
+    {
+      accessorKey: "gallery_items",
+      header: "Gallery",
+      cell: ({ row }) => {
+        const gallery = row.original.gallery_items || [];
+        return (
+          <div className="flex items-center gap-1">
+            {gallery.length > 0 ? (
+              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
+                {gallery.slice(0, 3).map((url, i) => (
+                  <img
+                    key={i}
+                    src={url}
+                    alt={`Gallery ${i}`}
+                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() =>
+                      setPreviewData({
+                        images: [
+                          row.original.thumb_url,
+                          ...(row.original.gallery_items || []),
+                        ].filter(Boolean),
+                        index: i + 1,
+                      })
+                    }
+                  />
+                ))}
+                {gallery.length > 3 && (
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
+                    onClick={() =>
+                      setPreviewData({
+                        images: [
+                          row.original.thumb_url,
+                          ...(row.original.gallery_items || []),
+                        ].filter(Boolean),
+                        index: 4,
+                      })
+                    }
+                  >
+                    +{gallery.length - 3}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">-</span>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "category",
@@ -175,23 +243,55 @@ export default function Products() {
     },
     {
       accessorKey: "cost",
-      header: `Cost Price ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("cost")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Cost Price {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("cost")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "price",
-      header: `Selling Price ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("price")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Selling Price {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("price")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "purchase_tax",
-      header: `Purchase Tax ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("purchase_tax")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Purchase Tax {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("purchase_tax")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "sales_tax",
-      header: `Sales Tax ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("sales_tax")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Sales Tax {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("sales_tax")).toFixed(2)}
+        </div>
+      ),
     },
     // {
     //   accessorKey: "unit",
@@ -201,8 +301,10 @@ export default function Products() {
     // },
     {
       accessorKey: "stock_quantity",
-      header: "Stock",
-      cell: ({ row }) => row.original.stock_quantity,
+      header: () => <div className="text-right">Stock</div>,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.stock_quantity}</div>
+      ),
     },
     {
       accessorKey: "is_active",
@@ -278,7 +380,7 @@ export default function Products() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-between items-center mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h2 className="text-3xl font-semibold">Product Management</h2>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -306,11 +408,11 @@ export default function Products() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="flex flex-wrap gap-6 mb-6">
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative flex-1 min-w-[240px] overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -355,6 +457,99 @@ export default function Products() {
           />
         </CardContent>
       </Card>
+      <Dialog
+        open={!!previewData}
+        onOpenChange={(open) => !open && setPreviewData(null)}
+      >
+        <DialogContent className="max-w-3xl p-5 overflow-hidden bg-white">
+          <div className="relative flex items-center justify-center">
+            {previewData && (
+              <>
+                <img
+                  src={previewData.images[previewData.index]}
+                  alt="Product Preview"
+                  className="max-w-full max-h-[70vh] rounded-lg object-contain"
+                />
+
+                {/* Left Arrow (Previous) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === 0
+                                ? prev.images.length - 1
+                                : prev.index - 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m15 18-6-6 6-6" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Right Arrow (Next) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === prev.images.length - 1
+                                ? 0
+                                : prev.index + 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Counter */}
+                {previewData.images.length > 1 && (
+                  <div className="absolute bottom-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md">
+                    {previewData.index + 1} / {previewData.images.length}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

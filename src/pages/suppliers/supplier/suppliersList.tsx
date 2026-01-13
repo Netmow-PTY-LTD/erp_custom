@@ -17,10 +17,11 @@ import {
   useGetAllSuppliersQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon } from "lucide-react";
+import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import type { Supplier } from "@/types/supplier.types";
+import { useAppSelector } from "@/store/store";
 
 
 
@@ -59,6 +60,8 @@ export default function SuppliersList() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({ search, page, limit });
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
@@ -153,6 +156,42 @@ export default function SuppliersList() {
       header: "City",
     },
     {
+      accessorKey: "total_purchase_amount",
+      header: () => <div className="text-right">Total Purchase ({currency})</div>,
+      cell: ({ row }) => {
+        const amount = row.getValue("total_purchase_amount");
+        return (
+          <div className="text-right">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "total_paid_amount",
+      header: () => <div className="text-right">Total Paid ({currency})</div>,
+      cell: ({ row }) => {
+        const amount = row.getValue("total_paid_amount");
+        return (
+          <div className="text-right">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "total_due_amount",
+      header: () => <div className="text-right">Total Due ({currency})</div>,
+      cell: ({ row }) => {
+        const amount = row.getValue("total_due_amount");
+        return (
+          <div className="text-right">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "is_active",
       header: "Status",
       cell: ({ row }) => {
@@ -168,6 +207,11 @@ export default function SuppliersList() {
         const supplier = row.original;
         return (
           <div className="flex gap-2">
+            <Link to={`/dashboard/purchase-orders/create?supplierId=${supplier.id}`}>
+              <Button size="sm" variant="outline" title="Create Purchase Order">
+                <ShoppingCart className="w-4 h-4" />
+              </Button>
+            </Link>
             <Link to={`/dashboard/suppliers/${supplier.id}/edit`}>
               <Button size="sm" variant="outline">
                 <Edit className="w-4 h-4 mr-1" /> Edit
@@ -189,7 +233,7 @@ export default function SuppliersList() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
         <Link to="/dashboard/suppliers/create">
           <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
@@ -200,11 +244,11 @@ export default function SuppliersList() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="flex flex-wrap gap-6 mb-6">
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative flex-1 min-w-[240px] overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -230,7 +274,7 @@ export default function SuppliersList() {
         ))}
       </div>
 
-      <Card className="py-6">
+      <Card className="pt-6 pb-2">
         <CardHeader>
           <CardTitle>All Suppliers</CardTitle>
           <CardDescription>Manage your supplier list</CardDescription>
@@ -239,20 +283,21 @@ export default function SuppliersList() {
           {isLoading ? (
             <p>Loading...</p>
           ) : (
-
-            <DataTable
-              columns={supplierColumns}
-              data={suppliersData?.data}
-              pageIndex={page - 1}
-              pageSize={limit}
-              totalCount={suppliersData?.pagination.total}
-              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-              onSearch={(value) => {
-                setSearch(value);
-                setPage(1);
-              }}
-              isFetching={isLoading}
-            />
+            // Data Table
+            <div className="max-w-full overflow-hidden">
+              <DataTable
+                columns={supplierColumns} // Assuming 'columns' was a typo and should be 'supplierColumns'
+                data={suppliersData?.data || []}
+                totalCount={suppliersData?.pagination?.total || 0}
+                pageIndex={page - 1}
+                pageSize={limit}
+                onPageChange={(idx) => setPage(idx + 1)}
+                onSearch={(val) => {
+                  setSearch(val);
+                  setPage(1); // Retaining the setPage(1) logic from original onSearch
+                }}
+              />
+            </div>
           )}
         </CardContent>
       </Card>

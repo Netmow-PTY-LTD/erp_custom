@@ -99,8 +99,12 @@ export default function IncomePage() {
     },
     {
       accessorKey: "amount",
-      header: `Amount (${currency})`,
-      cell: ({ row }) => `${currency} ${row.getValue("amount")}`,
+      header: () => (
+        <div className="text-right">Amount ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">{Number(row.getValue("amount")).toFixed(2)}</div>
+      ),
     },
     { accessorKey: "income_date", header: "Date" },
 
