@@ -28,4 +28,5 @@ export interface Staff {
   country: string | null;
   postal_code: string | null;
   notes: string | null;
+  role_id: number | null;
 }
