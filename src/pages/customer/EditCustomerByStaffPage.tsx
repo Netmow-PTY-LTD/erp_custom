@@ -41,7 +41,7 @@ import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 const customerSchema = z.object({
   name: z.string().min(1, "Required"),
   company: z.string().optional(),
-  customer_type: z.enum(["individual", "business"]),
+  customer_type: z.enum(["individual", "business", "retail"]),
   tax_id: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional(),
@@ -308,6 +308,7 @@ export default function EditCustomerByStaffPage() {
                       <SelectContent>
                         <SelectItem value="individual">Individual</SelectItem>
                         <SelectItem value="business">Business</SelectItem>
+                        <SelectItem value="retail">Retail</SelectItem>
                       </SelectContent>
                     </Select>
                     <FieldError>{fieldState.error?.message}</FieldError>
