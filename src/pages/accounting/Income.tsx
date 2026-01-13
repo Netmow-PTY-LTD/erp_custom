@@ -4,29 +4,12 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 
 import { useGetIncomesQuery } from "@/store/features/accounting/accoutntingApiService";
 import { useAppSelector } from "@/store/store";
+import type { Income } from "@/types/accounting.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, DollarSign, TrendingUp, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Input } from "@/components/ui/input";
-
-// Map API response to this type
-export type Income = {
-  id: number;
-  date: string;
-  description: string;
-  //  category: string;
-  credit_head_id: number;
-  creditHead: {
-    id: number;
-    name: string;
-    code: string;
-  };
-  amount: number;
-  receivedVia: string | null;
-  reference: string | null;
-  status: string;
-};
 
 export default function IncomePage() {
   const [page, setPage] = useState(1);
@@ -95,7 +78,7 @@ export default function IncomePage() {
     {
       accessorKey: "creditHead",
       header: "Credit Head",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const creditHead = row?.original?.creditHead?.name;
         return <span className="font-medium">{creditHead}</span>;
       },
@@ -105,7 +88,7 @@ export default function IncomePage() {
       header: () => (
         <div className="text-right">Amount ({currency})</div>
       ),
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className="text-right">{Number(row.getValue("amount")).toFixed(2)}</div>
       ),
     },

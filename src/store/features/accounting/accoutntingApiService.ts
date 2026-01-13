@@ -1,9 +1,9 @@
-import type { Expense } from "@/pages/accounting/Expenses";
-import type { Income } from "@/pages/accounting/Income";
 import { baseApi } from "@/store/baseApi";
 import type {
   CreditHead,
   DebitHead,
+  Expense,
+  Income,
   Overview,
   Payroll,
 } from "@/types/accounting.types";
