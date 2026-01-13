@@ -244,11 +244,11 @@ export default function SuppliersList() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="flex flex-wrap gap-6 mb-6">
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative flex-1 min-w-[240px] overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -283,20 +283,21 @@ export default function SuppliersList() {
           {isLoading ? (
             <p>Loading...</p>
           ) : (
-
-            <DataTable
-              columns={supplierColumns}
-              data={suppliersData?.data}
-              pageIndex={page - 1}
-              pageSize={limit}
-              totalCount={suppliersData?.pagination.total}
-              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-              onSearch={(value) => {
-                setSearch(value);
-                setPage(1);
-              }}
-              isFetching={isLoading}
-            />
+            // Data Table
+            <div className="max-w-full overflow-hidden">
+              <DataTable
+                columns={supplierColumns} // Assuming 'columns' was a typo and should be 'supplierColumns'
+                data={suppliersData?.data || []}
+                totalCount={suppliersData?.pagination?.total || 0}
+                pageIndex={page - 1}
+                pageSize={limit}
+                onPageChange={(idx) => setPage(idx + 1)}
+                onSearch={(val) => {
+                  setSearch(val);
+                  setPage(1); // Retaining the setPage(1) logic from original onSearch
+                }}
+              />
+            </div>
           )}
         </CardContent>
       </Card>

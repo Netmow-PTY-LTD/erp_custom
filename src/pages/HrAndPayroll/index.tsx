@@ -34,9 +34,8 @@ export default function HRPayrollEmployeeMaster() {
         const value = row.getValue("status");
         return (
           <span
-            className={`px-2 py-1 text-xs rounded-full font-medium ${
-              value === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-            }`}
+            className={`px-2 py-1 text-xs rounded-full font-medium ${value === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              }`}
           >
             {value}
           </span>
@@ -63,9 +62,9 @@ export default function HRPayrollEmployeeMaster() {
     <div className="max-w-7xl mx-auto space-y-6 py-6">
 
       {/* HR Snapshot */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="flex flex-wrap gap-4">
         {/* Total Employees */}
-        <Card className="rounded-sm border shadow-sm">
+        <Card className="flex-1 min-w-[240px] rounded-sm border shadow-sm">
           <CardContent className="p-4">
             <p className="text-sm text-gray-500">Total Employees</p>
             <p className="text-2xl font-bold mt-1">58</p>
@@ -73,7 +72,7 @@ export default function HRPayrollEmployeeMaster() {
         </Card>
 
         {/* Payroll Cost */}
-        <Card className="rounded-sm border shadow-sm">
+        <Card className="flex-1 min-w-[240px] rounded-sm border shadow-sm">
           <CardContent className="p-4">
             <p className="text-sm text-gray-500">Payroll Cost (This Month)</p>
             <p className="text-2xl font-bold mt-1">95,200.00</p>
@@ -81,7 +80,7 @@ export default function HRPayrollEmployeeMaster() {
         </Card>
 
         {/* Pending Leave Requests */}
-        <Card className="rounded-sm border shadow-sm">
+        <Card className="flex-1 min-w-[240px] rounded-sm border shadow-sm">
           <CardContent className="p-4">
             <p className="text-sm text-gray-500">Pending Leave Requests</p>
             <p className="text-2xl font-bold mt-1">7</p>
@@ -91,14 +90,13 @@ export default function HRPayrollEmployeeMaster() {
 
       {/* Employee Master */}
       <Card className="rounded-sm border border-gray-300 dark:border-gray-700 shadow-sm">
-        <CardHeader className="pb-3 border-b dark:border-gray-700 flex justify-between items-center">
+        <CardHeader className="border-b dark:border-gray-700 flex justify-between items-center pt-3 gap-0">
           <CardTitle className="text-lg font-semibold">Employee Master</CardTitle>
           <Button className="rounded-sm bg-gray-800 hover:bg-gray-900 text-white">
             + New Employee
           </Button>
         </CardHeader>
-
-        <CardContent className="pt-4 space-y-5">
+        <CardContent className="pb-6 space-y-5">
 
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
