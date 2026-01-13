@@ -23,16 +23,16 @@ import { Link } from "react-router";
 export default function Dashboard() {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  
-    // Units permissions
-    const canGraphShow = userPermissions.includes(DashboardPermission.GRAPH)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-    const canRecentCustomersListShow = userPermissions.includes(DashboardPermission.RECENT_CUSTOMERS_LIST)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-    const canRecentSalesListShow = userPermissions.includes(DashboardPermission.RECENT_SALES_LIST)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-    const canStatsShow = userPermissions.includes(DashboardPermission.STATS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  
-  
-  
-  
+
+  // Units permissions
+  const canGraphShow = userPermissions.includes(DashboardPermission.GRAPH) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentCustomersListShow = userPermissions.includes(DashboardPermission.RECENT_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentSalesListShow = userPermissions.includes(DashboardPermission.RECENT_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canStatsShow = userPermissions.includes(DashboardPermission.STATS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+
+
+
 
   const { data: dashboardStatsData } = useGetDashboardStatsQuery();
 
@@ -98,7 +98,7 @@ export default function Dashboard() {
         <TabsContent value="overview" className="space-y-8">
           {/* Stats Cards */}
           {canStatsShow && <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-            {  stats.map((item, idx) => (
+            {stats.map((item, idx) => (
               <div
                 key={idx}
                 className={`relative overflow-hidden rounded-2xl bg-linear-to-r ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1`}
@@ -123,9 +123,9 @@ export default function Dashboard() {
               </div>
             ))}
           </div>}
-         
-         {
-          canGraphShow &&   <Card className="col-span-1 lg:col-span-4">
+
+          {
+            canGraphShow && <div className="col-span-1 lg:col-span-4"><Card className="py-6">
               <CardHeader>
                 <CardTitle>Sales Overview</CardTitle>
                 <CardDescription>January - December {new Date().getFullYear()}</CardDescription>
@@ -134,43 +134,44 @@ export default function Dashboard() {
                 <Overview />
               </CardContent>
             </Card>
-         }
-      
+            </div>
+          }
 
-          {canRecentCustomersListShow &&   <Card className="col-span-1 lg:col-span-3">
-              <CardHeader className="flex justify-between gap-4">
-                <div>
-                  <CardTitle>Recent Customers</CardTitle>
-                  <CardDescription>Latest signups</CardDescription>
-                </div>
-                <Link to="/dashboard/customers">
-                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-                    View All
-                  </button>
-                </Link>
-              </CardHeader>
-              <CardContent>
-                <RecentCustomers />
-              </CardContent>
-            </Card>}
-        {
-          canRecentSalesListShow &&    <Card>
-            <CardHeader className="flex justify-between gap-4 items-center">
+
+          {canRecentCustomersListShow && <Card className="col-span-1 lg:col-span-3 py-6">
+            <CardHeader className="flex justify-between gap-4">
               <div>
-                <CardTitle>Recent Sales Orders</CardTitle>
-                <CardDescription>Manage your orders</CardDescription>
+                <CardTitle>Recent Customers</CardTitle>
+                <CardDescription>Latest signups</CardDescription>
               </div>
-              <Link to="/dashboard/sales/orders">
+              <Link to="/dashboard/customers">
                 <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-                  View All Orders
+                  View All
                 </button>
               </Link>
             </CardHeader>
             <CardContent>
-              <RecentOrders />
+              <RecentCustomers />
             </CardContent>
-          </Card>
-        }
+          </Card>}
+          {
+            canRecentSalesListShow && <Card className="py-6">
+              <CardHeader className="flex justify-between gap-4 items-center">
+                <div>
+                  <CardTitle>Recent Sales Orders</CardTitle>
+                  <CardDescription>Manage your orders</CardDescription>
+                </div>
+                <Link to="/dashboard/sales/orders">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                    View All Orders
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <RecentOrders />
+              </CardContent>
+            </Card>
+          }
         </TabsContent>
         <TabsContent value="analytics" className="space-y-4">
           <Analytics />

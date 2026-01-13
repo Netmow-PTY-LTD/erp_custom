@@ -296,7 +296,7 @@ export default function Orders({ status }: { status?: string }) {
           </div>
         ))}
       </div>
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>{status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : "All "}Orders</CardTitle>
           <CardDescription>Manage your orders</CardDescription>

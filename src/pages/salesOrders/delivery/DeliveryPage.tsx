@@ -305,7 +305,7 @@ export default function DeliveryPage() {
         ))}
       </div>
 
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle className="text-xl font-bold">
             Delivery - Ready to Dispatch

@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUp, DollarSign, ShoppingCart, Percent, TrendingUp, Users, Package, BarChart3, Calendar } from "lucide-react";
+import { ArrowUp, DollarSign, ShoppingCart, Percent, Users, Package, BarChart3, Calendar } from "lucide-react";
 import {
   useGetSalesChartDataQuery,
   useGetSalesSummaryQuery,

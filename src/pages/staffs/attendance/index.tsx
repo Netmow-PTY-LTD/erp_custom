@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import {
@@ -28,7 +28,7 @@ import {
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarPlus } from "lucide-react";
+import { CalendarPlus, Info } from "lucide-react";
 import LeaveRequestModal from "../leaves/LeaveRequestModal";
 import ShortLeaveRequestModal from "../leaves/ShortLeaveModal";
 import AttendanceDetailsModal from "./AttendanceDetailsModal";
@@ -140,11 +140,16 @@ export default function AttendancePage() {
       </div>
 
       {/* Staff list */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Staff Attendance</CardTitle>
+      <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+              <Info className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold">Staff Attendance</h2>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-6">
           {staffsList?.length === 0 ? (
             <p className="text-gray-500">No staff records found.</p>
           ) : (
@@ -194,7 +199,7 @@ export default function AttendancePage() {
                         <CalendarPlus className="h-4 w-4 text-muted-foreground" />
                         <span>Full Day Leave</span>
                       </Button>
-                       <Button
+                      <Button
                         variant="outline"
                         className="flex items-center gap-2"
                         onClick={() => {
@@ -215,12 +220,12 @@ export default function AttendancePage() {
                       )}
 
                       {/* 👇 View button */}
-                        <Button variant="outline" onClick={() => {
-                          setCurrentStaff(staff);
-                          setShowAttendanceDetailsModal(true);
-                        }}>
-                          View Attendances
-                        </Button>
+                      <Button variant="outline" onClick={() => {
+                        setCurrentStaff(staff);
+                        setShowAttendanceDetailsModal(true);
+                      }}>
+                        View Attendances
+                      </Button>
                     </div>
                   </li>
                 );

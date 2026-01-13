@@ -209,7 +209,7 @@ export default function PurchaseInvoicesList() {
         ))}
       </div>
 
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>All Purchase Invoices</CardTitle>
           <CardDescription>Manage all your purchase invoices</CardDescription>
