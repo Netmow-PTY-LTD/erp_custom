@@ -19,11 +19,11 @@ export interface Customer {
     credit_limit?: number;
     outstanding_balance?: number;
     total_sales?: number;
-    customer_type: "individual" | "business";
+    customer_type: "individual" | "business" | "retail";
     sales_route_id?: number;
     notes?: string;
     is_active: boolean;
-     thumb_url?: string;
+    thumb_url?: string;
     gallery_items?: string[];
     created_at: string;
     updated_at?: string;
@@ -46,7 +46,7 @@ export interface CreateCustomerRequest {
     tax_id?: string;
     credit_limit?: number;
     outstanding_balance?: number;
-    customer_type?: "individual" | "business";
+    customer_type?: "individual" | "business" | "retail";
     sales_route_id?: number;
     notes?: string;
     is_active?: boolean;
@@ -69,17 +69,17 @@ export interface UpdateCustomerRequest {
     tax_id?: string;
     credit_limit?: number;
     outstanding_balance?: number;
-    customer_type?: "individual" | "business";
+    customer_type?: "individual" | "business" | "retail";
     sales_route_id?: number;
     notes?: string;
     is_active?: boolean;
-    
+
 }
 
 export interface GetCustomersParams {
     page?: number;
     limit?: number;
-    customer_type?: "individual" | "business";
+    customer_type?: "individual" | "business" | "retail";
     is_active?: boolean;
     search?: string;
 }

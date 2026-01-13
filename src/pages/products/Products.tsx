@@ -33,9 +33,18 @@ import { useAppSelector } from "@/store/store";
 import { selectCurrency } from "@/store/currencySlice";
 // import { ProductPermission } from "@/config/permissions";
 
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+
 export default function Products() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [previewData, setPreviewData] = useState<{
+    images: string[];
+    index: number;
+  } | null>(null);
   const limit = 10;
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
@@ -164,9 +173,68 @@ export default function Products() {
         <img
           src={row.original.thumb_url}
           alt={row.original.name}
-          className="w-10 h-10 rounded-full"
+          className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() =>
+            setPreviewData({
+              images: [
+                row.original.thumb_url,
+                ...(row.original.gallery_items || []),
+              ].filter(Boolean),
+              index: 0,
+            })
+          }
         />
       ),
+    },
+    {
+      accessorKey: "gallery_items",
+      header: "Gallery",
+      cell: ({ row }) => {
+        const gallery = row.original.gallery_items || [];
+        return (
+          <div className="flex items-center gap-1">
+            {gallery.length > 0 ? (
+              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
+                {gallery.slice(0, 3).map((url, i) => (
+                  <img
+                    key={i}
+                    src={url}
+                    alt={`Gallery ${i}`}
+                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() =>
+                      setPreviewData({
+                        images: [
+                          row.original.thumb_url,
+                          ...(row.original.gallery_items || []),
+                        ].filter(Boolean),
+                        index: i + 1,
+                      })
+                    }
+                  />
+                ))}
+                {gallery.length > 3 && (
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
+                    onClick={() =>
+                      setPreviewData({
+                        images: [
+                          row.original.thumb_url,
+                          ...(row.original.gallery_items || []),
+                        ].filter(Boolean),
+                        index: 4,
+                      })
+                    }
+                  >
+                    +{gallery.length - 3}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">-</span>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "category",
@@ -389,6 +457,99 @@ export default function Products() {
           />
         </CardContent>
       </Card>
+      <Dialog
+        open={!!previewData}
+        onOpenChange={(open) => !open && setPreviewData(null)}
+      >
+        <DialogContent className="max-w-3xl p-5 overflow-hidden bg-white">
+          <div className="relative flex items-center justify-center">
+            {previewData && (
+              <>
+                <img
+                  src={previewData.images[previewData.index]}
+                  alt="Product Preview"
+                  className="max-w-full max-h-[70vh] rounded-lg object-contain"
+                />
+
+                {/* Left Arrow (Previous) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === 0
+                                ? prev.images.length - 1
+                                : prev.index - 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m15 18-6-6 6-6" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Right Arrow (Next) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === prev.images.length - 1
+                                ? 0
+                                : prev.index + 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Counter */}
+                {previewData.images.length > 1 && (
+                  <div className="absolute bottom-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md">
+                    {previewData.index + 1} / {previewData.images.length}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
