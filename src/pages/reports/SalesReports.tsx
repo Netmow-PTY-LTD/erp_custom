@@ -305,7 +305,7 @@ export default function SalesReportsPage() {
       <div className="">
         {/* Revenue Chart */}
         <Card className="lg:col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg shadow-lg shadow-blue-500/30">
@@ -322,7 +322,7 @@ export default function SalesReportsPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="h-[350px] pt-6">
+          <CardContent className="h-[350px] py-6">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={revenueData}
@@ -363,7 +363,7 @@ export default function SalesReportsPage() {
 
       {/* Top Customers */}
       <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg shadow-lg shadow-blue-500/30">
               <Users className="w-5 h-5 text-white" />
@@ -374,7 +374,7 @@ export default function SalesReportsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-6">
           {topCustomers?.length > 0 ? (
             <DataTable
               data={topCustomers}
@@ -399,7 +399,7 @@ export default function SalesReportsPage() {
 
       {/* Top Products */}
       <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900">
+        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg shadow-lg shadow-blue-500/30">
               <Package className="w-5 h-5 text-white" />
@@ -410,7 +410,7 @@ export default function SalesReportsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-6">
           <DataTable
             data={topProducts}
             columns={topProductsColumns}
