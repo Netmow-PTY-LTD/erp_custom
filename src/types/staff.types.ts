@@ -29,4 +29,13 @@ export interface Staff {
   postal_code: string | null;
   notes: string | null;
   role_id: number | null;
+  // Payroll info
+  basic_salary?: number;
+  bank_details?: {
+    account_name: string;
+    account_number: string;
+    bank_name: string;
+  };
+  allowances?: { name: string; amount: number }[];
+  deductions?: { name: string; amount: number }[];
 }
