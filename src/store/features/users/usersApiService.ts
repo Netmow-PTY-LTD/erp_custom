@@ -3,19 +3,34 @@ import type { User } from "@/types/users.types";
 
 
 export type UserResponse = {
+  success: boolean;
   status: boolean;
   message: string;
   data: User | User[];
+  pagination?:{
+        total: number,
+        page: number,
+        limit: number,
+        totalPage: number
+    },
+};
+
+
+type UserParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
 };
 
 export const userApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL USERS
-    getAllUsers: builder.query<UserResponse, void>({
-      query: () => ({
+    getAllUsers: builder.query<UserResponse, UserParams>({
+      query: (params) => ({
         url: "/users",
         method: "GET",
+        params,
       }),
       providesTags: ["Users"],
     }),
