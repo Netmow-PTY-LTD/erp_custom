@@ -31,7 +31,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
 
-export default function Orders({ status }: { status?: string }) {
+export default function Orders() {
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
@@ -41,9 +41,7 @@ export default function Orders({ status }: { status?: string }) {
   const { data, isLoading } = useGetAllSalesOrdersQuery({
     page,
     limit,
-    search,
-    status,
-  });
+    search});
 
   const orders = data?.data ?? [];
 

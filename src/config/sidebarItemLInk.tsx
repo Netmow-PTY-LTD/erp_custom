@@ -44,7 +44,6 @@ import CreateOrderPage from "@/pages/salesOrders/order/createOrder";
 import EditOrderPage from "@/pages/salesOrders/order/editOrder";
 import OrderDetails from "@/pages/salesOrders/order/OrderDetails";
 import PendingOrders from "@/pages/salesOrders/order/PendingOrders";
-import ConfirmedOrders from "@/pages/salesOrders/order/ConfirmedOrders";
 import DeliveredOrders from "@/pages/salesOrders/order/DeliveredOrders";
 import AddIncomePage from "@/pages/accounting/AddIncomePage";
 import AddExpensePage from "@/pages/accounting/AddExpanse";
@@ -161,6 +160,7 @@ import AddCustomerByStaffPage from "@/pages/customer/AddCustomerByStaff";
 import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 import Help from "@/pages/help/Help";
 import EditCustomerByStaffPage from "@/pages/customer/EditCustomerByStaffPage";
+import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 
 export const sidebarItemLink = [
   // DASHBOARD
