@@ -175,23 +175,55 @@ export default function Products() {
     },
     {
       accessorKey: "cost",
-      header: `Cost Price ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("cost")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Cost Price {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("cost")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "price",
-      header: `Selling Price ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("price")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Selling Price {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("price")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "purchase_tax",
-      header: `Purchase Tax ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("purchase_tax")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Purchase Tax {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("purchase_tax")).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "sales_tax",
-      header: `Sales Tax ${currency ? `(${currency})` : ""}`,
-      cell: ({ row }) => <span>{parseFloat(row.getValue("sales_tax")).toFixed(2)}</span>,
+      header: () => (
+        <div className="text-right">
+          Sales Tax {currency ? `(${currency})` : ""}
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.getValue("sales_tax")).toFixed(2)}
+        </div>
+      ),
     },
     // {
     //   accessorKey: "unit",
@@ -201,8 +233,10 @@ export default function Products() {
     // },
     {
       accessorKey: "stock_quantity",
-      header: "Stock",
-      cell: ({ row }) => row.original.stock_quantity,
+      header: () => <div className="text-right">Stock</div>,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.stock_quantity}</div>
+      ),
     },
     {
       accessorKey: "is_active",

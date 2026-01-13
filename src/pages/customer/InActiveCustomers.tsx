@@ -173,20 +173,28 @@ export default function InActiveCustomersList() {
     },
     {
       accessorKey: "credit_limit",
-      header: `Credit Limit (${currency})`,
+      header: () => (
+        <div className="text-right">Credit Limit ({currency})</div>
+      ),
       cell: ({ row }) => {
         const limit = row.getValue("credit_limit") as number;
-        return limit ? `${currency} ${limit.toLocaleString()}` : "-";
+        return (
+          <div className="text-right">
+            {limit ? `${limit.toLocaleString()}` : "-"}
+          </div>
+        );
       },
     },
     {
       accessorKey: "outstanding_balance",
-      header: `Balance (${currency})`,
+      header: () => <div className="text-right">Balance ({currency})</div>,
       cell: ({ row }) => {
         const balance = row.getValue("outstanding_balance") as number;
-        return balance
-          ? `${currency} ${balance.toLocaleString()}`
-          : `${currency} 0`;
+        return (
+          <div className="text-right">
+            {balance ? `${balance.toLocaleString()}` : "0"}
+          </div>
+        );
       },
     },
     {
