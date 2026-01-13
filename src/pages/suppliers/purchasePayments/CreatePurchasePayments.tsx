@@ -186,7 +186,7 @@ export default function CreatePurchasePayments() {
   const balance = total - paid;
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-7xl mx-auto">
       {/* BACK BUTTON */}
       <div className="flex items-center gap-2 mb-6">
         <Link to="/dashboard/purchase-payments">

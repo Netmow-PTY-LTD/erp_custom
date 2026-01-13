@@ -41,7 +41,7 @@ const customerSchema = z.object({
   company: z.string().optional(),
   customer_type: z.enum(["individual", "business", "retail"]).default("individual"),
   tax_id: z.string().optional(),
-  email: z.email("Invalid email").min(1, "Required"),
+  email: z.string().email("Invalid email").min(1, "Required"),
   phone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -67,7 +67,7 @@ export default function AddCustomerPage() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // permissions
-  const canActivePermsion = userPermissions.includes(CustomerPermission.CUSTOMER_ACTIVE_PERMSSION) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canActivePermsion = userPermissions.includes(CustomerPermission.CUSTOMER_ACTIVE_PERMISSION) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
@@ -91,7 +91,7 @@ export default function AddCustomerPage() {
       gallery_items: [],
       credit_limit: 0,
       notes: "",
-      is_active: false,
+      is_active: true,
       salesRouteId: '',
     },
   });
@@ -103,11 +103,11 @@ export default function AddCustomerPage() {
     try {
       const payload = {
         ...values,
-        salesRouteId: Number(values.salesRouteId),
-        thumb_url: values.thumb_url,
-        gallery_items: values.gallery_items,
+        sales_route_id: Number(values.salesRouteId),
+      };
+      // @ts-ignore - thumb_url and gallery_items are already in values
+      delete payload.salesRouteId;
 
-      }
       const res = await createCustomer(payload).unwrap();
       if (res.status) {
         toast.success(res.message || "Customer created successfully");
@@ -121,7 +121,7 @@ export default function AddCustomerPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto py-6">
+    <div className="space-y-6 max-w-5xl mx-auto pb-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">

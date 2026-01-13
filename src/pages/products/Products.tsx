@@ -380,7 +380,7 @@ export default function Products() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-between items-center mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h2 className="text-3xl font-semibold">Product Management</h2>
 
         <div className="flex flex-wrap items-center gap-4">

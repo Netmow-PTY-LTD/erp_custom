@@ -256,7 +256,7 @@ export default function Roles() {
       </div>
 
       {/* Roles Table */}
-      <Card>
+      <Card className="pt-6 pb-2">
         <CardHeader>
           <CardTitle>Available Roles</CardTitle>
         </CardHeader>
