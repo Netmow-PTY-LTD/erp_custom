@@ -84,7 +84,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL INCOMES
     getIncomes: builder.query<
       IncomeResponse,
-      { page?: number; limit?: number; search?: string }
+      { page?: number; limit?: number; search?: string; date?: string }
     >({
       query: (params) => ({
         url: "/accounting/incomes",
@@ -103,7 +103,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL EXPENSES
     getExpenses: builder.query<
       ExpenseResponse,
-      { page?: number; limit?: number; search?: string }
+      { page?: number; limit?: number; search?: string; date?: string }
     >({
       query: (params) => ({
         url: "/accounting/expenses",
