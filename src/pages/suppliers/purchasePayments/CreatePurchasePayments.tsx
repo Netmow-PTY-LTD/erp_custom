@@ -375,10 +375,10 @@ export default function CreatePurchasePayments() {
                     !watchAmount ||
                     (purchaseOrderDetails &&
                       watchAmount >
-                        purchaseOrderDetails.total_amount +
-                          purchaseOrderDetails.tax_amount -
-                          purchaseOrderDetails.discount_amount -
-                          purchaseOrderDetails.total_paid_amount)
+                      purchaseOrderDetails.total_amount +
+                      purchaseOrderDetails.tax_amount -
+                      purchaseOrderDetails.discount_amount -
+                      purchaseOrderDetails.total_paid_amount)
                   }
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700"
@@ -398,61 +398,78 @@ export default function CreatePurchasePayments() {
         </div>
 
         {/* SUMMARY PANEL */}
-        <div className="rounded-lg border p-6 bg-white space-y-4">
-          <h2 className="text-lg font-semibold mb-4">Summary</h2>
-
-          {/* PURCHASE ORDER SUMMARY */}
-          <div className="space-y-1 text-sm">
-            <h3 className="font-medium">Purchase Order Details</h3>
-
-            {purchaseOrderDetails ? (
-              <>
-                <p>
-                  <strong>PO Number:</strong> {purchaseOrderDetails.po_number}
-                </p>
-                <p>
-                  <strong>Subtotal:</strong> {currency} {subtotal.toFixed(2)}
-                </p>
-                <p>
-                  <strong>Tax:</strong> {currency} {tax.toFixed(2)}
-                </p>
-                <p>
-                  <strong>Discount:</strong> {currency} {discount.toFixed(2)}
-                </p>
-                <p>
-                  <strong>Total:</strong> {currency} {total.toFixed(2)}
-                </p>
-                <p>
-                  <strong>Paid:</strong> {currency} {paid.toFixed(2)}
-                </p>
-                <p>
-                  <strong>Balance:</strong> {currency} {balance.toFixed(2)}
-                </p>
-              </>
-            ) : (
-              <p>No Purchase Order Selected</p>
-            )}
+        {/* SUMMARY PANEL */}
+        <div className="rounded-xl border-2 border-blue-100 dark:border-blue-900 bg-white dark:bg-gray-900 shadow-xl shadow-blue-500/10 overflow-hidden sticky top-6">
+          <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 p-4 border-b border-blue-100 dark:border-blue-900">
+            <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+              Payment Summary
+            </h2>
           </div>
 
-          {/* PAYMENT SUMMARY */}
-          <div className="space-y-1 text-sm mt-4">
-            <h3 className="font-medium">Payment Details</h3>
+          <div className="p-6 space-y-6">
+            {purchaseOrderDetails ? (
+              <>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-gray-100 dark:border-gray-800">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">PO Number</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{purchaseOrderDetails.po_number}</span>
+                  </div>
 
-            <p>
-              <strong>Amount:</strong>{" "}
-              {watchAmount
-                ? `${currency} ${Number(watchAmount).toFixed(2)}`
-                : "Not Entered"}
-            </p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{currency} {subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">Tax</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{currency} {tax.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">Discount</span>
+                      <span className="font-medium text-red-500">- {currency} {discount.toFixed(2)}</span>
+                    </div>
+                  </div>
 
-            <p>
-              <strong>Method:</strong>{" "}
-              {watchMethod
-                ? watchMethod
-                    .replaceAll("_", " ")
-                    .replace(/^\w/, (c) => c.toUpperCase())
-                : "Not Selected"}
-            </p>
+                  <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">Total Amount</span>
+                      <span className="font-bold text-lg text-blue-600 dark:text-blue-400">{currency} {total.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-emerald-600 font-medium">Already Paid</span>
+                      <span className="text-emerald-600 font-bold">{currency} {paid.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-800/50">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-amber-900 dark:text-amber-100">Remaining Balance</span>
+                      <span className="font-bold text-xl text-amber-600 dark:text-amber-400">{currency} {balance.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Current Payment</h3>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Amount</span>
+                    <span className="font-bold text-gray-900 dark:text-gray-100">
+                      {watchAmount ? `${currency} ${Number(watchAmount).toFixed(2)}` : "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">Method</span>
+                    <span className="font-medium capitalize text-gray-900 dark:text-gray-100">
+                      {watchMethod ? watchMethod.replaceAll("_", " ") : "-"}
+                    </span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                <p>Select a Purchase Order to view details</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
