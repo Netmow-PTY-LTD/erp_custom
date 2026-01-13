@@ -1,19 +1,24 @@
 import type { Customer } from "@/store/features/customers/types";
 
 // Map API customer type to UI display label
-export function getCustomerTypeLabel(type: "individual" | "business"): string {
-    return type === "business" ? "Business" : "Individual";
+export function getCustomerTypeLabel(type: "individual" | "business" | "retail"): string {
+    if (type === "business") return "Business";
+    if (type === "retail") return "Retail";
+    return "Individual";
 }
 
 // Map UI group value to API customer_type
-export function groupToCustomerType(group: string): "individual" | "business" {
-    if (group === "retail") return "individual";
+export function groupToCustomerType(group: string): "individual" | "business" | "retail" {
+    if (group === "retail") return "retail";
+    if (group === "individual") return "individual";
     return "business"; // wholesale, key_account -> business
 }
 
 // Map API customer_type to UI group value
-export function customerTypeToGroup(type: "individual" | "business"): string {
-    return type === "individual" ? "retail" : "wholesale";
+export function customerTypeToGroup(type: "individual" | "business" | "retail"): string {
+    if (type === "individual") return "individual";
+    if (type === "retail") return "retail";
+    return "wholesale";
 }
 
 // Convert full address parts to single address string
