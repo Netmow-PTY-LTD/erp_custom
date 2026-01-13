@@ -44,7 +44,6 @@ import CreateOrderPage from "@/pages/salesOrders/order/createOrder";
 import EditOrderPage from "@/pages/salesOrders/order/editOrder";
 import OrderDetails from "@/pages/salesOrders/order/OrderDetails";
 import PendingOrders from "@/pages/salesOrders/order/PendingOrders";
-import ConfirmedOrders from "@/pages/salesOrders/order/ConfirmedOrders";
 import DeliveredOrders from "@/pages/salesOrders/order/DeliveredOrders";
 import AddIncomePage from "@/pages/accounting/AddIncomePage";
 import AddExpensePage from "@/pages/accounting/AddExpanse";
@@ -173,6 +172,8 @@ import Payslips from "@/pages/HrAndPayroll/Payslips";
 
 import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
 
+import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
+import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -993,10 +994,20 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "In-Transit Orders",
+        url: "/dashboard/sales/orders/intransit-order",
+        element: <IntransitOrder />,
+        icon: Truck,
+        allowedPermissions: [
+          SalesPermission.INTRANSIT_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Delivered Orders",
         url: "/dashboard/sales/orders/delivered",
         element: <DeliveredOrders />,
-        icon: Truck,
+        icon: Package,
         allowedPermissions: [
           SalesPermission.DELIVERED_ORDERS,
           SuperAdminPermission.ACCESS_ALL,

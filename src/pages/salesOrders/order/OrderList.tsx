@@ -31,7 +31,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
 
-export default function Orders({ status }: { status?: string }) {
+export default function Orders() {
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
@@ -41,8 +41,7 @@ export default function Orders({ status }: { status?: string }) {
   const { data, isLoading } = useGetAllSalesOrdersQuery({
     page,
     limit,
-    search,
-    status,
+    search
   });
 
   const orders = data?.data ?? [];
@@ -262,11 +261,27 @@ export default function Orders({ status }: { status?: string }) {
     },
   ];
 
+
+
+  const orderStatusOptions = [
+    { value: "pending", label: "Pending" },
+    { value: "in_transit", label: "In Transit" },
+    { value: "delivered", label: "Delivered" },
+    { value: "failed", label: "Failed" },
+    { value: "returned", label: "Returned" },
+    { value: "confirmed", label: "Confirmed" },
+    { value: "cancelled", label: "Cancelled" },
+  ] as const;
+
+
+
+
+
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">
-          Sales Orders Management ({status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : ""})
+          Sales Orders Management
         </h1>
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/sales/invoices">
@@ -327,7 +342,7 @@ export default function Orders({ status }: { status?: string }) {
       </div>
       <Card className="py-6">
         <CardHeader>
-          <CardTitle>{status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : "All "}Orders</CardTitle>
+          <CardTitle>Orders</CardTitle>
           <CardDescription>Manage your orders</CardDescription>
         </CardHeader>
         <CardContent>
@@ -350,6 +365,7 @@ export default function Orders({ status }: { status?: string }) {
         isOpen={isUpdateDeliveryStatusModalOpen}
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
+        statusOptions={orderStatusOptions}
       />
     </div>
   );
