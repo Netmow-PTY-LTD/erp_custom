@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/command";
 import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
+import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 
 // =====================================================
 //  FORM SCHEMA (PAYLOAD READY)
@@ -70,6 +71,7 @@ const StaffSchema = z.object({
   status: z.enum(["active", "terminated", "on_leave"]),
   image: z.string().optional(),
   gallery_items: z.array(z.string()).optional().nullable(),
+  role_id: z.number().optional(),
 });
 
 type StaffFormValues = z.infer<typeof StaffSchema>;
@@ -84,6 +86,9 @@ export default function AddStaffPage() {
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
+  const [rolePage] = useState(1);
+  const [roleSearch] = useState("");
+  const roleLimit = 10;
 
   const navigate = useNavigate();
 
@@ -91,6 +96,13 @@ export default function AddStaffPage() {
     page,
     limit,
     search,
+  });
+
+
+  const { data: rolesData } = useGetAllRolesQuery({
+    page: rolePage,
+    limit: roleLimit,
+    search: roleSearch,
   });
 
   const currency = useAppSelector((state) => state.currency.value);
@@ -108,6 +120,7 @@ export default function AddStaffPage() {
       hire_date: "",
       salary: 0,
       status: "active",
+      role_id: undefined,
       image: "",
       gallery_items: [],
     },
@@ -129,6 +142,7 @@ export default function AddStaffPage() {
       hire_date: values.hire_date,
       salary: values.salary,
       status: values.status,
+      role_id: values.role_id,
       thumb_url: values.image,
       gallery_items: values.gallery_items || [],
     };
@@ -169,7 +183,7 @@ export default function AddStaffPage() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-6">
+    <div className="w-full">
       {/* PAGE TITLE */}
       <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
         <div>
@@ -528,6 +542,36 @@ export default function AddStaffPage() {
                     )}
                   />
                 </div>
+                <FormField
+                  control={form.control}
+                  name="role_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+
+                      <Select
+                        value={field.value ? String(field.value) : ""}
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        disabled={isLoading}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Role" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {Array.isArray(rolesData?.data) &&
+                            rolesData.data.map((role) => (
+                              <SelectItem key={role.id} value={String(role.id)}>
+                                {role?.display_name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="gallery_items"
