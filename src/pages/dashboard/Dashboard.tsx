@@ -97,11 +97,11 @@ export default function Dashboard() {
       >
         <TabsContent value="overview" className="space-y-8">
           {/* Stats Cards */}
-          {canStatsShow && <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          {canStatsShow && <div className="flex flex-wrap gap-4">
             {stats.map((item, idx) => (
               <div
                 key={idx}
-                className={`relative overflow-hidden rounded-2xl bg-linear-to-r ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1`}
+                className={`relative flex-1 min-w-[200px] overflow-hidden rounded-2xl bg-linear-to-r ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1`}
               >
                 {/* Background Pattern */}
                 <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10 blur-2xl" />

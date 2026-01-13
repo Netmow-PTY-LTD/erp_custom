@@ -48,7 +48,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
+import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 
 // =====================================================
 //  FORM SCHEMA
@@ -66,6 +68,7 @@ const StaffSchema = z.object({
   image: z.string().optional(),
   gallery_items: z.array(z.string()).optional().nullable(),
   password: z.string().min(4, "Password must be at least 4 characters").optional().or(z.literal("")),
+  role_id: z.number().optional(),
 });
 
 type StaffFormValues = z.infer<typeof StaffSchema>;
@@ -82,6 +85,18 @@ export default function EditStaffPage() {
   const { staffId } = useParams<{ staffId: string }>();
   const { data, isLoading: isFetching } = useGetStaffByIdQuery(staffId!);
   const [updateStaff, { isLoading: isUpdating }] = useUpdateStaffMutation();
+
+  const [rolePage] = useState(1);
+  const [roleSearch] = useState("");
+  const roleLimit = 10;
+
+  const { data: rolesData } = useGetAllRolesQuery({
+    page: rolePage,
+    limit: roleLimit,
+    search: roleSearch,
+  });
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const navigate = useNavigate();
 
@@ -106,6 +121,7 @@ export default function EditStaffPage() {
       image: "",
       gallery_items: [],
       password: "",
+      role_id: undefined,
     },
   });
 
@@ -128,6 +144,7 @@ export default function EditStaffPage() {
         image: staff?.thumb_url || "",
         gallery_items: staff?.gallery_items || [],
         password: "", // Usually we don't load the password from backend for security
+        role_id: staff?.role_id ?? undefined,
       });
     }
   }, [staff, fetchedDepartments?.data, form]);
@@ -149,6 +166,7 @@ export default function EditStaffPage() {
       thumb_url: values.image,
       gallery_items: values.gallery_items || [],
       password: values.password || undefined,
+      role_id: values.role_id ?? undefined,
     };
     try {
       // const fd = new FormData();
@@ -466,7 +484,9 @@ export default function EditStaffPage() {
                     name="salary"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Salary (RM)</FormLabel>
+                        <FormLabel>
+                          Salary {`${currency ? `(${currency})` : ""}`}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -486,7 +506,9 @@ export default function EditStaffPage() {
                     name="status"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Status *</FormLabel>
+                        <FormLabel>
+                          Status <span className="text-red-600">*</span>
+                        </FormLabel>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
@@ -507,6 +529,37 @@ export default function EditStaffPage() {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="role_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+
+                      <Select
+                        value={field.value ? String(field.value) : ""}
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        disabled={isUpdating}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Role" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          {Array.isArray(rolesData?.data) &&
+                            rolesData.data.map((role) => (
+                              <SelectItem key={role.id} value={String(role.id)}>
+                                {role?.display_name}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

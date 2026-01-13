@@ -161,6 +161,18 @@ import AddCustomerByStaffPage from "@/pages/customer/AddCustomerByStaff";
 import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 import Help from "@/pages/help/Help";
 import EditCustomerByStaffPage from "@/pages/customer/EditCustomerByStaffPage";
+import HRPayrollEmployeeMaster from "@/pages/HrAndPayroll";
+import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
+import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
+import Attendance from "@/pages/HrAndPayroll/Attendance";
+import LeaveTypes from "@/pages/HrAndPayroll/LeaveTypes";
+import LeaveRequests from "@/pages/HrAndPayroll/LeaveRequests";
+import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
+import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
+import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
+import Payslips from "@/pages/HrAndPayroll/Payslips";
+import StatutoryContributions from "@/pages/HrAndPayroll/StatutoryContributions";
+import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -1196,6 +1208,89 @@ export const sidebarItemLink = [
     ],
   },
 
+  //HR and Payroll
+
+  {
+    title: "HR & Payroll",
+    url: "#",
+    icon: HandCoins,
+    items: [
+      {
+        title: "Employee Master",
+        url: "/dashboard/payroll",
+        element: <HRPayrollEmployeeMaster />,
+      },
+      {
+        title: "Departments Designations",
+        url: "/dashboard/payroll/departments-designations",
+
+        element: <DepartmentsDesignations />,
+      },
+      {
+        title: "Employment Details",
+        url: "/dashboard/payroll/employment-details",
+
+        element: <EmploymentDetails />,
+      },
+      {
+        title: "Attendance",
+        url: "/dashboard/payroll/attendance",
+
+        element: <Attendance />,
+      },
+      {
+        title: "LeaveTypes",
+        url: "/dashboard/payroll/leave-ypes",
+
+        element: <LeaveTypes />,
+      },
+      {
+        title: "LeaveRequests",
+        url: "/dashboard/payroll/leave-requests",
+
+        element: <LeaveRequests />,
+      },
+      {
+        title: "Payroll Components",
+        url: "/dashboard/payroll/payroll-components",
+
+        element: <PayrollComponents />,
+      },
+      {
+        title: "Salary Structures",
+        url: "/dashboard/payroll/salary-structures",
+
+        element: <SalaryStructures />,
+      },
+      {
+        title: "Payroll Runs",
+        url: "/dashboard/payroll/payroll-runs",
+
+        element: <PayrollRuns />,
+      },
+      {
+        title: "Payslips",
+        url: "/dashboard/payroll/payslips",
+
+        element: <Payslips />,
+      },
+      {
+        title: "Statutory Contributions",
+        url: "/dashboard/payroll/statutory-contributions",
+
+        element: <StatutoryContributions />,
+      },
+      {
+        title: "Payroll Reports",
+        url: "/dashboard/payroll/payroll-reports",
+
+        element: <PayrollReports />,
+      },
+
+
+    ],
+  },
+
   // USERS
   {
     title: "Users",
@@ -1421,11 +1516,11 @@ export const sidebarItemLink = [
     title: "Help",
     url: "/dashboard/help",
     icon: Map,
-      element: <Help />,
+    element: <Help />,
     allowedPermissions: [
       HelpPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
-   
+
   },
 ];
