@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,13 +12,15 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 export default function UsersList() {
-  const [pageIndex, setPageIndex] = useState(0);
-  const { data: usersData } = useGetAllUsersQuery();
+  const [pageIndex, setPageIndex] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [limit,]=useState(10)
+  const { data: usersData } = useGetAllUsersQuery( { page: pageIndex, limit, search: searchTerm } );
 
   const users = (usersData?.data as User[]) || [];
 
   // -------------------- DYNAMIC STATS --------------------
-  const totalUsers = users.length;
+  const totalUsers = usersData?.pagination?.total || 0;
   const activeUsers = users.filter(
     (u) => u.status?.toLowerCase() === "active"
   ).length;
@@ -155,9 +158,14 @@ export default function UsersList() {
           <DataTable
             columns={userColumns}
             data={users}
-            pageIndex={pageIndex}
-            pageSize={10}
-            onPageChange={setPageIndex}
+            pageIndex={pageIndex-1}
+            pageSize={limit}
+            totalCount={usersData?.pagination?.total || 0}
+             onPageChange={(newPageIndex) =>setPageIndex(newPageIndex + 1)}
+            onSearch={(value) => {
+             setSearchTerm(value);
+              setPageIndex(1);
+            }}
           />
         </CardContent>
       </Card>
