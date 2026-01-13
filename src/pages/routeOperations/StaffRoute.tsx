@@ -61,13 +61,18 @@ const StaffRoute = () => {
 
     // Append new staff data
     useEffect(() => {
-        if (routeData && Array.isArray(routeData)) {
-            if (routeData.length === 0) {
+        if (routeData && Array.isArray(routeData.data)) {
+            if (routeData.data.length === 0) {
                 // eslint-disable-next-line
                 setHasMoreStaff(false);
             } else {
-                setAllStaff(prev => staffPage === 1 ? routeData : [...prev, ...routeData]);
-                if (routeData.length < 15) setHasMoreStaff(false);
+                setAllStaff(prev => {
+                    if (staffPage === 1) return routeData.data;
+                    const existingIds = new Set(prev.map(s => s.id));
+                    const newItems = routeData.data.filter(s => !existingIds.has(s.id));
+                    return [...prev, ...newItems];
+                });
+                if (routeData.data.length < 15) setHasMoreStaff(false);
             }
         }
     }, [routeData, staffPage]);
@@ -134,7 +139,12 @@ const StaffRoute = () => {
                 // eslint-disable-next-line
                 setHasMoreRoutes(false);
             } else {
-                setAllAssignRoutes(prev => assignPage === 1 ? routes : [...prev, ...routes]);
+                setAllAssignRoutes(prev => {
+                    if (assignPage === 1) return routes;
+                    const existingIds = new Set(prev.map(r => r.id));
+                    const newItems = routes.filter((r: any) => !existingIds.has(r.id));
+                    return [...prev, ...newItems];
+                });
                 if (routes.length < 15) setHasMoreRoutes(false);
             }
         }

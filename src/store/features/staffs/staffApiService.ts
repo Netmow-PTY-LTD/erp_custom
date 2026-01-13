@@ -6,7 +6,7 @@ export type StaffResponse<T> = {
   status: boolean;
   message: string;
   data: T;
-   pagination?: {
+  pagination?: {
     total: number;
     page: number;
     limit: number;
@@ -91,7 +91,7 @@ export const staffApiService = baseApi.injectEndpoints({
     }),
 
     // GET SINGLE STAFF BY ID
-    getStaffById: builder.query< StaffResponse<Staff>, string | number>({
+    getStaffById: builder.query<StaffResponse<Staff>, string | number>({
       query: (id) => ({
         url: `/staffs/${id}`,
         method: "GET",
@@ -118,8 +118,8 @@ export const staffApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Staffs"],
     }),
 
-      // Staff wise routes
-    getAllStaffWiseRoutes: builder.query<StaffWiseRoutes[], StaffQueryParams>({
+    // Staff wise routes
+    getAllStaffWiseRoutes: builder.query<StaffResponse<StaffWiseRoutes[]>, StaffQueryParams>({
       query: (params) => ({
         url: "/staffs/routes",
         method: "GET",
