@@ -11,7 +11,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
@@ -141,6 +141,22 @@ export default function PurchaseOrdersList() {
 
 
 
+  const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
+
+  const handleApprove = async (id: number) => {
+    try {
+      const res = await updatePurchaseOrder({ id, body: { status: "approved" } }).unwrap();
+      if (res.status) {
+        toast.success("Purchase Order Approved Successfully");
+      } else {
+        toast.error(res?.message || "Approve failed");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Approve failed");
+    }
+  };
+
   /* COLUMNS */
   const poColumns: ColumnDef<PurchaseOrder>[] = [
     {
@@ -222,8 +238,24 @@ export default function PurchaseOrdersList() {
       cell: ({ row }) => {
         const po = row.original;
         const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
+        const isPending = po.status === "pending";
+
         return (
           <div className="flex gap-2">
+            {isPending && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-emerald-600 border-emerald-600 hover:bg-emerald-600 hover:text-white"
+                onClick={() => handleApprove(Number(po.id))}
+                disabled={isUpdating}
+                title="Approve Order"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Approve
+              </Button>
+            )}
+
             <Link to={`/dashboard/purchase-orders/${po.id}`}>
               <Button size="sm" variant="outline">
                 <Eye className="w-4 h-4 mr-1" /> View
@@ -243,7 +275,7 @@ export default function PurchaseOrdersList() {
                   variant="outline"
                   className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
                   onClick={() => {
-                    setSelectedPOId(po.id);
+                    setSelectedPOId(Number(po.id));
                     setModalOpen(true);
                   }}
                   disabled={isDeleting}
@@ -257,7 +289,6 @@ export default function PurchaseOrdersList() {
         );
       },
     }
-
   ];
 
 

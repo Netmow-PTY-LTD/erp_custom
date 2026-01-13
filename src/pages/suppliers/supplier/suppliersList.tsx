@@ -207,7 +207,7 @@ export default function SuppliersList() {
         const supplier = row.original;
         return (
           <div className="flex gap-2">
-            <Link to={`/dashboard/suppliers/purchase-orders/create?supplierId=${supplier.id}`}>
+            <Link to={`/dashboard/purchase-orders/create?supplierId=${supplier.id}`}>
               <Button size="sm" variant="outline" title="Create Purchase Order">
                 <ShoppingCart className="w-4 h-4" />
               </Button>

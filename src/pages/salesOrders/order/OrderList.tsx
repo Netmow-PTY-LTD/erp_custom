@@ -162,6 +162,24 @@ export default function Orders({ status }: { status?: string }) {
         );
       },
     },
+    {
+      id: "status_date",
+      header: "Status Date",
+      cell: ({ row }) => {
+        const { status, delivery_date, updated_at } = row.original;
+        let dateToDisplay = updated_at;
+
+        if (status === "delivered" && delivery_date) {
+          dateToDisplay = delivery_date as string;
+        }
+
+        return (
+          <div className="text-sm">
+            {new Date(dateToDisplay).toLocaleDateString()}
+          </div>
+        )
+      }
+    },
 
     {
       accessorKey: "total_amount",
@@ -235,7 +253,7 @@ export default function Orders({ status }: { status?: string }) {
                 variant="outline"
                 onClick={() => handleOpenUpdateDeliveryStatusModal(item)}
               >
-                Update Delivery Status
+                Change Status
               </Button>
             )}
           </div>

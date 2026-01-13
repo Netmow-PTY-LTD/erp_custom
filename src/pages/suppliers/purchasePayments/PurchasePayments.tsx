@@ -70,7 +70,7 @@ export default function PurchasePayments() {
       accessorKey: "id",
       header: "Payment #",
       meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any,
-      cell: ({ row }) => <span className="font-medium">PPAY-{row.original.id}</span>,
+      cell: ({ row }) => <span className="font-medium">{row.original.id}</span>,
     },
     {
       accessorKey: "purchase_order.po_number",
