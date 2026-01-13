@@ -289,7 +289,7 @@ export default function Staffs() {
         ))}
       </div>
 
-      <Card>
+      <Card className="py-6">
         <CardHeader>
           <CardTitle>All Staffs</CardTitle>
         </CardHeader>
