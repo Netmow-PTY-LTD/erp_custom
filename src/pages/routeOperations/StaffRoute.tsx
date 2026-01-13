@@ -35,7 +35,7 @@ const StaffRoute = () => {
     const [hasMoreStaff, setHasMoreStaff] = useState(true);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterRole, setFilterRole] = useState<string | null>(null);
+    const [filterRole, ] = useState<string | null>(null);
     const [explicitSelectedId, setExplicitSelectedId] = useState<string | number | null>(null);
 
     // Fetch Staff Data
@@ -52,12 +52,12 @@ const StaffRoute = () => {
         setHasMoreStaff(true);
     };
 
-    const handleFilterRoleChange = (val: string | null) => {
-        setFilterRole(val);
-        setStaffPage(1);
-        setAllStaff([]);
-        setHasMoreStaff(true);
-    };
+    // const handleFilterRoleChange = (val: string | null) => {
+    //     setFilterRole(val);
+    //     setStaffPage(1);
+    //     setAllStaff([]);
+    //     setHasMoreStaff(true);
+    // };
 
     // Append new staff data
     useEffect(() => {
@@ -224,7 +224,7 @@ const StaffRoute = () => {
                         />
                     </div>
                     {/* Simple Filter Pills */}
-                    <div className="flex gap-2 mt-2 overflow-x-auto pb-1 no-scrollbar">
+                    {/* <div className="flex gap-2 mt-2 overflow-x-auto pb-1 no-scrollbar">
                         <Button
                             variant={filterRole === null ? "default" : "outline"}
                             size="xs"
@@ -249,7 +249,7 @@ const StaffRoute = () => {
                         >
                             Drivers
                         </Button>
-                    </div>
+                    </div> */}
                 </CardHeader>
                 <ScrollArea className="flex-1 min-h-0 bg-muted/5">
                     <div className="flex flex-col p-2 gap-1">
