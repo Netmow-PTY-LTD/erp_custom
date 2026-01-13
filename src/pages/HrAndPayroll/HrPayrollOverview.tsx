@@ -25,7 +25,8 @@ import {
     useGetAllStaffsQuery,
     useUpdateStaffMutation,
 } from "@/store/features/staffs/staffApiService";
-import type { Department, Staff } from "@/types/types";
+import type { Department } from "@/types/types";
+import type { Staff } from "@/types/staff.types";
 import type { Role } from "@/types/users.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -257,7 +258,7 @@ export default function HrPayrollOverview() {
             await updateStaff({
                 id: editingSalaryStaff.id,
                 body: {
-                    ...editingSalaryStaff, // Ensure we don't lose other fields if backend requires full object, usually PATCH is partial but this is PUT
+                    ...editingSalaryStaff,
                     basic_salary: Number(salaryForm.basic_salary),
                     allowances: salaryForm.allowances,
                     deductions: salaryForm.deductions,
@@ -266,7 +267,7 @@ export default function HrPayrollOverview() {
                         account_name: salaryForm.account_name,
                         account_number: salaryForm.account_number,
                     }
-                } as any, // Cast to any to avoid strict partial type mismatches with nested objects
+                }
             }).unwrap();
             toast.success("Salary details updated!");
             setSalaryModalOpen(false);
@@ -804,14 +805,12 @@ export default function HrPayrollOverview() {
                                                             {(Number(viewingAttendanceStaff.basic_salary) || Number(viewingAttendanceStaff.salary) || 0).toLocaleString()}
                                                         </span>
                                                     </li>
-                                                    {/* @ts-ignore - bypassing potential type mismatch for now */}
-                                                    {viewingAttendanceStaff.allowances?.map((item: any, idx: number) => (
+                                                    {viewingAttendanceStaff.allowances?.map((item, idx: number) => (
                                                         <li key={idx} className="flex justify-between">
                                                             <span className="text-slate-600">{item.name || "Allowance"}</span>
                                                             <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
                                                         </li>
                                                     ))}
-                                                    {/* @ts-ignore */}
                                                     {(!viewingAttendanceStaff.allowances || viewingAttendanceStaff.allowances.length === 0) && (
                                                         <li className="text-xs text-slate-400 italic">No additional allowances</li>
                                                     )}
@@ -822,14 +821,12 @@ export default function HrPayrollOverview() {
                                             <div>
                                                 <h5 className="font-medium text-rose-700 mb-2 border-b border-rose-100 pb-1">Deductions (Subtractions)</h5>
                                                 <ul className="space-y-1">
-                                                    {/* @ts-ignore - bypassing potential type mismatch for now */}
-                                                    {viewingAttendanceStaff.deductions?.map((item: any, idx: number) => (
+                                                    {viewingAttendanceStaff.deductions?.map((item, idx: number) => (
                                                         <li key={idx} className="flex justify-between">
                                                             <span className="text-slate-600">{item.name || "Deduction"}</span>
                                                             <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
                                                         </li>
                                                     ))}
-                                                    {/* @ts-ignore */}
                                                     {(!viewingAttendanceStaff.deductions || viewingAttendanceStaff.deductions.length === 0) && (
                                                         <li className="text-xs text-slate-400 italic">No deductions defined</li>
                                                     )}
@@ -838,23 +835,19 @@ export default function HrPayrollOverview() {
                                         </div>
 
                                         {/* Net Summary Small */}
-                                        {/* @ts-ignore */}
                                         <div className="mt-4 pt-3 border-t border-slate-200 flex justify-end gap-6 text-sm font-semibold">
                                             <div className="text-emerald-700">
                                                 Gross: {
                                                     ((Number(viewingAttendanceStaff.basic_salary) || 0) +
-                                                        // @ts-ignore
-                                                        (viewingAttendanceStaff.allowances?.reduce((sum: number, i: any) => sum + Number(i.amount), 0) || 0))
+                                                        (viewingAttendanceStaff.allowances?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0))
                                                         .toLocaleString()
                                                 }
                                             </div>
                                             <div className="text-slate-800">
                                                 Net Payable: {
                                                     ((Number(viewingAttendanceStaff.basic_salary) || 0) +
-                                                        // @ts-ignore
-                                                        (viewingAttendanceStaff.allowances?.reduce((sum: number, i: any) => sum + Number(i.amount), 0) || 0) -
-                                                        // @ts-ignore
-                                                        (viewingAttendanceStaff.deductions?.reduce((sum: number, i: any) => sum + Number(i.amount), 0) || 0))
+                                                        (viewingAttendanceStaff.allowances?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0) -
+                                                        (viewingAttendanceStaff.deductions?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0))
                                                         .toLocaleString()
                                                 }
                                             </div>
@@ -873,10 +866,8 @@ export default function HrPayrollOverview() {
                                                 <h3 className="text-4xl font-bold flex items-baseline">
                                                     <span className="text-xl mr-1 font-normal opacity-80">RM</span>
                                                     {((Number(viewingAttendanceStaff.basic_salary) || 0) +
-                                                        // @ts-ignore
-                                                        (viewingAttendanceStaff.allowances?.reduce((sum: number, i: any) => sum + Number(i.amount), 0) || 0) -
-                                                        // @ts-ignore
-                                                        (viewingAttendanceStaff.deductions?.reduce((sum: number, i: any) => sum + Number(i.amount), 0) || 0))
+                                                        (viewingAttendanceStaff.allowances?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0) -
+                                                        (viewingAttendanceStaff.deductions?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0))
                                                         .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </h3>
                                                 <div className="flex items-center gap-2 mt-2 mb-4">
