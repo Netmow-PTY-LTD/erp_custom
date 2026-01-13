@@ -23,14 +23,14 @@ export default function CheckInLocationModal(props: ModalProps) {
 
   // Extract data based on which prop set was provided
   const attendance = isSingleAttendance ? props.attendance : null;
-  const customer = isSingleAttendance ? props.attendance.customer : props.customer;
+  const customer = isSingleAttendance ? props.attendance?.customer : props.customer;
   const checkins = isSingleAttendance ? [] : props.checkins;
 
   // Coordinate access needs to be careful because 'customer' in StaffAttendance
   // might have slightly different property names than official Customer type
   // (e.g. address is there, but latitude/longitude might be on attendance record)
-  const lat = isSingleAttendance ? props.attendance.latitude : (props.customer as any).latitude;
-  const lng = isSingleAttendance ? props.attendance.longitude : (props.customer as any).longitude;
+  const lat = isSingleAttendance ? props.attendance?.latitude : (props.customer as any)?.latitude;
+  const lng = isSingleAttendance ? props.attendance?.longitude : (props.customer as any)?.longitude;
 
   const hasCoords = typeof lat === "number" && typeof lng === "number";
 
@@ -41,7 +41,7 @@ export default function CheckInLocationModal(props: ModalProps) {
           <h2 className="text-lg font-medium">
             {isSingleAttendance
               ? `Attendance Location — Staff ID: ${attendance?.staff_id}`
-              : `Customer Location — ${customer.name}`}
+              : `Customer Location — ${customer?.name ?? "Unknown Customer"}`}
           </h2>
           <button className="px-3 py-1 bg-gray-200 rounded" onClick={onClose}>
             Close
@@ -51,17 +51,17 @@ export default function CheckInLocationModal(props: ModalProps) {
         <div className="p-4 space-y-3">
           <div>
             <div className="text-sm text-gray-500">Address</div>
-            <div className="font-medium">{customer.address ?? "—"}</div>
+            <div className="font-medium">{customer?.address ?? "—"}</div>
           </div>
           {isSingleAttendance && attendance && (
             <>
               <div>
                 <div className="text-sm text-gray-500">Check-in Time</div>
-                <div className="font-medium">{new Date(attendance.check_in_time).toLocaleString()}</div>
+                <div className="font-medium">{attendance?.check_in_time ? new Date(attendance.check_in_time).toLocaleString() : "—"}</div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Distance</div>
-                <div className="font-medium">{attendance.distance_meters}m</div>
+                <div className="font-medium">{attendance?.distance_meters ?? 0}m</div>
               </div>
             </>
           )}
@@ -81,12 +81,12 @@ export default function CheckInLocationModal(props: ModalProps) {
                   startLocation={{
                     lat: lat!,
                     lng: lng!,
-                    name: isSingleAttendance ? `Staff ${attendance?.staff_id}` : customer.name,
+                    name: isSingleAttendance ? `Staff ${attendance?.staff_id}` : (customer?.name ?? "Customer"),
                   }}
                   endLocation={{
                     lat: lat!,
                     lng: lng!,
-                    name: isSingleAttendance ? `Staff ${attendance?.staff_id}` : customer.name,
+                    name: isSingleAttendance ? `Staff ${attendance?.staff_id}` : (customer?.name ?? "Customer"),
                   }}
                   customerMarkers={checkins.map((ci: any) => ({
                     lat: parseFloat(ci.latitude),
@@ -97,7 +97,7 @@ export default function CheckInLocationModal(props: ModalProps) {
               </div>
             ) : (
               customer?.address ? (
-                <MapEmbed location={customer.address} />
+                <MapEmbed location={customer?.address} />
               ) : (
                 <div className="flex items-center justify-center h-full bg-gray-50 text-gray-400">
                   No location data available
