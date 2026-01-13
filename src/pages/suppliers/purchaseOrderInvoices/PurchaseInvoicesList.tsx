@@ -108,18 +108,28 @@ export default function PurchaseInvoicesList() {
     },
     {
       accessorKey: "total_payable_amount",
-      header: `Total Payable Amount (${currency})`,
-      cell: ({ row }) => `${row.original.total_payable_amount.toFixed(2)}`,
+      header: () => (
+        <div className="text-right">Total Payable Amount ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {row.original.total_payable_amount.toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "paid_amount",
-      header: `Paid Amount (${currency})`,
-      cell: ({ row }) => `${row.original.paid_amount.toFixed(2)}`,
+      header: () => <div className="text-right">Paid Amount ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.paid_amount.toFixed(2)}</div>
+      ),
     },
     {
       accessorKey: "due_amount",
-      header: `Due Amount (${currency})`,
-      cell: ({ row }) => ` ${row.original.due_amount.toFixed(2)}`,
+      header: () => <div className="text-right">Due Amount ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.due_amount.toFixed(2)}</div>
+      ),
     },
 
     {

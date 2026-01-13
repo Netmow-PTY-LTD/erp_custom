@@ -111,8 +111,12 @@ export default function CustomerReports() {
     { accessorKey: "orders", header: "Orders" },
     {
       accessorKey: "sales",
-      header: `Sales (${currency})`,
-      cell: ({ row }) => <>{row.getValue("sales") as number}</>,
+      header: () => <div className="text-right">Sales ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {Number(row.getValue("sales") || 0).toFixed(2)}
+        </div>
+      ),
     },
   ];
 
@@ -129,23 +133,33 @@ export default function CustomerReports() {
     { accessorKey: "due", header: "Due" },
     {
       accessorKey: "total",
-      header: "Total",
-      cell: ({ row }) => <>RM {(row.getValue("total") as number).toFixed(2)}</>,
+      header: () => <div className="text-right">Total ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {Number(row.getValue("total") || 0).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "paid",
-      header: "Paid",
-      cell: ({ row }) => <>RM {(row.getValue("paid") as number).toFixed(2)}</>,
+      header: () => <div className="text-right">Paid ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {Number(row.getValue("paid") || 0).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "balance",
-      header: "Balance",
+      header: () => <div className="text-right">Balance ({currency})</div>,
       cell: ({ row }) => {
-        const val = row.getValue("balance") as number;
+        const val = Number(row.getValue("balance") || 0);
         return (
-          <Badge className={val > 0 ? "bg-red-500" : "bg-green-500"}>
-            RM {val.toFixed(2)}
-          </Badge>
+          <div className="text-right">
+            <Badge className={val > 0 ? "bg-red-500" : "bg-green-500"}>
+              {val.toFixed(2)}
+            </Badge>
+          </div>
         );
       },
     },

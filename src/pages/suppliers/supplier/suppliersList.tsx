@@ -17,10 +17,11 @@ import {
   useGetAllSuppliersQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon } from "lucide-react";
+import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import type { Supplier } from "@/types/supplier.types";
+import { useAppSelector } from "@/store/store";
 
 
 
@@ -59,6 +60,8 @@ export default function SuppliersList() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
+
+  const currency = useAppSelector((state) => state.currency.value);
 
   const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({ search, page, limit });
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
@@ -153,6 +156,42 @@ export default function SuppliersList() {
       header: "City",
     },
     {
+      accessorKey: "total_purchase_amount",
+      header: () => <div className="text-right">Total Purchase ({currency})</div>,
+      cell: ({ row }) => {
+        const amount = row.getValue("total_purchase_amount");
+        return (
+          <div className="text-right">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "total_paid_amount",
+      header: () => <div className="text-right">Total Paid ({currency})</div>,
+      cell: ({ row }) => {
+        const amount = row.getValue("total_paid_amount");
+        return (
+          <div className="text-right">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "total_due_amount",
+      header: () => <div className="text-right">Total Due ({currency})</div>,
+      cell: ({ row }) => {
+        const amount = row.getValue("total_due_amount");
+        return (
+          <div className="text-right">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "is_active",
       header: "Status",
       cell: ({ row }) => {
@@ -168,6 +207,11 @@ export default function SuppliersList() {
         const supplier = row.original;
         return (
           <div className="flex gap-2">
+            <Link to={`/dashboard/suppliers/purchase-orders/create?supplierId=${supplier.id}`}>
+              <Button size="sm" variant="outline" title="Create Purchase Order">
+                <ShoppingCart className="w-4 h-4" />
+              </Button>
+            </Link>
             <Link to={`/dashboard/suppliers/${supplier.id}/edit`}>
               <Button size="sm" variant="outline">
                 <Edit className="w-4 h-4 mr-1" /> Edit

@@ -95,8 +95,12 @@ export default function ExpensesPage() {
     },
     {
       accessorKey: "amount",
-      header: `Amount (${currency})`,
-      cell: ({ row }) => `${currency} ${row.getValue("amount")}`,
+      header: () => (
+        <div className="text-right">Amount ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">{Number(row.getValue("amount")).toFixed(2)}</div>
+      ),
     },
     { accessorKey: "expense_date", header: "Date" },
     { accessorKey: "payment_method", header: "Payment Method" },

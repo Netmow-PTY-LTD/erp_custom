@@ -81,13 +81,21 @@ export default function StockManagement() {
     },
     {
       accessorKey: "cost",
-      header: `Cost Price (${currency})`,
-      cell: ({ row }) => row.original.cost,
+      header: () => (
+        <div className="text-right">Cost Price ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">{Number(row.original.cost).toFixed(2)}</div>
+      ),
     },
     {
       accessorKey: "price",
-      header: `Selling Price (${currency})`,
-      cell: ({ row }) => row.original.price,
+      header: () => (
+        <div className="text-right">Selling Price ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">{Number(row.original.price).toFixed(2)}</div>
+      ),
     },
     // {
     //   accessorKey: "unit",
@@ -97,8 +105,10 @@ export default function StockManagement() {
     // },
     {
       accessorKey: "stock_quantity",
-      header: "Stock",
-      cell: ({ row }) => row.original.stock_quantity,
+      header: () => <div className="text-right">Stock</div>,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.stock_quantity}</div>
+      ),
     },
     {
       accessorKey: "is_active",

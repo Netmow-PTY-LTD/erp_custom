@@ -207,9 +207,14 @@ export default function DeliveryPage() {
     },
     {
       accessorKey: "total_amount",
-      header: "Total Amount",
-      cell: ({ row }) =>
-        `RM ${parseFloat(row.original.total_amount).toFixed(2)}`,
+      header: () => (
+        <div className="text-right">Total Amount (RM)</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.original.total_amount).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "delivery.delivery_date",
