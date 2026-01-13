@@ -189,7 +189,7 @@ export default function SuppliersList() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
         <Link to="/dashboard/suppliers/create">
           <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
@@ -230,7 +230,7 @@ export default function SuppliersList() {
         ))}
       </div>
 
-      <Card className="py-6">
+      <Card className="pt-6 pb-2">
         <CardHeader>
           <CardTitle>All Suppliers</CardTitle>
           <CardDescription>Manage your supplier list</CardDescription>
