@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,13 +12,15 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 export default function UsersList() {
-  const [pageIndex, setPageIndex] = useState(0);
-  const { data: usersData } = useGetAllUsersQuery();
+  const [pageIndex, setPageIndex] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [limit,]=useState(10)
+  const { data: usersData } = useGetAllUsersQuery( { page: pageIndex, limit, search: searchTerm } );
 
   const users = (usersData?.data as User[]) || [];
 
   // -------------------- DYNAMIC STATS --------------------
-  const totalUsers = users.length;
+  const totalUsers = usersData?.pagination?.total || 0;
   const activeUsers = users.filter(
     (u) => u.status?.toLowerCase() === "active"
   ).length;
@@ -108,7 +111,7 @@ export default function UsersList() {
         <h2 className="text-3xl font-semibold">All Users</h2>
 
         <Link to="/dashboard/users/add">
-          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
             <UserPlus size={18} />
             Add User
           </button>
@@ -120,7 +123,7 @@ export default function UsersList() {
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -155,9 +158,14 @@ export default function UsersList() {
           <DataTable
             columns={userColumns}
             data={users}
-            pageIndex={pageIndex}
-            pageSize={10}
-            onPageChange={setPageIndex}
+            pageIndex={pageIndex-1}
+            pageSize={limit}
+            totalCount={usersData?.pagination?.total || 0}
+             onPageChange={(newPageIndex) =>setPageIndex(newPageIndex + 1)}
+            onSearch={(value) => {
+             setSearchTerm(value);
+              setPageIndex(1);
+            }}
           />
         </CardContent>
       </Card>

@@ -29,8 +29,8 @@ import {
 import { toast } from "sonner";
 
 import { useAddPurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
-import { useNavigate } from "react-router";
-import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
+import { useNavigate, useSearchParams } from "react-router";
+import { useGetAllSuppliersQuery, useGetSupplierByIdQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import { useState } from "react";
@@ -78,6 +78,8 @@ type PurchaseOrderFormValues = z.infer<typeof orderSchema>;
 
 export default function CreatePurchaseOrderPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const supplierIdParam = searchParams.get("supplierId");
 
   const currency = useAppSelector((state) => state.currency.value);
   const [addPurchaseOrder, { isLoading }] = useAddPurchaseOrderMutation();
@@ -85,7 +87,7 @@ export default function CreatePurchaseOrderPage() {
   const form = useForm<PurchaseOrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
-      supplierId: 0,
+      supplierId: supplierIdParam ? Number(supplierIdParam) : 0,
       order_date: new Date().toISOString().split("T")[0],
       expected_delivery_date: "",
       notes: "",
@@ -126,11 +128,18 @@ export default function CreatePurchaseOrderPage() {
       search: query,
     });
 
+    // Fetch single supplier if we have a value (to ensure display name is available)
+    const { data: singleData } = useGetSupplierByIdQuery(field.value!, {
+      skip: !field.value,
+    });
+
     const list = Array.isArray(data?.data) ? data.data : [];
 
-    const selected = list.find(
-      (s: Supplier) => Number(s.id) === Number(field.value)
-    );
+    const selected =
+      list.find((s: Supplier) => Number(s.id) === Number(field.value)) ||
+      (singleData?.data?.id && Number(singleData.data.id) === Number(field.value)
+        ? singleData.data
+        : undefined);
 
     return (
       <Popover open={open} onOpenChange={setOpen}>

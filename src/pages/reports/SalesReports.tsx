@@ -157,8 +157,15 @@ export default function SalesReportsPage() {
     },
     {
       accessorKey: "total_revenue",
-      header: `Sales (${currency})`,
-      cell: (info) => info.getValue() as number,
+      header: () => <div className="text-right">Sales ({currency})</div>,
+      cell: (info) => (
+        <div className="text-right">
+          {(info.getValue() as number).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </div>
+      ),
       meta: { textAlign: "right" },
     },
   ];
@@ -181,8 +188,15 @@ export default function SalesReportsPage() {
     },
     {
       accessorKey: "total_spent",
-      header: `Sales (${currency})`,
-      cell: (row) => row.getValue() as number,
+      header: () => <div className="text-right">Sales ({currency})</div>,
+      cell: (row) => (
+        <div className="text-right">
+          {(row.getValue() as number).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </div>
+      ),
     },
   ];
 

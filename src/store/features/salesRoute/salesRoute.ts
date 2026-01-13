@@ -21,7 +21,7 @@ export interface SalesRouteResponse<T> {
 
 
 interface AssignStaffRequestBody {
- staff_ids: number[];
+  staff_ids: number[];
 }
 
 // ----------------------
@@ -92,7 +92,7 @@ export const salesRouteApiService = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["SalesRoute"],
+      invalidatesTags: ["SalesRoute", "staffRoutes"],
     }),
 
     // DELETE SALES ROUTE
