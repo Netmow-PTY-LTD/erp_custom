@@ -136,7 +136,7 @@ export default function CreditHead() {
     {
       accessorKey: "is_active",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const status = row.getValue("is_active") as boolean;
         return (
           <Badge className={`${status ? "bg-green-600" : "bg-red-600"}`}>{status ? "Active" : "Inactive"}</Badge>
@@ -146,7 +146,7 @@ export default function CreditHead() {
     {
       id: "actions",
       header: "Action",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const creditHeadId = row.original.id;
 
         return (
@@ -161,14 +161,6 @@ export default function CreditHead() {
             >
               Edit
             </Button>
-            {/* 
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDeleteCreditHead(creditHeadId)}
-            >
-              Delete
-            </Button> */}
           </div>
         );
       },

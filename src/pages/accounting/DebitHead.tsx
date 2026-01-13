@@ -138,7 +138,7 @@ export default function DebitHead() {
     {
       accessorKey: "is_active",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const status = row.getValue("is_active") as boolean;
         return (
           <Badge className={`${status ? "bg-green-600" : "bg-red-600"}`}>
@@ -150,7 +150,7 @@ export default function DebitHead() {
     {
       id: "actions",
       header: "Action",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const debitHeadId = row.original.id;
 
         return (
@@ -165,14 +165,6 @@ export default function DebitHead() {
             >
               Edit
             </Button>
-
-            {/* <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDeleteDebitHead(debitHeadId)}
-            >
-              Delete
-            </Button> */}
           </div>
         );
       },
