@@ -8,6 +8,7 @@ import {
   useGetAllStaffsQuery,
 } from "@/store/features/staffs/staffApiService";
 import type { Department, Staff } from "@/types/types";
+import type { Role } from "@/types/users.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   CalendarX2,
@@ -188,7 +189,14 @@ export default function Staffs() {
       accessorKey: "position",
       header: "Position",
     },
-
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => {
+        const role = row.getValue("role") as Role | null;
+        return <div className="font-normal">{role?.display_name}</div>;
+      },
+    },
     {
       accessorKey: "status",
       header: "Status",
@@ -289,7 +297,7 @@ export default function Staffs() {
         ))}
       </div>
 
-      <Card className="py-6">
+      <Card className="pt-6 pb-2">
         <CardHeader>
           <CardTitle>All Staffs</CardTitle>
         </CardHeader>

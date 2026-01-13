@@ -117,10 +117,12 @@ export default function Payments() {
     },
     {
       accessorKey: "amount",
-      header: "Amount",
+      header: () => (
+        <div className="text-right">Amount ({currency})</div>
+      ),
       cell: ({ row }) => {
         const value = parseFloat(row.original.amount);
-        return <span>{currency} {value.toFixed(2)}</span>;
+        return <div className="text-right">{value.toFixed(2)}</div>;
       },
     },
     {

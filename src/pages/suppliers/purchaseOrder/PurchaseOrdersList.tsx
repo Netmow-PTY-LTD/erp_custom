@@ -184,27 +184,37 @@ export default function PurchaseOrdersList() {
     },
     {
       accessorKey: "total_amount",
-      header: `Total Price (${currency})`,
-      cell: ({ row }) =>
-        `${row.original.total_amount.toFixed(2)}`,
+      header: () => <div className="text-right">Total Price ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.total_amount.toFixed(2)}</div>
+      ),
     },
     {
       accessorKey: "discount_amount",
-      header: `Total Discount (${currency})`,
-      cell: ({ row }) =>
-        `${row.original.discount_amount.toFixed(2)}`,
+      header: () => (
+        <div className="text-right">Total Discount ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {row.original.discount_amount.toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "tax_amount",
-      header: `Tax Amount (${currency})`,
-      cell: ({ row }) =>
-        `${row.original.tax_amount.toFixed(2)}`,
+      header: () => <div className="text-right">Tax Amount ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">{row.original.tax_amount.toFixed(2)}</div>
+      ),
     },
     {
       accessorKey: "total_payable_amount",
-      header: `Total Payable (${currency})`,
-      cell: ({ row }) =>
-        `${row.original.total_payable_amount.toFixed(2)}`,
+      header: () => <div className="text-right">Total Payable ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {row.original.total_payable_amount.toFixed(2)}
+        </div>
+      ),
     },
     {
       id: "actions",

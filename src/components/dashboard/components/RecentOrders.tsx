@@ -36,14 +36,7 @@ export default function RecentOrders() {
       accessorKey: "customer",
       header: "Customer",
       cell: ({ row }) => (
-        <div>
-          <div className="font-semibold">
-           {row.original.customer?.name}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            ID: {row.original.customer?.id}
-          </div>
-        </div>
+        <div className="font-semibold">{row.original.customer?.name}</div>
       ),
     },
 
@@ -72,10 +65,10 @@ export default function RecentOrders() {
           status === "delivered"
             ? "bg-green-600"
             : status === "pending"
-            ? "bg-yellow-600"
-            : status === "confirmed"
-            ? "bg-blue-600"
-            : "bg-gray-500";
+              ? "bg-yellow-600"
+              : status === "confirmed"
+                ? "bg-blue-600"
+                : "bg-gray-500";
 
         return (
           <Badge className={`${color} text-white capitalize`}>{status}</Badge>
@@ -85,9 +78,12 @@ export default function RecentOrders() {
 
     {
       accessorKey: "total_amount",
-      header: `Amount (${currency})`,
-      cell: ({ row }) =>
-        `${currency} ${parseFloat(row.original.total_amount).toFixed(2)}`,
+      header: () => <div className="text-right">Amount ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.original.total_amount).toFixed(2)}
+        </div>
+      ),
     },
 
     // {

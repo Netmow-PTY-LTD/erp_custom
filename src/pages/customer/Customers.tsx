@@ -12,6 +12,7 @@ import {
   MapPin,
   Trash2,
   User,
+  ShoppingCart,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -33,12 +34,23 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAppSelector } from "@/store/store";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
+
+import { MapEmbed } from "@/components/MapEmbed";
 
 export default function Customers() {
   const [pageIndex, setPageIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [mapLocation, setMapLocation] = useState<string | null>(null);
+  const [previewData, setPreviewData] = useState<{
+    images: string[];
+    index: number;
+  } | null>(null);
 
   const pageSize = 10;
   const currentPage = pageIndex + 1;
@@ -144,15 +156,68 @@ export default function Customers() {
       accessorKey: "thumb_url", header: "Image",
       cell: ({ row }) => {
         const thumbUrl = row.getValue("thumb_url") as string;
+        const galleryItems = row.original.gallery_items || [];
         return thumbUrl ? (
           <img
             src={thumbUrl}
             alt="Customer"
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() =>
+              setPreviewData({
+                images: [thumbUrl, ...galleryItems].filter(Boolean),
+                index: 0,
+              })
+            }
           />
         ) : (
           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
             <User className="w-5 h-5 text-gray-500" />
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "gallery_items",
+      header: "Gallery",
+      cell: ({ row }) => {
+        const gallery = row.original.gallery_items || [];
+        const thumbUrl = row.original.thumb_url;
+
+        return (
+          <div className="flex items-center gap-1">
+            {gallery.length > 0 ? (
+              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
+                {gallery.slice(0, 3).map((url, i) => (
+                  <img
+                    key={i}
+                    src={url}
+                    alt={`Gallery ${i}`}
+                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
+                    onClick={() =>
+                      setPreviewData({
+                        images: [thumbUrl, ...gallery].filter(Boolean) as string[],
+                        index: i + 1, // +1 because thumbUrl is at index 0
+                      })
+                    }
+                  />
+                ))}
+                {gallery.length > 3 && (
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
+                    onClick={() =>
+                      setPreviewData({
+                        images: [thumbUrl, ...gallery].filter(Boolean) as string[],
+                        index: 4, // 1 thumbnail + 3 gallery items displayed
+                      })
+                    }
+                  >
+                    +{gallery.length - 3}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">-</span>
+            )}
           </div>
         );
       },
@@ -180,20 +245,28 @@ export default function Customers() {
     },
     {
       accessorKey: "credit_limit",
-      header: `Credit Limit (${currency})`,
+      header: () => (
+        <div className="text-right">Credit Limit ({currency})</div>
+      ),
       cell: ({ row }) => {
         const limit = row.getValue("credit_limit") as number;
-        return limit ? `${currency} ${limit.toLocaleString()}` : "-";
+        return (
+          <div className="text-right">
+            {limit ? Number(limit).toFixed(2) : "-"}
+          </div>
+        );
       },
     },
     {
       accessorKey: "outstanding_balance",
-      header: `Balance (${currency})`,
+      header: () => <div className="text-right">Balance ({currency})</div>,
       cell: ({ row }) => {
         const balance = row.getValue("outstanding_balance") as number;
-        return balance
-          ? `${currency} ${balance.toLocaleString()}`
-          : `${currency} 0`;
+        return (
+          <div className="text-right">
+            {balance ? Number(balance).toFixed(2) : "0.00"}
+          </div>
+        );
       },
     },
     {
@@ -209,7 +282,32 @@ export default function Customers() {
         );
       },
     },
+    {
+      id: "location",
+      header: "Location",
+      cell: ({ row }) => {
+        const { latitude, longitude, address, city, state, country } = row.original;
+        const hasLocation = (latitude && longitude) || address;
 
+        const handleMapClick = () => {
+          let query = "";
+          if (latitude && longitude) {
+            query = `${latitude},${longitude}`;
+          } else {
+            query = [address, city, state, country].filter(Boolean).join(", ");
+          }
+          if (query) setMapLocation(query);
+        };
+
+        if (!hasLocation) return <span className="text-muted-foreground">-</span>;
+
+        return (
+          <Button variant="ghost" size="icon" onClick={handleMapClick}>
+            <MapPin className="h-4 w-4 text-primary" />
+          </Button>
+        );
+      },
+    },
     {
       id: "actions",
       header: "Actions",
@@ -225,6 +323,11 @@ export default function Customers() {
               </Button>
             </Link>
             {/* VIEW BUTTON */}
+            <Link to={`/dashboard/sales/orders/create?customerId=${id}`}>
+              <Button variant="outline" size="sm" title="Create Order">
+                <ShoppingCart size={16} />
+              </Button>
+            </Link>
             <Link to={`/dashboard/customers/${id}`}>
               <Button variant="outline" size="sm">
                 View
@@ -352,6 +455,112 @@ export default function Customers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog
+        open={!!previewData}
+        onOpenChange={(open) => !open && setPreviewData(null)}
+      >
+        <DialogContent className="max-w-3xl p-5 overflow-hidden bg-white">
+          <div className="relative flex items-center justify-center">
+            {previewData && (
+              <>
+                <img
+                  src={previewData.images[previewData.index]}
+                  alt="Customer Preview"
+                  className="max-w-full max-h-[70vh] rounded-lg object-contain"
+                />
+
+                {/* Left Arrow (Previous) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === 0
+                                ? prev.images.length - 1
+                                : prev.index - 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m15 18-6-6 6-6" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Right Arrow (Next) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === prev.images.length - 1
+                                ? 0
+                                : prev.index + 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </button>
+                )}
+
+                {/* Counter */}
+                {previewData.images.length > 1 && (
+                  <div className="absolute bottom-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md">
+                    {previewData.index + 1} / {previewData.images.length}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={!!mapLocation}
+        onOpenChange={(open) => !open && setMapLocation(null)}
+      >
+        <DialogContent className="sm:max-w-[700px] p-5 overflow-hidden bg-white">
+          <div className="w-full h-[450px]">
+            {mapLocation && (
+              <MapEmbed location={mapLocation} width={700} height={450} />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

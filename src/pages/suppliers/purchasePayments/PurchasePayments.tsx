@@ -86,12 +86,7 @@ export default function PurchasePayments() {
         if (!supplier) return "-";
 
         return (
-          <div>
-            <div className="font-semibold">{supplier.name}</div>
-            <div className="text-xs text-muted-foreground">
-              ID: {supplier.id}
-            </div>
-          </div>
+          <div className="font-semibold">{supplier.name}</div>
         );
       },
     },
@@ -125,9 +120,11 @@ export default function PurchasePayments() {
     },
     {
       accessorKey: "amount",
-      header: `Amount (${currency})`,
+      header: () => (
+        <div className="text-right">Amount ({currency})</div>
+      ),
       cell: ({ row }) => (
-        <span>{Number(row.original.amount).toFixed(2)}</span>
+        <div className="text-right">{Number(row.original.amount).toFixed(2)}</div>
       ),
     },
     {

@@ -39,7 +39,7 @@ import { User, CheckCircle2, Phone, MapPin, Briefcase } from "lucide-react";
 const customerSchema = z.object({
   name: z.string().min(1, "Required"),
   company: z.string().optional(),
-  customer_type: z.enum(["individual", "business"]).default("individual"),
+  customer_type: z.enum(["individual", "business", "retail"]).default("individual"),
   tax_id: z.string().optional(),
   email: z.email("Invalid email").min(1, "Required"),
   phone: z.string().optional(),
@@ -185,6 +185,7 @@ export default function AddCustomerPage() {
                       <SelectContent>
                         <SelectItem value="individual">Individual</SelectItem>
                         <SelectItem value="business">Business</SelectItem>
+                        <SelectItem value="retail">Retail</SelectItem>
                       </SelectContent>
                     </Select>
                     <FieldError>{fieldState.error?.message}</FieldError>

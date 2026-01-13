@@ -35,11 +35,11 @@ export default function DashboardLayout() {
             </div>
           </div>
         </header>
-        <main className="p-6 w-full flex-1">
+        <main className="p-6 md:p-10 w-full flex-1">
           <Outlet />
         </main>
         <footer>
-          <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-3">
+          <div className="p-4 text-center text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-3">
             &copy; {new Date().getFullYear()} ERP. Designed and Developed by{" "}
             <Link
               to="https://inleadsit.com.my"

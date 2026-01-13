@@ -165,26 +165,37 @@ export default function Orders({ status }: { status?: string }) {
 
     {
       accessorKey: "total_amount",
-      header: `Total Price (${currency})`,
-      cell: ({ row }) =>
-        `${currency} ${parseFloat(row.original.total_amount).toFixed(2)}`,
+      header: () => <div className="text-right">Total Price ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.original.total_amount).toFixed(2)}
+        </div>
+      ),
     },
 
     {
       accessorKey: "discount_amount",
-      header: `Total Discount (${currency})`,
-      cell: ({ row }) =>
-        `${currency} ${parseFloat(row.original.discount_amount).toFixed(2)}`,
+      header: () => (
+        <div className="text-right">Total Discount ({currency})</div>
+      ),
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.original.discount_amount).toFixed(2)}
+        </div>
+      ),
     },
     {
       accessorKey: "tax_amount",
-      header: `Total Tax (${currency})`,
-      cell: ({ row }) =>
-        `${currency} ${parseFloat(row.original.tax_amount).toFixed(2)}`,
+      header: () => <div className="text-right">Total Tax ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right">
+          {parseFloat(row.original.tax_amount).toFixed(2)}
+        </div>
+      ),
     },
     {
       id: "total_payable", // 👈 use a custom id, not accessorKey
-      header: `Total Payable (${currency})`,
+      header: () => <div className="text-right">Total Payable ({currency})</div>,
       cell: ({ row }) => {
         const totalAmount = parseFloat(row.original.total_amount) || 0;
         const discountAmount = parseFloat(row.original.discount_amount) || 0;
@@ -192,7 +203,7 @@ export default function Orders({ status }: { status?: string }) {
 
         const totalPayable = totalAmount - discountAmount + taxAmount;
 
-        return `${currency} ${totalPayable.toFixed(2)}`;
+        return <div className="text-right">{totalPayable.toFixed(2)}</div>;
       },
     },
     // {
