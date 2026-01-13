@@ -159,6 +159,7 @@ import CheckIn from "@/pages/checkIn/CheckIn";
 import CheckInList from "@/pages/checkIn/CheckInList";
 import AddCustomerByStaffPage from "@/pages/customer/AddCustomerByStaff";
 import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
+import Help from "@/pages/help/Help";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -1410,6 +1411,7 @@ export const sidebarItemLink = [
     title: "Help",
     url: "/dashboard/help",
     icon: Map,
+      element: <Help />,
     allowedPermissions: [
       HelpPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
