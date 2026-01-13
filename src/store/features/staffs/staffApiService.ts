@@ -28,6 +28,45 @@ export type StaffQueryParams = {
 
 
 
+
+export type RouteStatus = "Active" | "Pending";
+
+export interface Route {
+  id: number;
+  name: string;
+  status: RouteStatus;
+  orders: number;
+}
+
+export interface StaffStats {
+  completedOrders: number;
+  rating: number;
+}
+
+export interface StaffWiseRoutes {
+  id: number;
+  name: string;
+  role: "Sales Representative" | "Delivery Driver" | "Area Manager";
+  email: string;
+  phone: string;
+  active: boolean;
+  routes: Route[];
+  stats: StaffStats;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const staffApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
@@ -79,6 +118,16 @@ export const staffApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Staffs"],
     }),
 
+      // Staff wise routes
+    getAllStaffWiseRoutes: builder.query<StaffWiseRoutes[], StaffQueryParams>({
+      query: (params) => ({
+        url: "/staffs/routes",
+        method: "GET",
+        params
+      }),
+      providesTags: ["staffRoutes"],
+    }),
+
   }),
 });
 
@@ -88,4 +137,5 @@ export const {
   useGetStaffByIdQuery,
   useUpdateStaffMutation,
   useDeleteStaffMutation,
+  useGetAllStaffWiseRoutesQuery,
 } = staffApiService;
