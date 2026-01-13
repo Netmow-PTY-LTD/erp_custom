@@ -117,6 +117,7 @@ import {
   // ProductionPermission,
   SuperAdminPermission,
   RouteOperationPermission,
+  HelpPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
@@ -1403,5 +1404,16 @@ export const sidebarItemLink = [
         ],
       },
     ],
+  },
+  // ROUTE OPERATIONS
+  {
+    title: "Help",
+    url: "/dashboard/help",
+    icon: Map,
+    allowedPermissions: [
+      HelpPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+   
   },
 ];
