@@ -400,7 +400,7 @@ export default function CreatePurchaseOrderPage() {
 
   /* ---------------------------------------- */
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
