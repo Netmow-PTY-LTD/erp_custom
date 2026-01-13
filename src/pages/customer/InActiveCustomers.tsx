@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -212,7 +213,7 @@ export default function InActiveCustomersList() {
         return (
           <div className="flex items-center gap-2">
             {/* EDIT BUTTON */}
-            <Link to={`/dashboard/customers/${id}/edit`}>
+            <Link to={`/dashboard/customers/${id}/edit/by-staff`}>
               <Button variant="secondary" size="sm">
                 Edit
               </Button>
