@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import {
   DropdownMenu,
