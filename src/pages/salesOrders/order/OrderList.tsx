@@ -260,6 +260,21 @@ export default function Orders() {
     },
   ];
 
+
+
+      const orderStatusOptions = [
+    { value: "pending", label: "Pending" },
+    { value: "in_transit", label: "In Transit" },
+    { value: "delivered", label: "Delivered" },
+    { value: "failed", label: "Failed" },
+    { value: "returned", label: "Returned" },
+    { value: "confirmed", label: "Confirmed" },
+];
+
+
+
+
+
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
@@ -348,6 +363,7 @@ export default function Orders() {
         isOpen={isUpdateDeliveryStatusModalOpen}
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
+        statusOptions={orderStatusOptions}
       />
     </div>
   );

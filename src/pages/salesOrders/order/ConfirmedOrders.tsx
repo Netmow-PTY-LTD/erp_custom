@@ -266,6 +266,20 @@ import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
     },
   ];
 
+
+
+
+      const confirmOrderStatusOptions = [
+    { value: "in_transit", label: "In Transit" },
+    { value: "delivered", label: "Delivered" },
+    { value: "returned", label: "Returned" },
+    
+];
+
+
+
+
+
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
@@ -354,6 +368,7 @@ import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
         isOpen={isUpdateDeliveryStatusModalOpen}
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
+        statusOptions={confirmOrderStatusOptions}
       />
     </div>
   );

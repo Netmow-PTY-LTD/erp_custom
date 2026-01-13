@@ -30,11 +30,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
+// import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
 
 export default function DeliveredOrders() {
-  const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  // const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
+  // const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1); // backend starts from 1
   const [limit] = useState(10);
@@ -56,19 +56,19 @@ export default function DeliveredOrders() {
   const canRecordPayment =
     userPermissions.includes(SalesPermission.PAYMENTS) ||
     userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  const canUpdateDelivery =
-    userPermissions.includes(SalesPermission.UPDATE_DELIVERY) ||
-    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // const canUpdateDelivery =
+  //   userPermissions.includes(SalesPermission.UPDATE_DELIVERY) ||
+  //   userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
-  const handleOpenUpdateDeliveryStatusModal = (order: any) => {
-    setSelectedOrder(order);
-    setIsUpdateDeliveryStatusModalOpen(true);
-  };
+  // const handleOpenUpdateDeliveryStatusModal = (order: any) => {
+  //   setSelectedOrder(order);
+  //   setIsUpdateDeliveryStatusModalOpen(true);
+  // };
 
-  const handleCloseUpdateDeliveryStatusModal = () => {
-    setIsUpdateDeliveryStatusModalOpen(false);
-    setSelectedOrder(null);
-  };
+  // const handleCloseUpdateDeliveryStatusModal = () => {
+  //   setIsUpdateDeliveryStatusModalOpen(false);
+  //   setSelectedOrder(null);
+  // };
 
   const { data: fetchedOrdersStats } = useGetSalesOrdersStatsQuery(undefined);
   console.log("fetchedOrdersStats", fetchedOrdersStats);
@@ -248,7 +248,7 @@ export default function DeliveredOrders() {
                 Edit
               </Button>
             </Link> */}
-            {canUpdateDelivery && (
+            {/* {canUpdateDelivery && (
               <Button
                 size="sm"
                 variant="outline"
@@ -256,12 +256,28 @@ export default function DeliveredOrders() {
               >
                 Change Status
               </Button>
-            )}
+            )} */}
           </div>
         );
       },
     },
   ];
+
+
+
+//   //  delivery status options
+
+//     const deliveryStatusOptions = [
+//     { value: "pending", label: "Pending" },
+//     { value: "in_transit", label: "In Transit" },
+//     { value: "delivered", label: "Delivered" },
+//     { value: "failed", label: "Failed" },
+//     { value: "returned", label: "Returned" },
+//     { value: "confirmed", label: "Confirmed" },
+// ];
+
+
+
 
   return (
     <div className="w-full">
@@ -347,11 +363,12 @@ export default function DeliveredOrders() {
           />
         </CardContent>
       </Card>
-      <UpdateDeliveryStatusModal
+      {/* <UpdateDeliveryStatusModal
         isOpen={isUpdateDeliveryStatusModalOpen}
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
-      />
+        statusOptions={deliveryStatusOptions}
+      /> */}
     </div>
   );
 }
