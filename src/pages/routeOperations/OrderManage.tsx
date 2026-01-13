@@ -36,6 +36,8 @@ import { useGetAllSalesOrdersQuery, useGetSalesOrderByIdQuery, useAssignStaffToO
 import { Input } from "@/components/ui/input";
 import type { SalesOrder, SalesOrderItem } from "@/types/salesOrder.types";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
+import { useAppSelector } from "@/store/store";
+import { selectCurrency } from "@/store/currencySlice";
 
 // Mock Data
 const dummyStaff = [
@@ -200,6 +202,10 @@ const OrderManage = () => {
         return dummyStaff.find((s) => s.id === id);
     };
 
+
+     const currency = useAppSelector(selectCurrency);
+
+
     return (
         <div className="p-6 space-y-6 h-full flex flex-col">
             <div className="flex justify-between items-center">
@@ -311,7 +317,7 @@ const OrderManage = () => {
                                             <span className="text-sm text-muted-foreground italic">Unassigned</span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-right font-semibold">${(order.total_amount || 0).toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-semibold">{currency} {(order.total_amount || 0).toLocaleString()}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-1">
                                             <Button
