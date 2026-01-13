@@ -35,7 +35,7 @@ export default function DashboardLayout() {
             </div>
           </div>
         </header>
-        <main className="p-6 max-w-7xl w-full mx-auto flex-1">
+        <main className="p-6 w-full flex-1">
           <Outlet />
         </main>
         <footer>
