@@ -29,7 +29,7 @@ export interface SalesOrder {
   id: number;
   order_number: string;
   customer_id: number;
-  customer:Customer;
+  customer: Customer;
   order_date: string;          // ISO date
   status: "pending" | "confirmed" | "shipped" | "completed" | "cancelled" | string;
   total_amount: string;        // decimal
@@ -72,9 +72,9 @@ export interface SalesOrderFormValues {
 
 // TypeScript type for update payload
 export type UpdateDeliveryPayload = {
-  status: "pending" | "in_transit" | "delivered" | "failed" | "returned"|"confirmed";
+  status: "pending" | "in_transit" | "delivered" | "failed" | "returned" | "confirmed" | "cancelled";
   delivery_date: string | undefined;// ISO date string
-  notes: string| undefined;
+  notes: string | undefined;
 };
 
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
