@@ -24,7 +24,7 @@ export default function UnitsPage() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // Units permissions
-  const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -137,7 +137,7 @@ export default function UnitsPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="w-full">
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-3xl font-bold">Unit Management</h1>
