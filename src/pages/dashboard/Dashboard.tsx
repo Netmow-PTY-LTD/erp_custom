@@ -155,7 +155,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>}
           {
-            canRecentSalesListShow && <Card className="py-6">
+            canRecentSalesListShow && <Card className="pt-6 pb-2">
               <CardHeader className="flex justify-between gap-4 items-center">
                 <div>
                   <CardTitle>Recent Sales Orders</CardTitle>

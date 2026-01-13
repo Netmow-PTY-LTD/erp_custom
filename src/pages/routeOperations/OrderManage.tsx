@@ -161,7 +161,7 @@ const OrderManage = () => {
             // Assuming the API takes one orderId at a time for now based on the store definition
             // If the backend supports bulk, we should update the store definition.
 
-            
+
             const staffIds: number[] = selectedStaffIds.map(id => Number(id));
             for (const orderId of ordersToAssign) {
                 await assignStaff({
@@ -406,7 +406,7 @@ const OrderManage = () => {
                         </div>
                     ) : detailedOrderData?.data ? (
                         <>
-                            <SheetHeader className="mb-6">
+                            <SheetHeader>
                                 <div className="flex items-center justify-between">
                                     <SheetTitle className="text-2xl font-bold flex items-center gap-2">
                                         {detailedOrderData.data.order_number}
@@ -420,7 +420,7 @@ const OrderManage = () => {
                                 </SheetDescription>
                             </SheetHeader>
 
-                            <ScrollArea className="h-[calc(100vh-10rem)] pr-4">
+                            <ScrollArea className="h-[calc(100vh-10rem)] px-4">
                                 <div className="space-y-6">
                                     {/* Customer Info */}
                                     <div className="space-y-3">
@@ -480,7 +480,7 @@ const OrderManage = () => {
                                                         ))}
                                                     </div>
                                                 </ScrollArea>
-                                                <Button variant="outline" size="sm" className="w-full rounded-none border-t" onClick={() => {
+                                                <Button variant="outline" size="sm" className="w-full rounded-none" onClick={() => {
                                                     if (detailedOrderData.data) openAssignDialog([detailedOrderData.data.id]);
                                                 }}>
                                                     Reassign Staff

@@ -225,7 +225,7 @@ export default function CustomerReports() {
       {/* ---------------- CARDS GRID ---------------- */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Sales by Customer */}
-        <Card>
+        <Card className="pt-6">
           <CardHeader className="flex justify-between">
             <CardTitle>Sales by Customer</CardTitle>
             <span className="text-sm text-muted-foreground">
@@ -250,7 +250,7 @@ export default function CustomerReports() {
         </Card>
 
         {/* Accounts Receivable */}
-        <Card>
+        <Card className="pt-6">
           <CardHeader className="flex justify-between">
             <CardTitle>Accounts Receivable</CardTitle>
             <span className="text-sm text-muted-foreground">Open invoices</span>
