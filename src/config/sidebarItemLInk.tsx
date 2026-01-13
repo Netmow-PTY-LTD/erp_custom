@@ -809,7 +809,7 @@ export const sidebarItemLink = [
   //Purchase Orders
 
   {
-    title: "Purchase Orders",
+    title: "Purchase",
     url: "#",
     icon: Car,
     allowedPermissions: [
