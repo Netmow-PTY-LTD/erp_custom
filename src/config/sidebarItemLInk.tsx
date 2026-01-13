@@ -160,6 +160,7 @@ import CheckInList from "@/pages/checkIn/CheckInList";
 import AddCustomerByStaffPage from "@/pages/customer/AddCustomerByStaff";
 import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 import Help from "@/pages/help/Help";
+import EditCustomerByStaffPage from "@/pages/customer/EditCustomerByStaffPage";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -311,6 +312,15 @@ export const sidebarItemLink = [
         icon: UserPlus,
         allowedPermissions: [
           CustomerPermission.CREATE_BY_STAFF,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/customers/:customerId/edit/by-staff",
+        element: <EditCustomerByStaffPage />,
+        allowedPermissions: [
+          CustomerPermission.EDIT_BY_STAFF,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -809,7 +819,7 @@ export const sidebarItemLink = [
   //Purchase Orders
 
   {
-    title: "Purchase Orders",
+    title: "Purchase",
     url: "#",
     icon: Car,
     allowedPermissions: [
