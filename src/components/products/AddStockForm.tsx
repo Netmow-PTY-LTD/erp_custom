@@ -14,7 +14,7 @@ import { useUpdateStockMutation } from "@/store/features/admin/productsApiServic
 import { toast } from "sonner";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Check, ChevronDown, ShieldAlert } from "lucide-react";
+import { Check, ChevronDown, ShieldAlert, ArrowRightLeft, CheckCircle2 } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -152,7 +152,10 @@ export default function AddStockForm({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button>Adjust Stock</Button>
+        <Button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-2 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <ArrowRightLeft className="w-4 h-4" />
+          <span>Adjust Stock</span>
+        </Button>
       </SheetTrigger>
 
       <SheetContent>
@@ -234,8 +237,8 @@ export default function AddStockForm({
                                     {product.name}
                                     <Check
                                       className={`ml-auto h-4 w-4 ${Number(field.value) === product.id
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                        ? "opacity-100"
+                                        : "opacity-0"
                                         }`}
                                     />
                                   </CommandItem>
@@ -362,7 +365,13 @@ export default function AddStockForm({
                 />
 
                 <div className="flex justify-center items-center gap-2">
-                  <Button type="submit">Adjust Stock</Button>
+                  <Button
+                    type="submit"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 py-6 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Confirm Adjustment</span>
+                  </Button>
                 </div>
               </form>
             </Form>
