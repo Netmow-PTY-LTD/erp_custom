@@ -119,14 +119,14 @@ const RouteWiseOrder = () => {
     ) || [];
 
     const totalAmount = filteredOrders?.reduce((sum: number, order: Order) => sum + (order.amount || 0), 0) || 0;
- const currency = useAppSelector(selectCurrency);
+    const currency = useAppSelector(selectCurrency);
 
 
     return (
         <div className="flex h-[calc(100vh-6rem)] gap-4 p-4 overflow-hidden bg-background">
             {/* Left Sidebar: Route List */}
             <Card className="w-1/3 flex flex-col h-full border-r shadow-sm">
-                <CardHeader className="pb-3 border-b bg-card">
+                <CardHeader className="pb-3 border-b bg-card py-3">
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-primary" />
                         Routes
@@ -142,7 +142,7 @@ const RouteWiseOrder = () => {
                     </div>
                 </CardHeader>
                 <ScrollArea className="flex-1">
-                    <div className="p-2 space-y-2">
+                    <div className="py-2 px-6 space-y-2">
                         {allRoutes.map((route, index) => {
                             if (allRoutes.length === index + 1) {
                                 return (
@@ -225,7 +225,7 @@ const RouteWiseOrder = () => {
                 {selectedRoute ? (
                     <>
                         {/* Header Section */}
-                        <CardHeader className="pb-4 border-b bg-card/50 backdrop-blur-sm">
+                        <CardHeader className="py-3 bg-card/50 backdrop-blur-sm">
                             <div className="flex justify-between items-start">
                                 <div>
                                     <CardTitle className="text-2xl font-bold flex items-center gap-2">
@@ -239,8 +239,8 @@ const RouteWiseOrder = () => {
                                 <div className="flex flex-col items-end gap-1">
                                     <div className="text-sm text-muted-foreground font-medium">Total Volume</div>
                                     <div className="text-2xl font-bold text-primary flex items-center">
-                                       {currency}   {totalAmount.toLocaleString()}
-                                       
+                                        {currency}   {totalAmount.toLocaleString()}
+
                                     </div>
                                 </div>
                             </div>
@@ -270,7 +270,7 @@ const RouteWiseOrder = () => {
                         </CardHeader>
 
                         {/* Order List Table */}
-                        <div className="flex-1 overflow-auto bg-muted/5">
+                        <div className="flex-1 overflow-auto bg-muted/5 border-t">
                             <Table>
                                 <TableHeader className="sticky top-0 z-10 bg-background shadow-sm">
                                     <TableRow>
@@ -312,7 +312,7 @@ const RouteWiseOrder = () => {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right font-semibold">
-                                                   {currency} {order.amount.toLocaleString()}
+                                                    {currency} {order.amount.toLocaleString()}
                                                 </TableCell>
                                             </TableRow>
                                         ))
