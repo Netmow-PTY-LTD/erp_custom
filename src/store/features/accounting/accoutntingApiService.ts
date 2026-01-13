@@ -1,9 +1,9 @@
-import type { Expense } from "@/pages/accounting/Expenses";
-import type { Income } from "@/pages/accounting/Income";
 import { baseApi } from "@/store/baseApi";
 import type {
   CreditHead,
   DebitHead,
+  Expense,
+  Income,
   Overview,
   Payroll,
 } from "@/types/accounting.types";
@@ -84,7 +84,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL INCOMES
     getIncomes: builder.query<
       IncomeResponse,
-      { page?: number; limit?: number; search?: string }
+      { page?: number; limit?: number; search?: string; date?: string }
     >({
       query: (params) => ({
         url: "/accounting/incomes",
@@ -103,7 +103,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL EXPENSES
     getExpenses: builder.query<
       ExpenseResponse,
-      { page?: number; limit?: number; search?: string }
+      { page?: number; limit?: number; search?: string; date?: string }
     >({
       query: (params) => ({
         url: "/accounting/expenses",

@@ -3,40 +3,27 @@
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 
 import { useGetExpensesQuery } from "@/store/features/accounting/accoutntingApiService";
 import { useAppSelector } from "@/store/store";
+import type { Expense } from "@/types/accounting.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, DollarSign, TrendingDown, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
-export type Expense = {
-  id: number;
-  date: string;
-  description: string;
-  debit_head_id: number;
-  debitHead: {
-    id: number;
-    name: string;
-    code: string;
-  };
-  category: string;
-  amount: number;
-  paidVia: string;
-  reference: string;
-  status: string;
-};
-
 export default function ExpensesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [date, setDate] = useState("");
   const limit = 10;
 
   const { data, isFetching, isError } = useGetExpensesQuery({
     page,
     limit,
     search,
+    date,
   });
   const fetchedExpenses = data?.data || [];
 
@@ -89,7 +76,7 @@ export default function ExpensesPage() {
     {
       accessorKey: "debitHead",
       header: "Category",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const debitHead = row?.original?.debitHead?.name;
         return <span className="font-medium">{debitHead}</span>;
       },
@@ -99,7 +86,7 @@ export default function ExpensesPage() {
       header: () => (
         <div className="text-right">Amount ({currency})</div>
       ),
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className="text-right">{Number(row.getValue("amount")).toFixed(2)}</div>
       ),
     },
@@ -109,7 +96,7 @@ export default function ExpensesPage() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const status = (row.getValue("status") as string) || "pending";
 
         let className = "capitalize ";
@@ -132,7 +119,16 @@ export default function ExpensesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">All Expenses</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <Input
+            type="date"
+            className="w-auto"
+            value={date}
+            onChange={(e) => {
+              setDate(e.target.value);
+              setPage(1);
+            }}
+          />
           <Link to={"/dashboard/accounting/add-expanse"}>
             <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
               <Plus size={18} /> Add Expense

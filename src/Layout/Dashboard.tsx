@@ -22,9 +22,9 @@ export default function DashboardLayout() {
 
 
   return (
-    <SidebarProvider className={`bg-white`}>
+    <SidebarProvider className="h-svh overflow-hidden">
       <AppSidebar className="print:hidden" />
-      <SidebarInset>
+      <SidebarInset className="overflow-y-auto overflow-x-hidden flex flex-col h-full bg-background">
         <header className="flex h-14 shrink-0 gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b border-gray-100 sticky top-0 z-30 print:hidden">
           <div className="flex items-center gap-2 px-4 w-full bg-background/20 backdrop-blur-lg">
             <SidebarTrigger className="-ml-1 cursor-pointer" />
@@ -35,7 +35,7 @@ export default function DashboardLayout() {
             </div>
           </div>
         </header>
-        <main className="p-6 md:p-10 w-full flex-1">
+        <main className="p-6 lg:p-10 w-full flex-1">
           <Outlet />
         </main>
         <footer>

@@ -69,7 +69,7 @@ const CustomersMapPage: React.FC = () => {
         : defaultCenter;
 
     return (
-        <div className="p-4">
+        <div className="w-full">
             <h1 className="text-2xl font-bold mb-4">Customers Map ({total} locations)</h1>
 
             <MapContainer

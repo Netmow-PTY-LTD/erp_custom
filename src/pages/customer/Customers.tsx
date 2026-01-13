@@ -13,8 +13,18 @@ import {
   MapPin,
   Trash2,
   User,
-  ShoppingCart,
+  MoreHorizontal,
+  Edit,
+  Eye,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { Link } from "react-router";
 import {
@@ -316,34 +326,42 @@ export default function Customers() {
         const id = row.original.id;
 
         return (
-          <div className="flex items-center gap-2">
-            {/* EDIT BUTTON */}
-            <Link to={`/dashboard/customers/${id}/edit`}>
-              <Button variant="secondary" size="sm">
-                Edit
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </Link>
-            {/* VIEW BUTTON */}
-            <Link to={`/dashboard/sales/orders/create?customerId=${id}`}>
-              <Button variant="outline" size="sm" title="Create Order">
-                <ShoppingCart size={16} />
-              </Button>
-            </Link>
-            <Link to={`/dashboard/customers/${id}`}>
-              <Button variant="outline" size="sm">
-                View
-              </Button>
-            </Link>
-            {/* DELETE BUTTON */}
-            {canDeleteCustomer && (<Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setDeleteId(id)}
-            >
-              <Trash2 size={16} />
-            </Button>)}
-
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to={`/dashboard/customers/${id}/edit`} className="flex items-center">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/dashboard/customers/${id}`} className="flex items-center">
+                  <Eye className="mr-2 h-4 w-4" />
+                  View
+                </Link>
+              </DropdownMenuItem>
+              {canDeleteCustomer && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setDeleteId(id)}
+                    className="flex items-center text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },
@@ -361,7 +379,7 @@ export default function Customers() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-between items-center mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h2 className="text-3xl font-semibold">All Active Customers</h2>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -382,11 +400,11 @@ export default function Customers() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="flex flex-wrap gap-6 mb-6">
         {stats?.map((item, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative flex-1 min-w-[240px] overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -416,7 +434,7 @@ export default function Customers() {
         <CardHeader>
           <CardTitle>All Customers</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-auto w-full">
           {isLoading ? (
             <div className="text-center py-8">Loading customers...</div>
           ) : (
@@ -430,6 +448,7 @@ export default function Customers() {
               onSearch={(value) => {
                 setSearchTerm(value);
               }}
+              isFetching={isLoading}
             />
           )}
         </CardContent>

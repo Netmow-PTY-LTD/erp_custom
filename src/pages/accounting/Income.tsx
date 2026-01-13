@@ -5,32 +5,17 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 
 import { useGetIncomesQuery } from "@/store/features/accounting/accoutntingApiService";
 import { useAppSelector } from "@/store/store";
+import type { Income } from "@/types/accounting.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, DollarSign, TrendingUp, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-
-// Map API response to this type
-export type Income = {
-  id: number;
-  date: string;
-  description: string;
-  //  category: string;
-  credit_head_id: number;
-  creditHead: {
-    id: number;
-    name: string;
-    code: string;
-  };
-  amount: number;
-  receivedVia: string | null;
-  reference: string | null;
-  status: string;
-};
+import { Input } from "@/components/ui/input";
 
 export default function IncomePage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [date, setDate] = useState("");
   const limit = 10;
 
   const {
@@ -41,6 +26,7 @@ export default function IncomePage() {
     page,
     limit,
     search,
+    date,
   });
 
   const incomes: Income[] = fetchedIncomes?.data || [];
@@ -93,7 +79,7 @@ export default function IncomePage() {
     {
       accessorKey: "creditHead",
       header: "Credit Head",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const creditHead = row?.original?.creditHead?.name;
         return <span className="font-medium">{creditHead}</span>;
       },
@@ -103,7 +89,7 @@ export default function IncomePage() {
       header: () => (
         <div className="text-right">Amount ({currency})</div>
       ),
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className="text-right">{Number(row.getValue("amount")).toFixed(2)}</div>
       ),
     },
@@ -120,7 +106,16 @@ export default function IncomePage() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">All Income</h2>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <Input
+            type="date"
+            className="w-auto"
+            value={date}
+            onChange={(e) => {
+              setDate(e.target.value);
+              setPage(1);
+            }}
+          />
           <Link to={"/dashboard/accounting/add-income"}>
             <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
               <Plus size={18} /> Add Income

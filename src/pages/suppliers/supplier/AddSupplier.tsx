@@ -104,7 +104,7 @@ export default function AddSupplierPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex flex-wrap justify-between items-center">
         <h1 className="text-3xl font-bold">Add Supplier</h1>
         <BackButton />
