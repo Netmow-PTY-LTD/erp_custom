@@ -161,6 +161,7 @@ import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 import Help from "@/pages/help/Help";
 import EditCustomerByStaffPage from "@/pages/customer/EditCustomerByStaffPage";
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
+import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -977,6 +978,16 @@ export const sidebarItemLink = [
         icon: CheckCircle,
         allowedPermissions: [
           SalesPermission.CONFIRMED_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "In-Transit Orders",
+        url: "/dashboard/sales/orders/intransit-order",
+        element: <IntransitOrder />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SalesPermission.INTRANSIT_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
