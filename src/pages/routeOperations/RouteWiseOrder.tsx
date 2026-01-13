@@ -140,13 +140,13 @@ const RouteWiseOrder = () => {
     }) || [];
 
     const totalAmount = filteredOrders?.reduce((sum: number, order: Order) => sum + (order.amount || 0), 0) || 0;
- const currency = useAppSelector(selectCurrency);
+    const currency = useAppSelector(selectCurrency);
 
 
     return (
         <div className="flex h-[calc(100vh-6rem)] gap-6 p-6 overflow-hidden bg-background">
             {/* Left Sidebar: Route List */}
-            <Card className="w-1/3 flex flex-col h-full border-r shadow-sm">
+            <Card className="w-1/3 flex flex-col h-full border-r shadow-sm p-2">
                 <CardHeader className="pb-4 border-b bg-card">
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-primary" />
@@ -162,7 +162,7 @@ const RouteWiseOrder = () => {
                         />
                     </div>
                 </CardHeader>
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 ">
                     <div className="p-3 space-y-2">
                         {allRoutes.map((route, index) => {
                             if (allRoutes.length === index + 1) {
@@ -242,7 +242,7 @@ const RouteWiseOrder = () => {
             </Card>
 
             {/* Right Panel: Order Details */}
-            <Card className="flex-1 flex flex-col h-full shadow-sm overflow-hidden">
+            <Card className="flex-1 flex flex-col h-full shadow-sm overflow-hidden p-2">
                 {selectedRoute ? (
                     <>
                         {/* Header Section */}
@@ -260,8 +260,8 @@ const RouteWiseOrder = () => {
                                 <div className="flex flex-col items-end gap-2">
                                     <div className="text-sm text-muted-foreground font-medium">Total Volume</div>
                                     <div className="text-2xl font-bold text-primary flex items-center gap-1">
-                                       {currency} {totalAmount.toLocaleString()}
-                                       
+                                        {currency} {totalAmount.toLocaleString()}
+
                                     </div>
                                 </div>
                             </div>
@@ -277,44 +277,45 @@ const RouteWiseOrder = () => {
                                         onChange={(e) => setOrderSearch(e.target.value)}
                                     />
                                 </div>
-                                <div className="flex flex-col gap-3 w-full lg:w-auto lg:flex-row lg:items-center lg:bg-muted/30 lg:px-4 lg:py-2 lg:rounded-lg border-0 lg:border">
-                                    <div className="flex items-center gap-3 px-3 py-2 bg-muted/20 rounded-lg lg:bg-transparent lg:px-0 lg:py-0 lg:border-0">
-                                        <Calendar className="h-5 w-5 text-primary shrink-0" />
-                                        <span className="text-sm font-medium text-muted-foreground hidden lg:inline">Date Range:</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="w-full lg:w-32 text-sm font-medium accent-primary cursor-pointer"
-                                        />
-                                    </div>
-                                    <span className="hidden lg:inline text-muted-foreground text-sm font-medium">→</span>
-                                    <div className="flex items-center gap-2 lg:gap-0">
-                                        <span className="lg:hidden text-muted-foreground text-xs">To Date:</span>
-                                        <div className="relative w-full lg:w-32 lg:ml-2">
-                                            <Input
-                                                type="date"
-                                                value={endDate}
-                                                onChange={(e) => setEndDate(e.target.value)}
-                                                className="w-full text-sm font-medium accent-primary cursor-pointer pr-8"
-                                            />
-                                          
-                                        </div>
-                                    </div>
+
+                                <div className="flex flex-wrap items-center gap-2 border rounded-md px-3 py-2 bg-background">
+                                    {/* Icon */}
+                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+
+                                    {/* From date */}
+                                    <Input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="h-8 w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
+                                    />
+
+                                    {/* Separator */}
+                                    <span className="text-muted-foreground text-sm">–</span>
+
+                                    {/* To date */}
+                                    <Input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="h-8 w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
+                                    />
+
+                                    {/* Clear button */}
                                     {(startDate || endDate) && (
                                         <button
                                             onClick={() => {
-                                                setStartDate("");
-                                                setEndDate("");
+                                                setStartDate("")
+                                                setEndDate("")
                                             }}
-                                            className="text-xs text-primary hover:text-primary/80 whitespace-nowrap mt-1 lg:mt-0 px-3 py-2 lg:px-2 lg:py-1 rounded-md bg-primary/5 hover:bg-primary/10 transition-all duration-200 font-medium"
+                                            className="ml-1 text-muted-foreground hover:text-foreground transition"
+                                            aria-label="Clear date range"
                                         >
-                                            ✕ Clear
+                                            ✕
                                         </button>
                                     )}
                                 </div>
+
                                 {/* <div className="flex gap-2 ml-auto">
                                     <Button variant="outline" size="sm" className="gap-2">
                                         <Filter className="h-4 w-4" />
@@ -371,7 +372,7 @@ const RouteWiseOrder = () => {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right font-semibold">
-                                                   {currency} {order.amount.toLocaleString()}
+                                                    {currency} {order.amount.toLocaleString()}
                                                 </TableCell>
                                             </TableRow>
                                         ))
