@@ -12,11 +12,8 @@ import {
   ArrowLeft,
   Package,
   Calendar,
-  User,
   Mail,
   Phone,
-  FileText,
-  CreditCard,
   Building2,
   AlertCircle
 } from "lucide-react";
