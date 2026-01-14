@@ -345,9 +345,9 @@ export default function AddCustomerByStaffPage() {
                                     </Field>
                                 )}
                             />
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+
                             <Controller
                                 control={control}
                                 name="state"
@@ -383,9 +383,8 @@ export default function AddCustomerByStaffPage() {
                                     </Field>
                                 )}
                             />
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                             <Controller
                                 control={control}
                                 name="latitude"
@@ -489,31 +488,31 @@ export default function AddCustomerByStaffPage() {
                                     </Field>
                                 )}
                             />
+
+                            <Controller
+                                control={control}
+                                name="notes"
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Notes</FieldLabel>
+                                        <Textarea placeholder="Additional notes..." {...field} />
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                control={control}
+                                name="salesRouteId"
+                                rules={{ required: "Select a sales route" }}
+                                render={({ field, fieldState }) => (
+                                    <SalesRouteSelectField
+                                        field={field}
+                                        error={fieldState.error?.message}
+                                    />
+                                )}
+                            />
                         </div>
-
-                        <Controller
-                            control={control}
-                            name="notes"
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Notes</FieldLabel>
-                                    <Textarea placeholder="Additional notes..." {...field} />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="salesRouteId"
-                            rules={{ required: "Select a sales route" }}
-                            render={({ field, fieldState }) => (
-                                <SalesRouteSelectField
-                                    field={field}
-                                    error={fieldState.error?.message}
-                                />
-                            )}
-                        />
                     </CardContent>
                 </Card>
 

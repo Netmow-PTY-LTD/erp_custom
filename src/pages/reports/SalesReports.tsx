@@ -207,7 +207,7 @@ export default function SalesReportsPage() {
     })}`;
 
   return (
-    <div className="space-y-6 px-4 md:px-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -221,9 +221,10 @@ export default function SalesReportsPage() {
             <label className="text-sm text-muted-foreground">From</label>
             <Input
               type="date"
-              className="w-36"
+              className="w-36 block"
               value={tempStartDate}
               onChange={(e) => setTempStartDate(e.target.value)}
+
             />
           </div>
 
@@ -231,7 +232,7 @@ export default function SalesReportsPage() {
             <label className="text-sm text-muted-foreground">To</label>
             <Input
               type="date"
-              className="w-36"
+              className="w-36 block"
               value={tempEndDate}
               onChange={(e) => setTempEndDate(e.target.value)}
             />
@@ -320,7 +321,7 @@ export default function SalesReportsPage() {
         {/* Revenue Chart */}
         <Card className="lg:col-span-2 overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
           <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-gradient-to-br from-blue-600 to-blue-500 rounded-lg shadow-lg shadow-blue-500/30">
                   <BarChart3 className="w-5 h-5 text-white" />

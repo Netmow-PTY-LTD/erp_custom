@@ -16,6 +16,7 @@ import {
   MoreHorizontal,
   Edit,
   Eye,
+  ShoppingCart,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -337,13 +338,21 @@ export default function Customers() {
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/customers/${id}/edit`} className="flex items-center">
+                <Link to={`/dashboard/sales/orders/create?customerId=${id}`} className="flex items-center cursor-pointer">
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Create Sales Order
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to={`/dashboard/customers/${id}/edit`} className="flex items-center cursor-pointer">
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/customers/${id}`} className="flex items-center">
+                <Link to={`/dashboard/customers/${id}`} className="flex items-center cursor-pointer">
                   <Eye className="mr-2 h-4 w-4" />
                   View
                 </Link>
@@ -353,7 +362,7 @@ export default function Customers() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => setDeleteId(id)}
-                    className="flex items-center text-destructive focus:text-destructive"
+                    className="flex items-center text-destructive focus:text-destructive cursor-pointer"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete

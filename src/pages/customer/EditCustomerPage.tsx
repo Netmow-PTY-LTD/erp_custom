@@ -198,7 +198,7 @@ export default function EditCustomerPage() {
 
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto py-6">
+    <div className="space-y-6 max-w-5xl mx-auto pb-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
