@@ -101,6 +101,7 @@ import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices
 // New Accounting Pages
 import Transactions from "@/pages/accounting/Transactions";
 import ChartOfAccounts from "@/pages/accounting/ChartOfAccounts";
+import PosOrder from "@/pages/salesOrders/pos/PosOrder";
 import JournalReport from "@/pages/accounting/JournalReport";
 import LedgerReport from "@/pages/accounting/LedgerReport";
 import TrialBalance from "@/pages/accounting/TrialBalance";
@@ -968,6 +969,16 @@ export const sidebarItemLink = [
     icon: ShoppingCart,
     allowedPermissions: [SalesPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
     items: [
+      {
+        title: "POS Order",
+        url: "/dashboard/sales/pos",
+        element: <PosOrder />,
+        icon: ShoppingCart,
+        allowedPermissions: [
+          SalesPermission.POS_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
       {
         title: "Orders",
         url: "/dashboard/sales/orders",
