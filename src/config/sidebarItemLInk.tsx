@@ -5,8 +5,6 @@ import {
   Car,
   CreditCard,
   DollarSign,
-  DollarSignIcon,
-  FileMinus,
   // FileCode,
   Box,
   FileText,
@@ -21,6 +19,7 @@ import {
   PieChart,
   PlusCircle,
   Ruler,
+  Scale,
   Settings,
   ShieldCheck,
   ShoppingCart,
@@ -45,11 +44,9 @@ import EditOrderPage from "@/pages/salesOrders/order/editOrder";
 import OrderDetails from "@/pages/salesOrders/order/OrderDetails";
 import PendingOrders from "@/pages/salesOrders/order/PendingOrders";
 import DeliveredOrders from "@/pages/salesOrders/order/DeliveredOrders";
+import AccountingOverview from "@/pages/accounting/Accounting";
 import AddIncomePage from "@/pages/accounting/AddIncomePage";
 import AddExpensePage from "@/pages/accounting/AddExpanse";
-import Expenses from "@/pages/accounting/Expenses";
-import IncomePage from "@/pages/accounting/Income";
-import AccountingOverview from "@/pages/accounting/Accounting";
 import InvoiceDetailsPage from "@/pages/salesOrders/invoices/InvoiceDetails";
 import CreatePaymentPage from "@/pages/salesOrders/payments/createPayment";
 import PaymentDetails from "@/pages/salesOrders/payments/PaymentDetails";
@@ -95,11 +92,20 @@ import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayment
 import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
 import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
 import PurchaseOrdersMapPage from "@/pages/suppliers/PurchaseOrdersMap";
-import CreditHead from "@/pages/accounting/CreditHead";
-import DebitHead from "@/pages/accounting/DebitHead";
+// import CreditHead from "@/pages/accounting/CreditHead";
+// import DebitHead from "@/pages/accounting/DebitHead";
 import Roles from "@/pages/rolesPermission/Roles";
 import PermissionsPage from "@/pages/rolesPermission/PermissionsPage";
 import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
+
+// New Accounting Pages
+import Transactions from "@/pages/accounting/Transactions";
+import ChartOfAccounts from "@/pages/accounting/ChartOfAccounts";
+import PosOrder from "@/pages/salesOrders/pos/PosOrder";
+import JournalReport from "@/pages/accounting/JournalReport";
+import LedgerReport from "@/pages/accounting/LedgerReport";
+import TrialBalance from "@/pages/accounting/TrialBalance";
+import ProfitAndLoss from "@/pages/accounting/ProfitAndLoss";
 import {
   DashboardPermission,
   ProductPermission,
@@ -964,6 +970,16 @@ export const sidebarItemLink = [
     allowedPermissions: [SalesPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
     items: [
       {
+        title: "POS Order",
+        url: "/dashboard/sales/pos",
+        element: <PosOrder />,
+        icon: ShoppingCart,
+        allowedPermissions: [
+          SalesPermission.POS_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Orders",
         url: "/dashboard/sales/orders",
         element: <Orders />,
@@ -1147,60 +1163,79 @@ export const sidebarItemLink = [
     ],
     items: [
       {
-        title: "Overview",
+        title: "Dashboard",
         url: "/dashboard/accounting",
         element: <AccountingOverview />,
-        icon: PieChart,
+        icon: LayoutDashboard,
         allowedPermissions: [
           AccountingPermission.OVERVIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
       {
-        title: "Credit Heads",
-        url: "/dashboard/accounting/credit-head",
-        element: <CreditHead />,
-        icon: CreditCard,
+        title: "Transactions",
+        url: "/dashboard/accounting/transactions",
+        element: <Transactions />,
+        icon: FileText,
         allowedPermissions: [
-          AccountingPermission.VIEW_CREDIT_HEADS,
+          AccountingPermission.TRANSACTIONS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
       {
-        title: "Debit Heads",
-        url: "/dashboard/accounting/debit-head",
-        element: <DebitHead />,
-        icon: FileMinus,
+        title: "Chart of Accounts",
+        url: "/dashboard/accounting/accounts",
+        element: <ChartOfAccounts />,
+        icon: List,
         allowedPermissions: [
-          AccountingPermission.VIEW_DEBIT_HEADS,
+          AccountingPermission.CHART_OF_ACCOUNTS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
       {
-        title: "Incomes",
-        url: "/dashboard/accounting/incomes",
-        element: <IncomePage />,
-        icon: DollarSignIcon,
+        title: "Journal Report",
+        url: "/dashboard/accounting/reports/journal",
+        element: <JournalReport />,
+        icon: FileText,
         allowedPermissions: [
-          AccountingPermission.INCOMES,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Expenses",
-        url: "/dashboard/accounting/expenses",
-        element: <Expenses />,
-        icon: BanknoteArrowDown,
-        allowedPermissions: [
-          AccountingPermission.EXPENSES,
+          AccountingPermission.JOURNAL_REPORT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
       {
         title: "",
+        url: "/dashboard/accounting/reports/ledger/:id",
+        element: <LedgerReport />,
+        allowedPermissions: [
+          AccountingPermission.LEDGER_REPORT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Trial Balance",
+        url: "/dashboard/accounting/reports/trial-balance",
+        element: <TrialBalance />,
+        icon: Scale, // Need to make sure Scale is imported or use another icon
+        allowedPermissions: [
+          AccountingPermission.TRIAL_BALANCE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Profit & Loss",
+        url: "/dashboard/accounting/reports/profit-and-loss",
+        element: <ProfitAndLoss />,
+        icon: PieChart,
+        allowedPermissions: [
+          AccountingPermission.PROFIT_AND_LOSS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      // Hidden Create/Edit Routes
+      {
+        title: "",
         url: "/dashboard/accounting/add-income",
         element: <AddIncomePage />,
-        icon: PlusCircle,
         allowedPermissions: [
           AccountingPermission.CREATE_INCOME,
           SuperAdminPermission.ACCESS_ALL,
@@ -1210,7 +1245,6 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/accounting/add-expanse",
         element: <AddExpensePage />,
-        icon: PlusCircle,
         allowedPermissions: [
           AccountingPermission.CREATE_EXPENSE,
           SuperAdminPermission.ACCESS_ALL,

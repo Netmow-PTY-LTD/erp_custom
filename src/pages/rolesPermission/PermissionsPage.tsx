@@ -172,7 +172,7 @@ export default function PermissionsPage() {
 
   return (
     <div className=" p-6 space-y-6">
-      <Card>
+      <Card className="py-6">
         <CardHeader className="flex flex-row items-center justify-between gap-4 border-b pb-4">
           {/* Title */}
           <div className="flex flex-col">
@@ -337,7 +337,7 @@ export default function PermissionsPage() {
                             );
 
                             return (
-                              <Card key={groupName} className="py-10" > 
+                              <Card key={groupName} className="py-10" >
                                 <CardHeader className="flex flex-row items-center justify-between py-3">
                                   <CardTitle className="text-sm">
                                     {groupName}
@@ -397,7 +397,7 @@ export default function PermissionsPage() {
 
 
 
-//  old code 
+//  old code
 
 // "use client";
 

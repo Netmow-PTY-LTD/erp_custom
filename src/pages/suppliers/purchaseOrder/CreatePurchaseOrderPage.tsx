@@ -646,7 +646,7 @@ export default function CreatePurchaseOrderPage() {
                       control={control}
                       render={({ field }) => (
                         <FormItem className="sm:col-span-1">
-                          <FormLabel>Tax</FormLabel>
+                          <FormLabel>Tax%</FormLabel>
                           <FormControl>
                             <Input
                               type="number"

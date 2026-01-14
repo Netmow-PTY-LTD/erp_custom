@@ -1,6 +1,6 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -21,7 +21,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from "react-router";
-import { Check, ChevronDown, Package, Image as ImageIcon, Tag, DollarSign, Truck, CheckCircle2 } from "lucide-react";
+import { Check, ChevronDown, Package, Image as ImageIcon, Tag, DollarSign, Truck, CheckCircle2, Layers, Plus, Trash2, X } from "lucide-react";
 import {
   useGetAllCategoriesQuery,
   useGetAllUnitsQuery,
@@ -70,6 +70,10 @@ const productSchema = z.object({
   is_active: z.boolean().optional(),
   image: z.string().optional(),
   gallery_items: z.array(z.string()).optional(),
+  attributes: z.array(z.object({
+    name: z.string(),
+    values: z.array(z.string())
+  })).optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -122,10 +126,16 @@ export default function EditProductPage() {
       height: 0,
       length: 0,
       is_active: true,
+      attributes: [],
     },
   });
 
   const { control, handleSubmit } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "attributes",
+  });
 
   const { data: fetchedProduct } = useGetProductByIdQuery(Number(productId), {
     skip: !Number(productId),
@@ -207,7 +217,7 @@ export default function EditProductPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto py-6">
+    <div className="space-y-6 max-w-5xl mx-auto pb-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
@@ -740,6 +750,122 @@ export default function EditProductPage() {
                   </Field>
                 )}
               />
+            </CardContent>
+          </Card>
+
+          {/* ATTRIBUTES */}
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                    <Layers className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Attributes & Variants</CardTitle>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Manage product attributes and options</p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => append({ name: "", values: [] })}
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Attribute Group
+                </Button>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-6 pt-6">
+              {fields.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
+                  <p>No attribute groups added yet.</p>
+                  <Button
+                    variant="link"
+                    onClick={() => append({ name: "", values: [] })}
+                    className="text-blue-600"
+                  >
+                    + Add your first attribute group
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="p-4 rounded-xl border bg-card text-card-foreground shadow-sm relative group">
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="absolute top-2 right-2 p-2 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <Controller
+                          control={control}
+                          name={`attributes.${index}.name`}
+                          render={({ field }) => (
+                            <Field>
+                              <FieldLabel>Attribute Name</FieldLabel>
+                              <Input
+                                placeholder="e.g. Color, Size, Material"
+                                {...field}
+                              />
+                              <FieldError>{form.formState.errors.attributes?.[index]?.name?.message}</FieldError>
+                            </Field>
+                          )}
+                        />
+
+                        <Controller
+                          control={control}
+                          name={`attributes.${index}.values`}
+                          render={({ field }) => (
+                            <Field>
+                              <FieldLabel>Attribute Values</FieldLabel>
+                              <div className="flex flex-wrap gap-2 p-2 min-h-[40px] rounded-md border border-input bg-background">
+                                {field.value?.map((val, vIndex) => (
+                                  <span key={vIndex} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {val}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const newValues = [...(field.value || [])];
+                                        newValues.splice(vIndex, 1);
+                                        field.onChange(newValues);
+                                      }}
+                                      className="ml-1 hover:text-blue-900"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </span>
+                                ))}
+                                <input
+                                  type="text"
+                                  className="flex-1 bg-transparent border-none outline-none text-sm min-w-[100px]"
+                                  placeholder="Type & press Enter..."
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      const val = e.currentTarget.value.trim();
+                                      if (val && !(field.value || []).includes(val)) {
+                                        field.onChange([...(field.value || []), val]);
+                                        e.currentTarget.value = '';
+                                      }
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">Press Enter to add per value</p>
+                            </Field>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
