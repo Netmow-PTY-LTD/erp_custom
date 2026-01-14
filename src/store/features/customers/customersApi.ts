@@ -35,12 +35,12 @@ export const customersApi = baseApi.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.data.map(({ id }) => ({
-                type: "Customers" as const,
-                id,
-              })),
-              { type: "Customers", id: "LIST" },
-            ]
+            ...result.data.map(({ id }) => ({
+              type: "Customers" as const,
+              id,
+            })),
+            { type: "Customers", id: "LIST" },
+          ]
           : [{ type: "Customers", id: "LIST" }],
     }),
 
@@ -64,7 +64,7 @@ export const customersApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: [{ type: "Customers", id: "LIST" }],
+      invalidatesTags: [{ type: "Customers", id: "LIST" }, { type: "Customers", id: "STATS" }],
     }),
 
     // ------------------------------------------
@@ -82,6 +82,7 @@ export const customersApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { id }) => [
         { type: "Customers", id },
         { type: "Customers", id: "LIST" },
+        { type: "Customers", id: "STATS" },
       ],
     }),
 
@@ -93,7 +94,7 @@ export const customersApi = baseApi.injectEndpoints({
         url: `/customers/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: [{ type: "Customers", id: "LIST" }],
+      invalidatesTags: [{ type: "Customers", id: "LIST" }, { type: "Customers", id: "STATS" }],
     }),
 
     // ------------------------------------------
@@ -110,32 +111,50 @@ export const customersApi = baseApi.injectEndpoints({
     // ------------------------------------------
     // inactive customer 
     // ------------------------------------------
-   getInactiveCustomers: builder.query<
+    getInactiveCustomers: builder.query<
       GetCustomersResponse,
       GetCustomersParams | void
     >({
       query: (params) => ({
         url: "/customers/inactive",
         method: "GET",
-        params: params || {}, 
+        params: params || {},
       }),
 
-      providesTags:['InactiveCustomers']
+      providesTags: (result) =>
+        result
+          ? [
+            ...result.data.map(({ id }) => ({
+              type: "Customers" as const,
+              id,
+            })),
+            { type: "Customers", id: "LIST" },
+          ]
+          : [{ type: "Customers", id: "LIST" }],
     }),
     // ------------------------------------------
     // inactive customer 
     // ------------------------------------------
-   getActiveCustomers: builder.query<
+    getActiveCustomers: builder.query<
       GetCustomersResponse,
       GetCustomersParams | void
     >({
       query: (params) => ({
         url: "/customers/active",
         method: "GET",
-        params: params || {}, 
+        params: params || {},
       }),
 
-      providesTags:['ActiveCustomers']
+      providesTags: (result) =>
+        result
+          ? [
+            ...result.data.map(({ id }) => ({
+              type: "Customers" as const,
+              id,
+            })),
+            { type: "Customers", id: "LIST" },
+          ]
+          : [{ type: "Customers", id: "LIST" }],
     }),
 
 

@@ -57,15 +57,12 @@ export default function AddRawMaterialCategoryForm({ open, setOpen }: AddRawMate
       } else {
         toast.error("Failed to add category");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding category:", error);
-      toast.error(
-        "Error adding category" +
-          (error instanceof Error ? ": " + error.message : "")
-      );
+      toast.error(error?.data?.message || "Error adding category");
     }
   };
-    
+
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

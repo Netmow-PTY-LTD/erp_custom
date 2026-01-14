@@ -46,11 +46,11 @@ export default function EditUnitForm({
   refetchUnits,
 }: Props) {
 
- const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // Units permissions
- 
-  const canEditUnits = userPermissions.includes(ProductPermission.EDIT_UNITS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+  const canEditUnits = userPermissions.includes(ProductPermission.EDIT_UNITS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -64,13 +64,13 @@ export default function EditUnitForm({
     },
   });
 
-  const {data: fetchedUnit} = useGetUnitByIdQuery(unitId, { skip: !unitId });
+  const { data: fetchedUnit } = useGetUnitByIdQuery(unitId, { skip: !unitId });
 
   const unit: Unit | undefined = fetchedUnit?.data;
 
   useEffect(() => {
     if (unit) {
-      form.reset({  
+      form.reset({
         name: unit.name,
         symbol: unit.symbol,
         is_active: unit.is_active,
@@ -95,12 +95,9 @@ export default function EditUnitForm({
         onOpenChange(false);
         refetchUnits();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating unit:", error);
-      toast.error(
-        "Error updating unit" +
-          (error instanceof Error ? ": " + error.message : "")
-      );
+      toast.error(error?.data?.message || "Error updating unit");
     }
   };
 
@@ -112,27 +109,27 @@ export default function EditUnitForm({
         </SheetHeader>
 
         <div className="px-4">
-         {!canEditUnits? (
-                    <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-                      <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
-                        <ShieldAlert className="w-10 h-10 text-destructive" />
-                      </div>
-                      <h2 className="text-lg font-semibold text-foreground">
-                        Access Denied
-                      </h2>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        You do not have permission to add a new Stock. <br />
-                        Please contact your administrator if you believe this is an error.
-                      </p>
-                      <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        className="mt-4"
-                      >
-                        Close
-                      </Button>
-                    </div>
-                  ) : (<Form {...form}>
+          {!canEditUnits ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to add a new Stock. <br />
+                Please contact your administrator if you believe this is an error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+          ) : (<Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="space-y-4">
                 {/* Unit Name */}
