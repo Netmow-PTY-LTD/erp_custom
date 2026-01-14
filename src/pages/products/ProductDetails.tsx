@@ -89,7 +89,7 @@ export default function ProductDetailsPage() {
           <Link to={`/dashboard/products/${product?.id}/edit`}>
             <Button variant="outline-info">✏️ Edit</Button>
           </Link>
-          <BackButton/>
+          <BackButton />
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export default function ProductDetailsPage() {
         {/* LEFT COLUMN */}
         <div className="col-span-1 space-y-6">
           {/* Overview */}
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle>Overview</CardTitle>
             </CardHeader>
@@ -127,7 +127,7 @@ export default function ProductDetailsPage() {
           </Card>
 
           {/* Pricing */}
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle>Pricing</CardTitle>
             </CardHeader>
@@ -142,7 +142,7 @@ export default function ProductDetailsPage() {
           </Card>
 
           {/* Stock */}
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle>Stock</CardTitle>
             </CardHeader>
@@ -177,7 +177,7 @@ export default function ProductDetailsPage() {
         {/* RIGHT COLUMN */}
         <div className="col-span-1 lg:col-span-2 space-y-6">
           {/* Recent Stock Movements */}
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle>Recent Stock Movements</CardTitle>
             </CardHeader>
@@ -199,7 +199,7 @@ export default function ProductDetailsPage() {
           </Card>
 
           {/* Recent Orders */}
-          <Card>
+          <Card className="py-6">
             <CardHeader>
               <CardTitle>Recent Orders Containing This Product</CardTitle>
             </CardHeader>

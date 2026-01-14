@@ -17,8 +17,8 @@ export default function InvoiceDetailsPage() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // permissions
-  const canMarkAsPaid = userPermissions.includes(SalesPermission.MARK_AS_PAID)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canMarkAsPaid = userPermissions.includes(SalesPermission.MARK_AS_PAID) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -75,12 +75,9 @@ export default function InvoiceDetailsPage() {
       if (res.status) {
         toast.success(res.message || "Invoice updated successfully");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating invoice status:", error);
-      toast.error(
-        "Error updating invoice status" +
-          (error instanceof Error ? ": " + error.message : "")
-      );
+      toast.error(error?.data?.message || "Error updating invoice status");
     }
   };
 
@@ -97,20 +94,20 @@ export default function InvoiceDetailsPage() {
             <Button variant="outline">← Back to Invoices</Button>
           </Link>
           {
-            canRecordPayment && (   <Link to={`/dashboard/sales/payments/create`}>
-            <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
-              Record Payment
-            </Button>
-          </Link>)
+            canRecordPayment && (<Link to={`/dashboard/sales/payments/create`}>
+              <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
+                Record Payment
+              </Button>
+            </Link>)
           }
-       
+
           <Link to={`/dashboard/sales/invoices/${invoice?.id}/preview`}>
             <Button variant="default" className="bg-blue-500 hover:bg-blue-600">
               Print Preview
             </Button>
           </Link>
-        
-          { canMarkAsPaid && invoice?.status !== "paid" && (
+
+          {canMarkAsPaid && invoice?.status !== "paid" && (
             <Button
               variant="default"
               className="bg-green-600 hover:bg-green-700 text-white"
@@ -172,11 +169,10 @@ export default function InvoiceDetailsPage() {
                   <strong>Status:</strong>{" "}
                   <Badge
                     variant="secondary"
-                    className={`text-white py-1 ${
-                      invoice?.status === "paid"
+                    className={`text-white py-1 ${invoice?.status === "paid"
                         ? "bg-green-500"
                         : "bg-yellow-500"
-                    }`}
+                      }`}
                   >
                     {invoice?.status}
                   </Badge>
@@ -251,13 +247,13 @@ export default function InvoiceDetailsPage() {
                         <td className="p-3">
                           {item?.payment_date
                             ? new Date(item.payment_date).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )
                             : "-"}
                         </td>
 
@@ -350,9 +346,8 @@ export default function InvoiceDetailsPage() {
 
               <Badge
                 variant="secondary"
-                className={`text-white ${
-                  invoice?.status === "paid" ? "bg-green-500" : "bg-yellow-500"
-                }`}
+                className={`text-white ${invoice?.status === "paid" ? "bg-green-500" : "bg-yellow-500"
+                  }`}
               >
                 {invoice?.status}
               </Badge>
