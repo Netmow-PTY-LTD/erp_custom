@@ -34,11 +34,31 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 print:p-0">
+      <style>{`
+        @media print {
+          @page {
+            margin: 10mm;
+            size: auto;
+          }
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
+          .print-container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+          }
+        }
+      `}</style>
       {/* INVOICE CONTENT */}
       <div
         id="invoice"
-        className="bg-white p-6 max-w-4xl mx-auto print:w-[850px]"
+        className="bg-white p-6 sm:p-8 max-w-4xl mx-auto print-container"
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-8 border-b pb-4">

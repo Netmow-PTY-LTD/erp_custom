@@ -40,11 +40,31 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6 print:p-0">
+      <style>{`
+        @media print {
+          @page {
+            margin: 10mm;
+            size: auto;
+          }
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
+          .print-container {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+          }
+        }
+      `}</style>
       {/* INVOICE CONTENT */}
       <div
         id="invoice"
-        className="bg-white p-6 max-w-4xl mx-auto print:w-[900px]"
+        className="bg-white p-6 sm:p-8 max-w-4xl mx-auto print-container"
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-8 border-b pb-4">
@@ -89,13 +109,12 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
             <p>
               <strong>Status:</strong>{" "}
               <Badge
-                className={`${
-                  invoice?.status.toLowerCase() === "paid"
+                className={`${invoice?.status.toLowerCase() === "paid"
                     ? "bg-green-500"
                     : invoice?.status?.toLowerCase() === "draft"
-                    ? "bg-yellow-500"
-                    : "bg-red-500"
-                } text-white`}
+                      ? "bg-yellow-500"
+                      : "bg-red-500"
+                  } text-white`}
               >
                 {invoice?.status}
               </Badge>
