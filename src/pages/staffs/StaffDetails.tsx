@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Pencil, Wallet, Building2, TrendingUp, TrendingDown,
   Mail, Phone, MapPin, CalendarDays, Briefcase,
-  Clock, CheckCircle2, XCircle, AlertCircle, User,
+  Clock, CheckCircle2, XCircle, AlertCircle,
   Building
 } from "lucide-react";
 import { Link, useParams } from "react-router";
@@ -59,7 +59,7 @@ export default function StaffDetails() {
   const presentCount = attendanceData.filter(a => a.status === 'present').length;
   const lateCount = attendanceData.filter(a => a.status === 'late').length;
   const absentCount = attendanceData.filter(a => a.status === 'absent').length;
-  const leaveCount = attendanceData.filter(a => a.status === 'on_leave').length;
+  // const leaveCount = attendanceData.filter(a => a.status === 'on_leave').length;
 
   const leaveRequests: LeaveRequest[] = attendanceData
     .filter((item) => item.status === "on_leave")
@@ -317,7 +317,7 @@ export default function StaffDetails() {
               </div>
 
               {/* Attendance Card */}
-              <Card className="shadow-sm border-border/60">
+              <Card className="shadow-sm border-border/60 pt-4 pb-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <div className="space-y-1">
                     <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -345,7 +345,7 @@ export default function StaffDetails() {
               </Card>
 
               {/* Leave Requests Card */}
-              <Card className="shadow-sm border-border/60">
+              <Card className="shadow-sm border-border/60 pt-4 pb-2">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <div className="space-y-1">
                     <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -366,7 +366,7 @@ export default function StaffDetails() {
 
               {/* Salary Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="relative overflow-hidden border-none shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 text-white">
+                <Card className="relative overflow-hidden border-none shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 text-white py-4">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-slate-300 flex items-center gap-2">
                       <Wallet className="w-4 h-4" /> Earnings
@@ -392,7 +392,7 @@ export default function StaffDetails() {
                 </Card>
 
                 {/* Modern Bank Card UI */}
-                <Card className="relative overflow-hidden border-none shadow-lg bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
+                <Card className="relative overflow-hidden border-none shadow-lg bg-gradient-to-br from-indigo-600 to-purple-700 text-white py-4">
                   <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
                   <CardHeader className="pb-2 relative z-10">
                     <CardTitle className="text-sm font-medium text-indigo-100 flex items-center justify-between">
@@ -422,7 +422,7 @@ export default function StaffDetails() {
               {/* Breakdowns */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Allowances */}
-                <Card className="shadow-sm">
+                <Card className="shadow-sm py-4">
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                       <TrendingUp className="w-4 h-4 text-emerald-600" /> Allowances
@@ -447,7 +447,7 @@ export default function StaffDetails() {
                 </Card>
 
                 {/* Deductions */}
-                <Card className="shadow-sm">
+                <Card className="shadow-sm py-6">
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                       <TrendingDown className="w-4 h-4 text-rose-600" /> Deductions
