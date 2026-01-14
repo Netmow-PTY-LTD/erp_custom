@@ -120,6 +120,7 @@ export const SalesPermission = {
   CREATE_ROUTE: "sales.routes.create" as const,
   ASSIGN_ROUTE: "sales.routes.assign" as const,
   MARK_AS_PAID: "sales.invoices.mark_as_paid" as const,
+  POS_ORDER: "sales.pos_order.view" as const,
 };
 
 // --- Accounting ---
