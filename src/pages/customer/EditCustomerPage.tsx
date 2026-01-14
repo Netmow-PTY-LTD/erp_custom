@@ -34,7 +34,7 @@ import { BackButton } from "@/components/BackButton";
 import { useEffect } from "react";
 import { useAppSelector } from "@/store/store";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
-// import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
+import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -42,7 +42,7 @@ import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 const customerSchema = z.object({
   name: z.string().min(1, "Required"),
   company: z.string().optional(),
-  customer_type: z.enum(["individual", "business"]),
+  customer_type: z.enum(["individual", "business", "retail"]),
   tax_id: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional(),
@@ -71,11 +71,11 @@ export default function EditCustomerPage() {
   const { customerId } = useParams();
   const navigate = useNavigate();
 
-  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  // // permissions
+  // permissions
 
-  // const canActivePermsion = userPermissions.includes(CustomerPermission.CUSTOMER_ACTIVE_PERMSSION) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canActivePermsion = userPermissions.includes(CustomerPermission.CUSTOMER_ACTIVE_PERMISSION) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -198,7 +198,7 @@ export default function EditCustomerPage() {
 
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto py-6">
+    <div className="space-y-6 max-w-5xl mx-auto pb-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
@@ -279,20 +279,18 @@ export default function EditCustomerPage() {
                   <div className="md:col-span-2">
                     <Field>
                       <FieldLabel>Gallery (max 2)</FieldLabel>
-                      <div className="max-w-xs">
-                        <ImageUploaderPro
-                          multiple
-                          value={field.value || []}
-                          onChange={(v) => {
-                            const arr = Array.isArray(v) ? v : v ? [v] : [];
-                            if (arr.length > 10) {
-                              toast.error("You can upload up to 10 images only");
-                              arr.splice(10);
-                            }
-                            field.onChange(arr);
-                          }}
-                        />
-                      </div>
+                      <ImageUploaderPro
+                        multiple
+                        value={field.value || []}
+                        onChange={(v) => {
+                          const arr = Array.isArray(v) ? v : v ? [v] : [];
+                          if (arr.length > 10) {
+                            toast.error("You can upload up to 10 images only");
+                            arr.splice(10);
+                          }
+                          field.onChange(arr);
+                        }}
+                      />
                       <p className="text-sm text-muted-foreground mt-2">
                         Optional. Upload up to 10 additional images for the customer.
                       </p>
@@ -315,6 +313,7 @@ export default function EditCustomerPage() {
                       <SelectContent>
                         <SelectItem value="individual">Individual</SelectItem>
                         <SelectItem value="business">Business</SelectItem>
+                        <SelectItem value="retail">Retail</SelectItem>
                       </SelectContent>
                     </Select>
                     <FieldError>{fieldState.error?.message}</FieldError>
@@ -542,13 +541,12 @@ export default function EditCustomerPage() {
                   <Field>
                     <FieldLabel>Status</FieldLabel>
                     <Select
-                      // disabled={!canActivePermsion}
-                   
+                      disabled={!canActivePermsion}
+
                       value={field.value ? "active" : "inactive"}
                       onValueChange={(val) => field.onChange(val === "active")}
                     >
-                      {/* <SelectTrigger className={!canActivePermsion ? "bg-muted cursor-not-allowed opacity-70" : ""}> */}
-                      <SelectTrigger>
+                      <SelectTrigger className={!canActivePermsion ? "bg-muted cursor-not-allowed opacity-70" : ""}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

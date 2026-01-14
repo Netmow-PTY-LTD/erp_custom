@@ -1,22 +1,22 @@
 
 // -------------------- OVERVIEW --------------------
 export type Overview = {
-    daily: {
-      income: number;
-      expense: number;
-    },
-    weekly: {
-      income: number;
-      expense: number;  
-    },
-    monthly: {
-      income: number;
-      expense: number;  
-    },
-    yearly: {
-      income: number;
-      expense: number;  
-    },
+  daily: {
+    income: number;
+    expense: number;
+  },
+  weekly: {
+    income: number;
+    expense: number;
+  },
+  monthly: {
+    income: number;
+    expense: number;
+  },
+  yearly: {
+    income: number;
+    expense: number;
+  },
 };
 
 
@@ -26,11 +26,53 @@ export type IncomeExpense = {
   status: any;
   id: number;
   title: string;
-  credit_head_id: number;
+  credit_head_id?: number;
+  debit_head_id?: number;
   amount: number;
   income_date?: string;   // for income
   expense_date?: string;  // for expense
   description?: string;
+  payment_method?: string;
+  reference_number?: string;
+};
+
+export type Income = {
+  id: number;
+  date: string;
+  description: string;
+  credit_head_id: number;
+  creditHead: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  amount: number;
+  receivedVia: string | null;
+  reference: string | null;
+  status: string;
+  income_date?: string;
+  payment_method?: string;
+  reference_number?: string;
+};
+
+export type Expense = {
+  id: number;
+  date: string;
+  description: string;
+  debit_head_id: number;
+  debitHead: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  category: string;
+  amount: number;
+  paidVia: string;
+  reference: string;
+  status: string;
+  expense_date?: string;
+  payment_method?: string;
+  reference_number?: string;
 };
 
 

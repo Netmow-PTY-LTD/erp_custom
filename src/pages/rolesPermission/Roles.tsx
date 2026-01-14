@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -256,7 +257,7 @@ export default function Roles() {
       </div>
 
       {/* Roles Table */}
-      <Card>
+      <Card className="pt-6 pb-2">
         <CardHeader>
           <CardTitle>Available Roles</CardTitle>
         </CardHeader>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -181,7 +182,7 @@ export default function Invoices() {
   ];
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Sales Invoices</h1>

@@ -7,6 +7,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { useGetPayrollQuery, useAddExpenseMutation } from "@/store/features/accounting/accoutntingApiService";
 import { useAppSelector } from "@/store/store";
 import type { Payroll } from "@/types/accounting.types";
+import type { ColumnDef } from "@tanstack/react-table";
 import {
     Sheet,
     SheetContent,
@@ -18,10 +19,19 @@ import {
 import { CreditCard, Users, Calendar, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
+interface PayrollRun {
+    runCode: string;
+    period: string;
+    employees: number;
+    gross: number;
+    net: number;
+    status: string;
+}
+
 export default function PayrollRuns() {
     const [searchPeriod, setSearchPeriod] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
-    const [selectedRun, setSelectedRun] = useState<any | null>(null);
+    const [selectedRun, setSelectedRun] = useState<PayrollRun | null>(null);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
 
     const { data: payrollData, isLoading } = useGetPayrollQuery();
@@ -81,7 +91,7 @@ export default function PayrollRuns() {
         return matchesPeriod && matchesStatus;
     });
 
-    const handleReview = (run: any) => {
+    const handleReview = (run: PayrollRun) => {
         setSelectedRun(run);
         setIsSheetOpen(true);
     };
@@ -110,14 +120,14 @@ export default function PayrollRuns() {
         }
     };
 
-    const columns = [
+    const columns: ColumnDef<PayrollRun>[] = [
         { accessorKey: "runCode", header: "Run Code" },
         { accessorKey: "period", header: "Period" },
         { accessorKey: "employees", header: "Employees" },
         {
             accessorKey: "gross",
             header: `Gross (${currency})`,
-            cell: ({ row }: any) => {
+            cell: ({ row }: { row: any }) => {
                 const val = row.getValue("gross");
                 return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 });
             }
@@ -125,7 +135,7 @@ export default function PayrollRuns() {
         {
             accessorKey: "net",
             header: `Net (${currency})`,
-            cell: ({ row }: any) => {
+            cell: ({ row }: { row: any }) => {
                 const val = row.getValue("net");
                 return Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 });
             }
@@ -142,14 +152,14 @@ export default function PayrollRuns() {
                             ? "bg-yellow-100 text-yellow-700"
                             : "bg-gray-200 text-gray-700";
                 return (
-                    <span className={`px-2 py-1 text-xs rounded-full ${color}`}>{value}</span>
+                    <span className={`px-2 py-1 text-xs rounded-full ${color}`}>{value as string}</span>
                 );
             },
         },
         {
             accessorKey: "actions",
             header: "Actions",
-            cell: ({ row }: any) => (
+            cell: ({ row }: { row: any }) => (
                 <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => handleReview(row.original)}>
                         Review

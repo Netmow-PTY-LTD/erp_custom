@@ -182,7 +182,7 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
@@ -763,7 +763,7 @@ export default function AddProductPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-6 pt-6">
+            <CardContent className="space-y-6 pb-6">
               {fields.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
                   <p>No attribute groups added yet.</p>

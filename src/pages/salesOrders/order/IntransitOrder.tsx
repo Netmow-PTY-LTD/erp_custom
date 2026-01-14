@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
@@ -32,7 +31,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
 
-export default function DeliveredOrders() {
+export default function IntransitOrder() {
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
@@ -43,7 +42,7 @@ export default function DeliveredOrders() {
     page,
     limit,
     search,
-    status: "delivered",
+    status: "in_transit"
   });
 
   const orders = data?.data ?? [];
@@ -265,10 +264,14 @@ export default function DeliveredOrders() {
 
 
 
-  const deliveredStatusOptions = [
+  const orderStatusOptions = [
+    { value: "in_transit", label: "In Transit" },
     { value: "delivered", label: "Delivered" },
+    { value: "failed", label: "Failed" },
     { value: "returned", label: "Returned" },
+    { value: "cancelled", label: "Cancelled" },
   ] as const;
+
 
 
 
@@ -361,7 +364,7 @@ export default function DeliveredOrders() {
         isOpen={isUpdateDeliveryStatusModalOpen}
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
-        statusOptions={deliveredStatusOptions}
+        statusOptions={orderStatusOptions}
         defaultStatus="delivered"
       />
     </div>

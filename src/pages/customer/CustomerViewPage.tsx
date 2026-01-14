@@ -17,8 +17,8 @@ import { BackButton } from "@/components/BackButton";
 export default function CustomerViewPage() {
     const { customerId } = useParams();
 
-      const currency = useAppSelector((state) => state.currency.value);
-    
+    const currency = useAppSelector((state) => state.currency.value);
+
 
     const { data, isLoading, error } = useGetCustomerByIdQuery(Number(customerId));
 
@@ -62,13 +62,13 @@ export default function CustomerViewPage() {
                         </Button>
                     </Link>
 
-                     <BackButton/>
+                    <BackButton />
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* PROFILE */}
-                <Card className="md:col-span-1">
+                <Card className="md:col-span-1 py-6">
                     <CardHeader>
                         <CardTitle>Profile</CardTitle>
                     </CardHeader>
@@ -96,7 +96,7 @@ export default function CustomerViewPage() {
                 </Card>
 
                 {/* ADDRESS */}
-                <Card>
+                <Card className="py-6">
                     <CardHeader>
                         <CardTitle>Address</CardTitle>
                     </CardHeader>
@@ -113,7 +113,7 @@ export default function CustomerViewPage() {
                 </Card>
 
                 {/* ACCOUNT */}
-                <Card>
+                <Card className="py-6">
                     <CardHeader>
                         <CardTitle>Account</CardTitle>
                     </CardHeader>
@@ -122,7 +122,7 @@ export default function CustomerViewPage() {
                             <strong>Credit Limit:</strong> {customer.credit_limit ? `${currency} ${customer.credit_limit.toLocaleString()}` : `${currency} 0`}
                         </p>
                         <p>
-                            <strong>Outstanding Balance:</strong> {customer.outstanding_balance ? `${currency} ${customer.outstanding_balance.toLocaleString()}`: `${currency} 0`}
+                            <strong>Outstanding Balance:</strong> {customer.outstanding_balance ? `${currency} ${customer.outstanding_balance.toLocaleString()}` : `${currency} 0`}
                         </p>
                         {customer.tax_id && (
                             <p>
@@ -156,7 +156,7 @@ export default function CustomerViewPage() {
 
                 {/* LOCATION */}
                 {(customer.latitude && customer.longitude) && (
-                    <Card className="md:col-span-3">
+                    <Card className="md:col-span-3 py-6">
                         <CardHeader>
                             <CardTitle>Location</CardTitle>
                         </CardHeader>

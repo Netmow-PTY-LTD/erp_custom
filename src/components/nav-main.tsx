@@ -11,6 +11,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "./ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import React, { type ReactNode } from "react";
@@ -42,6 +43,13 @@ interface NavMainProps {
 
 export function NavMain({ items }: NavMainProps) {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
 
   return (
@@ -62,7 +70,7 @@ export function NavMain({ items }: NavMainProps) {
             return (
               <SidebarMenuItem key={item.title} className="cursor-pointer">
                 <SidebarMenuButton asChild tooltip={item.title}>
-                  <Link to={item.url}>
+                  <Link to={item.url} onClick={handleLinkClick}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </Link>
@@ -99,7 +107,7 @@ export function NavMain({ items }: NavMainProps) {
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton asChild>
-                              <Link to={subItem.url}>
+                              <Link to={subItem.url} onClick={handleLinkClick}>
                                 {subItem.icon && <subItem.icon />}
                                 <span>{subItem.title}</span>
                               </Link>
@@ -118,7 +126,7 @@ export function NavMain({ items }: NavMainProps) {
           return (
             <SidebarMenuItem key={item.title} className="cursor-pointer">
               <SidebarMenuButton asChild tooltip={item.title}>
-                <Link to={item.url!}>
+                <Link to={item.url!} onClick={handleLinkClick}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </Link>

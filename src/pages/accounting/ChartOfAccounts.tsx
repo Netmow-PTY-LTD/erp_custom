@@ -116,7 +116,7 @@ export default function ChartOfAccounts() {
                 </Dialog>
             </div>
 
-            <Card>
+            <Card className="py-6">
                 <CardHeader>
                     <CardTitle>Accounts List</CardTitle>
                 </CardHeader>

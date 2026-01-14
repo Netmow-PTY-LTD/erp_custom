@@ -72,7 +72,7 @@ export default function TrialBalance() {
                 </div>
             </div>
 
-            <Card>
+            <Card className="py-6">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Account Balances</CardTitle>
                     {isBalanced ? (

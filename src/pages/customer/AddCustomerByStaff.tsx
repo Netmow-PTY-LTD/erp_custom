@@ -37,9 +37,9 @@ import { User, CheckCircle2, Phone, MapPin, Briefcase } from "lucide-react";
 const customerSchema = z.object({
     name: z.string().min(1, "Required"),
     company: z.string().optional(),
-    customer_type: z.enum(["individual", "business"]).default("individual"),
+    customer_type: z.enum(["individual", "business", "retail"]).default("individual"),
     tax_id: z.string().optional(),
-    email: z.email("Invalid email").min(1, "Required"),
+    email: z.string().email("Invalid email").min(1, "Required"),
     phone: z.string().optional(),
     address: z.string().optional(),
     city: z.string().optional(),
@@ -117,7 +117,7 @@ export default function AddCustomerByStaffPage() {
         <div className="space-y-6 max-w-5xl mx-auto py-6">
             <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
                 <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                    <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                         Add Customer
                     </h1>
                     <p className="text-muted-foreground mt-2">Create a new customer profile (Staff)</p>
@@ -128,9 +128,9 @@ export default function AddCustomerByStaffPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* BASIC INFORMATION */}
                 <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+                    <CardHeader className="bg-linear-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                            <div className="p-3 bg-linear-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                                 <User className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1">
@@ -178,6 +178,7 @@ export default function AddCustomerByStaffPage() {
                                             <SelectContent>
                                                 <SelectItem value="individual">Individual</SelectItem>
                                                 <SelectItem value="business">Business</SelectItem>
+                                                <SelectItem value="retail">Retail</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FieldError>{fieldState.error?.message}</FieldError>
@@ -254,9 +255,9 @@ export default function AddCustomerByStaffPage() {
 
                 {/* CONTACT DETAILS */}
                 <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+                    <CardHeader className="bg-linear-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                            <div className="p-3 bg-linear-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                                 <Phone className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1">
@@ -296,9 +297,9 @@ export default function AddCustomerByStaffPage() {
 
                 {/* ADDRESS DETAILS */}
                 <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+                    <CardHeader className="bg-linear-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                            <div className="p-3 bg-linear-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                                 <MapPin className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1">
@@ -344,9 +345,9 @@ export default function AddCustomerByStaffPage() {
                                     </Field>
                                 )}
                             />
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+
                             <Controller
                                 control={control}
                                 name="state"
@@ -382,9 +383,8 @@ export default function AddCustomerByStaffPage() {
                                     </Field>
                                 )}
                             />
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                             <Controller
                                 control={control}
                                 name="latitude"
@@ -488,31 +488,31 @@ export default function AddCustomerByStaffPage() {
                                     </Field>
                                 )}
                             />
+
+                            <Controller
+                                control={control}
+                                name="notes"
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Notes</FieldLabel>
+                                        <Textarea placeholder="Additional notes..." {...field} />
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
+
+                            <Controller
+                                control={control}
+                                name="salesRouteId"
+                                rules={{ required: "Select a sales route" }}
+                                render={({ field, fieldState }) => (
+                                    <SalesRouteSelectField
+                                        field={field}
+                                        error={fieldState.error?.message}
+                                    />
+                                )}
+                            />
                         </div>
-
-                        <Controller
-                            control={control}
-                            name="notes"
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Notes</FieldLabel>
-                                    <Textarea placeholder="Additional notes..." {...field} />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            control={control}
-                            name="salesRouteId"
-                            rules={{ required: "Select a sales route" }}
-                            render={({ field, fieldState }) => (
-                                <SalesRouteSelectField
-                                    field={field}
-                                    error={fieldState.error?.message}
-                                />
-                            )}
-                        />
                     </CardContent>
                 </Card>
 

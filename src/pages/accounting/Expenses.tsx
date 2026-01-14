@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
@@ -6,27 +7,11 @@ import { Input } from "@/components/ui/input";
 
 import { useGetExpensesQuery } from "@/store/features/accounting/accoutntingApiService";
 import { useAppSelector } from "@/store/store";
+import type { Expense } from "@/types/accounting.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, DollarSign, TrendingDown, CreditCard } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-
-export type Expense = {
-  id: number;
-  date: string;
-  description: string;
-  debit_head_id: number;
-  debitHead: {
-    id: number;
-    name: string;
-    code: string;
-  };
-  category: string;
-  amount: number;
-  paidVia: string;
-  reference: string;
-  status: string;
-};
 
 export default function ExpensesPage() {
   const [page, setPage] = useState(1);
@@ -91,7 +76,7 @@ export default function ExpensesPage() {
     {
       accessorKey: "debitHead",
       header: "Category",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const debitHead = row?.original?.debitHead?.name;
         return <span className="font-medium">{debitHead}</span>;
       },
@@ -101,7 +86,7 @@ export default function ExpensesPage() {
       header: () => (
         <div className="text-right">Amount ({currency})</div>
       ),
-      cell: ({ row }) => (
+      cell: ({ row }: { row: any }) => (
         <div className="text-right">{Number(row.getValue("amount")).toFixed(2)}</div>
       ),
     },
@@ -111,7 +96,7 @@ export default function ExpensesPage() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: any }) => {
         const status = (row.getValue("status") as string) || "pending";
 
         let className = "capitalize ";
