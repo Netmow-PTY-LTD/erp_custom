@@ -309,7 +309,7 @@ export default function PosOrder() {
                     <form onSubmit={handleSubmit(onSubmit)} className="h-full flex flex-col">
                         <Card className="flex-1 flex flex-col h-full border-0 shadow-xl rounded-none lg:rounded-xl overflow-hidden">
                             {/* 1. Header & Customer Info */}
-                            <CardHeader className="bg-muted/30 pb-4 border-b space-y-3 pt-6">
+                            <CardHeader className="bg-muted/30 pb-4 px-4 border-b space-y-3 pt-4">
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <ShoppingCart className="w-5 h-5" />
                                     New Sale
