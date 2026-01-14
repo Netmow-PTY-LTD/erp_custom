@@ -143,6 +143,14 @@ export const AccountingPermission = {
   CREATE_DEBIT_HEADS: "accounting.debit_heads.create" as const,
   EDIT_DEBIT_HEADS: "accounting.debit_heads.edit" as const,
   DELETE_DEBIT_HEADS: "accounting.debit_heads.delete" as const,
+
+  // New Items
+  TRANSACTIONS: "accounting.transactions.view" as const,
+  CHART_OF_ACCOUNTS: "accounting.chart_of_accounts.view" as const,
+  JOURNAL_REPORT: "accounting.reports.journal.view" as const,
+  LEDGER_REPORT: "accounting.reports.ledger.view" as const,
+  TRIAL_BALANCE: "accounting.reports.trial_balance.view" as const,
+  PROFIT_AND_LOSS: "accounting.reports.profit_and_loss.view" as const,
 };
 
 // --- Users ---
