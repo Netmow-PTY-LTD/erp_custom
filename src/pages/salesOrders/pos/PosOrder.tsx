@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, Package } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -62,6 +62,7 @@ const orderSchema = z
                 name: z.string().optional(),
                 sku: z.string().optional(),
                 stock_quantity: z.number().optional(),
+                unit: z.string().optional(),
             })
         ),
     })
@@ -130,6 +131,7 @@ export default function PosOrder() {
     });
 
     const totalSubtotal = calculatedItems.reduce((sum, it) => sum + it.subtotal, 0);
+    const totalDiscount = calculatedItems.reduce((sum, it) => sum + it.discount, 0);
     const totalTax = calculatedItems.reduce((sum, it) => sum + it.taxAmount, 0);
     const grandTotal = calculatedItems.reduce((sum, it) => sum + it.total, 0);
 
@@ -170,6 +172,7 @@ export default function PosOrder() {
                 name: product.name,
                 sku: product.sku,
                 stock_quantity: availableStock,
+                unit: product.unit?.name || "",
             });
         }
     };
@@ -196,6 +199,18 @@ export default function PosOrder() {
         if (newQty > 0) {
             update(index, { ...item, quantity: newQty });
         }
+    };
+
+    const handleNewOrder = () => {
+        form.reset({
+            customer_id: 0,
+            shipping_address: "",
+            order_date: new Date().toISOString().split("T")[0],
+            due_date: new Date().toISOString().split("T")[0],
+            items: [],
+        });
+        setNewlyAddedCustomer(null);
+        setSearch("");
     };
 
     // Submit Handler
@@ -338,7 +353,10 @@ export default function PosOrder() {
                                                 Stock: {stock}
                                             </div>
                                         </div>
-                                        <div className="font-bold text-blue-600 mt-2">{currency} {Number(product.price).toFixed(2)}</div>
+                                        <div className="font-bold text-blue-600 mt-2 flex items-center gap-1">
+                                            {currency} {Number(product.price).toFixed(2)}
+                                            {product.unit?.name && <span className="text-sm font-normal text-muted-foreground">/ {product.unit.name}</span>}
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -360,10 +378,22 @@ export default function PosOrder() {
                         <Card className="flex-1 flex flex-col h-full border-0 shadow-xl rounded-none lg:rounded-xl overflow-hidden">
                             {/* 1. Header & Customer Info */}
                             <CardHeader className="bg-muted/30 pb-4 px-4 border-b space-y-3 pt-4">
-                                <CardTitle className="flex items-center gap-2 text-lg">
-                                    <ShoppingCart className="w-5 h-5" />
-                                    New Sale
-                                </CardTitle>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="flex items-center gap-2 text-lg">
+                                        <ShoppingCart className="w-5 h-5" />
+                                        New Sale
+                                    </CardTitle>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        size="sm"
+                                        className="h-8 w-8 p-0 bg-blue-100 text-blue-600 hover:bg-blue-200"
+                                        onClick={handleNewOrder}
+                                        title="New Order"
+                                    >
+                                        <Plus className="w-5 h-5" />
+                                    </Button>
+                                </div>
 
                                 {/* Customer Select & Add */}
                                 <div className="flex gap-2 items-end">
@@ -446,6 +476,7 @@ export default function PosOrder() {
                                     fields.map((field, index) => {
                                         const itemTotal = calculatedItems[index]?.total || 0;
                                         const stock = items[index]?.stock_quantity ?? 0;
+                                        const unit = items[index]?.unit || "";
 
                                         return (
                                             <div key={field.id} className="flex flex-col gap-2 p-3 bg-muted/20 rounded-lg border group relative hover:border-blue-200 transition-colors">
@@ -457,6 +488,7 @@ export default function PosOrder() {
                                                         <div className="flex items-center gap-2 mt-0.5">
                                                             <div className="text-xs text-muted-foreground">
                                                                 {currency} {Number(items[index].unit_price).toFixed(2)}
+                                                                {unit && <span className="ml-1">/ {unit}</span>}
                                                             </div>
                                                             <Badge variant="outline" className={`text-[10px] h-4 py-0 px-1 font-normal ${stock < 10 ? 'text-orange-600 border-orange-200 bg-orange-50' : 'text-gray-500'}`}>
                                                                 Stock: {stock}
@@ -471,7 +503,7 @@ export default function PosOrder() {
                                                 {/* Controls: Qty, Discount, Tax */}
                                                 <div className="grid grid-cols-12 gap-2 mt-1 items-end">
                                                     {/* Quantity */}
-                                                    <div className="col-span-4 flex items-center gap-0.5 bg-white rounded-md border p-0.5 shadow-sm h-8">
+                                                    <div className="col-span-4 flex items-center gap-0.5 bg-white rounded-md border p-0.5 shadow-sm h-8 relative">
                                                         <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, -1)}>
                                                             <Minus className="h-3 w-3" />
                                                         </Button>
@@ -544,6 +576,10 @@ export default function PosOrder() {
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Subtotal</span>
                                         <span>{currency} {totalSubtotal.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-muted-foreground text-red-500">
+                                        <span>Discount</span>
+                                        <span>- {currency} {totalDiscount.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Tax</span>
