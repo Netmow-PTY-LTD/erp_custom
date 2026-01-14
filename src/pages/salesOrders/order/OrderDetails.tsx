@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router";
@@ -13,10 +13,7 @@ import {
   Calendar,
   FileText,
   Mail,
-  Phone,
-  Truck,
   CreditCard,
-  Hash
 } from "lucide-react";
 import { useGetSalesOrderByIdQuery } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
@@ -121,8 +118,8 @@ export default function OrderDetails() {
           </div>
 
           {/* Order Items */}
-          <Card className="shadow-sm border-border/60 overflow-hidden">
-            <CardHeader className="bg-muted/30 pb-4 border-b">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-2">
+            <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Package className="w-4 h-4" /> Order Items
               </CardTitle>
@@ -169,11 +166,11 @@ export default function OrderDetails() {
         <div className="lg:col-span-4 space-y-6">
 
           {/* Customer Snapshot - MOVED TO TOP */}
-          <Card className="shadow-sm border-border/60">
-            <CardHeader className="pb-2">
+          <Card className="shadow-sm border-border/60 gap-2">
+            <CardHeader className="py-4 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Customer Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-4">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
                   <User className="w-5 h-5" />
@@ -197,12 +194,12 @@ export default function OrderDetails() {
           </Card>
 
           {/* Payment Summary */}
-          <Card className="shadow-md border-border/60 bg-slate-50 dark:bg-slate-900 overflow-hidden">
+          <Card className="shadow-md border-border/60 bg-slate-50 dark:bg-slate-900 overflow-hidden gap-4">
             <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-            <CardHeader className="pb-4">
+            <CardHeader className="gap-0">
               <CardTitle className="text-lg">Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-6">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center text-muted-foreground">
                   <span>Subtotal</span>

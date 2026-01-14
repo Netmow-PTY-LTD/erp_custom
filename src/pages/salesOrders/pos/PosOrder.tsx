@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, Package } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
