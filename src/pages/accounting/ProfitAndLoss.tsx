@@ -72,7 +72,7 @@ export default function ProfitAndLoss() {
 
             <div className="grid md:grid-cols-2 gap-6">
                 {/* INCOME COLUMN */}
-                <Card className="border-emerald-200 bg-emerald-50/10">
+                <Card className="border-emerald-200 bg-emerald-50/10 py-6">
                     <CardHeader>
                         <CardTitle className="text-emerald-700">Income</CardTitle>
                         <CardDescription>Revenue generated during the period</CardDescription>
@@ -93,7 +93,7 @@ export default function ProfitAndLoss() {
                 </Card>
 
                 {/* EXPENSE COLUMN */}
-                <Card className="border-red-200 bg-red-50/10">
+                <Card className="border-red-200 bg-red-50/10 py-6">
                     <CardHeader>
                         <CardTitle className="text-red-700">Expenses</CardTitle>
                         <CardDescription>Costs incurred during the period</CardDescription>

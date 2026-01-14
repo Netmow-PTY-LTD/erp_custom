@@ -3,8 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   XAxis,
@@ -255,7 +253,7 @@ export default function AccountingOverview() {
                     fill="#8884d8"
                     paddingAngle={5}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                   >
                     {expenseBreakdownData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -270,7 +268,7 @@ export default function AccountingOverview() {
       </div>
 
       {/* Recent Activity */}
-      <Card>
+      <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg py-6">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
         </CardHeader>

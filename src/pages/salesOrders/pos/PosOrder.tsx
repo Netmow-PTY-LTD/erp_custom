@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, Calendar, Truck } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,7 +41,6 @@ import { useNavigate } from "react-router";
 import { useAppSelector } from "@/store/store";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
 import { PosAddCustomer } from "./PosAddCustomer";
 
 // --- Types & Schema (Mirrored from CreateSalesOrderPage) ---
@@ -267,11 +266,11 @@ export default function PosOrder() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-y-auto p-1 pr-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 overflow-y-auto p-1 pr-2">
                     {productsData?.data?.map((product) => (
                         <Card
                             key={product.id}
-                            className="cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group overflow-hidden border-2"
+                            className="cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2"
                             onClick={() => addToCart(product)}
                         >
                             <CardContent className="p-0">
@@ -310,7 +309,7 @@ export default function PosOrder() {
                     <form onSubmit={handleSubmit(onSubmit)} className="h-full flex flex-col">
                         <Card className="flex-1 flex flex-col h-full border-0 shadow-xl rounded-none lg:rounded-xl overflow-hidden">
                             {/* 1. Header & Customer Info */}
-                            <CardHeader className="bg-muted/30 pb-4 border-b space-y-3">
+                            <CardHeader className="bg-muted/30 pb-4 border-b space-y-3 pt-6">
                                 <CardTitle className="flex items-center gap-2 text-lg">
                                     <ShoppingCart className="w-5 h-5" />
                                     New Sale
