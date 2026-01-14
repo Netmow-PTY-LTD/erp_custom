@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -42,6 +42,7 @@ import { useAppSelector } from "@/store/store";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PosAddCustomer } from "./PosAddCustomer";
+import { Badge } from "@/components/ui/badge";
 
 // --- Types & Schema (Mirrored from CreateSalesOrderPage) ---
 const orderSchema = z
@@ -60,6 +61,7 @@ const orderSchema = z
                 // Extra fields for UI display in POS
                 name: z.string().optional(),
                 sku: z.string().optional(),
+                stock_quantity: z.number().optional(),
             })
         ),
     })
@@ -133,11 +135,26 @@ export default function PosOrder() {
 
     // Cart Actions
     const addToCart = (product: any) => {
+        const availableStock = product.stock_quantity ?? 0;
+
+        // If stock is 0, don't allow adding
+        if (availableStock <= 0) {
+            toast.error(`Out of stock!`);
+            return;
+        }
+
         const existingIndex = items.findIndex((i) => i.product_id === product.id);
 
         if (existingIndex >= 0) {
             // Increment quantity
             const existingItem = items[existingIndex];
+
+            // Check if incrementing exceeds stock
+            if (existingItem.quantity + 1 > availableStock) {
+                toast.error(`Cannot add more. Only ${availableStock} in stock.`);
+                return;
+            }
+
             update(existingIndex, {
                 ...existingItem,
                 quantity: existingItem.quantity + 1,
@@ -152,13 +169,30 @@ export default function PosOrder() {
                 sales_tax: Number(product.sales_tax || 0),
                 name: product.name,
                 sku: product.sku,
+                stock_quantity: availableStock,
             });
         }
     };
 
     const adjustQuantity = (index: number, delta: number) => {
         const item = items[index];
+        const stock = item.stock_quantity ?? 0;
         const newQty = item.quantity + delta;
+
+        // If decreasing, just do it (unless it hits 0, which we handle below as updating to newQty)
+        if (delta < 0) {
+            if (newQty > 0) {
+                update(index, { ...item, quantity: newQty });
+            }
+            return;
+        }
+
+        // If increasing, check stock
+        if (newQty > stock) {
+            toast.error(`Cannot exceed available stock of ${stock}`);
+            return;
+        }
+
         if (newQty > 0) {
             update(index, { ...item, quantity: newQty });
         }
@@ -267,33 +301,49 @@ export default function PosOrder() {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 overflow-y-auto p-1 pr-2">
-                    {productsData?.data?.map((product) => (
-                        <Card
-                            key={product.id}
-                            className="cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2"
-                            onClick={() => addToCart(product)}
-                        >
-                            <CardContent className="p-0">
-                                <div className="aspect-square bg-muted relative">
-                                    {product.thumb_url ? (
-                                        <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                                            No Image
-                                        </div>
-                                    )}
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <Plus className="text-white w-8 h-8" />
+                    {productsData?.data?.map((product) => {
+                        const stock = product.stock_quantity ?? 0;
+                        const isOutOfStock = stock <= 0;
+                        return (
+                            <Card
+                                key={product.id}
+                                className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 ${isOutOfStock ? 'opacity-60 grayscale' : ''}`}
+                                onClick={() => addToCart(product)}
+                            >
+                                <CardContent className="p-0">
+                                    <div className="aspect-square bg-muted relative">
+                                        {product.thumb_url ? (
+                                            <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                                                No Image
+                                            </div>
+                                        )}
+                                        {!isOutOfStock && (
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Plus className="text-white w-8 h-8" />
+                                            </div>
+                                        )}
+                                        {isOutOfStock && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                                                <Badge variant="destructive">Out of Stock</Badge>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                                <div className="p-3">
-                                    <div className="font-semibold truncate" title={product.name}>{product.name}</div>
-                                    <div className="text-xs text-muted-foreground mb-1">SKU: {product.sku}</div>
-                                    <div className="font-bold text-blue-600">{currency} {Number(product.price).toFixed(2)}</div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                    <div className="p-3">
+                                        <div className="font-semibold truncate" title={product.name}>{product.name}</div>
+                                        <div className="flex justify-between items-center mt-1">
+                                            <div className="text-xs text-muted-foreground">SKU: {product.sku}</div>
+                                            <div className={`text-xs font-medium px-1.5 py-0.5 rounded ${stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                Stock: {stock}
+                                            </div>
+                                        </div>
+                                        <div className="font-bold text-blue-600 mt-2">{currency} {Number(product.price).toFixed(2)}</div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
                     {productsData?.data?.length === 0 && (
                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
                             <Search className="w-12 h-12 mb-2 opacity-20" />
@@ -395,6 +445,7 @@ export default function PosOrder() {
                                 ) : (
                                     fields.map((field, index) => {
                                         const itemTotal = calculatedItems[index]?.total || 0;
+                                        const stock = items[index]?.stock_quantity ?? 0;
 
                                         return (
                                             <div key={field.id} className="flex flex-col gap-2 p-3 bg-muted/20 rounded-lg border group relative hover:border-blue-200 transition-colors">
@@ -403,8 +454,13 @@ export default function PosOrder() {
                                                         <div className="font-medium text-sm truncate">
                                                             {(field as any).name || "Item #" + (index + 1)}
                                                         </div>
-                                                        <div className="text-xs text-muted-foreground">
-                                                            {currency} {Number(items[index].unit_price).toFixed(2)}
+                                                        <div className="flex items-center gap-2 mt-0.5">
+                                                            <div className="text-xs text-muted-foreground">
+                                                                {currency} {Number(items[index].unit_price).toFixed(2)}
+                                                            </div>
+                                                            <Badge variant="outline" className={`text-[10px] h-4 py-0 px-1 font-normal ${stock < 10 ? 'text-orange-600 border-orange-200 bg-orange-50' : 'text-gray-500'}`}>
+                                                                Stock: {stock}
+                                                            </Badge>
                                                         </div>
                                                     </div>
                                                     <div className="text-sm font-semibold">
