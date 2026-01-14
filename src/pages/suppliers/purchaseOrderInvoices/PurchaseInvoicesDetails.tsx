@@ -29,7 +29,6 @@ import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiServi
 import { useAppSelector } from "@/store/store";
 import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 import { toast } from "sonner";
-import type { POItem } from "@/types/purchaseOrder.types";
 
 export default function PurchaseInvoicesDetails() {
   const { id } = useParams();
@@ -62,7 +61,7 @@ export default function PurchaseInvoicesDetails() {
   const subtotal = po?.total_amount;
   const tax = po?.tax_amount ?? 0;
   const discount = po?.discount_amount ?? 0;
-  const netAmount = subtotal - discount;
+  //const netAmount = subtotal - discount;
   const total = subtotal + tax - discount;
   const paid = invoice?.paid_amount ?? 0;
   const balance = total - paid;
@@ -151,11 +150,11 @@ export default function PurchaseInvoicesDetails() {
         <div className="lg:col-span-8 space-y-6">
 
           {/* Invoice Info Cards */}
-          <Card className="shadow-sm border-border/60">
-            <CardHeader className="bg-muted/30 pb-4 border-b">
+          <Card className="shadow-sm border-border/60 pb-6">
+            <CardHeader className="bg-muted/30 gap-0 py-4 border-b-1">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Invoice Information</CardTitle>
             </CardHeader>
-            <CardContent className="p-6 grid gap-6 sm:grid-cols-2">
+            <CardContent className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg text-blue-600 dark:text-blue-400">
@@ -230,7 +229,7 @@ export default function PurchaseInvoicesDetails() {
 
           {/* Line Items */}
           <Card className="shadow-sm border-border/60 overflow-hidden">
-            <CardHeader className="bg-muted/30 pb-4 border-b">
+            <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <FileText className="w-4 h-4" /> Invoice Items
               </CardTitle>
@@ -293,7 +292,7 @@ export default function PurchaseInvoicesDetails() {
 
           {/* Payments History */}
           <Card className="shadow-sm border-border/60 overflow-hidden">
-            <CardHeader className="bg-muted/30 pb-4 border-b flex flex-row justify-between items-center">
+            <CardHeader className="bg-muted/30 py-4 border-b-1 flex flex-row justify-between items-center">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Payment History
               </CardTitle>
@@ -348,13 +347,13 @@ export default function PurchaseInvoicesDetails() {
         <div className="lg:col-span-4 space-y-6">
 
           {/* Quick Client Info */}
-          <Card className="shadow-sm border-border/60">
-            <CardHeader className="pb-2">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-2">
+            <CardHeader className="py-4 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <FileCheck className="w-4 h-4" /> Supplier Snapshot
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-6">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500">
                   <User className="w-5 h-5" />
@@ -379,12 +378,12 @@ export default function PurchaseInvoicesDetails() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-md border-border/60 bg-slate-50 dark:bg-slate-900 overflow-hidden">
+          <Card className="shadow-md border-border/60 bg-slate-50 dark:bg-slate-900 overflow-hidden gap-0">
             <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-            <CardHeader className="pb-4">
+            <CardHeader className="py-4 gap-0">
               <CardTitle className="text-lg">Financial Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-6">
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center text-muted-foreground">
                   <span>Subtotal</span>

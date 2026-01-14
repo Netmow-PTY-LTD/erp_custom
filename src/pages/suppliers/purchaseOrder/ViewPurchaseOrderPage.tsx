@@ -12,11 +12,8 @@ import {
   ArrowLeft,
   Package,
   Calendar,
-  User,
   Mail,
   Phone,
-  FileText,
-  CreditCard,
   Building2,
   AlertCircle
 } from "lucide-react";
@@ -154,8 +151,8 @@ export default function PurchaseOrderView() {
         <div className="lg:col-span-8 space-y-6">
 
           {/* 1. Supplier Details (Moved from Right) */}
-          <Card className="shadow-sm border-border/60">
-            <CardHeader className="pb-2">
+          <Card className="shadow-sm border-border/60 py-6">
+            <CardHeader className="gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Building2 className="w-4 h-4" /> Supplier Details
               </CardTitle>
@@ -205,7 +202,7 @@ export default function PurchaseOrderView() {
 
           {/* 3. Items Table */}
           <Card className="shadow-sm border-border/60 overflow-hidden">
-            <CardHeader className="bg-muted/30 pb-4 border-b">
+            <CardHeader className="bg-muted/30 border-b-1 gap-0 py-4">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Package className="w-4 h-4" /> Purchase Items
               </CardTitle>
@@ -251,9 +248,9 @@ export default function PurchaseOrderView() {
 
           {/* 4. Notes */}
           {purchase.notes && (
-            <Card className="shadow-sm border-border/60">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+            <Card className="shadow-sm border-border/60 py-4 md:py-6">
+              <CardHeader className="gap-0">
+                <CardTitle className="text-sm font-medium uppercase md:text-base tracking-wider text-muted-foreground flex items-center gap-2">
                   <AlertCircle className="w-4 h-4" /> Notes
                 </CardTitle>
               </CardHeader>
@@ -270,9 +267,9 @@ export default function PurchaseOrderView() {
         <div className="lg:col-span-4 space-y-6">
 
           {/* SUMMARY */}
-          <Card className="shadow-md border-border/60 bg-slate-50 dark:bg-slate-900 overflow-hidden">
+          <Card className="shadow-md border-border/60 bg-slate-50 dark:bg-slate-900 overflow-hidden pb-6">
             <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-            <CardHeader className="pb-4">
+            <CardHeader className="gap-0">
               <CardTitle className="text-lg">Financial Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
