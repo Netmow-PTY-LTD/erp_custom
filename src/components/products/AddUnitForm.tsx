@@ -79,12 +79,9 @@ export default function AddUnitForm({
         form.reset();
         refetchUnits();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding unit:", error);
-      toast.error(
-        "Failed to add unit" +
-          (error instanceof Error ? ": " + error.message : "")
-      );
+      toast.error(error?.data?.message || "Failed to add unit");
     }
   };
 

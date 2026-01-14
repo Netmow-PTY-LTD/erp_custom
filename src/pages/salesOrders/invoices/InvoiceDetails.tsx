@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useParams } from "react-router";
 import {
   useGetInvoiceByIdQuery,
@@ -21,7 +21,6 @@ import {
   Calendar,
   FileText,
   Hash,
-  Download,
   Mail,
   Phone,
   MapPin
@@ -29,17 +28,11 @@ import {
 
 export default function InvoiceDetailsPage() {
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-
-  // permissions
   const canMarkAsPaid = userPermissions.includes(SalesPermission.MARK_AS_PAID) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const invoiceId = useParams().invoiceId;
-
-  const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), {
-    skip: !invoiceId,
-  });
-
+  const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), { skip: !invoiceId });
   const invoice = invoiceData?.data;
   const currency = useAppSelector((state) => state.currency.value);
   const formatDate = (dateStr: string) => dateStr?.split("T")[0];
@@ -47,8 +40,6 @@ export default function InvoiceDetailsPage() {
   const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
   const from = fetchedSettingsInfo?.data;
   const to = invoice?.order?.customer;
-
-  const netAmount = Number(invoice?.order?.total_amount) - Number(invoice?.order?.discount_amount);
 
   const total = (
     Number(invoice?.order?.total_amount) -
@@ -58,7 +49,7 @@ export default function InvoiceDetailsPage() {
 
   const payableAmount = invoice?.payments
     ?.reduce((acc, cur) => acc + Number(cur.amount), 0)
-    ?.toFixed(2);
+    ?.toFixed(2) || "0.00";
 
   const balance = Number(total) - Number(payableAmount);
 
@@ -69,23 +60,16 @@ export default function InvoiceDetailsPage() {
       toast.error(`No payments found. Cannot mark as paid.`);
       return;
     }
-
-    const payload = {
-      invoiceId: id,
-      invoiceData: { status: "paid" },
-    };
-
     try {
-      const res = await updateInvoiceStatus(payload).unwrap();
+      const res = await updateInvoiceStatus({
+        invoiceId: id,
+        invoiceData: { status: "paid" },
+      }).unwrap();
       if (res.status) {
         toast.success(res.message || "Invoice updated successfully");
       }
-    } catch (error) {
-      console.error("Error updating invoice status:", error);
-      toast.error(
-        "Error updating invoice status" +
-        (error instanceof Error ? ": " + error.message : "")
-      );
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Error updating invoice status");
     }
   };
 
@@ -100,7 +84,6 @@ export default function InvoiceDetailsPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in-50 duration-500 pb-10">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
@@ -112,7 +95,7 @@ export default function InvoiceDetailsPage() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
               Invoice #{invoice?.invoice_number}
             </h1>
-            <Badge className={`${getStatusColor(invoice?.status)} text-white capitalize px-3 py-1 shadow-sm`}>
+            <Badge className={`${getStatusColor(invoice?.status || '')} text-white capitalize px-3 py-1 shadow-sm`}>
               {invoice?.status || 'Unknown'}
             </Badge>
           </div>
@@ -126,13 +109,11 @@ export default function InvoiceDetailsPage() {
               </Button>
             </Link>
           )}
-
           <Link to={`/dashboard/sales/invoices/${invoice?.id}/preview`}>
             <Button variant="outline" className="gap-2 shadow-sm">
               <Printer className="w-4 h-4" /> Print / Preview
             </Button>
           </Link>
-
           {canMarkAsPaid && invoice?.status !== "paid" && (
             <Button
               variant="default"
@@ -146,10 +127,7 @@ export default function InvoiceDetailsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        {/* Left Column - Main Details */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Invoice Info Cards */}
           <Card className="shadow-sm border-border/60">
             <CardHeader className="bg-muted/30 pb-4 border-b">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Invoice Information</CardTitle>
@@ -171,7 +149,6 @@ export default function InvoiceDetailsPage() {
                   </div>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg text-purple-600 dark:text-purple-400">
@@ -191,13 +168,12 @@ export default function InvoiceDetailsPage() {
             </CardContent>
           </Card>
 
-          {/* Key Dates & Meta */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="shadow-sm border-border/60">
               <CardContent className="p-4 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground uppercase font-medium">Order No.</span>
                 <span className="text-sm font-semibold flex items-center gap-2">
-                  <Hash className="w-4 h-4 opacity-50" /> {invoice?.order?.order_number || '-'}
+                  <Hash className="w-4 h-4 opacity-50" /> {invoice?.order?.order_number || "-"}
                 </span>
               </CardContent>
             </Card>
@@ -221,13 +197,12 @@ export default function InvoiceDetailsPage() {
               <CardContent className="p-4 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground uppercase font-medium">Created By</span>
                 <span className="text-sm font-semibold flex items-center gap-2">
-                  <User className="w-4 h-4 opacity-50" /> {invoice?.creator?.name || '-'}
+                  <User className="w-4 h-4 opacity-50" /> {invoice?.creator?.name || "-"}
                 </span>
               </CardContent>
             </Card>
           </div>
 
-          {/* Line Items */}
           <Card className="shadow-sm border-border/60 overflow-hidden">
             <CardHeader className="bg-muted/30 pb-4 border-b">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
@@ -253,16 +228,16 @@ export default function InvoiceDetailsPage() {
                         <p className="text-xs text-muted-foreground">SKU: {item?.product?.sku}</p>
                       </td>
                       <td className="px-6 py-4 text-right font-medium">
-                        {currency} {Number(item?.unit_price)?.toFixed(2)}
+                        {currency} {Number(item?.unit_price || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Badge variant="outline" className="font-mono text-xs">{item?.quantity}</Badge>
                       </td>
                       <td className="px-6 py-4 text-right text-muted-foreground">
-                        {Number(item?.discount || 0) > 0 ? `- ${currency} ${Number(item?.discount).toFixed(2)}` : '-'}
+                        {Number(item?.discount || 0) > 0 ? `- ${currency} ${Number(item?.discount).toFixed(2)}` : "-"}
                       </td>
                       <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100">
-                        {currency} {Number(item?.line_total)?.toFixed(2)}
+                        {currency} {Number(item?.line_total || 0).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -278,7 +253,6 @@ export default function InvoiceDetailsPage() {
             </div>
           </Card>
 
-          {/* Payments History */}
           <Card className="shadow-sm border-border/60 overflow-hidden">
             <CardHeader className="bg-muted/30 pb-4 border-b flex flex-row justify-between items-center">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
@@ -330,10 +304,7 @@ export default function InvoiceDetailsPage() {
           </Card>
         </div>
 
-        {/* Right Column - Summary & Stats */}
         <div className="lg:col-span-4 space-y-6">
-
-          {/* Quick Client Info - Moved to Top */}
           <Card className="shadow-sm border-border/60">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Customer Snapshot</CardTitle>
@@ -372,35 +343,31 @@ export default function InvoiceDetailsPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center text-muted-foreground">
                   <span>Subtotal</span>
-                  <span>{currency} {Number(invoice?.order?.total_amount)?.toFixed(2)}</span>
+                  <span>{currency} {Number(invoice?.order?.total_amount || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-muted-foreground">
                   <span>Discount</span>
-                  <span className="text-red-500">- {currency} {Number(invoice?.order?.discount_amount)?.toFixed(2)}</span>
+                  <span className="text-red-500">- {currency} {Number(invoice?.order?.discount_amount || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-muted-foreground">
                   <span>Tax</span>
-                  <span>+ {currency} {Number(invoice?.order?.tax_amount)?.toFixed(2)}</span>
+                  <span>+ {currency} {Number(invoice?.order?.tax_amount || 0).toFixed(2)}</span>
                 </div>
-
                 <Separator className="my-2" />
-
                 <div className="flex justify-between items-center font-bold text-lg text-gray-900 dark:text-gray-100">
                   <span>Grand Total</span>
                   <span>{currency} {total}</span>
                 </div>
-
                 <div className="flex justify-between items-center text-sm font-medium text-green-600 pt-2">
                   <span>Total Paid</span>
                   <span>{currency} {payableAmount}</span>
                 </div>
               </div>
-
               <div className="bg-white dark:bg-black/20 p-4 rounded-xl border border-border/50 shadow-inner">
                 <div className="flex justify-between items-end">
                   <div>
                     <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Balance Due</p>
-                    <p className={`text-2xl font-black tracking-tight ${balance > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    <p className={`text-2xl font-black tracking-tight ${balance > 0 ? "text-red-600" : "text-green-600"}`}>
                       {currency} {balance.toFixed(2)}
                     </p>
                   </div>
@@ -415,9 +382,7 @@ export default function InvoiceDetailsPage() {
               </div>
             </CardContent>
           </Card>
-
         </div>
-
       </div>
     </div>
   );

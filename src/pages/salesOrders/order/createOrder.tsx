@@ -41,6 +41,7 @@ import { useAppSelector } from "@/store/store";
 import { Textarea } from "@/components/ui/textarea";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { Product } from "@/types/types";
 
 const orderSchema = z
   .object({
@@ -55,6 +56,7 @@ const orderSchema = z
         unit_price: z.number().min(1, "Unit price must be at least 1"),
         discount: z.number().min(0, "Discount must be 0 or more"),
         sales_tax: z.number().min(0, "Sales tax must be 0 or more"),
+        stock_quantity: z.number().optional(),
       })
     ),
   })
@@ -88,7 +90,7 @@ export default function CreateSalesOrderPage() {
       shipping_address: "",
       order_date: "",
       due_date: "",
-      items: [{ product_id: 0, quantity: 1, unit_price: 0, discount: 0 }],
+      items: [{ product_id: 0, quantity: 1, unit_price: 0, discount: 0, sales_tax: 0, stock_quantity: 0 }],
     },
   });
 
@@ -285,13 +287,13 @@ export default function CreateSalesOrderPage() {
 
   const ProductSelectField = ({
     field,
-    onSelectTax,
+    onProductSelect,
   }: {
     field: {
       value: number;
       onChange: (v: number) => void;
     };
-    onSelectTax?: (v: number) => void;
+    onProductSelect?: (product: Product) => void;
   }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -306,10 +308,12 @@ export default function CreateSalesOrderPage() {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button className="w-full justify-between" variant="outline">
-            {selected
-              ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit.name})`
-              : "Select product..."}
+          <Button className="w-full justify-between overflow-hidden" variant="outline">
+            <span className="truncate text-left flex-1">
+              {selected
+                ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit.name})`
+                : "Select product..."}
+            </span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
@@ -332,7 +336,7 @@ export default function CreateSalesOrderPage() {
                       key={product.id}
                       onSelect={() => {
                         field.onChange(product.id);
-                        onSelectTax?.(product.sales_tax ?? 0);
+                        onProductSelect?.(product);
                         setOpen(false);
                       }}
                     >
@@ -349,7 +353,7 @@ export default function CreateSalesOrderPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto py-6">
+    <div className="space-y-6 max-w-5xl mx-auto pb-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
@@ -461,6 +465,7 @@ export default function CreateSalesOrderPage() {
                       unit_price: 0,
                       discount: 0,
                       sales_tax: 0,
+                      stock_quantity: 0,
                     })
                   }
                   className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none"
@@ -481,14 +486,40 @@ export default function CreateSalesOrderPage() {
                       name={`items.${index}.product_id`}
                       control={control}
                       render={({ field }) => (
-                        <FormItem className="sm:col-span-4">
+                        <FormItem className="sm:col-span-3">
                           <FormLabel>Product</FormLabel>
                           <FormControl>
                             <ProductSelectField
                               field={field}
-                              onSelectTax={(tax) => {
-                                setValue(`items.${index}.sales_tax`, tax);
+                              onProductSelect={(product) => {
+                                setValue(`items.${index}.sales_tax`, product.sales_tax ?? 0);
+                                setValue(`items.${index}.stock_quantity`, product.stock_quantity ?? 0);
+                                setValue(`items.${index}.unit_price`, Number(product.price) ?? 0);
+                                if ((product.stock_quantity ?? 0) === 0) {
+                                  setValue(`items.${index}.quantity`, 0);
+                                } else {
+                                  setValue(`items.${index}.quantity`, 1);
+                                }
                               }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      name={`items.${index}.stock_quantity`}
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem className="sm:col-span-1">
+                          <FormLabel>Stock</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              readOnly
+                              className="bg-gray-100 cursor-not-allowed"
                             />
                           </FormControl>
                           <FormMessage />
@@ -527,12 +558,19 @@ export default function CreateSalesOrderPage() {
                           <FormControl>
                             <Input
                               type="number"
-                              min={1}
+                              min={0}
                               {...field}
-                              onChange={(e) =>
-                                field.onChange(Number(e.target.value))
-                              }
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const stock = watch(`items.${index}.stock_quantity`) ?? 0;
+                                if (val > stock) {
+                                  field.onChange(stock);
+                                } else {
+                                  field.onChange(val);
+                                }
+                              }}
                               className="bg-white"
+                              disabled={(watch(`items.${index}.stock_quantity`) ?? 0) === 0}
                             />
                           </FormControl>
                           <FormMessage />
@@ -598,7 +636,7 @@ export default function CreateSalesOrderPage() {
                       {currency} {calculatedItems[index]?.total.toFixed(2)}
                     </div>
 
-                    <div className="sm:flex sm:justify-end mt-2 sm:mt-0">
+                    <div className="sm:col-span-1 sm:flex sm:justify-end mt-2 sm:mt-0">
                       <button
                         type="button"
                         onClick={() => remove(index)}
