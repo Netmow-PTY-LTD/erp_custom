@@ -182,8 +182,8 @@ export default function CustomerViewPage() {
 
                     {/* LOCATION / MAP PLACEHOLDER */}
                     {(customer.latitude && customer.longitude) && (
-                        <Card className="shadow-sm border-border/60">
-                            <CardHeader className="pb-2">
+                        <Card className="shadow-sm border-border/60 pt-4 pb-6">
+                            <CardHeader className="gap-0">
                                 <CardTitle className="text-base flex items-center gap-2">
                                     <Globe size={16} className="text-blue-500" /> Location
                                 </CardTitle>
@@ -234,13 +234,13 @@ export default function CustomerViewPage() {
 
                     {/* ADDITIONAL DETAILS TABLE */}
                     <Card className="shadow-sm border-border/60 overflow-hidden">
-                        <CardHeader className="border-b bg-muted/20 py-4">
+                        <CardHeader className="border-b-1 bg-muted/20 py-4 gap-0">
                             <div className="flex items-center gap-2">
                                 <FileText className="w-5 h-5 text-muted-foreground" />
                                 <CardTitle className="text-lg">Additional Information</CardTitle>
                             </div>
                         </CardHeader>
-                        <CardContent className="p-6">
+                        <CardContent className="px-6 pb-6">
                             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
 
                                 <div className="space-y-1">
