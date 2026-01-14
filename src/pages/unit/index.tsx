@@ -78,12 +78,9 @@ export default function UnitsPage() {
       } else {
         toast.error("Failed to delete unit");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting unit:", error);
-      toast.error(
-        "Failed to delete unit" +
-        (error instanceof Error ? ": " + error.message : "")
-      );
+      toast.error(error?.data?.message || "Failed to delete unit");
     }
   };
 

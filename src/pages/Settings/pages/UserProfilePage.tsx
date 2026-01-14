@@ -30,7 +30,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function EditProfilePage() {
- // const [logo, setLogo] = useState<string>('');
+  // const [logo, setLogo] = useState<string>('');
 
   const dispatch = useAppDispatch();
 
@@ -89,14 +89,11 @@ export default function EditProfilePage() {
       if (res.status) {
         toast.success(res.message || "Profile updated successfully");
         dispatch(setCurrency(res.data.currency));
-       // setLogo(res.data.logo_url);
+        // setLogo(res.data.logo_url);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile:", error);
-      toast.error(
-        "Error updating profile" +
-          (error instanceof Error ? ": " + error.message : "")
-      );
+      toast.error(error?.data?.message || "Error updating profile");
     }
   };
 
@@ -112,7 +109,7 @@ export default function EditProfilePage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                {/* Logo Preview */}
+        {/* Logo Preview */}
 
         {/* {logo && <img src={logo} alt="Logo Preview" />} */}
 

@@ -137,7 +137,7 @@ export default function EditProductPage() {
     name: "attributes",
   });
 
-  const { data: fetchedProduct } = useGetProductByIdQuery(Number(productId), {
+  const { data: fetchedProduct, refetch: refetchProduct } = useGetProductByIdQuery(Number(productId), {
     skip: !Number(productId),
   });
 
@@ -202,17 +202,13 @@ export default function EditProductPage() {
       console.log("Product added successfully:", res);
       if (res.status) {
         toast.success("Product updated successfully");
+        refetchProduct();
         // Navigate back to products list or reset form
         navigate("/dashboard/products");
-      } else {
-        toast.error("Failed to update product: " + res.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating product:", error);
-      toast.error("Failed to update product");
-      if (error instanceof Error) {
-        toast.error("Failed to update product: " + error.message);
-      }
+      toast.error(error?.data?.message || "Failed to update product");
     }
   };
 
@@ -778,7 +774,7 @@ export default function EditProductPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-6 pt-6">
+            <CardContent className="space-y-6 pb-6">
               {fields.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed">
                   <p>No attribute groups added yet.</p>

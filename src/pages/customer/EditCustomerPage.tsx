@@ -176,14 +176,23 @@ export default function EditCustomerPage() {
         id: Number(customerId),
         data: payload,
       }).unwrap();
+
+      console.log("Customer updated successfully:", res);
+
       if (res.status) {
 
         toast.success(res.message || "Customer updated successfully");
-        navigate("/dashboard/customers/inactive");
+        if (values.is_active) {
+          navigate("/dashboard/customers");
+        } else if (!values.is_active) {
+          navigate("/dashboard/customers/inactive");
+        } else {
+          navigate("/dashboard/customers");
+        }
 
       }
-    } catch (error) {
-      toast.error("Failed to update customer");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update customer");
       console.error("Failed to update customer:", error);
     }
   };

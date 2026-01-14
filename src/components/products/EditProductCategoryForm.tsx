@@ -55,7 +55,7 @@ export default function EditProductCategoryForm({
 }) {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canEditCategory = userPermissions.includes(ProductPermission.Edit_CATEGORIES)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canEditCategory = userPermissions.includes(ProductPermission.Edit_CATEGORIES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -100,12 +100,10 @@ export default function EditProductCategoryForm({
         // Show success message
         toast.success("Category updated successfully");
         setOpen(false);
-      } else {
-        // Show error message
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating category:", error);
-      toast.error("Error updating category" + (error instanceof Error ? ": " + error.message : ""));
+      toast.error(error?.data?.message || "Error updating category");
     }
   };
 

@@ -81,14 +81,11 @@ export default function AddProductCategoryForm({
         toast.success("Category added successfully");
         setOpen(false);
         form.reset();
-      } else {
-        toast.error("Failed to add category: " + res.message);
       }
-    } catch (error) {
-      toast.error("Error adding category");
-      if (error instanceof Error) {
-        toast.error("Error adding category: " + error.message);
-      }
+    } catch (error: any) {
+      console.error('Error in updating category', error)
+      toast.error(error?.data?.message || "Error adding category");
+
     }
   };
 
