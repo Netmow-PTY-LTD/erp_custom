@@ -32,10 +32,10 @@ export default function CheckInList(): JSX.Element {
     () => [
       {
         accessorKey: "staff",
-        header: "Staff Name",
+        header: "Checked-in User",
         cell: ({ row }) => {
           const staff = row.original.staff;
-          return staff ? `${staff.first_name} ${staff.last_name}` : "N/A";
+          return staff?.first_name ? `${staff.first_name} ${staff.last_name}` : staff?.name || "N/A";
         },
       },
       {

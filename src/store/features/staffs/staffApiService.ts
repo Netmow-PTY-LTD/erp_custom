@@ -128,6 +128,16 @@ export const staffApiService = baseApi.injectEndpoints({
       providesTags: ["staffRoutes"],
     }),
 
+    // UPDATE PAYROLL STRUCTURE
+    updatePayrollStructure: builder.mutation<StaffResponse<Staff>, { id: string | number; body: any }>({
+      query: ({ id, body }) => ({
+        url: `/payroll/structure/${id}`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Staffs"],
+    }),
+
   }),
 });
 
@@ -138,4 +148,5 @@ export const {
   useUpdateStaffMutation,
   useDeleteStaffMutation,
   useGetAllStaffWiseRoutesQuery,
+  useUpdatePayrollStructureMutation,
 } = staffApiService;
