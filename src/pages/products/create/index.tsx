@@ -208,69 +208,79 @@ export default function AddProductPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="grid gap-4 md:grid-cols-2 pb-3">
-              {/* SKU */}
-              <Controller
-                control={control}
-                name="sku"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>SKU</FieldLabel>
-                    <Input placeholder="SKU123" {...field} />
-                    <FieldError>{fieldState?.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+            <CardContent className="pb-6">
+              <div className="flex flex-col md:flex-row gap-6 md:gap-12">
+                {/* Left side: SKU and Name in a grid */}
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* SKU */}
+                  <Controller
+                    control={control}
+                    name="sku"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>SKU</FieldLabel>
+                        <Input placeholder="SKU123" {...field} />
+                        <FieldError>{fieldState?.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
 
-              {/* NAME */}
-              <Controller
-                control={control}
-                name="name"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Name</FieldLabel>
-                    <Input placeholder="Product name" {...field} />
-                    <FieldError>{fieldState?.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+                  {/* NAME */}
+                  <Controller
+                    control={control}
+                    name="name"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Name</FieldLabel>
+                        <Input placeholder="Product name" {...field} />
+                        <FieldError>{fieldState?.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
 
-              {/* DESCRIPTION */}
-              <div className="md:col-span-2">
-                <Controller
-                  control={control}
-                  name="description"
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel>Description</FieldLabel>
-                      <Textarea
-                        rows={4}
-                        placeholder="Write description..."
-                        {...field}
-                      />
-                      <FieldError>{fieldState?.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <Controller
-                  control={control}
-                  name="image"
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel>Image</FieldLabel>
-                      <ImageUploaderPro
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                      <FieldError>{fieldState?.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
+                  {/* DESCRIPTION */}
+                  <div className="md:col-span-2">
+                    <Controller
+                      control={control}
+                      name="description"
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <FieldLabel>Description</FieldLabel>
+                          <Textarea
+                            rows={4}
+                            placeholder="Write description..."
+                            {...field}
+                          />
+                          <FieldError>{fieldState?.error?.message}</FieldError>
+                        </Field>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Right side: Image */}
+                <div className="flex md:justify-end">
+                  <div>
+                    <Controller
+                      control={control}
+                      name="image"
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <FieldLabel>Image</FieldLabel>
+                          <ImageUploaderPro
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                          <FieldError>{fieldState?.error?.message}</FieldError>
+                        </Field>
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
+
 
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
             <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
@@ -883,6 +893,6 @@ export default function AddProductPage() {
           </div>
         </form>
       </Form>
-    </div>
+    </div >
   );
 }

@@ -84,7 +84,7 @@ export default function SalesRoutesPage() {
       meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => (
         <Link
-          to={`/dashboard/sales-routes/${row.original.id}`}
+          to={`/dashboard/sales/sales-routes/${row.original.id}`}
           className="font-medium text-blue-600 hover:underline"
         >
           {row.original.route_name}
@@ -178,7 +178,11 @@ export default function SalesRoutesPage() {
                 View
               </Button>
             </Link>
-
+            <Link to={`/dashboard/sales/sales-routes/${route.id}/edit`}>
+              <Button size="sm" variant="outline-info">
+                Edit
+              </Button>
+            </Link>
             <Link to={`/dashboard/sales/sales-routes/${route.id}/assign`}>
               <Button size="sm" variant="outline-info">
                 Assign

@@ -171,9 +171,9 @@ export default function PermissionsPage() {
 
 
   return (
-    <div className=" p-6 space-y-6">
+    <div className="space-y-6">
       <Card className="py-6">
-        <CardHeader className="flex flex-row items-center justify-between gap-4 border-b pb-4">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
           {/* Title */}
           <div className="flex flex-col">
             <CardTitle className="text-lg font-semibold">
