@@ -279,9 +279,7 @@ export default function Transactions() {
                         <X className="h-4 w-4" />
                     </Button>
                 )}
-                <Button variant="outline" size="icon">
-                    <Filter className="h-4 w-4" />
-                </Button>
+
             </div>
 
             {/* Data Table */}
