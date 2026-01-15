@@ -7,9 +7,8 @@ import type {
   Overview,
   Payroll,
 } from "@/types/accounting.types";
-import { add } from "date-fns";
 
-// -------------------- OVERVIEW --------------------
+//-------------------- OVERVIEW --------------------
 
 export type OverviewResponse = {
   status: boolean;
@@ -289,4 +288,6 @@ export const {
   useGetAccountingChartDataQuery,
   useGetPayrollQuery,
   useAddPayrollMutation,
+  useCreateIncomeHeadMutation,
+  useCreateExpanseHeadMutation,
 } = accountingApiService;
