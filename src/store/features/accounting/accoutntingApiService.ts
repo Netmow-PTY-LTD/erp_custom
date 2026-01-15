@@ -337,6 +337,7 @@ export const {
   useCreateIncomeHeadMutation,
   useCreateExpanseHeadMutation,
   useGetAccountingAccountsQuery,
+  useLazyGetAccountingAccountsQuery,
   useAddAccountingAccountMutation,
 
 } = accountingApiService;
