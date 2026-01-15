@@ -37,8 +37,8 @@ import { useGetAccountingAccountsQuery, type ChartOfAccount } from "@/store/feat
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 
-// // Dummy Data
-// const _initialAccounts = [
+// Dummy Data
+// const initialAccounts = [
 //     { id: 1, code: "1000", name: "Assets", type: "Asset", parent: null, level: 0 },
 //     { id: 2, code: "1001", name: "Current Assets", type: "Asset", parent: 1, level: 1 },
 //     { id: 3, code: "1002", name: "Cash in Hand", type: "Asset", parent: 2, level: 2 },
@@ -54,7 +54,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 export default function ChartOfAccounts() {
     const [isOpen, setIsOpen] = useState(false);
     const [page, setPage] = useState(1);
-    const [limit] = useState(10);
+    const [limit] = useState(200);
     const [search, setSearch] = useState("");
 
     const { data, isFetching } = useGetAccountingAccountsQuery({
@@ -206,7 +206,7 @@ export default function ChartOfAccounts() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {data?.data?.map((account) => (
+                            {initialAccounts?.map((account) => (
                                 <TableRow key={account.id} className="hover:bg-muted/50">
                                     <TableCell className="font-mono text-xs text-muted-foreground">{account.code}</TableCell>
                                     <TableCell>
