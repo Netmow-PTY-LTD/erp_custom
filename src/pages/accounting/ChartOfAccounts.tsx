@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+// import {
+//     Table,
+//     TableBody,
+//     TableCell,
+//     TableHead,
+//     TableHeader,
+//     TableRow,
+// } from "@/components/ui/table";
 import {
     Dialog,
     DialogContent,
@@ -33,7 +33,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CreateIncomeHeadForm from "./CreateIncomehead";
 import CreateExpenseHeadForm from "./CreateExpenseHead";
-import { useGetAccountingAccountsQuery } from "@/store/features/accounting/accoutntingApiService";
+import { useGetAccountingAccountsQuery, type ChartOfAccount } from "@/store/features/accounting/accoutntingApiService";
+import { DataTable } from "@/components/dashboard/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
 
 // // Dummy Data
 // const _initialAccounts = [
@@ -51,8 +53,72 @@ import { useGetAccountingAccountsQuery } from "@/store/features/accounting/accou
 
 export default function ChartOfAccounts() {
     const [isOpen, setIsOpen] = useState(false);
-    const {data:accountsData}=useGetAccountingAccountsQuery()
-    console.log("Accounting Accounts Data:",accountsData);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [search, setSearch] = useState("");
+
+    const { data, isFetching } = useGetAccountingAccountsQuery({
+        page,
+        limit,
+        search,
+    });
+
+
+
+
+    const accountColumns: ColumnDef<ChartOfAccount>[] = [
+        {
+            accessorKey: "code",
+            header: "Code",
+            cell: ({ row }) => (
+                <span className="font-mono text-xs text-muted-foreground">
+                    {row.original.code}
+                </span>
+            ),
+        },
+        {
+            accessorKey: "name",
+            header: "Account Name",
+            cell: ({ row }) => {
+                const { name, level } = row.original;
+                return (
+                    <div
+                        className="flex items-center"
+                        style={{ paddingLeft: `${level * 20}px` }}
+                    >
+                        {level > 0 && <span className="mr-2 text-muted-foreground">└─</span>}
+                        <span className={level === 0 ? "font-semibold" : ""}>{name}</span>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: "type",
+            header: "Type",
+            cell: ({ row }) => <Badge variant="outline">{row.original.type}</Badge>,
+        },
+        {
+            id: "actions",
+            header: () => <div className="text-right">Actions</div>,
+            cell: () => (
+                <div className="flex justify-end gap-2">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            ),
+        },
+    ];
+
+
+
 
     return (
         <div className="space-y-6">
@@ -130,7 +196,7 @@ export default function ChartOfAccounts() {
                     <CardTitle>Accounts List</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
+                    {/* <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Code</TableHead>
@@ -140,7 +206,7 @@ export default function ChartOfAccounts() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {accountsData?.data?.map((account) => (
+                            {data?.data?.map((account) => (
                                 <TableRow key={account.id} className="hover:bg-muted/50">
                                     <TableCell className="font-mono text-xs text-muted-foreground">{account.code}</TableCell>
                                     <TableCell>
@@ -165,7 +231,22 @@ export default function ChartOfAccounts() {
                                 </TableRow>
                             ))}
                         </TableBody>
-                    </Table>
+                    </Table> */}
+
+                    <DataTable
+                        columns={accountColumns}
+                        data={data?.data || []}
+                        pageIndex={page - 1}
+                        pageSize={limit}
+                        totalCount={data?.pagination?.total || 0}
+                        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+                        onSearch={(value) => {
+                            setSearch(value);
+                            setPage(1);
+                        }}
+                        isFetching={isFetching}
+                    />
+
                 </CardContent>
             </Card>
         </div>

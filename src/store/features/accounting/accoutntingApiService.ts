@@ -301,8 +301,8 @@ export const accountingApiService = baseApi.injectEndpoints({
 
     // ================================ Accounts API ==================================================
 
-    getAccountingAccounts: builder.query<ListResponse<ChartOfAccount>, void>({
-      query: () => ({ url: "/accounting/accounts", method: "GET" }),
+    getAccountingAccounts: builder.query<ListResponse<ChartOfAccount>, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({ url: "/accounting/accounts", method: "GET", params }),
       providesTags: ["AccountingAccounts"],
     }),
 
