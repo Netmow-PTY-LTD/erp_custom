@@ -35,7 +35,7 @@ const StaffRoute = () => {
     const [hasMoreStaff, setHasMoreStaff] = useState(true);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterRole, ] = useState<string | null>(null);
+    const [filterRole,] = useState<string | null>(null);
     const [explicitSelectedId, setExplicitSelectedId] = useState<string | number | null>(null);
 
     // Fetch Staff Data
@@ -204,7 +204,7 @@ const StaffRoute = () => {
 
 
     return (
-        <div className="flex h-[calc(100vh-6rem)] gap-4 p-4 overflow-hidden bg-background">
+        <div className="flex h-[calc(100vh-6rem)] gap-4 overflow-hidden bg-background">
             {/* Left Sidebar: Staff List */}
             <Card className="w-1/3 min-w-[300px] flex flex-col h-full border-r shadow-sm p-2 overflow-hidden">
                 <CardHeader className="pb-3 border-b bg-card">

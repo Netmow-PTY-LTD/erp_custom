@@ -23,8 +23,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CreditCard, Receipt, CheckCircle2, ArrowLeft } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { useEffect, useState } from "react";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import {
   Popover,
@@ -43,6 +43,7 @@ import {
   useAddSalesPaymentMutation,
   useGetAllUnpaidSalesInvoicesQuery,
   useGetSalesInvoicesQuery,
+  useGetInvoiceByIdQuery,
 } from "@/store/features/salesOrder/salesOrder";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
@@ -61,10 +62,19 @@ type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 export default function CreatePaymentPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const invoiceIdParam = searchParams.get("invoiceId");
 
   const currency = useAppSelector((state) => state.currency.value);
 
   const [addPayment] = useAddSalesPaymentMutation();
+
+  // Fetch pre-selected invoice if param exists
+  const { data: preSelectedInvoiceData } = useGetInvoiceByIdQuery(
+    Number(invoiceIdParam),
+    { skip: !invoiceIdParam }
+  );
+  const preSelectedInvoice = preSelectedInvoiceData?.data;
 
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
@@ -78,6 +88,22 @@ export default function CreatePaymentPage() {
       notes: "",
     },
   });
+
+  // Effect to pre-fill form when invoice data loads
+  useEffect(() => {
+    if (preSelectedInvoice) {
+      form.setValue("customer_id", preSelectedInvoice.order?.customer_id || 0);
+      form.setValue("invoice_id", preSelectedInvoice.id);
+
+      const totalAmount = Number(preSelectedInvoice.order?.total_amount || 0) -
+        Number(preSelectedInvoice.order?.discount_amount || 0) +
+        Number(preSelectedInvoice.order?.tax_amount || 0);
+      const paidAmount = preSelectedInvoice.payments?.reduce((acc: number, curr: any) => acc + Number(curr.amount), 0) || 0;
+      const remainingBalance = totalAmount - paidAmount;
+
+      form.setValue("amount", remainingBalance > 0 ? remainingBalance : 0);
+    }
+  }, [preSelectedInvoice, form]);
 
   /* -------------------- Customer  Select Fields -------------------- */
   const CustomerSelectField = ({
