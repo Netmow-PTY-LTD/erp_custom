@@ -229,10 +229,10 @@ export default function ChartOfAccounts() {
                                         {errors.code && <p className="text-sm text-destructive">{errors.code.message}</p>}
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label className="w-full">Type</Label>
+                                        <Label>Type</Label>
                                         <Controller name="type" control={control} rules={{ required: "Type is required" }} render={({ field }) => (
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                                            <Select  onValueChange={field.onChange} value={field.value}>
+                                                <SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="ASSET">Asset</SelectItem>
                                                     <SelectItem value="LIABILITY">Liability</SelectItem>
