@@ -103,7 +103,7 @@ export default function InvoiceDetailsPage() {
 
         <div className="flex flex-wrap items-center gap-2">
           {canRecordPayment && (
-            <Link to={`/dashboard/sales/payments/create`}>
+            <Link to={`/dashboard/sales/payments/create?invoiceId=${invoice?.id}`}>
               <Button className="gap-2 shadow-sm bg-indigo-600 hover:bg-indigo-700">
                 <CreditCard className="w-4 h-4" /> Record Payment
               </Button>

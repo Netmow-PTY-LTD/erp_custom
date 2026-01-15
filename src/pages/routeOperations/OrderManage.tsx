@@ -207,13 +207,13 @@ const OrderManage = () => {
 
 
     return (
-        <div className="p-6 space-y-6 h-full flex flex-col">
-            <div className="flex justify-between items-center">
+        <div className="space-y-6 h-full flex flex-col">
+            <div className="flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Order Management</h1>
                     <p className="text-muted-foreground mt-1">Manage orders, view details, and assign staff.</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                     <div className="relative w-64">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -354,7 +354,7 @@ const OrderManage = () => {
                 </Table>
                 {/* Pagination Controls */}
                 {pagination && pagination.totalPage > 1 && (
-                    <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20">
+                    <div className="flex flex-wrap items-center justify-between px-4 py-3 border-t bg-muted/20 gap-3">
                         <div className="text-sm text-muted-foreground">
                             Showing {(page - 1) * limit + 1} to {Math.min(page * limit, pagination.total)} of {pagination.total} orders
                         </div>

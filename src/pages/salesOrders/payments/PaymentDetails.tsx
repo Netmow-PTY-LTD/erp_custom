@@ -126,12 +126,12 @@ export default function PaymentDetails() {
 
           {/* Detailed Info Card */}
           <Card className="shadow-sm border-border/60">
-            <CardHeader className="bg-muted/30 pb-4 border-b">
+            <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Banknote className="w-4 h-4" /> Payment Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 grid gap-6 sm:grid-cols-2">
+            <CardContent className="pb-6 grid gap-6 sm:grid-cols-2">
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">Reference Number</p>
@@ -162,13 +162,13 @@ export default function PaymentDetails() {
         <div className="lg:col-span-4 space-y-6">
 
           {/* Customer Snapshot */}
-          <Card className="shadow-sm border-border/60">
-            <CardHeader className="pb-2">
+          <Card className="shadow-sm border-border/60 gap-4">
+            <CardHeader className="pt-4 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <User className="w-4 h-4" /> Customer Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pb-4">
               {customer ? (
                 <>
                   <div className="flex items-center gap-3">
@@ -197,13 +197,13 @@ export default function PaymentDetails() {
 
           {/* Inovice Snapshot */}
           {payment.invoice && (
-            <Card className="shadow-sm border-border/60 bg-blue-50/50 dark:bg-blue-900/10">
-              <CardHeader className="pb-2">
+            <Card className="shadow-sm border-border/60 bg-blue-50/50 dark:bg-blue-900/10 gap-4">
+              <CardHeader className="pt-4 gap-0">
                 <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                   <FileText className="w-4 h-4" /> Linked Invoice
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 pb-4">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Invoice #</span>
                   <Link to={`/dashboard/sales/invoices/${payment.invoice.id}`} className="font-semibold text-blue-600 hover:underline">

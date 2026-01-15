@@ -8,7 +8,7 @@ import type {
   Payroll,
 } from "@/types/accounting.types";
 
-// -------------------- OVERVIEW --------------------
+//-------------------- OVERVIEW --------------------
 
 export type OverviewResponse = {
   status: boolean;
@@ -71,6 +71,64 @@ export type ChartResponse = {
   message: string;
   data: ChartDataPoint[];
 };
+
+
+
+
+
+// ===================================   New Accounting Endpoints  ===================================
+
+export type AccountType =
+  | "Asset"
+  | "Liability"
+  | "Equity"
+  | "Income"
+  | "Expense";
+
+export interface ChartOfAccount {
+  id: number;
+  code: string;
+  name: string;
+  type: AccountType;
+  parent: number | null;
+  level: number;
+}
+
+// -------------------- JOURNAL REPORT --------------------
+
+export interface JournalEntryAccount {
+  code: string;
+  name: string;
+}
+
+export interface JournalEntryDetail {
+  id: number;
+  journal_id: number;
+  account_id: number;
+  debit: string;
+  credit: string;
+  account: JournalEntryAccount;
+}
+
+export interface JournalEntry {
+  id: number;
+  date: string;
+  reference_type: string;
+  reference_id: number | null;
+  narration: string;
+  created_at: string;
+  updated_at: string;
+  entries: JournalEntryDetail[];
+}
+
+export type JournalReportResponse = ListResponse<JournalEntry>;
+
+
+
+
+
+
+
 
 // -------------------- RTK QUERY SERVICE --------------------
 export const accountingApiService = baseApi.injectEndpoints({
@@ -239,6 +297,69 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: (body) => ({ url: "/accounting/payroll", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
+
+
+    // ===================================================================================
+    // New Endpoint of accounting 
+    // ===================================================================================
+
+
+
+
+    // ========================== CREDIT HEADS FOR SPECIFIC TYPES ==========================
+
+    // create Income credit head
+    createIncomeHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+      query: (body) => ({
+        url: "/accounting/accounts/heads/income",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["incomeCreditHead", "AccountingAccounts"],
+    }),
+
+    // create Income credit head
+    createExpanseHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+      query: (body) => ({
+        url: "/accounting/accounts/heads/expense",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["expenseCreditHead", "AccountingAccounts"],
+    }),
+
+    // ================================ Accounts API ==================================================
+
+    getAccountingAccounts: builder.query<ListResponse<ChartOfAccount>, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({ url: "/accounting/accounts", method: "GET", params }),
+      providesTags: ["AccountingAccounts"],
+    }),
+    addAccountingAccount: builder.mutation<ChartOfAccount, Partial<ChartOfAccount>>({
+      query: (body) => ({ url: "/accounting/accounts", method: "POST", body }),
+      invalidatesTags: ["AccountingAccounts"],
+    }),
+
+    // CREATE JOURNAL ENTRY
+    addJournalEntry: builder.mutation<any, { date: string; narration: string; entries: { account_id: number; debit: number; credit: number }[] }>({
+      query: (body) => ({
+        url: "/accounting/journal-entry",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting", "AccountingAccounts"], // Assuming it affects accounts/overview
+    }),
+
+    // GET JOURNAL REPORT
+    getJournalReport: builder.query<JournalReportResponse, { page?: number; limit?: number; search?: string; from?: string; to?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/journal",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+
   }),
 });
 
@@ -261,4 +382,13 @@ export const {
   useGetAccountingChartDataQuery,
   useGetPayrollQuery,
   useAddPayrollMutation,
+  //  newly added hooks
+  useCreateIncomeHeadMutation,
+  useCreateExpanseHeadMutation,
+  useGetAccountingAccountsQuery,
+  useLazyGetAccountingAccountsQuery,
+  useAddAccountingAccountMutation,
+  useAddJournalEntryMutation,
+  useGetJournalReportQuery,
+
 } = accountingApiService;
