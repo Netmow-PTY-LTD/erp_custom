@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import CreateIncomeHeadForm from "./CreateIncomehead";
 import CreateExpenseHeadForm from "./CreateExpenseHead";
 import CreateIncomeHeadForm from "./CreateIncomeHead";
 
@@ -114,8 +115,9 @@ export default function ChartOfAccounts() {
 
     const ParentAccountSelect = ({ control }: { control: any }) => {
         const [query, setQuery] = useState("");
-        const [searchAccounts, setSearchAccounts] = useState<ChartOfAccount[]>([]);
-        const [open, setOpen] = useState(false);
+        const [searchAccounts, setSearchAccounts] = useState<any[]>([]);
+        const [open, setOpen] = useState(false); // control Popover open state
+        // RTK Query lazy fetch
         const [fetchAccounts, { isFetching }] = useLazyGetAccountingAccountsQuery();
 
         useEffect(() => {
@@ -231,7 +233,7 @@ export default function ChartOfAccounts() {
                                     <div className="grid gap-2">
                                         <Label>Type</Label>
                                         <Controller name="type" control={control} rules={{ required: "Type is required" }} render={({ field }) => (
-                                            <Select  onValueChange={field.onChange} value={field.value}>
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="ASSET">Asset</SelectItem>
@@ -244,10 +246,14 @@ export default function ChartOfAccounts() {
                                         )} />
                                         {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
                                     </div>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label>Parent Account (Optional)</Label>
-                                    <ParentAccountSelect control={control} />
+
+                                    {/* PARENT ACCOUNT */}
+                                    <div className="grid gap-2">
+                                        <Label>Parent Account (Optional)</Label>
+                                        <ParentAccountSelect control={control} />
+                                    </div>
+
+
                                 </div>
                                 <DialogFooter>
                                     <Button type="button" variant="outline" onClick={() => { setIsOpen(false); setEditingAccount(null); }}>Cancel</Button>
