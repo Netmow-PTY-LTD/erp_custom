@@ -328,7 +328,11 @@ export default function ChartOfAccounts() {
                                     </div>
 
                                     {/* PARENT ACCOUNT */}
-                                    <ParentAccountSelect control={control} />
+                                      <div className="grid gap-2">
+                                            <Label>Parent Account (Optional)</Label>
+                                            <ParentAccountSelect control={control} />
+                                        </div>
+                                   
 
                                 </div>
 
