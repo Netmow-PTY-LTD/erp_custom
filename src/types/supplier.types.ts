@@ -21,5 +21,7 @@ export type Supplier = {
   total_purchase_amount?: string | number;
   total_paid_amount?: string | number;
   total_due_amount?: string | number;
+  thumb_url?: string;
+  gallery_items?: string | string[]; // Can be string (JSON) or array
 
 };
