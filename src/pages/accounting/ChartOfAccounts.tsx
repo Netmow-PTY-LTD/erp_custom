@@ -208,7 +208,7 @@ export default function ChartOfAccounts() {
                             setEditingAccount(null);
                         }} asChild>
                             <Button className="flex items-center gap-2 bg-linear-to-r from-violet-600 to-purple-600 text-white">
-                                <Plus className="mr-2 h-4 w-4" /> {editingAccount ? "Edit Account" : "Add Account"}
+                                <Plus className="mr-2 h-4 w-4" />  Add Account
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
@@ -229,7 +229,7 @@ export default function ChartOfAccounts() {
                                         {errors.code && <p className="text-sm text-destructive">{errors.code.message}</p>}
                                     </div>
                                     <div className="grid gap-2">
-                                        <Label>Type</Label>
+                                        <Label className="w-full">Type</Label>
                                         <Controller name="type" control={control} rules={{ required: "Type is required" }} render={({ field }) => (
                                             <Select onValueChange={field.onChange} value={field.value}>
                                                 <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
