@@ -119,6 +119,7 @@ export const SalesPermission = {
   SALES_ROUTES: "sales.routes.view" as const,
   DETAILS_SALES_ROUTES: "sales.routes.details" as const,
   CREATE_ROUTE: "sales.routes.create" as const,
+  EDIT_ROUTE: "sales.routes.edit" as const,
   ASSIGN_ROUTE: "sales.routes.assign" as const,
   MARK_AS_PAID: "sales.invoices.mark_as_paid" as const,
   POS_ORDER: "sales.pos_order.view" as const,

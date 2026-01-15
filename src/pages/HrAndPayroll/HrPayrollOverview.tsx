@@ -657,12 +657,12 @@ export default function HrPayrollOverview() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Allowances Breakdown */}
                         <Card>
-                            <CardHeader className="pb-2 border-b">
+                            <CardHeader className="py-4 border-b-1 gap-0">
                                 <CardTitle className="text-lg flex items-center gap-2 text-emerald-800">
                                     <PieChart className="w-5 h-5" /> Allowance Breakdown
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="pt-4">
+                            <CardContent className="pb-4">
                                 <div className="space-y-3">
                                     {Object.entries(payrollAggregates?.allowanceBreakdown || {}).map(([name, amount], idx) => (
                                         <div key={idx} className="flex items-center justify-between text-sm">
@@ -679,12 +679,12 @@ export default function HrPayrollOverview() {
 
                         {/* Deductions Breakdown */}
                         <Card>
-                            <CardHeader className="pb-2 border-b">
+                            <CardHeader className="py-4 border-b-1 gap-0">
                                 <CardTitle className="text-lg flex items-center gap-2 text-rose-800">
                                     <PieChart className="w-5 h-5" /> Deduction Breakdown
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="pt-4">
+                            <CardContent className="pb-4">
                                 <div className="space-y-3">
                                     {Object.entries(payrollAggregates?.deductionBreakdown || {}).map(([name, amount], idx) => (
                                         <div key={idx} className="flex items-center justify-between text-sm">

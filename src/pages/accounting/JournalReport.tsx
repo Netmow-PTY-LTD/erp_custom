@@ -33,12 +33,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronDown, CornerDownRight } from "lucide-react";
 import { useAddJournalEntryMutation, useGetAccountingAccountsQuery, useGetJournalReportQuery } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 
@@ -85,6 +87,84 @@ export default function JournalReport() {
         setRows(newRows);
     };
 
+    const AccountCombobox = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+        const [open, setOpen] = useState(false);
+        const accounts = accountsData?.data || [];
+
+        // Sort or organize accounts if needed. Assuming API returns them in a way that respects hierarchy or we use level.
+        // If sorting by code helps:
+        // const sortedAccounts = [...accounts].sort((a, b) => a.code.localeCompare(b.code));
+
+        return (
+            <Popover open={open} onOpenChange={setOpen} modal={true}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                    >
+                        {value
+                            ? accounts.find((acc) => String(acc.id) === value)?.name
+                            : "Select account..."}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[450px] p-0" align="start">
+                    <Command>
+                        <CommandInput placeholder="Search account..." />
+                        <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+                            <CommandEmpty>No account found.</CommandEmpty>
+                            <CommandGroup>
+                                {accounts.map((acc) => {
+                                    // @ts-ignore
+                                    const level = acc.level || 0;
+
+                                    return (
+                                        <CommandItem
+                                            key={acc.id}
+                                            value={acc.name}
+                                            onSelect={() => {
+                                                onChange(String(acc.id));
+                                                setOpen(false);
+                                            }}
+                                            className="flex items-center gap-2"
+                                            style={{ paddingLeft: `${level === 0 ? 12 : (level * 20) + 12}px` }}
+                                        >
+                                            <div className="flex items-center flex-1 gap-2">
+                                                <div className="flex items-center gap-1">
+                                                    {level > 0 && (
+                                                        <CornerDownRight className="h-3 w-3 text-muted-foreground stroke-[1.5]" />
+                                                    )}
+
+                                                    <div className="flex flex-col">
+                                                        <span className={cn(
+                                                            level === 0 ? "font-semibold text-foreground" : "text-muted-foreground"
+                                                        )}>
+                                                            {acc.name}
+                                                        </span>
+                                                        <span className="text-[10px] text-muted-foreground/70">{acc.code}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <Check
+                                                className={cn(
+                                                    "ml-auto h-4 w-4",
+                                                    value === String(acc.id) ? "opacity-100" : "opacity-0"
+                                                )}
+                                            />
+                                        </CommandItem>
+                                    );
+                                })}
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+        );
+    };
+
     const totalDebit = rows.reduce((sum, row) => sum + Number(row.debit), 0);
     const totalCredit = rows.reduce((sum, row) => sum + Number(row.credit), 0);
     const isBalanced = totalDebit === totalCredit && totalDebit > 0;
@@ -105,7 +185,7 @@ export default function JournalReport() {
                                 <Plus className="mr-2 h-4 w-4" /> New Journal Entry
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[700px]">
+                        <DialogContent className="sm:max-w-[800px]">
                             <DialogHeader>
                                 <DialogTitle>Create New Journal Entry</DialogTitle>
                                 <DialogDescription>
@@ -160,21 +240,10 @@ export default function JournalReport() {
                                     {rows.map((row, index) => (
                                         <div key={index} className="grid grid-cols-12 gap-2 items-center">
                                             <div className="col-span-5">
-                                                <Select
+                                                <AccountCombobox
                                                     value={row.account_id}
-                                                    onValueChange={(val) => handleRowChange(index, "account_id", val)}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select Account" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {accountsData?.data?.map((acc) => (
-                                                            <SelectItem key={acc.id} value={String(acc.id)}>
-                                                                {acc.name} ({acc.code})
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                    onChange={(val) => handleRowChange(index, "account_id", val)}
+                                                />
                                             </div>
                                             <div className="col-span-3">
                                                 <Input

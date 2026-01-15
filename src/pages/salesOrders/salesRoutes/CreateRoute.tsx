@@ -38,6 +38,15 @@ const FormSchema = z.object({
   centerLat: z.number(),
   centerLng: z.number(),
   coverageRadius: z.number(),
+
+  // End Location Details
+  // End Location Details
+  endLat: z.number().optional(),
+  endLng: z.number().optional(),
+  endCity: z.string().optional(),
+  endState: z.string().optional(),
+  endCountry: z.string().optional(),
+  endPostalCode: z.string().optional(),
 });
 
 export default function CreateRoutePage() {
@@ -63,7 +72,13 @@ export default function CreateRoutePage() {
       centerLng: 101.6559,
       coverageRadius: 5,
       start_location: '',
-      end_location: ''
+      end_location: '',
+      endLat: undefined,
+      endLng: undefined,
+      endCity: "",
+      endState: "",
+      endCountry: "",
+      endPostalCode: "",
     },
   });
 
@@ -145,16 +160,22 @@ export default function CreateRoutePage() {
   const handleAddressSelection = (details: any, fieldName: string) => {
     form.setValue(fieldName as any, details.address);
 
-    // Auto-fill geo-data
-    if (details.city) form.setValue("city", details.city);
-    if (details.state) form.setValue("state", details.state);
-    if (details.country) form.setValue("country", details.country);
-    if (details.postalCode) form.setValue("postalCode", details.postalCode);
-
-    // If start location is picked, set center of the route
     if (fieldName === "start_location") {
+      if (details.city) form.setValue("city", details.city);
+      if (details.state) form.setValue("state", details.state);
+      if (details.country) form.setValue("country", details.country);
+      if (details.postalCode) form.setValue("postalCode", details.postalCode);
       form.setValue("centerLat", details.latitude);
       form.setValue("centerLng", details.longitude);
+    }
+
+    if (fieldName === "end_location") {
+      if (details.city) form.setValue("endCity", details.city);
+      if (details.state) form.setValue("endState", details.state);
+      if (details.country) form.setValue("endCountry", details.country);
+      if (details.postalCode) form.setValue("endPostalCode", details.postalCode);
+      form.setValue("endLat", details.latitude);
+      form.setValue("endLng", details.longitude);
     }
   };
 
@@ -229,86 +250,138 @@ export default function CreateRoutePage() {
                     />
                   </div>
 
-                  {/* Locations Section */}
-                  <div className="grid grid-cols-1 gap-4 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
-                    <FormField
-                      control={form.control}
-                      name="start_location"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-blue-700"><Navigation className="w-4 h-4" /> Start Point (Sets Geofence Center)</FormLabel>
-                          <FormControl>
-                            <AddressAutocomplete
-                              {...field}
-                              onAddressSelect={(d) => handleAddressSelection(d, "start_location")}
-                              placeholder="Search address for start..."
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                  {/* Locations Section - Split into two boxes */}
+                  <div className="space-y-6">
+                    {/* START POINT BOX */}
+                    <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 space-y-4">
+                      <div className="flex items-center gap-2 text-blue-800 font-semibold border-b border-blue-200 pb-2 mb-2">
+                        <Navigation className="w-4 h-4" /> Start Point
+                      </div>
 
-                    <FormField
-                      control={form.control}
-                      name="end_location"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2 text-slate-700"><MapPin className="w-4 h-4" /> Destination Point</FormLabel>
-                          <FormControl>
-                            <AddressAutocomplete
-                              {...field}
-                              onAddressSelect={(d) => handleAddressSelection(d, "end_location")}
-                              placeholder="Search address for end..."
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Lat/Lng Auto-complete grid */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="centerLat"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground uppercase tracking-wider">Latitude</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="any" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} className="bg-slate-50 font-mono text-xs" />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="centerLng"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs text-muted-foreground uppercase tracking-wider">Longitude</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="any" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} className="bg-slate-50 font-mono text-xs" />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  {/* Geographical Tags */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {["city", "state", "country", "postalCode"].map((name) => (
                       <FormField
-                        key={name}
                         control={form.control}
-                        name={name as any}
+                        name="start_location"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="capitalize text-[10px] text-muted-foreground">{name}</FormLabel>
-                            <FormControl><Input className="h-9 text-xs" {...field} readOnly /></FormControl>
+                            <FormLabel className="text-xs font-semibold text-slate-600">Full Address (Search)</FormLabel>
+                            <FormControl>
+                              <AddressAutocomplete
+                                {...field}
+                                onAddressSelect={(d) => handleAddressSelection(d, "start_location")}
+                                placeholder="Search start location..."
+                              />
+                            </FormControl>
                           </FormItem>
                         )}
                       />
-                    ))}
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField
+                          control={form.control}
+                          name="centerLat"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] text-muted-foreground uppercase tracking-wider">Latitude</FormLabel>
+                              <FormControl><Input type="number" step="any" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} className="h-8 text-xs bg-white" /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="centerLng"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] text-muted-foreground uppercase tracking-wider">Longitude</FormLabel>
+                              <FormControl><Input type="number" step="any" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} className="h-8 text-xs bg-white" /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        {["city", "state", "country", "postalCode"].map((name) => (
+                          <FormField
+                            key={name}
+                            control={form.control}
+                            name={name as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="capitalize text-[10px] text-muted-foreground">{name === 'postalCode' ? 'Postal Code' : name}</FormLabel>
+                                <FormControl><Input className="h-8 text-xs bg-white" {...field} readOnly /></FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* DESTINATION POINT BOX */}
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+                      <div className="flex items-center gap-2 text-slate-800 font-semibold border-b border-slate-200 pb-2 mb-2">
+                        <MapPin className="w-4 h-4" /> Destination Point
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="end_location"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-semibold text-slate-600">Full Address (Search)</FormLabel>
+                            <FormControl>
+                              <AddressAutocomplete
+                                {...field}
+                                onAddressSelect={(d) => handleAddressSelection(d, "end_location")}
+                                placeholder="Search destination..."
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField
+                          control={form.control}
+                          name="endLat"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] text-muted-foreground uppercase tracking-wider">Latitude</FormLabel>
+                              <FormControl><Input type="number" step="any" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} className="h-8 text-xs bg-white" /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="endLng"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-[10px] text-muted-foreground uppercase tracking-wider">Longitude</FormLabel>
+                              <FormControl><Input type="number" step="any" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} className="h-8 text-xs bg-white" /></FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { name: "endCity", label: "City" },
+                          { name: "endState", label: "State" },
+                          { name: "endCountry", label: "Country" },
+                          { name: "endPostalCode", label: "Postal Code" }
+                        ].map((item) => (
+                          <FormField
+                            key={item.name}
+                            control={form.control}
+                            name={item.name as any}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-[10px] text-muted-foreground">{item.label}</FormLabel>
+                                <FormControl><Input className="h-8 text-xs bg-white" {...field} readOnly /></FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Zoom and Radius */}
