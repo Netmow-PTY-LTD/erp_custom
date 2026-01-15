@@ -30,7 +30,21 @@ export interface SalesRoute {
 
   // Assignments
   assigned_sales_rep_id: number | null;
-  assignedStaffMembers:Staff[]
+  assignedStaffMembers: Staff[]
+
+  // CamelCase alternatives for form compatibility
+  endLat?: number;
+  endLng?: number;
+  endCity?: string;
+  endState?: string;
+  endCountry?: string;
+  endPostalCode?: string;
+
+  // Potential snake_case keys from API
+  end_city?: string;
+  end_state?: string;
+  end_country?: string;
+  end_postalCode?: string; // Matching the access pattern in EditRoutePage.tsx
 
   // Metadata
   created_at: string; // ISO 8601 Date String
