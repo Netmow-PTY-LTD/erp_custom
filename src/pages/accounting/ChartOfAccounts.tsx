@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+// import {
+//     Table,
+//     TableBody,
+//     TableCell,
+//     TableHead,
+//     TableHeader,
+//     TableRow,
+// } from "@/components/ui/table";
 import {
     Dialog,
     DialogContent,
@@ -31,25 +31,94 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import AddCreditHeadForm from "./AddCreditHead";
-import AddDebitHeadForm from "./AddDebitHead";
+import CreateIncomeHeadForm from "./CreateIncomehead";
+import CreateExpenseHeadForm from "./CreateExpenseHead";
+import { useGetAccountingAccountsQuery, type ChartOfAccount } from "@/store/features/accounting/accoutntingApiService";
+import { DataTable } from "@/components/dashboard/components/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
 
 // Dummy Data
-const initialAccounts = [
-    { id: 1, code: "1000", name: "Assets", type: "Asset", parent: null, level: 0 },
-    { id: 2, code: "1001", name: "Current Assets", type: "Asset", parent: 1, level: 1 },
-    { id: 3, code: "1002", name: "Cash in Hand", type: "Asset", parent: 2, level: 2 },
-    { id: 4, code: "1003", name: "Bank Accounts", type: "Asset", parent: 2, level: 2 },
-    { id: 5, code: "2000", name: "Liabilities", type: "Liability", parent: null, level: 0 },
-    { id: 6, code: "2001", name: "Accounts Payable", type: "Liability", parent: 5, level: 1 },
-    { id: 7, code: "3000", name: "Equity", type: "Equity", parent: null, level: 0 },
-    { id: 8, code: "4000", name: "Income", type: "Income", parent: null, level: 0 },
-    { id: 9, code: "5000", name: "Expenses", type: "Expense", parent: null, level: 0 },
-    { id: 10, code: "5001", name: "Office Rent", type: "Expense", parent: 9, level: 1 },
-];
+// const initialAccounts = [
+//     { id: 1, code: "1000", name: "Assets", type: "Asset", parent: null, level: 0 },
+//     { id: 2, code: "1001", name: "Current Assets", type: "Asset", parent: 1, level: 1 },
+//     { id: 3, code: "1002", name: "Cash in Hand", type: "Asset", parent: 2, level: 2 },
+//     { id: 4, code: "1003", name: "Bank Accounts", type: "Asset", parent: 2, level: 2 },
+//     { id: 5, code: "2000", name: "Liabilities", type: "Liability", parent: null, level: 0 },
+//     { id: 6, code: "2001", name: "Accounts Payable", type: "Liability", parent: 5, level: 1 },
+//     { id: 7, code: "3000", name: "Equity", type: "Equity", parent: null, level: 0 },
+//     { id: 8, code: "4000", name: "Income", type: "Income", parent: null, level: 0 },
+//     { id: 9, code: "5000", name: "Expenses", type: "Expense", parent: null, level: 0 },
+//     { id: 10, code: "5001", name: "Office Rent", type: "Expense", parent: 9, level: 1 },
+// ];
 
 export default function ChartOfAccounts() {
     const [isOpen, setIsOpen] = useState(false);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(200);
+    const [search, setSearch] = useState("");
+
+    const { data, isFetching } = useGetAccountingAccountsQuery({
+        page,
+        limit,
+        search,
+    });
+
+
+
+
+    const accountColumns: ColumnDef<ChartOfAccount>[] = [
+        {
+            accessorKey: "code",
+            header: "Code",
+            cell: ({ row }) => (
+                <span className="font-mono text-xs text-muted-foreground">
+                    {row.original.code}
+                </span>
+            ),
+        },
+        {
+            accessorKey: "name",
+            header: "Account Name",
+            cell: ({ row }) => {
+                const { name, level } = row.original;
+                return (
+                    <div
+                        className="flex items-center"
+                        style={{ paddingLeft: `${level * 20}px` }}
+                    >
+                        {level > 0 && <span className="mr-2 text-muted-foreground">└─</span>}
+                        <span className={level === 0 ? "font-semibold" : ""}>{name}</span>
+                    </div>
+                );
+            },
+        },
+        {
+            accessorKey: "type",
+            header: "Type",
+            cell: ({ row }) => <Badge variant="outline">{row.original.type}</Badge>,
+        },
+        {
+            id: "actions",
+            header: () => <div className="text-right">Actions</div>,
+            cell: () => (
+                <div className="flex justify-end gap-2">
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            ),
+        },
+    ];
+
+
+
 
     return (
         <div className="space-y-6">
@@ -59,11 +128,11 @@ export default function ChartOfAccounts() {
                     <p className="text-muted-foreground">Manage your financial head hierarchy.</p>
                 </div>
                 <div className="flex gap-2">
-                    <AddCreditHeadForm />
-                    <AddDebitHeadForm />
+                    <CreateIncomeHeadForm />
+                    <CreateExpenseHeadForm />
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
                         <DialogTrigger asChild>
-                            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
+                            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
                                 <Plus className="mr-2 h-4 w-4" /> Add Account
                             </button>
                         </DialogTrigger>
@@ -127,7 +196,7 @@ export default function ChartOfAccounts() {
                     <CardTitle>Accounts List</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
+                    {/* <Table>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Code</TableHead>
@@ -137,7 +206,7 @@ export default function ChartOfAccounts() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {initialAccounts.map((account) => (
+                            {initialAccounts?.map((account) => (
                                 <TableRow key={account.id} className="hover:bg-muted/50">
                                     <TableCell className="font-mono text-xs text-muted-foreground">{account.code}</TableCell>
                                     <TableCell>
@@ -162,7 +231,22 @@ export default function ChartOfAccounts() {
                                 </TableRow>
                             ))}
                         </TableBody>
-                    </Table>
+                    </Table> */}
+
+                    <DataTable
+                        columns={accountColumns}
+                        data={data?.data || []}
+                        pageIndex={page - 1}
+                        pageSize={limit}
+                        totalCount={data?.pagination?.total || 0}
+                        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+                        onSearch={(value) => {
+                            setSearch(value);
+                            setPage(1);
+                        }}
+                        isFetching={isFetching}
+                    />
+
                 </CardContent>
             </Card>
         </div>

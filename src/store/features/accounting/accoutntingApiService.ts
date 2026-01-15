@@ -8,7 +8,7 @@ import type {
   Payroll,
 } from "@/types/accounting.types";
 
-// -------------------- OVERVIEW --------------------
+//-------------------- OVERVIEW --------------------
 
 export type OverviewResponse = {
   status: boolean;
@@ -71,6 +71,35 @@ export type ChartResponse = {
   message: string;
   data: ChartDataPoint[];
 };
+
+
+
+
+
+// ===================================   New Accounting Endpoints  ===================================
+
+export type AccountType =
+  | "Asset"
+  | "Liability"
+  | "Equity"
+  | "Income"
+  | "Expense";
+
+export interface ChartOfAccount {
+  id: number;
+  code: string;
+  name: string;
+  type: AccountType;
+  parent: number | null;
+  level: number;
+}
+
+
+
+
+
+
+
 
 // -------------------- RTK QUERY SERVICE --------------------
 export const accountingApiService = baseApi.injectEndpoints({
@@ -239,6 +268,49 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: (body) => ({ url: "/accounting/payroll", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
+
+
+    // ===================================================================================
+    // New Endpoint of accounting 
+    // ===================================================================================
+
+
+
+
+    // ========================== CREDIT HEADS FOR SPECIFIC TYPES ==========================
+
+    // create Income credit head
+    createIncomeHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+      query: (body) => ({
+        url: "/accounting/accounts/heads/income",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["incomeCreditHead", "AccountingAccounts"],
+    }),
+
+    // create Income credit head
+    createExpanseHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+      query: (body) => ({
+        url: "/accounting/accounts/heads/expense",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["expenseCreditHead", "AccountingAccounts"],
+    }),
+
+    // ================================ Accounts API ==================================================
+
+    getAccountingAccounts: builder.query<ListResponse<ChartOfAccount>, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({ url: "/accounting/accounts", method: "GET", params }),
+      providesTags: ["AccountingAccounts"],
+    }),
+    addAccountingAccount: builder.mutation<ChartOfAccount, Partial<ChartOfAccount>>({
+      query: (body) => ({ url: "/accounting/accounts", method: "POST", body }),
+      invalidatesTags: ["AccountingAccounts"] ,
+    }),
+
+
   }),
 });
 
@@ -261,4 +333,10 @@ export const {
   useGetAccountingChartDataQuery,
   useGetPayrollQuery,
   useAddPayrollMutation,
+  //  newly added hooks
+  useCreateIncomeHeadMutation,
+  useCreateExpanseHeadMutation,
+  useGetAccountingAccountsQuery,
+  useAddAccountingAccountMutation,
+
 } = accountingApiService;
