@@ -39,43 +39,35 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-
-// Dummy Data mimicking a Journal Entry response
-const journalEntries = [
-    {
-        id: "TXN-001",
-        date: "2024-03-10",
-        narration: "Cash Sales of Product A",
-        details: [
-            { account: "Cash", debit: 1500.00, credit: 0 },
-            { account: "Sales", debit: 0, credit: 1500.00 },
-        ]
-    },
-    {
-        id: "TXN-002",
-        date: "2024-03-09",
-        narration: "Office Rent Payment",
-        details: [
-            { account: "Rent Expense", debit: 2000.00, credit: 0 },
-            { account: "Bank", debit: 0, credit: 2000.00 },
-        ]
-    }
-];
+import { useAddJournalEntryMutation, useGetAccountingAccountsQuery, useGetJournalReportQuery } from "@/store/features/accounting/accoutntingApiService";
+import { toast } from "sonner";
 
 export default function JournalReport() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
+    const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+        from: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // First day of current month
+        to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0), // Last day of current month
+    });
     const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
+
+    // API Hooks
+    const { data: accountsData } = useGetAccountingAccountsQuery({ limit: 1000 });
+    const { data: reportData, isLoading: isReportLoading } = useGetJournalReportQuery({
+        limit: 100,
+        from: dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : undefined,
+        to: dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
+    });
+    const [addJournalEntry, { isLoading }] = useAddJournalEntryMutation();
 
     // New Entry Form State
     const [entryDate, setEntryDate] = useState<Date | undefined>(new Date());
     const [narration, setNarration] = useState("");
-    const [rows, setRows] = useState([
-        { account: "", debit: 0, credit: 0 },
-        { account: "", debit: 0, credit: 0 },
+    const [rows, setRows] = useState<{ account_id: string; debit: number; credit: number }[]>([
+        { account_id: "", debit: 0, credit: 0 },
+        { account_id: "", debit: 0, credit: 0 },
     ]);
 
     const handleAddRow = () => {
-        setRows([...rows, { account: "", debit: 0, credit: 0 }]);
+        setRows([...rows, { account_id: "", debit: 0, credit: 0 }]);
     };
 
     const handleRemoveRow = (index: number) => {
@@ -169,18 +161,18 @@ export default function JournalReport() {
                                         <div key={index} className="grid grid-cols-12 gap-2 items-center">
                                             <div className="col-span-5">
                                                 <Select
-                                                    value={row.account}
-                                                    onValueChange={(val) => handleRowChange(index, "account", val)}
+                                                    value={row.account_id}
+                                                    onValueChange={(val) => handleRowChange(index, "account_id", val)}
                                                 >
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select Account" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="Cash">Cash</SelectItem>
-                                                        <SelectItem value="Bank">Bank</SelectItem>
-                                                        <SelectItem value="Sales">Sales</SelectItem>
-                                                        <SelectItem value="Rent Expense">Rent Expense</SelectItem>
-                                                        <SelectItem value="Utility Bill">Utility Bill</SelectItem>
+                                                        {accountsData?.data?.map((acc) => (
+                                                            <SelectItem key={acc.id} value={String(acc.id)}>
+                                                                {acc.name} ({acc.code})
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
                                             </div>
@@ -239,8 +231,40 @@ export default function JournalReport() {
                             </div>
                             <DialogFooter>
                                 <Button variant="outline" onClick={() => setIsNewEntryOpen(false)}>Cancel</Button>
-                                <Button type="submit" disabled={!isBalanced}>
-                                    Save Entry
+                                <Button
+                                    type="submit"
+                                    disabled={!isBalanced || isLoading}
+                                    onClick={async () => {
+                                        if (!entryDate || !isBalanced) return;
+
+                                        try {
+                                            const payload = {
+                                                date: format(entryDate, 'yyyy-MM-dd'),
+                                                narration,
+                                                entries: rows.map(r => ({
+                                                    account_id: Number(r.account_id),
+                                                    debit: r.debit,
+                                                    credit: r.credit
+                                                }))
+                                            };
+
+                                            await addJournalEntry(payload).unwrap();
+                                            toast.success("Journal entry created successfully");
+                                            setIsNewEntryOpen(false);
+                                            // Reset form
+                                            setEntryDate(new Date());
+                                            setNarration("");
+                                            setRows([
+                                                { account_id: "", debit: 0, credit: 0 },
+                                                { account_id: "", debit: 0, credit: 0 },
+                                            ]);
+                                        } catch (error) {
+                                            console.error("Failed to create entry:", error);
+                                            toast.error("Failed to create journal entry");
+                                        }
+                                    }}
+                                >
+                                    {isLoading ? "Saving..." : "Save Entry"}
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
@@ -253,19 +277,42 @@ export default function JournalReport() {
                                 <Button
                                     variant={"outline"}
                                     className={cn(
-                                        "w-[240px] justify-start text-left font-normal",
-                                        !date && "text-muted-foreground"
+                                        "w-[140px] justify-start text-left font-normal",
+                                        !dateRange.from && "text-muted-foreground"
                                     )}
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                    {dateRange.from ? format(dateRange.from, "PP") : <span>From Date</span>}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="end">
                                 <Calendar
                                     mode="single"
-                                    selected={date}
-                                    onSelect={setDate}
+                                    selected={dateRange.from}
+                                    onSelect={(d) => setDateRange(prev => ({ ...prev, from: d }))}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <span className="text-muted-foreground">-</span>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-[140px] justify-start text-left font-normal",
+                                        !dateRange.to && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {dateRange.to ? format(dateRange.to, "PP") : <span>To Date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={dateRange.to}
+                                    onSelect={(d) => setDateRange(prev => ({ ...prev, to: d }))}
                                     initialFocus
                                 />
                             </PopoverContent>
@@ -278,49 +325,55 @@ export default function JournalReport() {
             </div>
 
             <div className="space-y-4">
-                {journalEntries.map((entry) => (
-                    <Card key={entry.id}>
-                        <CardHeader className="py-4 bg-muted/30">
-                            <div className="flex justify-between items-center">
-                                <div className="flex flex-col">
-                                    <span className="font-semibold text-sm text-muted-foreground">{entry.date}</span>
-                                    <span className="font-bold">{entry.narration}</span>
+                {isReportLoading ? (
+                    <div className="text-center py-10">Loading journal entries...</div>
+                ) : (
+                    reportData?.data?.map((entry) => (
+                        <Card key={entry.id}>
+                            <CardHeader className="py-4 bg-muted/30">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex flex-col">
+                                        <span className="font-semibold text-sm text-muted-foreground">{entry.date}</span>
+                                        <span className="font-bold">{entry.narration || "No Narration"}</span>
+                                    </div>
+                                    <Badge variant="outline">{entry.reference_type} #{entry.id}</Badge>
                                 </div>
-                                <Badge variant="outline">{entry.id}</Badge>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[50%]">Account Name</TableHead>
-                                        <TableHead className="text-right">Debit</TableHead>
-                                        <TableHead className="text-right">Credit</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {entry.details.map((row, idx) => (
-                                        <TableRow key={idx}>
-                                            <TableCell className="font-medium">{row.account}</TableCell>
-                                            <TableCell className="text-right">{row.debit > 0 ? row.debit.toFixed(2) : "-"}</TableCell>
-                                            <TableCell className="text-right">{row.credit > 0 ? row.credit.toFixed(2) : "-"}</TableCell>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-[50%]">Account Name</TableHead>
+                                            <TableHead className="text-right">Debit</TableHead>
+                                            <TableHead className="text-right">Credit</TableHead>
                                         </TableRow>
-                                    ))}
-                                    {/* Footer for Check */}
-                                    <TableRow className="bg-muted/50 font-semibold">
-                                        <TableCell>Total</TableCell>
-                                        <TableCell className="text-right">
-                                            {entry.details.reduce((sum, item) => sum + item.debit, 0).toFixed(2)}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            {entry.details.reduce((sum, item) => sum + item.credit, 0).toFixed(2)}
-                                        </TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                ))}
+                                    </TableHeader>
+                                    <TableBody>
+                                        {entry.entries.map((row) => (
+                                            <TableRow key={row.id}>
+                                                <TableCell className="font-medium">
+                                                    {row.account?.name} <span className="text-muted-foreground text-xs">({row.account?.code})</span>
+                                                </TableCell>
+                                                <TableCell className="text-right">{Number(row.debit) > 0 ? Number(row.debit).toFixed(2) : "-"}</TableCell>
+                                                <TableCell className="text-right">{Number(row.credit) > 0 ? Number(row.credit).toFixed(2) : "-"}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                        {/* Footer for Check */}
+                                        <TableRow className="bg-muted/50 font-semibold">
+                                            <TableCell>Total</TableCell>
+                                            <TableCell className="text-right">
+                                                {entry.entries.reduce((sum, item) => sum + Number(item.debit), 0).toFixed(2)}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                {entry.entries.reduce((sum, item) => sum + Number(item.credit), 0).toFixed(2)}
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    ))
+                )}
             </div>
         </div>
     );

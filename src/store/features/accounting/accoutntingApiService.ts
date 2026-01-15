@@ -94,6 +94,35 @@ export interface ChartOfAccount {
   level: number;
 }
 
+// -------------------- JOURNAL REPORT --------------------
+
+export interface JournalEntryAccount {
+  code: string;
+  name: string;
+}
+
+export interface JournalEntryDetail {
+  id: number;
+  journal_id: number;
+  account_id: number;
+  debit: string;
+  credit: string;
+  account: JournalEntryAccount;
+}
+
+export interface JournalEntry {
+  id: number;
+  date: string;
+  reference_type: string;
+  reference_id: number | null;
+  narration: string;
+  created_at: string;
+  updated_at: string;
+  entries: JournalEntryDetail[];
+}
+
+export type JournalReportResponse = ListResponse<JournalEntry>;
+
 
 
 
@@ -307,7 +336,27 @@ export const accountingApiService = baseApi.injectEndpoints({
     }),
     addAccountingAccount: builder.mutation<ChartOfAccount, Partial<ChartOfAccount>>({
       query: (body) => ({ url: "/accounting/accounts", method: "POST", body }),
-      invalidatesTags: ["AccountingAccounts"] ,
+      invalidatesTags: ["AccountingAccounts"],
+    }),
+
+    // CREATE JOURNAL ENTRY
+    addJournalEntry: builder.mutation<any, { date: string; narration: string; entries: { account_id: number; debit: number; credit: number }[] }>({
+      query: (body) => ({
+        url: "/accounting/journal-entry",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting", "AccountingAccounts"], // Assuming it affects accounts/overview
+    }),
+
+    // GET JOURNAL REPORT
+    getJournalReport: builder.query<JournalReportResponse, { page?: number; limit?: number; search?: string; from?: string; to?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/journal",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
     }),
 
 
@@ -339,5 +388,7 @@ export const {
   useGetAccountingAccountsQuery,
   useLazyGetAccountingAccountsQuery,
   useAddAccountingAccountMutation,
+  useAddJournalEntryMutation,
+  useGetJournalReportQuery,
 
 } = accountingApiService;
