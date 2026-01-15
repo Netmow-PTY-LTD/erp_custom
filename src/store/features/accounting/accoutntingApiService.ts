@@ -7,6 +7,7 @@ import type {
   Overview,
   Payroll,
 } from "@/types/accounting.types";
+import { add } from "date-fns";
 
 // -------------------- OVERVIEW --------------------
 
@@ -239,6 +240,33 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: (body) => ({ url: "/accounting/payroll", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
+
+
+    // ========================== CREDIT HEADS FOR SPECIFIC TYPES ==========================
+
+    // create Income credit head
+    createIncomeHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+      query: (body) => ({
+        url: "/accounting/accounts/heads/income",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["incomeCreditHead"],
+    }),
+
+    // create Income credit head
+    createExpanseHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+      query: (body) => ({
+        url: "/accounting/accounts/heads/expense",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["expenseCreditHead"],
+    }),
+
+
+
+
   }),
 });
 
