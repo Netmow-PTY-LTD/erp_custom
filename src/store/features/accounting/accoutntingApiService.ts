@@ -305,6 +305,11 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: (params) => ({ url: "/accounting/accounts", method: "GET", params }),
       providesTags: ["AccountingAccounts"],
     }),
+    addAccountingAccount: builder.mutation<ChartOfAccount, Partial<ChartOfAccount>>({
+      query: (body) => ({ url: "/accounting/accounts", method: "POST", body }),
+      invalidatesTags: ["AccountingAccounts"] ,
+    }),
+
 
   }),
 });
@@ -332,5 +337,6 @@ export const {
   useCreateIncomeHeadMutation,
   useCreateExpanseHeadMutation,
   useGetAccountingAccountsQuery,
+  useAddAccountingAccountMutation,
 
 } = accountingApiService;
