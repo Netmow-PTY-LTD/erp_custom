@@ -66,6 +66,7 @@ export interface SalesOrderFormValues {
     unit_price: number;
     discount: number;
     sales_tax: number;
+    stock_quantity?: number;
   }[];
 }
 

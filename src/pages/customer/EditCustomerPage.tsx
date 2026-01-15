@@ -176,14 +176,23 @@ export default function EditCustomerPage() {
         id: Number(customerId),
         data: payload,
       }).unwrap();
+
+      console.log("Customer updated successfully:", res);
+
       if (res.status) {
 
         toast.success(res.message || "Customer updated successfully");
-        navigate("/dashboard/customers/inactive");
+        if (values.is_active) {
+          navigate("/dashboard/customers");
+        } else if (!values.is_active) {
+          navigate("/dashboard/customers/inactive");
+        } else {
+          navigate("/dashboard/customers");
+        }
 
       }
-    } catch (error) {
-      toast.error("Failed to update customer");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to update customer");
       console.error("Failed to update customer:", error);
     }
   };
@@ -198,7 +207,7 @@ export default function EditCustomerPage() {
 
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto py-6">
+    <div className="space-y-6 max-w-5xl mx-auto pb-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
@@ -279,20 +288,18 @@ export default function EditCustomerPage() {
                   <div className="md:col-span-2">
                     <Field>
                       <FieldLabel>Gallery (max 2)</FieldLabel>
-                      <div className="max-w-xs">
-                        <ImageUploaderPro
-                          multiple
-                          value={field.value || []}
-                          onChange={(v) => {
-                            const arr = Array.isArray(v) ? v : v ? [v] : [];
-                            if (arr.length > 10) {
-                              toast.error("You can upload up to 10 images only");
-                              arr.splice(10);
-                            }
-                            field.onChange(arr);
-                          }}
-                        />
-                      </div>
+                      <ImageUploaderPro
+                        multiple
+                        value={field.value || []}
+                        onChange={(v) => {
+                          const arr = Array.isArray(v) ? v : v ? [v] : [];
+                          if (arr.length > 10) {
+                            toast.error("You can upload up to 10 images only");
+                            arr.splice(10);
+                          }
+                          field.onChange(arr);
+                        }}
+                      />
                       <p className="text-sm text-muted-foreground mt-2">
                         Optional. Upload up to 10 additional images for the customer.
                       </p>

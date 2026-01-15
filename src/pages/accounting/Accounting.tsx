@@ -3,19 +3,23 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
   Legend,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
-import { Plus, Calendar, CalendarDays, CalendarRange, CalendarClock } from "lucide-react";
+import { Plus, Calendar, CalendarDays, CalendarRange, CalendarClock, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
 import { useGetAccountingChartDataQuery, useGetAccountingOverviewQuery } from "@/store/features/accounting/accoutntingApiService";
 import type { Overview } from "@/types/accounting.types";
+import { format } from "date-fns";
 
 // Helper to generate random numbers for dummy data
 const randomAmount = (min: number, max: number) =>
@@ -38,6 +42,23 @@ const generateTrendData = () => {
 
 const trendData = generateTrendData();
 
+// Dummy Expense Breakdown Data
+const expenseBreakdownData = [
+  { name: 'Rent', value: 2000 },
+  { name: 'Salaries', value: 8000 },
+  { name: 'Utilities', value: 1500 },
+  { name: 'Supplies', value: 500 },
+];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+// Dummy Recent Activity
+const recentActivity = [
+  { id: 1, date: new Date(), description: "Consulting Fee Received", amount: 1500, type: "income" },
+  { id: 2, date: new Date(), description: "Office Rent Payment", amount: 2000, type: "expense" },
+  { id: 3, date: new Date(Date.now() - 86400000), description: "Client Payment", amount: 3500, type: "income" },
+  { id: 4, date: new Date(Date.now() - 86400000 * 2), description: "Stationery Purchase", amount: 200, type: "expense" },
+  { id: 5, date: new Date(Date.now() - 86400000 * 3), description: "Utility Bill", amount: 450, type: "expense" },
+];
 
 
 export default function AccountingOverview() {
@@ -80,7 +101,7 @@ export default function AccountingOverview() {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {summaryData &&
           periods.map((period) => {
-            const data = summaryData[period];
+            const data = summaryData[period] || { income: 0, expense: 0 };
             const periodLabel =
               period === "daily"
                 ? "Today"
@@ -181,38 +202,94 @@ export default function AccountingOverview() {
           })}
       </div>
 
-      {/* Trend Chart */}
-      <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
-              <Calendar className="w-6 h-6 text-white" />
+      {/* Charts Row */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Trend Chart (Bar/Line) */}
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle>Income vs Expense Trend</CardTitle>
             </div>
-            <CardTitle>Last 30 Days Trend</CardTitle>
-          </div>
+          </CardHeader>
+          <CardContent className="pb-6 pt-4">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartTrendData}>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="income" fill="#22c55e" name="Income" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="expense" fill="#ef4444" name="Expense" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Expense Breakdown Pie Chart */}
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-orange-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 dark:from-orange-950/30 dark:via-amber-950/30 dark:to-orange-950/30 border-b-1 border-orange-100 dark:border-orange-900 py-3 gap-0">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl shadow-lg shadow-orange-500/30">
+                <CalendarRange className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle>Expense Breakdown</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="pb-6 pt-4">
+            <div className="h-[300px] flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expenseBreakdownData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                  >
+                    {expenseBreakdownData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg py-6">
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
         </CardHeader>
-        <CardContent className="pb-6">
-          <div className="h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartTrendData}>
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="income"
-                  stroke="#22c55e"
-                  name="Income"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="expense"
-                  stroke="#ef4444"
-                  name="Expense"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+        <CardContent>
+          <div className="space-y-4">
+            {recentActivity.map((activity) => (
+              <div key={activity.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+                <div className="flex items-center gap-4">
+                  <div className={`p-2 rounded-full ${activity.type === 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                    {activity.type === 'income' ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+                  </div>
+                  <div>
+                    <p className="font-medium">{activity.description}</p>
+                    <p className="text-sm text-muted-foreground">{format(activity.date, "PPP")}</p>
+                  </div>
+                </div>
+                <div className={`font-semibold ${activity.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {activity.type === 'income' ? '+' : '-'} {currency} {activity.amount.toLocaleString()}
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

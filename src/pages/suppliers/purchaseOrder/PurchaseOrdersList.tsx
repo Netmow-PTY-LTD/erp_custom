@@ -300,7 +300,7 @@ export default function PurchaseOrdersList() {
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">
           Purchase Orders
         </h1>
