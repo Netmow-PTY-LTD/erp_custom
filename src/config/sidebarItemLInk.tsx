@@ -180,6 +180,7 @@ import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
 
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
+import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -735,9 +736,10 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "",
+        title: "Add New Staff",
         url: "/dashboard/staffs/add",
         element: <AddStaffPage />,
+        icon: PlusCircle,
         allowedPermissions: [
           StaffPermission.CREATE,
           SuperAdminPermission.ACCESS_ALL,
@@ -1137,6 +1139,15 @@ export const sidebarItemLink = [
         element: <SalesRouteDetails />,
         allowedPermissions: [
           SalesPermission.DETAILS_SALES_ROUTES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/sales-routes/:id/edit",
+        element: <EditRoutePage />,
+        allowedPermissions: [
+          SalesPermission.EDIT_ROUTE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },

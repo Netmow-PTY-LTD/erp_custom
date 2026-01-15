@@ -132,8 +132,8 @@ export default function SalesRouteDetails() {
         {/* Right Column: Metadata & Assignments */}
         <div className="space-y-6">
           {/* Geographic Details */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3">
+          <Card className="shadow-sm py-6">
+            <CardHeader>
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Location Details
               </CardTitle>
@@ -165,8 +165,8 @@ export default function SalesRouteDetails() {
           </Card>
 
 
-          <Card>
-            <CardHeader className="pb-3">
+          <Card className="py-6">
+            <CardHeader>
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Users className="h-4 w-4" /> Assigned Staff
               </CardTitle>
@@ -176,11 +176,11 @@ export default function SalesRouteDetails() {
                 {route.assignedStaffMembers && route.assignedStaffMembers.length > 0 ? (
                   route.assignedStaffMembers.map((staff: Staff) => (
                     <Link to={`/dashboard/staffs/${staff.id}`} >
-                     <Badge key={staff.id} variant="secondary" className="px-3 py-1 gap-1 font-normal">
-                      <User className="h-3 w-3" /> {staff.first_name + " " + staff.last_name}
-                    </Badge>
+                      <Badge key={staff.id} variant="secondary" className="px-3 py-1 gap-1 font-normal">
+                        <User className="h-3 w-3" /> {staff.first_name + " " + staff.last_name}
+                      </Badge>
                     </Link>
-                   
+
                   ))
                 ) : (
                   <p className="text-sm text-muted-foreground italic">No staff assigned</p>
@@ -190,7 +190,7 @@ export default function SalesRouteDetails() {
           </Card>
           {/* Customer & Orders Section */}
           <Card className="shadow-sm overflow-hidden">
-            <CardHeader className="pb-3 border-b bg-muted/20">
+            <CardHeader className="py-4 border-b-1 bg-muted/20 gap-0">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
                 <span className="flex items-center gap-2"><Users className="h-4 w-4" /> Customers</span>
                 <Badge variant="outline" className="font-mono">{route?.customers?.length || 0}</Badge>

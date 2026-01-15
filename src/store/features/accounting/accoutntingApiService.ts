@@ -125,6 +125,46 @@ export interface JournalEntry {
 
 export type JournalReportResponse = ListResponse<JournalEntry>;
 
+// -------------------- TRIAL BALANCE --------------------
+
+export interface TrialBalanceItem {
+  account: string;
+  code: string;
+  type: string;
+  debit: number;
+  credit: number;
+}
+
+export interface TrialBalanceResponse {
+  status: boolean;
+  message: string;
+  data: {
+    trial_balance: TrialBalanceItem[];
+    total_debit: number;
+    total_credit: number;
+    status: "BALANCED" | "UNBALANCED";
+  };
+}
+
+// -------------------- PROFIT & LOSS --------------------
+
+export interface ProfitLossItem {
+  account: string;
+  amount: number;
+}
+
+export interface ProfitLossResponse {
+  status: boolean;
+  message: string;
+  data: {
+    incomes: ProfitLossItem[];
+    expenses: ProfitLossItem[];
+    total_income: number;
+    total_expense: number;
+    net_profit: number;
+  };
+}
+
 
 
 
@@ -361,6 +401,26 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET TRIAL BALANCE
+    getTrialBalance: builder.query<TrialBalanceResponse, { date?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/trial-balance",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET PROFIT & LOSS
+    getProfitLoss: builder.query<ProfitLossResponse, { from?: string; to?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/profit-and-loss",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
 
     updateAccountingAccount: builder.mutation<ListResponse<ChartOfAccount>, { id: number; body: Partial<ChartOfAccount> }>({
       query: ({ id, body }) => ({
@@ -427,5 +487,7 @@ export const {
   useGetJournalReportQuery,
   useGetTransactionsQuery,
   useAddTransactionMutation,
+  useGetTrialBalanceQuery,
+  useGetProfitLossQuery,
 
 } = accountingApiService;
