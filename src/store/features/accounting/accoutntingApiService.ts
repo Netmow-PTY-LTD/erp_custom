@@ -6,6 +6,8 @@ import type {
   Income,
   Overview,
   Payroll,
+  Transaction,
+  CreateTransactionInput,
 } from "@/types/accounting.types";
 
 //-------------------- OVERVIEW --------------------
@@ -381,7 +383,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     }),
 
     // CREATE JOURNAL ENTRY
-    addJournalEntry: builder.mutation<any, { date: string; narration: string; entries: { account_id: number; debit: number; credit: number }[] }>({
+    addJournalEntry: builder.mutation<JournalReportResponse, { date: string; narration: string; entries: { account_id: number; debit: number; credit: number }[] }>({
       query: (body) => ({
         url: "/accounting/journal-entry",
         method: "POST",
@@ -434,6 +436,25 @@ export const accountingApiService = baseApi.injectEndpoints({
 
 
 
+    // GET TRANSACTIONS
+    getTransactions: builder.query<ListResponse<Transaction>, { page?: number; limit?: number; search?: string; date?: string; start_date?: string; end_date?: string; type?: string }>({
+      query: (params) => ({
+        url: "/accounting/transactions",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // ADD TRANSACTION
+    addTransaction: builder.mutation<ListResponse<Transaction>, CreateTransactionInput>({
+      query: (body) => ({
+        url: "/accounting/transactions",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
   }),
 });
 
@@ -465,6 +486,8 @@ export const {
   useUpdateAccountingAccountMutation,
   useAddJournalEntryMutation,
   useGetJournalReportQuery,
+  useGetTransactionsQuery,
+  useAddTransactionMutation,
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
 

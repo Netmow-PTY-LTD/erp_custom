@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import {  useCreateIncomeHeadMutation } from "@/store/features/accounting/accoutntingApiService";
+import { useCreateIncomeHeadMutation } from "@/store/features/accounting/accoutntingApiService";
 import { useAppSelector } from "@/store/store";
 import {
   AccountingPermission,
@@ -77,7 +77,7 @@ export default function CreateIncomeHeadForm() {
       } else {
         toast.error(res?.message || "Failed to create Income Head");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.data?.message || "Something went wrong while creating Income Head");
     }
@@ -87,7 +87,7 @@ export default function CreateIncomeHeadForm() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-emerald-600 to-emerald-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:shadow-emerald-500/40">
+        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:shadow-emerald-500/40">
           <PlusCircle size={18} />
           Add Income Head
         </button>
