@@ -31,6 +31,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import AddCreditHeadForm from "./AddCreditHead";
+import AddDebitHeadForm from "./AddDebitHead";
 
 // Dummy Data
 const initialAccounts = [
@@ -56,64 +58,68 @@ export default function ChartOfAccounts() {
                     <h2 className="text-3xl font-bold tracking-tight">Chart of Accounts</h2>
                     <p className="text-muted-foreground">Manage your financial head hierarchy.</p>
                 </div>
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                    <DialogTrigger asChild>
-                        <Button>
-                            <Plus className="mr-2 h-4 w-4" /> Add Account
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Add New Account</DialogTitle>
-                            <DialogDescription>
-                                Create a new account head.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="name">Account Name</Label>
-                                <Input id="name" placeholder="e.g. Petrol Expense" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
+                <div className="flex gap-2">
+                    <AddCreditHeadForm />
+                    <AddDebitHeadForm />
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <DialogTrigger asChild>
+                            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
+                                <Plus className="mr-2 h-4 w-4" /> Add Account
+                            </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Add New Account</DialogTitle>
+                                <DialogDescription>
+                                    Create a new account head.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="code">Code</Label>
-                                    <Input id="code" placeholder="e.g. 5201" />
+                                    <Label htmlFor="name">Account Name</Label>
+                                    <Input id="name" placeholder="e.g. Petrol Expense" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="code">Code</Label>
+                                        <Input id="code" placeholder="e.g. 5201" />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label>Type</Label>
+                                        <Select>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Asset">Asset</SelectItem>
+                                                <SelectItem value="Liability">Liability</SelectItem>
+                                                <SelectItem value="Equity">Equity</SelectItem>
+                                                <SelectItem value="Income">Income</SelectItem>
+                                                <SelectItem value="Expense">Expense</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label>Type</Label>
+                                    <Label>Parent Account (Optional)</Label>
                                     <Select>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
+                                            <SelectValue placeholder="Select parent account" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Asset">Asset</SelectItem>
-                                            <SelectItem value="Liability">Liability</SelectItem>
-                                            <SelectItem value="Equity">Equity</SelectItem>
-                                            <SelectItem value="Income">Income</SelectItem>
-                                            <SelectItem value="Expense">Expense</SelectItem>
+                                            <SelectItem value="1">Assets</SelectItem>
+                                            <SelectItem value="9">Expenses</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
-                            <div className="grid gap-2">
-                                <Label>Parent Account (Optional)</Label>
-                                <Select>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select parent account" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">Assets</SelectItem>
-                                        <SelectItem value="9">Expenses</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-                            <Button type="submit">Create Account</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+                                <Button type="submit">Create Account</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
             <Card className="py-6">
