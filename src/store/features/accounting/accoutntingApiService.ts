@@ -319,7 +319,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     }),
 
     // create Income credit head
-    createExpanseHead: builder.mutation<CreditHeadResponse, Partial<CreditHead>>({
+    createExpanseHead: builder.mutation<ListResponse<CreditHead>, Partial<CreditHead>>({
       query: (body) => ({
         url: "/accounting/accounts/heads/expense",
         method: "POST",
@@ -334,7 +334,7 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: (params) => ({ url: "/accounting/accounts", method: "GET", params }),
       providesTags: ["AccountingAccounts"],
     }),
-    addAccountingAccount: builder.mutation<ChartOfAccount, Partial<ChartOfAccount>>({
+    addAccountingAccount: builder.mutation<ListResponse<ChartOfAccount>, Partial<ChartOfAccount>>({
       query: (body) => ({ url: "/accounting/accounts", method: "POST", body }),
       invalidatesTags: ["AccountingAccounts"],
     }),
@@ -358,6 +358,19 @@ export const accountingApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Accounting"],
     }),
+    
+    
+    updateAccountingAccount: builder.mutation<ListResponse<ChartOfAccount>, { id: number; body: Partial<ChartOfAccount> }>({
+      query: ({ id, body }) => ({
+        url: `/accounting/accounts/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["AccountingAccounts"],
+      }),
+
+
+
 
 
   }),
@@ -388,6 +401,7 @@ export const {
   useGetAccountingAccountsQuery,
   useLazyGetAccountingAccountsQuery,
   useAddAccountingAccountMutation,
+  useUpdateAccountingAccountMutation,
   useAddJournalEntryMutation,
   useGetJournalReportQuery,
 
