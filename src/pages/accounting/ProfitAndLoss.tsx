@@ -13,27 +13,25 @@ import {
 } from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-// Dummy Data
-const incomeData = [
-    { name: "Sales Account", amount: 15000.00 },
-    { name: "Consulting Fees", amount: 5000.00 },
-    { name: "Interest Income", amount: 250.00 },
-];
-
-const expenseData = [
-    { name: "Office Rent", amount: 2000.00 },
-    { name: "Salaries & Wages", amount: 8000.00 },
-    { name: "Utilities", amount: 500.00 },
-    { name: "Travel Expenses", amount: 1200.00 },
-];
+import { useGetProfitLossQuery } from "@/store/features/accounting/accoutntingApiService";
 
 export default function ProfitAndLoss() {
     const [date, setDate] = useState<Date | undefined>(new Date());
+    const formattedDate = date ? format(date, "yyyy-MM-dd") : undefined;
 
-    const totalIncome = incomeData.reduce((sum, item) => sum + item.amount, 0);
-    const totalExpense = expenseData.reduce((sum, item) => sum + item.amount, 0);
-    const netProfit = totalIncome - totalExpense;
+    // Fetch data using the query hook
+    // We pass the date as a parameter; handling logic: if no date selected, maybe fetch all time or current month? 
+    // Assuming backend handles date filtering or lack thereof.
+    const { data: reportData, isLoading } = useGetProfitLossQuery(
+        { from: formattedDate }, // Adjust parameters based on backend expectation, usually start/end date or a single 'as of' date
+        { skip: !formattedDate }
+    );
+
+    const incomeData = reportData?.data?.incomes || [];
+    const expenseData = reportData?.data?.expenses || [];
+    const totalIncome = reportData?.data?.total_income || 0;
+    const totalExpense = reportData?.data?.total_expense || 0;
+    const netProfit = reportData?.data?.net_profit || 0;
 
     return (
         <div className="space-y-6">
@@ -44,7 +42,7 @@ export default function ProfitAndLoss() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Period:</span>
+                    <span className="text-sm font-medium">As of:</span>
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
@@ -78,12 +76,21 @@ export default function ProfitAndLoss() {
                         <CardDescription>Revenue generated during the period</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {incomeData.map((item, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-sm">
-                                <span>{item.name}</span>
-                                <span className="font-medium">{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                <div className="h-4 w-3/4 bg-emerald-100 animate-pulse rounded" />
+                                <div className="h-4 w-1/2 bg-emerald-100 animate-pulse rounded" />
                             </div>
-                        ))}
+                        ) : incomeData.length > 0 ? (
+                            incomeData.map((item: any, idx: number) => (
+                                <div key={idx} className="flex justify-between items-center text-sm">
+                                    <span>{item.account}</span>
+                                    <span className="font-medium">{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-sm text-muted-foreground italic">No income recorded.</div>
+                        )}
                         <Separator className="bg-emerald-200" />
                         <div className="flex justify-between items-center text-lg font-bold text-emerald-800">
                             <span>Total Income</span>
@@ -99,12 +106,21 @@ export default function ProfitAndLoss() {
                         <CardDescription>Costs incurred during the period</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {expenseData.map((item, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-sm">
-                                <span>{item.name}</span>
-                                <span className="font-medium">{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                <div className="h-4 w-3/4 bg-red-100 animate-pulse rounded" />
+                                <div className="h-4 w-1/2 bg-red-100 animate-pulse rounded" />
                             </div>
-                        ))}
+                        ) : expenseData.length > 0 ? (
+                            expenseData.map((item: any, idx: number) => (
+                                <div key={idx} className="flex justify-between items-center text-sm">
+                                    <span>{item.account}</span>
+                                    <span className="font-medium">{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-sm text-muted-foreground italic">No expenses recorded.</div>
+                        )}
                         <Separator className="bg-red-200" />
                         <div className="flex justify-between items-center text-lg font-bold text-red-800">
                             <span>Total Expense</span>
@@ -119,7 +135,7 @@ export default function ProfitAndLoss() {
                 <CardContent className="p-8 text-center space-y-2">
                     <h3 className="text-lg font-medium text-muted-foreground uppercase tracking-widest">Net Profit / (Loss)</h3>
                     <div className={cn("text-5xl font-extrabold", netProfit >= 0 ? "text-emerald-600" : "text-red-600")}>
-                        {netProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        {isLoading ? "..." : netProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </div>
                     <p className="text-sm text-muted-foreground pt-2">
                         Total Income ({totalIncome.toLocaleString()}) - Total Expense ({totalExpense.toLocaleString()})
