@@ -96,7 +96,7 @@ export default function JournalReport() {
         // const sortedAccounts = [...accounts].sort((a, b) => a.code.localeCompare(b.code));
 
         return (
-            <Popover open={open} onOpenChange={setOpen}>
+            <Popover open={open} onOpenChange={setOpen} modal={true}>
                 <PopoverTrigger asChild>
                     <Button
                         variant="outline"
@@ -113,7 +113,7 @@ export default function JournalReport() {
                 <PopoverContent className="w-[450px] p-0" align="start">
                     <Command>
                         <CommandInput placeholder="Search account..." />
-                        <CommandList>
+                        <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
                             <CommandEmpty>No account found.</CommandEmpty>
                             <CommandGroup>
                                 {accounts.map((acc) => {
