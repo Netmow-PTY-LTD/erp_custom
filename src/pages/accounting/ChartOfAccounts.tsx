@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit,  ChevronsUpDown, Check } from "lucide-react";
+import { Plus, Edit, ChevronsUpDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -76,14 +76,14 @@ export default function ChartOfAccounts() {
 
         try {
             if (editingAccount) {
-              const res=  await updateAccountingAccount({ id: editingAccount.id, body: payload }).unwrap();
-              if(res.status){
-                toast.success(res.message||"Account updated successfully");
-              }
+                const res = await updateAccountingAccount({ id: editingAccount.id, body: payload }).unwrap();
+                if (res.status) {
+                    toast.success(res.message || "Account updated successfully");
+                }
             } else {
-              const res=  await addAccountingAccount(payload).unwrap();
-                if(res.status){
-                  toast.success(res.message||"Account created successfully");
+                const res = await addAccountingAccount(payload).unwrap();
+                if (res.status) {
+                    toast.success(res.message || "Account created successfully");
                 }
             }
             reset();
@@ -203,7 +203,10 @@ export default function ChartOfAccounts() {
                     <CreateExpenseHeadForm />
 
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                        <DialogTrigger asChild>
+                        <DialogTrigger onClick={() => {
+                            reset();
+                            setEditingAccount(null);
+                        }} asChild>
                             <Button className="flex items-center gap-2 bg-linear-to-r from-violet-600 to-purple-600 text-white">
                                 <Plus className="mr-2 h-4 w-4" /> {editingAccount ? "Edit Account" : "Add Account"}
                             </Button>
