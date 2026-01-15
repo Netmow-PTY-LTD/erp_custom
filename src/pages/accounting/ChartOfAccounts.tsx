@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import AddDebitHeadForm from "./AddDebitHead";
 import CreateIncomeHeadForm from "./CreateIncomehead";
+import CreateExpenseHeadForm from "./CreateExpenseHead";
 
 // Dummy Data
 const initialAccounts = [
@@ -60,7 +60,7 @@ export default function ChartOfAccounts() {
                 </div>
                 <div className="flex gap-2">
                     <CreateIncomeHeadForm />
-                    <AddDebitHeadForm />
+                    <CreateExpenseHeadForm />
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
                         <DialogTrigger asChild>
                             <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
