@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import CreateIncomeHeadForm from "./CreateIncomehead";
+import CreateIncomeHeadForm from "./CreateIncomeHead";
 import CreateExpenseHeadForm from "./CreateExpenseHead";
 import { useAddAccountingAccountMutation, useGetAccountingAccountsQuery, useLazyGetAccountingAccountsQuery, type ChartOfAccount } from "@/store/features/accounting/accoutntingApiService";
 import { DataTable } from "@/components/dashboard/components/DataTable";
@@ -160,7 +160,7 @@ export default function ChartOfAccounts() {
     const ParentAccountSelect = ({ control }: { control: any }) => {
         const [query, setQuery] = useState("");
         const [searchAccounts, setSearchAccounts] = useState<any[]>([]);
-  const [open, setOpen] = useState(false); // control Popover open state
+        const [open, setOpen] = useState(false); // control Popover open state
         // RTK Query lazy fetch
         const [fetchAccounts, { isFetching }] = useLazyGetAccountingAccountsQuery();
 
@@ -328,11 +328,11 @@ export default function ChartOfAccounts() {
                                     </div>
 
                                     {/* PARENT ACCOUNT */}
-                                      <div className="grid gap-2">
-                                            <Label>Parent Account (Optional)</Label>
-                                            <ParentAccountSelect control={control} />
-                                        </div>
-                                   
+                                    <div className="grid gap-2">
+                                        <Label>Parent Account (Optional)</Label>
+                                        <ParentAccountSelect control={control} />
+                                    </div>
+
 
                                 </div>
 
