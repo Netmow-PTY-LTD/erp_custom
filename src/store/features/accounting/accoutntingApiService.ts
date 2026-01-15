@@ -6,6 +6,7 @@ import type {
   Income,
   Overview,
   Payroll,
+  Transaction,
 } from "@/types/accounting.types";
 
 //-------------------- OVERVIEW --------------------
@@ -358,8 +359,8 @@ export const accountingApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Accounting"],
     }),
-    
-    
+
+
     updateAccountingAccount: builder.mutation<ListResponse<ChartOfAccount>, { id: number; body: Partial<ChartOfAccount> }>({
       query: ({ id, body }) => ({
         url: `/accounting/accounts/${id}`,
@@ -367,12 +368,21 @@ export const accountingApiService = baseApi.injectEndpoints({
         body,
       }),
       invalidatesTags: ["AccountingAccounts"],
+    }),
+
+
+
+
+
+    // GET TRANSACTIONS
+    getTransactions: builder.query<ListResponse<Transaction>, { page?: number; limit?: number; search?: string; date?: string }>({
+      query: (params) => ({
+        url: "/accounting/transactions",
+        method: "GET",
+        params,
       }),
-
-
-
-
-
+      providesTags: ["Accounting"],
+    }),
   }),
 });
 
@@ -404,5 +414,6 @@ export const {
   useUpdateAccountingAccountMutation,
   useAddJournalEntryMutation,
   useGetJournalReportQuery,
+  useGetTransactionsQuery,
 
 } = accountingApiService;

@@ -102,3 +102,13 @@ export type DebitHead = {
   description: string;
   is_active: boolean;
 };
+
+// -------------------- TRANSACTIONS --------------------
+export type Transaction = {
+  id: number;
+  date: string;
+  type: string;
+  amount: number;
+  mode: string;
+  description: string;
+};
