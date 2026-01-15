@@ -112,3 +112,11 @@ export type Transaction = {
   mode: string;
   description: string;
 };
+
+export type CreateTransactionInput = {
+  type: string;
+  amount: number;
+  payment_mode: string;
+  date: string;
+  description: string;
+};

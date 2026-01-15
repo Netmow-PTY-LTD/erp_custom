@@ -7,6 +7,7 @@ import type {
   Overview,
   Payroll,
   Transaction,
+  CreateTransactionInput,
 } from "@/types/accounting.types";
 
 //-------------------- OVERVIEW --------------------
@@ -341,7 +342,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     }),
 
     // CREATE JOURNAL ENTRY
-    addJournalEntry: builder.mutation<any, { date: string; narration: string; entries: { account_id: number; debit: number; credit: number }[] }>({
+    addJournalEntry: builder.mutation<JournalReportResponse, { date: string; narration: string; entries: { account_id: number; debit: number; credit: number }[] }>({
       query: (body) => ({
         url: "/accounting/journal-entry",
         method: "POST",
@@ -383,6 +384,16 @@ export const accountingApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Accounting"],
     }),
+
+    // ADD TRANSACTION
+    addTransaction: builder.mutation<ListResponse<Transaction>, CreateTransactionInput>({
+      query: (body) => ({
+        url: "/accounting/transactions",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
   }),
 });
 
@@ -415,5 +426,6 @@ export const {
   useAddJournalEntryMutation,
   useGetJournalReportQuery,
   useGetTransactionsQuery,
+  useAddTransactionMutation,
 
 } = accountingApiService;
