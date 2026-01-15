@@ -68,7 +68,7 @@ const productSchema = z.object({
   height: z.number(),
   length: z.number(),
   is_active: z.boolean().optional(),
-  image: z.string().optional(),
+  image: z.string().nullable().optional().or(z.literal("")),
   gallery_items: z.array(z.string()).optional(),
   attributes: z.array(z.object({
     name: z.string(),
@@ -177,7 +177,7 @@ export default function EditProductPage() {
       sku: values.sku,
       name: values.name,
       description: values.description,
-      thumb_url: values.image,
+      thumb_url: values.image ?? "",
       gallery_items: values.gallery_items,
       category_id: Number(values.category),
       unit_id: Number(values.unit),
@@ -206,6 +206,7 @@ export default function EditProductPage() {
         // Navigate back to products list or reset form
         navigate("/dashboard/products");
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error updating product:", error);
       toast.error(error?.data?.message || "Failed to update product");
@@ -298,10 +299,12 @@ export default function EditProductPage() {
                       render={({ field, fieldState }) => (
                         <Field>
                           <FieldLabel>Image</FieldLabel>
+
                           <ImageUploaderPro
-                            value={field.value}
-                            onChange={field.onChange}
+                            value={field.value ?? undefined}
+                            onChange={(val) => field.onChange(val ?? undefined)}
                           />
+
                           <FieldError>{fieldState.error?.message}</FieldError>
                         </Field>
                       )}
