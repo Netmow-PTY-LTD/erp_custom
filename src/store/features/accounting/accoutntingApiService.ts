@@ -147,7 +147,8 @@ export interface TrialBalanceResponse {
 // -------------------- PROFIT & LOSS --------------------
 
 export interface ProfitLossItem {
-  account: string;
+  code: string;
+  name: string;
   amount: number;
 }
 
@@ -155,8 +156,8 @@ export interface ProfitLossResponse {
   status: boolean;
   message: string;
   data: {
-    incomes: ProfitLossItem[];
-    expenses: ProfitLossItem[];
+    income: ProfitLossItem[];
+    expense: ProfitLossItem[];
     total_income: number;
     total_expense: number;
     net_profit: number;

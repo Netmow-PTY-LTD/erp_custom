@@ -16,19 +16,20 @@ import { Separator } from "@/components/ui/separator";
 import { useGetProfitLossQuery } from "@/store/features/accounting/accoutntingApiService";
 
 export default function ProfitAndLoss() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const formattedDate = date ? format(date, "yyyy-MM-dd") : undefined;
+    const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+        from: new Date(),
+        to: new Date(),
+    });
 
-    // Fetch data using the query hook
-    // We pass the date as a parameter; handling logic: if no date selected, maybe fetch all time or current month? 
-    // Assuming backend handles date filtering or lack thereof.
     const { data: reportData, isLoading } = useGetProfitLossQuery(
-        { from: formattedDate }, // Adjust parameters based on backend expectation, usually start/end date or a single 'as of' date
-        { skip: !formattedDate }
+        {
+            from: dateRange.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
+            to: dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : undefined
+        }
     );
 
-    const incomeData = reportData?.data?.incomes || [];
-    const expenseData = reportData?.data?.expenses || [];
+    const incomeData = reportData?.data?.income || [];
+    const expenseData = reportData?.data?.expense || [];
     const totalIncome = reportData?.data?.total_income || 0;
     const totalExpense = reportData?.data?.total_expense || 0;
     const netProfit = reportData?.data?.net_profit || 0;
@@ -42,29 +43,53 @@ export default function ProfitAndLoss() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">As of:</span>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant={"outline"}
-                                className={cn(
-                                    "w-[240px] justify-start text-left font-normal",
-                                    !date && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="end">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
+                    <div className="flex items-center gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-[140px] justify-start text-left font-normal",
+                                        !dateRange.from && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {dateRange.from ? format(dateRange.from, "PP") : <span>From Date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={dateRange.from}
+                                    onSelect={(d) => setDateRange(prev => ({ ...prev, from: d }))}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <span className="text-muted-foreground">-</span>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-[140px] justify-start text-left font-normal",
+                                        !dateRange.to && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {dateRange.to ? format(dateRange.to, "PP") : <span>To Date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={dateRange.to}
+                                    onSelect={(d) => setDateRange(prev => ({ ...prev, to: d }))}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </div>
             </div>
 
@@ -84,7 +109,7 @@ export default function ProfitAndLoss() {
                         ) : incomeData.length > 0 ? (
                             incomeData.map((item: any, idx: number) => (
                                 <div key={idx} className="flex justify-between items-center text-sm">
-                                    <span>{item.account}</span>
+                                    <span>{item.name} <span className="text-muted-foreground text-xs">({item.code})</span></span>
                                     <span className="font-medium">{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                 </div>
                             ))
@@ -114,7 +139,7 @@ export default function ProfitAndLoss() {
                         ) : expenseData.length > 0 ? (
                             expenseData.map((item: any, idx: number) => (
                                 <div key={idx} className="flex justify-between items-center text-sm">
-                                    <span>{item.account}</span>
+                                    <span>{item.name} <span className="text-muted-foreground text-xs">({item.code})</span></span>
                                     <span className="font-medium">{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                 </div>
                             ))
@@ -133,7 +158,9 @@ export default function ProfitAndLoss() {
             {/* NET PROFIT SUMMARY */}
             <Card className={cn("border-2", netProfit >= 0 ? "border-emerald-500 bg-emerald-50" : "border-red-500 bg-red-50")}>
                 <CardContent className="p-8 text-center space-y-2">
-                    <h3 className="text-lg font-medium text-muted-foreground uppercase tracking-widest">Net Profit / (Loss)</h3>
+                    <h3 className="text-lg font-medium text-muted-foreground uppercase tracking-widest">
+                        {netProfit >= 0 ? "Net Profit" : "Net Loss"}
+                    </h3>
                     <div className={cn("text-5xl font-extrabold", netProfit >= 0 ? "text-emerald-600" : "text-red-600")}>
                         {isLoading ? "..." : netProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </div>
