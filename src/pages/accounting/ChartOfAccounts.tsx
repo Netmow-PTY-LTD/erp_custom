@@ -33,23 +33,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CreateIncomeHeadForm from "./CreateIncomehead";
 import CreateExpenseHeadForm from "./CreateExpenseHead";
+import { useGetAccountingAccountsQuery } from "@/store/features/accounting/accoutntingApiService";
 
-// Dummy Data
-const initialAccounts = [
-    { id: 1, code: "1000", name: "Assets", type: "Asset", parent: null, level: 0 },
-    { id: 2, code: "1001", name: "Current Assets", type: "Asset", parent: 1, level: 1 },
-    { id: 3, code: "1002", name: "Cash in Hand", type: "Asset", parent: 2, level: 2 },
-    { id: 4, code: "1003", name: "Bank Accounts", type: "Asset", parent: 2, level: 2 },
-    { id: 5, code: "2000", name: "Liabilities", type: "Liability", parent: null, level: 0 },
-    { id: 6, code: "2001", name: "Accounts Payable", type: "Liability", parent: 5, level: 1 },
-    { id: 7, code: "3000", name: "Equity", type: "Equity", parent: null, level: 0 },
-    { id: 8, code: "4000", name: "Income", type: "Income", parent: null, level: 0 },
-    { id: 9, code: "5000", name: "Expenses", type: "Expense", parent: null, level: 0 },
-    { id: 10, code: "5001", name: "Office Rent", type: "Expense", parent: 9, level: 1 },
-];
+// // Dummy Data
+// const _initialAccounts = [
+//     { id: 1, code: "1000", name: "Assets", type: "Asset", parent: null, level: 0 },
+//     { id: 2, code: "1001", name: "Current Assets", type: "Asset", parent: 1, level: 1 },
+//     { id: 3, code: "1002", name: "Cash in Hand", type: "Asset", parent: 2, level: 2 },
+//     { id: 4, code: "1003", name: "Bank Accounts", type: "Asset", parent: 2, level: 2 },
+//     { id: 5, code: "2000", name: "Liabilities", type: "Liability", parent: null, level: 0 },
+//     { id: 6, code: "2001", name: "Accounts Payable", type: "Liability", parent: 5, level: 1 },
+//     { id: 7, code: "3000", name: "Equity", type: "Equity", parent: null, level: 0 },
+//     { id: 8, code: "4000", name: "Income", type: "Income", parent: null, level: 0 },
+//     { id: 9, code: "5000", name: "Expenses", type: "Expense", parent: null, level: 0 },
+//     { id: 10, code: "5001", name: "Office Rent", type: "Expense", parent: 9, level: 1 },
+// ];
 
 export default function ChartOfAccounts() {
     const [isOpen, setIsOpen] = useState(false);
+    const {data:accountsData}=useGetAccountingAccountsQuery()
+    console.log("Accounting Accounts Data:",accountsData);
 
     return (
         <div className="space-y-6">
@@ -137,7 +140,7 @@ export default function ChartOfAccounts() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {initialAccounts.map((account) => (
+                            {accountsData?.data?.map((account) => (
                                 <TableRow key={account.id} className="hover:bg-muted/50">
                                     <TableCell className="font-mono text-xs text-muted-foreground">{account.code}</TableCell>
                                     <TableCell>

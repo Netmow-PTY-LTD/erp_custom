@@ -72,6 +72,35 @@ export type ChartResponse = {
   data: ChartDataPoint[];
 };
 
+
+
+
+
+// ===================================   New Accounting Endpoints  ===================================
+
+export type AccountType =
+  | "Asset"
+  | "Liability"
+  | "Equity"
+  | "Income"
+  | "Expense";
+
+export interface ChartOfAccount {
+  id: number;
+  code: string;
+  name: string;
+  type: AccountType;
+  parent: number | null;
+  level: number;
+}
+
+
+
+
+
+
+
+
 // -------------------- RTK QUERY SERVICE --------------------
 export const accountingApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -241,6 +270,13 @@ export const accountingApiService = baseApi.injectEndpoints({
     }),
 
 
+    // ===================================================================================
+    // New Endpoint of accounting 
+    // ===================================================================================
+
+
+
+
     // ========================== CREDIT HEADS FOR SPECIFIC TYPES ==========================
 
     // create Income credit head
@@ -250,7 +286,7 @@ export const accountingApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["incomeCreditHead"],
+      invalidatesTags: ["incomeCreditHead", "AccountingAccounts"],
     }),
 
     // create Income credit head
@@ -260,11 +296,15 @@ export const accountingApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["expenseCreditHead"],
+      invalidatesTags: ["expenseCreditHead", "AccountingAccounts"],
     }),
 
+    // ================================ Accounts API ==================================================
 
-
+    getAccountingAccounts: builder.query<ListResponse<ChartOfAccount>, void>({
+      query: () => ({ url: "/accounting/accounts", method: "GET" }),
+      providesTags: ["AccountingAccounts"],
+    }),
 
   }),
 });
@@ -288,6 +328,9 @@ export const {
   useGetAccountingChartDataQuery,
   useGetPayrollQuery,
   useAddPayrollMutation,
+  //  newly added hooks
   useCreateIncomeHeadMutation,
   useCreateExpanseHeadMutation,
+  useGetAccountingAccountsQuery,
+
 } = accountingApiService;
