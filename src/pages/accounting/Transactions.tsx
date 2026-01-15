@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Search, Calendar as CalendarIcon, Filter, X } from "lucide-react";
+import { Search, Calendar as CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -37,25 +37,33 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 
 import { useAddTransactionMutation, useGetTransactionsQuery } from "@/store/features/accounting/accoutntingApiService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import type { CreateTransactionInput } from "@/types/accounting.types";
-
-// Dummy Data removed
-
+import type { DateRange } from "react-day-picker";
 
 
 export default function Transactions() {
     const [isOpen, setIsOpen] = useState(false);
-    const [filterDate, setFilterDate] = useState<Date | undefined>();
+
+    // Filter Query States
+    const [dateRange, setDateRange] = useState<DateRange | undefined>();
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterType, setFilterType] = useState<string | undefined>("ALL");
+
 
     const { data: transactionsData, isLoading } = useGetTransactionsQuery({
         page: 1,
         limit: 10,
-        date: filterDate ? format(filterDate, 'yyyy-MM-dd') : undefined
+        search: searchQuery || undefined,
+        type: filterType === "ALL" ? undefined : filterType,
+        start_date: dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : undefined,
+        end_date: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
     });
+
     const transactions = transactionsData?.data || [];
     const [addTransaction, { isLoading: isAdding }] = useAddTransactionMutation();
 
@@ -70,7 +78,6 @@ export default function Transactions() {
     });
 
     const onSubmit = async (data: CreateTransactionInput) => {
-        console.log(data);
         try {
             await addTransaction(data).unwrap();
             toast.success("Transaction created successfully");
@@ -82,13 +89,19 @@ export default function Transactions() {
                 date: format(new Date(), "yyyy-MM-dd"),
                 description: "",
             });
-            // Reset main date picker if needed, but it's now controlled by form
         } catch (error) {
             toast.error("Failed to create transaction");
             console.error(error);
         }
     };
 
+    const clearFilters = () => {
+        setDateRange(undefined);
+        setSearchQuery("");
+        setFilterType("ALL");
+    };
+
+    const hasActiveFilters = dateRange || searchQuery || (filterType && filterType !== "ALL");
 
     return (
         <div className="space-y-6">
@@ -101,7 +114,7 @@ export default function Transactions() {
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                     <DialogTrigger asChild>
                         {/* <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                            <Plus className="mr-2 h-4 w-4" /> New Transaction
+                            <span className="mr-2 text-xl font-bold">+</span> New Transaction
                         </Button> */}
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px]">
@@ -247,39 +260,45 @@ export default function Transactions() {
             </div>
 
             {/* Filters & Search */}
-            <div className="flex gap-2 items-center">
-                <div className="relative flex-1 max-w-sm">
+            <div className="flex flex-col sm:flex-row gap-4 items-center bg-card p-4 rounded-lg border shadow-sm">
+                <div className="relative flex-1 w-full">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search transactions..." className="pl-8" />
+                    <Input
+                        placeholder="Search transactions..."
+                        className="pl-8"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "justify-start text-left font-normal",
-                                !filterDate && "text-muted-foreground"
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {filterDate ? format(filterDate, "PPP") : <span>Filter by Date</span>}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                        <CalendarComponent
-                            mode="single"
-                            selected={filterDate}
-                            onSelect={setFilterDate}
-                            initialFocus
-                        />
-                    </PopoverContent>
-                </Popover>
-                {filterDate && (
-                    <Button variant="ghost" size="icon" onClick={() => setFilterDate(undefined)}>
-                        <X className="h-4 w-4" />
-                    </Button>
-                )}
 
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <Select value={filterType} onValueChange={setFilterType}>
+                        <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="All Types" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ALL">All Types</SelectItem>
+                            <SelectItem value="SALES">Sales</SelectItem>
+                            <SelectItem value="PURCHASE">Purchase</SelectItem>
+                            <SelectItem value="EXPENSE">Expense</SelectItem>
+                            <SelectItem value="INCOME">Income</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <DateRangePicker
+                        dateRange={dateRange}
+                        onDateRangeChange={setDateRange}
+                        placeholder="Pick a date range"
+                        className="w-[240px]"
+                        numberOfMonths={2}
+                    />
+
+                    {hasActiveFilters && (
+                        <Button variant="ghost" size="icon" onClick={clearFilters} title="Clear Filters">
+                            <X className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {/* Data Table */}

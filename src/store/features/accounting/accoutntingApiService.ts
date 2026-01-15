@@ -376,7 +376,7 @@ export const accountingApiService = baseApi.injectEndpoints({
 
 
     // GET TRANSACTIONS
-    getTransactions: builder.query<ListResponse<Transaction>, { page?: number; limit?: number; search?: string; date?: string }>({
+    getTransactions: builder.query<ListResponse<Transaction>, { page?: number; limit?: number; search?: string; date?: string; start_date?: string; end_date?: string; type?: string }>({
       query: (params) => ({
         url: "/accounting/transactions",
         method: "GET",
