@@ -282,6 +282,8 @@ export default function Transactions() {
                             <SelectItem value="PURCHASE">Purchase</SelectItem>
                             <SelectItem value="EXPENSE">Expense</SelectItem>
                             <SelectItem value="INCOME">Income</SelectItem>
+                            <SelectItem value="PAYMENT_OUT">Payment Out</SelectItem>
+                            <SelectItem value="PAYMENT_IN">Payment In</SelectItem>
                         </SelectContent>
                     </Select>
 
