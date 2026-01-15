@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Plus, Search, Calendar as CalendarIcon, Filter, X } from "lucide-react";
+import { Search, Calendar as CalendarIcon, Filter, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -100,9 +100,9 @@ export default function Transactions() {
                 </div>
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                        {/* <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
                             <Plus className="mr-2 h-4 w-4" /> New Transaction
-                        </Button>
+                        </Button> */}
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[500px]">
                         <DialogHeader>
