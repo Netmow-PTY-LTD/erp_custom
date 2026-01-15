@@ -24,9 +24,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import CreateIncomeHeadForm from "./CreateIncomehead";
+
 import CreateExpenseHeadForm from "./CreateExpenseHead";
-import { useAddAccountingAccountMutation, useGetAccountingAccountsQuery, useLazyGetAccountingAccountsQuery, type ChartOfAccount } from "@/store/features/accounting/accoutntingApiService";
+import { useAddAccountingAccountMutation, useGetAccountingAccountsQuery, useLazyGetAccountingAccountsQuery, useUpdateAccountingAccountMutation, type ChartOfAccount } from "@/store/features/accounting/accoutntingApiService";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useForm, Controller } from "react-hook-form";
@@ -34,6 +34,7 @@ import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import CreateIncomeHeadForm from "./CreateIncomeHead";
 
 
 
@@ -131,6 +132,7 @@ export default function ChartOfAccounts() {
 
     const [addAccountingAccount, { isLoading }] =
         useAddAccountingAccountMutation();
+        const [updateAccountingAccount] =useUpdateAccountingAccountMutation()
 
     const onSubmit = async (values: CreateAccountFormValues) => {
         const payload: any = {
