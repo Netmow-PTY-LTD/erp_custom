@@ -209,9 +209,9 @@ export default function ChartOfAccounts() {
                             reset();
                             setEditingAccount(null);
                         }} asChild>
-                            <Button className="flex items-center gap-2 bg-linear-to-r from-violet-600 to-purple-600 text-white">
+                            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
                                 <Plus className="mr-2 h-4 w-4" />  Add Account
-                            </Button>
+                            </button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
