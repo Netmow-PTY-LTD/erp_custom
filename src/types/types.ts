@@ -164,6 +164,7 @@ export type WarehouseOrder = {
 export interface Staff {
   id: number;
   employeeId: string;
+  name?: string;
   first_name: string;
   last_name: string;
   email: string;
