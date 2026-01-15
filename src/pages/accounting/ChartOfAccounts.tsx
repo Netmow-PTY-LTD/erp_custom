@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import CreateIncomeHeadForm from "./CreateIncomehead";
+
 import CreateExpenseHeadForm from "./CreateExpenseHead";
 import CreateIncomeHeadForm from "./CreateIncomeHead";
 
