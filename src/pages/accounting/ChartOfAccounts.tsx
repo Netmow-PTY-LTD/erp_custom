@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import AddCreditHeadForm from "./AddCreditHead";
 import AddDebitHeadForm from "./AddDebitHead";
+import CreateIncomeHeadForm from "./CreateIncomehead";
 
 // Dummy Data
 const initialAccounts = [
@@ -59,11 +59,11 @@ export default function ChartOfAccounts() {
                     <p className="text-muted-foreground">Manage your financial head hierarchy.</p>
                 </div>
                 <div className="flex gap-2">
-                    <AddCreditHeadForm />
+                    <CreateIncomeHeadForm />
                     <AddDebitHeadForm />
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
                         <DialogTrigger asChild>
-                            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
+                            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
                                 <Plus className="mr-2 h-4 w-4" /> Add Account
                             </button>
                         </DialogTrigger>
