@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 
 import { Button } from "@/components/ui/button";
-import { useAddExpenseMutation, useGetExpenseHeadsQuery, useGetAccountingAccountsQuery } from "@/store/features/accounting/accoutntingApiService";
+import { useGetExpenseHeadsQuery, useGetAccountingAccountsQuery, useAddExpenseHeadwiseMutation } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import {
@@ -55,7 +55,7 @@ export default function AddExpensePage() {
   const [openPaidVia, setOpenPaidVia] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
-  const [addExpense, { isLoading }] = useAddExpenseMutation();
+  const [addExpense, { isLoading }] = useAddExpenseHeadwiseMutation();
 
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
@@ -98,7 +98,7 @@ export default function AddExpensePage() {
       if (res.status) {
         toast.success("Expense added successfully");
         reset(); // Clear form
-        navigate("/dashboard/accounting/expenses"); // Redirect
+        navigate("/dashboard/accounting/reports/journal"); // Redirect
       } else {
         toast.error("Failed to add expense");
       }
