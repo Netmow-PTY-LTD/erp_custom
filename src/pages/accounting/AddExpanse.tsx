@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { useAddExpenseMutation, useGetAllDebitHeadsQuery, useGetExpenseHeadsQuery } from "@/store/features/accounting/accoutntingApiService";
+import { useAddExpenseMutation, useGetExpenseHeadsQuery } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import {
