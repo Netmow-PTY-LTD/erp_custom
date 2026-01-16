@@ -9,6 +9,7 @@ import type {
   Transaction,
   CreateTransactionInput,
 } from "@/types/accounting.types";
+import type { get } from "react-hook-form";
 
 //-------------------- OVERVIEW --------------------
 
@@ -370,6 +371,16 @@ export const accountingApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["expenseCreditHead", "AccountingAccounts"],
     }),
+    // ======================== GET Expanse head ===========================================================
+
+    getExpenseHeads: builder.query<ListResponse<CreditHead>, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({
+        url: "/accounting/accounts/heads/expense",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["expenseCreditHead"],
+    }),
 
     // ================================ Accounts API ==================================================
 
@@ -490,5 +501,6 @@ export const {
   useAddTransactionMutation,
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
+  useGetExpenseHeadsQuery,
 
 } = accountingApiService;

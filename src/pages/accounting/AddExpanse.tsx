@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-import { useAddExpenseMutation, useGetAllDebitHeadsQuery } from "@/store/features/accounting/accoutntingApiService";
+import { useAddExpenseMutation, useGetAllDebitHeadsQuery, useGetExpenseHeadsQuery } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import {
@@ -79,7 +79,7 @@ export default function AddExpensePage() {
 
   const { control, handleSubmit, reset } = form;
 
-  const { data } = useGetAllDebitHeadsQuery({
+  const { data } = useGetExpenseHeadsQuery({
     page,
     limit,
     search,
@@ -118,7 +118,7 @@ export default function AddExpensePage() {
     <div className="space-y-6 max-w-5xl mx-auto py-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-linear-to-r from-red-600 to-orange-400 bg-clip-text text-transparent">
             Add Expense
           </h1>
           <p className="text-muted-foreground mt-2">Record a new expense transaction</p>
@@ -128,9 +128,9 @@ export default function AddExpensePage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* BASIC INFO */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-red-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-1 border-red-100 dark:border-red-900 py-3 gap-0">
+          <CardHeader className="bg-linear-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b border-red-100 dark:border-red-900 py-3 gap-0">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
+              <div className="p-3 bg-linear-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
@@ -293,9 +293,9 @@ export default function AddExpensePage() {
 
         {/* PAYMENT DETAILS */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-red-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b-1 border-red-100 dark:border-red-900 py-3 gap-0">
+          <CardHeader className="bg-linear-to-r from-red-50 via-orange-50 to-red-50 dark:from-red-950/30 dark:via-orange-950/30 dark:to-red-950/30 border-b border-red-100 dark:border-red-900 py-3 gap-0">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
+              <div className="p-3 bg-linear-to-br from-red-600 to-orange-500 rounded-xl shadow-lg shadow-red-500/30">
                 <CreditCard className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
@@ -371,7 +371,7 @@ export default function AddExpensePage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 px-8 py-3 font-semibold text-white shadow-lg shadow-red-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-red-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-red-600 to-orange-500 px-8 py-3 font-semibold text-white shadow-lg shadow-red-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-red-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
           >
             {isLoading ? (
               <>
