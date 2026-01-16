@@ -79,6 +79,7 @@ type StaffFormValues = z.infer<typeof StaffSchema>;
 export default function EditStaffPage() {
   const [open, setOpen] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
@@ -88,7 +89,7 @@ export default function EditStaffPage() {
 
   const [rolePage] = useState(1);
   const [roleSearch] = useState("");
-  const roleLimit = 10;
+  const roleLimit = 100;
 
   const { data: rolesData } = useGetAllRolesQuery({
     page: rolePage,
@@ -129,8 +130,13 @@ export default function EditStaffPage() {
     ? data?.data[0]
     : data?.data;
 
+  // Reset initialization when staffId changes (e.g. navigating to another staff)
   useEffect(() => {
-    if (staff) {
+    setIsInitialized(false);
+  }, [staffId]);
+
+  useEffect(() => {
+    if (staff && !isInitialized) {
       form.reset({
         first_name: staff?.first_name,
         last_name: staff?.last_name,
@@ -144,10 +150,13 @@ export default function EditStaffPage() {
         image: staff?.thumb_url || "",
         gallery_items: staff?.gallery_items || [],
         password: "", // Usually we don't load the password from backend for security
-        role_id: staff?.role_id ?? undefined,
+        role_id: staff?.role_id !== null && staff?.role_id !== undefined
+          ? Number(staff.role_id)
+          : (staff?.role?.id ? Number(staff.role.id) : undefined),
       });
+      setIsInitialized(true);
     }
-  }, [staff, fetchedDepartments?.data, form]);
+  }, [staff, form, isInitialized]);
 
   // =====================================================
   //  SUBMIT HANDLER
@@ -208,7 +217,15 @@ export default function EditStaffPage() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
+              e.preventDefault();
+            }
+          }}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* COLUMN 1: STAFF INFO + GALLERY */}
             <div className="space-y-6 lg:col-span-2">
@@ -343,6 +360,7 @@ export default function EditStaffPage() {
                                       <Button
                                         variant="outline"
                                         role="combobox"
+                                        type="button"
                                         aria-expanded={open}
                                         className="w-full justify-between font-medium"
                                       >
@@ -429,6 +447,7 @@ export default function EditStaffPage() {
                                     <FormControl>
                                       <Button
                                         variant="outline"
+                                        type="button"
                                         className={cn(
                                           "w-full justify-start text-left font-normal",
                                           !field.value && "text-muted-foreground"
@@ -523,21 +542,32 @@ export default function EditStaffPage() {
                               <FormLabel>Role</FormLabel>
 
                               <Select
-                                value={field.value ? String(field.value) : ""}
+                                key={rolesData?.data ? `role-loaded-${field.value}` : `role-loading-${field.value}`}
+                                value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                 onValueChange={(val) => field.onChange(Number(val))}
                                 disabled={isUpdating}
                               >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select Role" />
-                                </SelectTrigger>
+                                <FormControl>
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select Role" />
+                                  </SelectTrigger>
+                                </FormControl>
 
                                 <SelectContent>
+                                  {/* Always include assigned role_id as an option to prevent it being "missing" */}
+                                  {(staff?.role_id || staff?.role?.id) && (
+                                    <SelectItem value={String(staff?.role_id || staff?.role?.id)}>
+                                      {staff?.role?.display_name || `Role ${staff?.role_id || staff?.role?.id}`}
+                                    </SelectItem>
+                                  )}
                                   {Array.isArray(rolesData?.data) &&
-                                    rolesData.data.map((role) => (
-                                      <SelectItem key={role.id} value={String(role.id)}>
-                                        {role?.display_name}
-                                      </SelectItem>
-                                    ))}
+                                    rolesData.data
+                                      .filter((r) => Number(r.id) !== Number(staff?.role_id || staff?.role?.id))
+                                      .map((role) => (
+                                        <SelectItem key={role.id} value={String(role.id)}>
+                                          {role?.display_name}
+                                        </SelectItem>
+                                      ))}
                                 </SelectContent>
                               </Select>
 

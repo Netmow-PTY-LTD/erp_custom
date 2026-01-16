@@ -16,9 +16,12 @@ import {
   AlertTriangle,
   Boxes,
   CheckCircle,
+  Eye,
   MoreHorizontal,
   PackagePlus,
+  Pencil,
   Tags,
+  Trash,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
@@ -339,8 +342,9 @@ export default function Products() {
               <DropdownMenuItem>
                 <Link
                   to={`/dashboard/products/${product.id}/edit`}
-                  className="w-full"
+                  className="w-full flex items-center gap-2"
                 >
+                  <Pencil className="w-4 h-4" />
                   Edit
                 </Link>
               </DropdownMenuItem>
@@ -348,26 +352,19 @@ export default function Products() {
               <DropdownMenuItem>
                 <Link
                   to={`/dashboard/products/${product.id}`}
-                  className="w-full"
+                  className="w-full flex items-center gap-2"
                 >
+                  <Eye className="w-4 h-4" />
                   View
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => handleDeleteProduct(product.id)}
-                className="cursor-pointer"
+                className="cursor-pointer flex items-center gap-2"
               >
+                <Trash className="w-4 h-4" />
                 Delete
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link
-                  to={`/dashboard/products/${product.id}/stock`}
-                  className="w-full"
-                >
-                  Stock
-                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
