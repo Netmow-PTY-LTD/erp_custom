@@ -172,11 +172,11 @@ export default function PayrollRuns() {
     return (
         <div className="max-w-6xl mx-auto space-y-8 py-6">
             <Card className="rounded-sm border border-gray-300 dark:border-gray-700 shadow-sm">
-                <CardHeader className="flex justify-between items-center border-b dark:border-gray-700 pb-3">
+                <CardHeader className="flex justify-between items-center border-b-1 dark:border-gray-700 py-3 gap-0">
                     <CardTitle className="text-lg font-semibold">Payroll Runs</CardTitle>
                 </CardHeader>
 
-                <CardContent className="pt-4 space-y-4">
+                <CardContent className="pt-2 pb-6 space-y-4">
                     {/* Filters */}
                     <div className="flex flex-col md:flex-row gap-4 md:items-end">
                         <div>
