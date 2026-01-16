@@ -90,8 +90,12 @@ export type CreditHead = {
   id: number;
   name: string;
   code: string;
-  description: string;
-  is_active: boolean;
+  type: string;
+  parent_id: number | null;
+  description?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 // -------------------- Debit Head --------------------

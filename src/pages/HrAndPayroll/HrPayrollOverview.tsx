@@ -25,6 +25,7 @@ import {
     useGetAllStaffsQuery,
     useUpdatePayrollStructureMutation,
     useGetStaffByIdQuery,
+    useGetPayrollStructureQuery,
 } from "@/store/features/staffs/staffApiService";
 import { useGetStaffAttendanceByIdQuery } from "@/store/features/attendence/attendenceApiService";
 import type { Department } from "@/types/types";
@@ -223,6 +224,10 @@ export default function HrPayrollOverview() {
         skip: !editingSalaryStaff?.id,
     });
 
+    const { data: payrollData, isFetching: isFetchingPayroll } = useGetPayrollStructureQuery(editingSalaryStaff?.id as number, {
+        skip: !editingSalaryStaff?.id,
+    });
+
     // Salary Form State
     const [salaryForm, setSalaryForm] = useState({
         basic_salary: 0,
@@ -235,7 +240,17 @@ export default function HrPayrollOverview() {
 
     // Update form when detailed data is fetched
     useEffect(() => {
-        if (staffDetails?.data) {
+        if (payrollData?.data) {
+            const payroll = payrollData.data;
+            setSalaryForm({
+                basic_salary: Number(payroll.basic_salary) || 0,
+                bank_name: payroll.bank_details?.bank_name || "",
+                account_name: payroll.bank_details?.account_name || "",
+                account_number: payroll.bank_details?.account_number || "",
+                allowances: payroll.allowances || [],
+                deductions: payroll.deductions || [],
+            });
+        } else if (staffDetails?.data) {
             const staff = staffDetails.data;
             setSalaryForm({
                 basic_salary: staff.basic_salary || staff.salary || 0,
@@ -246,7 +261,7 @@ export default function HrPayrollOverview() {
                 deductions: staff.deductions || [],
             });
         }
-    }, [staffDetails]);
+    }, [staffDetails, payrollData]);
 
     const handleSalaryClick = (staff: Staff) => {
         setEditingSalaryStaff(staff);
@@ -309,12 +324,23 @@ export default function HrPayrollOverview() {
     const saveSalaryDetails = async () => {
         if (!editingSalaryStaff) return;
         try {
+            // Ensure strictly cleaner payload
+            const formattedAllowances = salaryForm.allowances.map(a => ({
+                name: a.name,
+                amount: Number(a.amount)
+            }));
+
+            const formattedDeductions = salaryForm.deductions.map(d => ({
+                name: d.name,
+                amount: Number(d.amount)
+            }));
+
             await updatePayrollStructure({
                 id: editingSalaryStaff.id,
                 body: {
                     basic_salary: Number(salaryForm.basic_salary),
-                    allowances: salaryForm.allowances,
-                    deductions: salaryForm.deductions,
+                    allowances: formattedAllowances,
+                    deductions: formattedDeductions,
                     bank_details: {
                         bank_name: salaryForm.bank_name,
                         account_name: salaryForm.account_name,
@@ -977,12 +1003,12 @@ export default function HrPayrollOverview() {
                     </DialogHeader>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                        {isFetchingDetails && (
+                        {(isFetchingDetails || isFetchingPayroll) && (
                             <div className="col-span-2 text-center py-10">
                                 <p className="text-gray-500">Loading latest staff details...</p>
                             </div>
                         )}
-                        {!isFetchingDetails && (
+                        {!isFetchingDetails && !isFetchingPayroll && (
                             <>
                                 {/* Left Column: Basic & Bank */}
                                 <div className="space-y-6">

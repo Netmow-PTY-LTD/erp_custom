@@ -135,7 +135,16 @@ export const staffApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Staffs"],
+      invalidatesTags: ["Staffs", "PayrollStructure"],
+    }),
+
+    // GET PAYROLL STRUCTURE
+    getPayrollStructure: builder.query<StaffResponse<any>, string | number>({
+      query: (id) => ({
+        url: `/payroll/structure/${id}`,
+        method: "GET",
+      }),
+      providesTags: ["PayrollStructure"],
     }),
 
   }),
@@ -149,4 +158,5 @@ export const {
   useDeleteStaffMutation,
   useGetAllStaffWiseRoutesQuery,
   useUpdatePayrollStructureMutation,
+  useGetPayrollStructureQuery,
 } = staffApiService;
