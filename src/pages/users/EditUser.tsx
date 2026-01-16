@@ -27,7 +27,7 @@ import React, { useState } from "react";
 const editUserSchema = z.object({
   name: z.string().min(1, "Required"),
   email: z.email("Invalid email"),
-  password: z.string().min(1, "Required"),
+  password: z.string().optional(),
   role_id: z.number().min(1, "Required"),
   status: z.string().optional(),
 });
