@@ -129,6 +129,7 @@ export default function AddUnitForm({
                           id="name"
                           placeholder="Unit name (e.g., Pieces)"
                           {...field}
+                          required
                         />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </Field>
@@ -146,6 +147,7 @@ export default function AddUnitForm({
                           id="symbol"
                           placeholder="Abbreviation (e.g., pcs)"
                           {...field}
+                          required
                         />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </Field>
