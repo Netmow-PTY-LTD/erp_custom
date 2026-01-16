@@ -265,7 +265,7 @@ const StaffRoute = () => {
                                     `}
                                 >
                                     <Avatar className="h-10 w-10 border bg-background">
-                                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
+                                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${staff.name}`} />
                                         <AvatarFallback>{staff.name.substring(0, 2)}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 min-w-0">
@@ -301,7 +301,7 @@ const StaffRoute = () => {
                         <div className="bg-card rounded-xl border p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
                             <div className="flex items-center gap-5">
                                 <Avatar className="h-20 w-20 border-4 border-background shadow-md">
-                                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedStaff.name}`} />
+                                    <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${selectedStaff.name}`} />
                                     <AvatarFallback className="text-xl">{selectedStaff.name.substring(0, 2)}</AvatarFallback>
                                 </Avatar>
                                 <div>
