@@ -42,6 +42,12 @@ export type ExpenseResponse = ListResponse<Expense>;
 // -------------------- Credit Head --------------------
 export type CreditHeadResponse = ListResponse<CreditHead>;
 
+export type IncomeHeadResponse = {
+  status: boolean;
+  message: string;
+  data: CreditHead[];
+};
+
 export type CreditHeadByIdResponse = {
   status: boolean;
   message: string;
@@ -198,7 +204,7 @@ export const accountingApiService = baseApi.injectEndpoints({
 
     // ADD INCOME
     addIncome: builder.mutation<IncomeResponse, Partial<Income>>({
-      query: (body) => ({ url: "/accounting/incomes", method: "POST", body }),
+      query: (body) => ({ url: "/accounting/incomes/head-wise", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
 
@@ -240,6 +246,15 @@ export const accountingApiService = baseApi.injectEndpoints({
         url: "/accounting/credit-head",
         method: "GET",
         params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET INCOME HEADS
+    getIncomeHeads: builder.query<IncomeHeadResponse, void>({
+      query: () => ({
+        url: "/accounting/accounts/heads/income",
+        method: "GET",
       }),
       providesTags: ["Accounting"],
     }),
@@ -500,6 +515,7 @@ export const {
   useAddExpenseMutation,
   useAddCreditHeadMutation,
   useGetAllCreditHeadsQuery,
+  useGetIncomeHeadsQuery,
   useGetSingleCreditHeadQuery,
   useUpdateCreditHeadMutation,
   useDeleteCreditHeadMutation,
