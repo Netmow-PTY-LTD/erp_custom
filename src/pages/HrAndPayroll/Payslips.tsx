@@ -104,14 +104,14 @@ export default function Payslips() {
     return (
         <div className="max-w-6xl mx-auto space-y-8 py-6">
             <Card className="rounded-sm border border-gray-300 dark:border-gray-700 shadow-sm">
-                <CardHeader className="flex justify-between items-center border-b dark:border-gray-700 pb-3">
+                <CardHeader className="flex justify-between items-center border-b-1 dark:border-gray-700 py-3 gap-0">
                     <CardTitle className="text-lg font-semibold">Payslips</CardTitle>
                     <Button className="bg-gray-800 hover:bg-gray-900 text-white rounded-sm">
                         Bulk Download PDF
                     </Button>
                 </CardHeader>
 
-                <CardContent className="pt-4 space-y-4">
+                <CardContent className="pt-4 pb-6 space-y-4">
                     {/* Payroll Run Selector */}
                     <div className="max-w-xs">
                         <Select value={selectedRun} onValueChange={setSelectedRun} disabled={payrollRuns.length === 0}>

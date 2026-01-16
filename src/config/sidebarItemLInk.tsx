@@ -168,7 +168,7 @@ import Help from "@/pages/help/Help";
 import EditCustomerByStaffPage from "@/pages/customer/EditCustomerByStaffPage";
 import HrPayrollOverview from "@/pages/HrAndPayroll/HrPayrollOverview";
 // import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
-import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
+// import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
 import Attendance from "@/pages/HrAndPayroll/Attendance";
 
 // import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
@@ -992,6 +992,16 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "Add New Sales Order",
+        url: "/dashboard/sales/orders/create",
+        icon: PlusCircle,
+        element: <CreateOrderPage />,
+        allowedPermissions: [
+          SalesPermission.CREATE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Pending Orders",
         url: "/dashboard/sales/orders/pending",
         element: <PendingOrders />,
@@ -1037,15 +1047,6 @@ export const sidebarItemLink = [
         element: <OrderDetails />,
         allowedPermissions: [
           SalesPermission.ORDER_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/orders/create",
-        element: <CreateOrderPage />,
-        allowedPermissions: [
-          SalesPermission.CREATE_ORDER,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1276,12 +1277,12 @@ export const sidebarItemLink = [
         element: <HrPayrollOverview />,
         icon: LayoutDashboard,
       },
-      {
-        title: "Employment Details",
-        url: "/dashboard/payroll/employment-details",
-        element: <EmploymentDetails />,
-        icon: FileText,
-      },
+      // {
+      //   title: "Employment Details",
+      //   url: "/dashboard/payroll/employment-details",
+      //   element: <EmploymentDetails />,
+      //   icon: FileText,
+      // },
       {
         title: "Attendance",
         url: "/dashboard/payroll/attendance",
