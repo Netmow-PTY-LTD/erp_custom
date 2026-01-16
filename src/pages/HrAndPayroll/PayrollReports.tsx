@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 export default function PayrollReports() {
     return (
         <div className="max-w-6xl mx-auto py-6">
-            <Card>
+            <Card className="py-6">
                 <CardHeader>
                     <CardTitle>Payroll Reports</CardTitle>
                 </CardHeader>
