@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   useAddIncomeMutation,
-  useGetAllCreditHeadsQuery,
+  useGetIncomeHeadsQuery,
 } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
@@ -29,7 +29,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown, FileText, CreditCard, TrendingUp } from "lucide-react";
+import { Check, ChevronDown, FileText, CreditCard, TrendingUp, CornerDownRight } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -60,9 +60,9 @@ type IncomeFormValues = z.infer<typeof incomeSchema>;
 /* ------------------ PAGE ------------------ */
 export default function AddIncomePage() {
   const [open, setOpen] = useState(false);
-  const [page] = useState(1);
+  /* const [page] = useState(1); */
   const [search, setSearch] = useState("");
-  const limit = 10;
+  /* const limit = 10; */
   const navigate = useNavigate();
   const [addIncome, { isLoading }] = useAddIncomeMutation();
 
@@ -81,11 +81,7 @@ export default function AddIncomePage() {
 
   const { control, handleSubmit, reset } = form;
 
-  const { data } = useGetAllCreditHeadsQuery({
-    page,
-    limit,
-    search,
-  });
+  const { data } = useGetIncomeHeadsQuery();
   const creditHeads: CreditHead[] = data?.data || [];
 
   console.log("Debit Heads", data);
@@ -191,7 +187,7 @@ export default function AddIncomePage() {
                   <Field>
                     <FieldLabel>Credit Head</FieldLabel>
 
-                    <Popover open={open} onOpenChange={setOpen}>
+                    <Popover open={open} onOpenChange={setOpen} modal={true}>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
@@ -200,44 +196,66 @@ export default function AddIncomePage() {
                           className="w-full justify-between"
                         >
                           {selected ? selected.name : "Select credit head..."}
-                          <ChevronDown className="opacity-50 h-4 w-4" />
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
 
-                      <PopoverContent className="w-full p-0">
+                      <PopoverContent className="w-[450px] p-0" align="start">
                         <Command>
-                          {/* Search input */}
                           <CommandInput
-                            placeholder="Search category..."
+                            placeholder="Search credit head..."
                             className="h-9"
                             value={search}
                             onValueChange={setSearch}
                           />
 
-                          <CommandList>
-                            <CommandEmpty>No category found.</CommandEmpty>
+                          <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+                            <CommandEmpty>No credit head found.</CommandEmpty>
 
                             <CommandGroup>
-                              {creditHeads?.map((item) => (
-                                <CommandItem
-                                  key={item.id}
-                                  value={`${item.name}-${item.id}`} // unique, string
-                                  onSelect={() => {
-                                    field.onChange(item.id); // convert back to number
-                                    setOpen(false);
-                                  }}
-                                >
-                                  {item.name}
-                                  <Check
-                                    className={cn(
-                                      "ml-auto h-4 w-4",
-                                      Number(field.value) === Number(item.id)
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                </CommandItem>
-                              ))}
+                              {creditHeads?.map((item) => {
+                                // Determine hierarchy level based on parent_id
+                                const level = item.parent_id ? 1 : 0;
+
+                                return (
+                                  <CommandItem
+                                    key={item.id}
+                                    value={`${item.name}-${item.id}`}
+                                    onSelect={() => {
+                                      field.onChange(item.id);
+                                      setOpen(false);
+                                    }}
+                                    className="flex items-center gap-2"
+                                    style={{ paddingLeft: `${level === 0 ? 12 : (level * 20) + 12}px` }}
+                                  >
+                                    <div className="flex items-center flex-1 gap-2">
+                                      <div className="flex items-center gap-1">
+                                        {level > 0 && (
+                                          <CornerDownRight className="h-3 w-3 text-muted-foreground stroke-[1.5]" />
+                                        )}
+
+                                        <div className="flex flex-col">
+                                          <span className={cn(
+                                            level === 0 ? "font-semibold text-foreground" : "text-muted-foreground"
+                                          )}>
+                                            {item.name}
+                                          </span>
+                                          <span className="text-[10px] text-muted-foreground/70">{item.code}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <Check
+                                      className={cn(
+                                        "ml-auto h-4 w-4",
+                                        Number(field.value) === Number(item.id)
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                );
+                              })}
                             </CommandGroup>
                           </CommandList>
                         </Command>
