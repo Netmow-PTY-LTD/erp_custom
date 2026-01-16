@@ -466,7 +466,30 @@ export const accountingApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Accounting"],
     }),
+
+
+
+
+
+
+    // income expanse endpoint
+
+    // ADD EXPENSE
+    addExpenseHeadwise: builder.mutation<ExpenseResponse, Partial<Expense>>({
+      query: (body) => ({ url: "/accounting/expenses/head-wise", method: "POST", body }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+
+
+
+
   }),
+
+
+
+
+
 });
 
 export const {
@@ -502,5 +525,6 @@ export const {
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
   useGetExpenseHeadsQuery,
+  useAddExpenseHeadwiseMutation,
 
 } = accountingApiService;
