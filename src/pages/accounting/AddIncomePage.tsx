@@ -9,18 +9,11 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-
 import { Button } from "@/components/ui/button";
 import {
   useAddIncomeMutation,
   useGetIncomeHeadsQuery,
+  useGetAccountingAccountsQuery,
 } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
@@ -59,10 +52,9 @@ type IncomeFormValues = z.infer<typeof incomeSchema>;
 
 /* ------------------ PAGE ------------------ */
 export default function AddIncomePage() {
-  const [open, setOpen] = useState(false);
-  /* const [page] = useState(1); */
+  const [openCreditHead, setOpenCreditHead] = useState(false);
+  const [openReceivedVia, setOpenReceivedVia] = useState(false);
   const [search, setSearch] = useState("");
-  /* const limit = 10; */
   const navigate = useNavigate();
   const [addIncome, { isLoading }] = useAddIncomeMutation();
 
@@ -84,6 +76,9 @@ export default function AddIncomePage() {
   const { data } = useGetIncomeHeadsQuery();
   const creditHeads: CreditHead[] = data?.data || [];
 
+  const { data: accountsData } = useGetAccountingAccountsQuery({ limit: 1000 });
+  const assetAccounts = (accountsData?.data || []).filter(acc => acc.type === "Asset");
+
   console.log("Debit Heads", data);
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -92,7 +87,7 @@ export default function AddIncomePage() {
     const payload = {
       title: values.title,
       income_date: values.income_date,
-      credit_head_id: values.credit_head_id,
+      income_head_id: values.credit_head_id,
       description: values.description,
       amount: values.amount,
       payment_method: values.receivedVia,
@@ -103,13 +98,16 @@ export default function AddIncomePage() {
       if (res.status) {
         toast.success("Income added successfully");
         reset(); // Clear the form
-        navigate("/dashboard/accounting/incomes"); // Go back to previous page
-      } else {
-        toast.error("Failed to add income");
+        navigate("/dashboard/accounting/reports/journal"); // Go back to previous page
       }
     } catch (err) {
       console.error(err);
-      toast.error("An error occurred while adding income");
+      const error = err as {
+        data: {
+          message: string;
+        }
+      }
+      toast.error(error.data.message || "Failed to add income");
     }
   };
 
@@ -187,12 +185,12 @@ export default function AddIncomePage() {
                   <Field>
                     <FieldLabel>Credit Head</FieldLabel>
 
-                    <Popover open={open} onOpenChange={setOpen} modal={true}>
+                    <Popover open={openCreditHead} onOpenChange={setOpenCreditHead} modal={true}>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           role="combobox"
-                          aria-expanded={open}
+                          aria-expanded={openCreditHead}
                           className="w-full justify-between"
                         >
                           {selected ? selected.name : "Select credit head..."}
@@ -214,8 +212,9 @@ export default function AddIncomePage() {
 
                             <CommandGroup>
                               {creditHeads?.map((item) => {
-                                // Determine hierarchy level based on parent_id
-                                const level = item.parent_id ? 1 : 0;
+                                // Determine hierarchy level based on parent_id or level property
+                                // @ts-expect-error - level might exist on the API object but not the type
+                                const level = item.level || (item.parent_id ? 1 : 0);
 
                                 return (
                                   <CommandItem
@@ -223,7 +222,7 @@ export default function AddIncomePage() {
                                     value={`${item.name}-${item.id}`}
                                     onSelect={() => {
                                       field.onChange(item.id);
-                                      setOpen(false);
+                                      setOpenCreditHead(false);
                                     }}
                                     className="flex items-center gap-2"
                                     style={{ paddingLeft: `${level === 0 ? 12 : (level * 20) + 12}px` }}
@@ -347,24 +346,85 @@ export default function AddIncomePage() {
             <Controller
               control={control}
               name="receivedVia"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Payment Method</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Cash, Bank, etc." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="bank">Bank Transfer</SelectItem>
-                      <SelectItem value="card">Card Payment</SelectItem>
-                      <SelectItem value="online">Online Payment</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
+              render={({ field, fieldState }) => {
+                const selected = assetAccounts?.find(
+                  (item) => item.name === field.value || String(item.id) === field.value
+                );
+
+                return (
+                  <Field>
+                    <FieldLabel>Received Via</FieldLabel>
+
+                    <Popover open={openReceivedVia} onOpenChange={setOpenReceivedVia}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openReceivedVia}
+                          className="w-full justify-between"
+                        >
+                          {selected ? selected.name : "Select payment account..."}
+                          <ChevronDown className="opacity-50 h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="w-[450px] p-0" align="start">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search payment account..."
+                            className="h-9"
+                          />
+                          <CommandList className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+                            <CommandEmpty>No account found.</CommandEmpty>
+                            <CommandGroup>
+                              {assetAccounts?.map((acc) => {
+                                const level = acc.level || 0;
+                                return (
+                                  <CommandItem
+                                    key={acc.id}
+                                    value={`${acc.name}-${acc.id}`}
+                                    onSelect={() => {
+                                      field.onChange(acc.name); // Using name for now as existing schema is string
+                                      setOpenReceivedVia(false);
+                                    }}
+                                    className="flex items-center gap-2"
+                                    style={{ paddingLeft: `${level === 0 ? 12 : (level * 20) + 12}px` }}
+                                  >
+                                    <div className="flex items-center flex-1 gap-2">
+                                      <div className="flex items-center gap-1">
+                                        {level > 0 && (
+                                          <CornerDownRight className="h-3 w-3 text-muted-foreground stroke-[1.5]" />
+                                        )}
+                                        <div className="flex flex-col">
+                                          <span className={cn(
+                                            level === 0 ? "font-semibold text-foreground" : "text-muted-foreground"
+                                          )}>
+                                            {acc.name}
+                                          </span>
+                                          <span className="text-[10px] text-muted-foreground/70">{acc.code}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Check
+                                      className={cn(
+                                        "ml-auto h-4 w-4",
+                                        field.value === acc.name
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                  </CommandItem>
+                                );
+                              })}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                );
+              }}
             />
 
             {/* REFERENCE */}

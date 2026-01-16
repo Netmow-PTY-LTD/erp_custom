@@ -204,7 +204,7 @@ export const accountingApiService = baseApi.injectEndpoints({
 
     // ADD INCOME
     addIncome: builder.mutation<IncomeResponse, Partial<Income>>({
-      query: (body) => ({ url: "/accounting/incomes", method: "POST", body }),
+      query: (body) => ({ url: "/accounting/incomes/head-wise", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
 
