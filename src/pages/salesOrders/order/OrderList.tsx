@@ -54,14 +54,14 @@ export default function Orders() {
   const canRecordPayment =
     userPermissions.includes(SalesPermission.PAYMENTS) ||
     userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  const canUpdateDelivery =
-    userPermissions.includes(SalesPermission.UPDATE_DELIVERY) ||
-    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // const canUpdateDelivery =
+  //   userPermissions.includes(SalesPermission.UPDATE_DELIVERY) ||
+  //   userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
-  const handleOpenUpdateDeliveryStatusModal = (order: any) => {
-    setSelectedOrder(order);
-    setIsUpdateDeliveryStatusModalOpen(true);
-  };
+  // const handleOpenUpdateDeliveryStatusModal = (order: any) => {
+  //   setSelectedOrder(order);
+  //   setIsUpdateDeliveryStatusModalOpen(true);
+  // };
 
   const handleCloseUpdateDeliveryStatusModal = () => {
     setIsUpdateDeliveryStatusModalOpen(false);
@@ -246,7 +246,7 @@ export default function Orders() {
                 Edit
               </Button>
             </Link> */}
-            {canUpdateDelivery && (
+            {/* {canUpdateDelivery && (
               <Button
                 size="sm"
                 variant="outline"
@@ -254,7 +254,7 @@ export default function Orders() {
               >
                 Change Status
               </Button>
-            )}
+            )} */}
           </div>
         );
       },

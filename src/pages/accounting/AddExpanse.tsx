@@ -98,7 +98,7 @@ export default function AddExpensePage() {
       if (res.status) {
         toast.success("Expense added successfully");
         reset(); // Clear form
-        navigate("/dashboard/accounting/transactions"); // Redirect
+        navigate("/dashboard/accounting/reports/journal"); // Redirect
       } else {
         toast.error("Failed to add expense");
       }
