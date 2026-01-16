@@ -84,7 +84,6 @@ const OrderManage = () => {
         total: Number(apiOrder.total_amount) || 0,
         total_amount: Number(apiOrder.total_amount) || 0,
         status: apiOrder.status,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         assignedTo: (apiOrder.assignedStaff || []).map((staff: any) => staff.id.toString()),
         items: (apiOrder.items || []).map((item: SalesOrderItem) => ({
             name: item.product?.name || "Unknown Item",
@@ -237,7 +236,7 @@ const OrderManage = () => {
                                 Assign to {selectedOrders.length} Orders
                             </Button>
                         )}
-                        <Button>Create New Order</Button>
+                        {/* <Button>Create New Order</Button> */}
                     </div>
                 </div>
             </div>
@@ -305,7 +304,7 @@ const OrderManage = () => {
                                                     if (!staff) return null;
                                                     return (
                                                         <Avatar key={staffId} className="h-8 w-8 border-2 border-background ring-1 ring-muted" title={staff.name}>
-                                                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.name}`} />
+                                                            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${staff.name}`} />
                                                             <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
                                                                 {staff.name.substring(0, 2).toUpperCase()}
                                                             </AvatarFallback>
@@ -465,7 +464,7 @@ const OrderManage = () => {
                                                             <div key={staff.id} className="flex items-center justify-between border-b last:border-b-0 pb-3 last:pb-0">
                                                                 <div className="flex items-center gap-3">
                                                                     <Avatar className="h-10 w-10">
-                                                                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${staff.first_name} ${staff.last_name}`} />
+                                                                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${staff.first_name} ${staff.last_name}`} />
                                                                         <AvatarFallback>{`${staff.first_name.substring(0, 1)}${staff.last_name.substring(0, 1)}`.toUpperCase()}</AvatarFallback>
                                                                     </Avatar>
                                                                     <div className="flex flex-col">
@@ -607,7 +606,7 @@ const OrderManage = () => {
                                                 />
                                                 <div className="flex items-center gap-3 flex-1">
                                                     <Avatar className="h-8 w-8">
-                                                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${fullName}`} />
+                                                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${fullName}`} />
                                                         <AvatarFallback>{fullName.substring(0, 2).toUpperCase()}</AvatarFallback>
                                                     </Avatar>
                                                     <div className="flex flex-col">
