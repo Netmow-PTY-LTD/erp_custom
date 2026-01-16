@@ -10,6 +10,7 @@ import type {
   CreateTransactionInput,
 } from "@/types/accounting.types";
 
+
 //-------------------- OVERVIEW --------------------
 
 export type OverviewResponse = {
@@ -40,6 +41,12 @@ export type ExpenseResponse = ListResponse<Expense>;
 
 // -------------------- Credit Head --------------------
 export type CreditHeadResponse = ListResponse<CreditHead>;
+
+export type IncomeHeadResponse = {
+  status: boolean;
+  message: string;
+  data: CreditHead[];
+};
 
 export type CreditHeadByIdResponse = {
   status: boolean;
@@ -197,7 +204,7 @@ export const accountingApiService = baseApi.injectEndpoints({
 
     // ADD INCOME
     addIncome: builder.mutation<IncomeResponse, Partial<Income>>({
-      query: (body) => ({ url: "/accounting/incomes", method: "POST", body }),
+      query: (body) => ({ url: "/accounting/incomes/head-wise", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
 
@@ -239,6 +246,15 @@ export const accountingApiService = baseApi.injectEndpoints({
         url: "/accounting/credit-head",
         method: "GET",
         params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET INCOME HEADS
+    getIncomeHeads: builder.query<IncomeHeadResponse, void>({
+      query: () => ({
+        url: "/accounting/accounts/heads/income",
+        method: "GET",
       }),
       providesTags: ["Accounting"],
     }),
@@ -370,6 +386,16 @@ export const accountingApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["expenseCreditHead", "AccountingAccounts"],
     }),
+    // ======================== GET Expanse head ===========================================================
+
+    getExpenseHeads: builder.query<ListResponse<CreditHead>, { page?: number; limit?: number; search?: string }>({
+      query: (params) => ({
+        url: "/accounting/accounts/heads/expense",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["expenseCreditHead"],
+    }),
 
     // ================================ Accounts API ==================================================
 
@@ -455,7 +481,30 @@ export const accountingApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Accounting"],
     }),
+
+
+
+
+
+
+    // income expanse endpoint
+
+    // ADD EXPENSE
+    addExpenseHeadwise: builder.mutation<ExpenseResponse, Partial<Expense>>({
+      query: (body) => ({ url: "/accounting/expenses/head-wise", method: "POST", body }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+
+
+
+
   }),
+
+
+
+
+
 });
 
 export const {
@@ -466,6 +515,7 @@ export const {
   useAddExpenseMutation,
   useAddCreditHeadMutation,
   useGetAllCreditHeadsQuery,
+  useGetIncomeHeadsQuery,
   useGetSingleCreditHeadQuery,
   useUpdateCreditHeadMutation,
   useDeleteCreditHeadMutation,
@@ -490,5 +540,7 @@ export const {
   useAddTransactionMutation,
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
+  useGetExpenseHeadsQuery,
+  useAddExpenseHeadwiseMutation,
 
 } = accountingApiService;
