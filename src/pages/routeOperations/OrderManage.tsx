@@ -84,7 +84,6 @@ const OrderManage = () => {
         total: Number(apiOrder.total_amount) || 0,
         total_amount: Number(apiOrder.total_amount) || 0,
         status: apiOrder.status,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         assignedTo: (apiOrder.assignedStaff || []).map((staff: any) => staff.id.toString()),
         items: (apiOrder.items || []).map((item: SalesOrderItem) => ({
             name: item.product?.name || "Unknown Item",
@@ -237,7 +236,7 @@ const OrderManage = () => {
                                 Assign to {selectedOrders.length} Orders
                             </Button>
                         )}
-                        <Button>Create New Order</Button>
+                        {/* <Button>Create New Order</Button> */}
                     </div>
                 </div>
             </div>
