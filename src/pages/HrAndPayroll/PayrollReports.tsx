@@ -316,8 +316,8 @@ export default function PayrollReports() {
             {/* Charts Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Department Distribution */}
-                <Card className="shadow-md border-gray-100">
-                    <CardHeader>
+                <Card className="shadow-md border-gray-100 py-6">
+                    <CardHeader >
                         <CardTitle className="flex items-center gap-2">
                             <Building2 className="w-5 h-5 text-blue-600" />
                             Department Distribution
@@ -341,7 +341,7 @@ export default function PayrollReports() {
                 </Card>
 
                 {/* Payroll Composition */}
-                <Card className="shadow-md border-gray-100">
+                <Card className="shadow-md border-gray-100 py-6">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <PieIcon className="w-5 h-5 text-emerald-600" />
@@ -374,7 +374,7 @@ export default function PayrollReports() {
             </div>
 
             {/* Detailed Table */}
-            <Card className="shadow-md border-gray-100">
+            <Card className="shadow-md border-gray-100 pt-6 pb-2">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle>Detailed Payroll Register</CardTitle>

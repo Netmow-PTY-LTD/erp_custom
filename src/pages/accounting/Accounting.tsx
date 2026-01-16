@@ -17,56 +17,25 @@ import {
 import { Plus, Calendar, CalendarDays, CalendarRange, CalendarClock, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
-import { useGetAccountingChartDataQuery, useGetAccountingOverviewQuery } from "@/store/features/accounting/accoutntingApiService";
+import { useGetAccountingChartDataQuery, useGetAccountingOverviewQuery, useGetRecentActivityQuery, useGetExpenseBreakdownQuery } from "@/store/features/accounting/accoutntingApiService";
 import type { Overview } from "@/types/accounting.types";
-import { format } from "date-fns";
 
-// Helper to generate random numbers for dummy data
-const randomAmount = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1) + min);
-
-// Generate dummy trend data for the last 30 days
-const generateTrendData = () => {
-  const data = [];
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    data.push({
-      date: date.toISOString().split("T")[0],
-      income: randomAmount(2000, 5000),
-      expense: randomAmount(500, 2000),
-    });
-  }
-  return data;
-};
-
-const trendData = generateTrendData();
-
-// Dummy Expense Breakdown Data
-const expenseBreakdownData = [
-  { name: 'Rent', value: 2000 },
-  { name: 'Salaries', value: 8000 },
-  { name: 'Utilities', value: 1500 },
-  { name: 'Supplies', value: 500 },
-];
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-// Dummy Recent Activity
-const recentActivity = [
-  { id: 1, date: new Date(), description: "Consulting Fee Received", amount: 1500, type: "income" },
-  { id: 2, date: new Date(), description: "Office Rent Payment", amount: 2000, type: "expense" },
-  { id: 3, date: new Date(Date.now() - 86400000), description: "Client Payment", amount: 3500, type: "income" },
-  { id: 4, date: new Date(Date.now() - 86400000 * 2), description: "Stationery Purchase", amount: 200, type: "expense" },
-  { id: 5, date: new Date(Date.now() - 86400000 * 3), description: "Utility Bill", amount: 450, type: "expense" },
-];
+
 
 
 export default function AccountingOverview() {
   const { data: accountingOverview } = useGetAccountingOverviewQuery();
+  const { data: recentActivityData } = useGetRecentActivityQuery();
+  const { data: expenseBreakdownResponse } = useGetExpenseBreakdownQuery();
 
   const summaryData = accountingOverview?.data;
+  const recentActivity = recentActivityData?.data || [];
+  const expenseBreakdownData = expenseBreakdownResponse?.data || [];
 
-  const periods: (keyof Overview)[] = ["daily", "weekly", "monthly", "yearly"];
+
+  const periods: (keyof Overview)[] = ["today", "this_week", "this_month", "this_year"];
 
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -74,7 +43,9 @@ export default function AccountingOverview() {
 
   console.log("chartData", chartData);
 
-  const chartTrendData = chartData?.data || trendData;
+  console.log("expenseBreakdownData", expenseBreakdownData);
+
+  const chartTrendData = chartData?.data || [];
 
   return (
     <div className="space-y-6">
@@ -101,13 +72,13 @@ export default function AccountingOverview() {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {summaryData &&
           periods.map((period) => {
-            const data = summaryData[period] || { income: 0, expense: 0 };
+            const data = summaryData[period] || { income: 0, expense: 0, net: 0 };
             const periodLabel =
-              period === "daily"
+              period === "today"
                 ? "Today"
-                : period === "weekly"
+                : period === "this_week"
                   ? "This Week"
-                  : period === "monthly"
+                  : period === "this_month"
                     ? "This Month"
                     : "This Year";
 
@@ -132,26 +103,26 @@ export default function AccountingOverview() {
               expensePercent = 100 - incomePercent; // GUARANTEED consistency
             }
 
-            const netProfit = data.income - data.expense;
+            const netProfit = data.net || 0;
 
             // Assign gradient & icon based on period
             let gradientStr = "";
             let shadowStr = "";
             let IconComp = null;
 
-            if (period === "daily") {
+            if (period === "today") {
               gradientStr = "from-blue-600 to-blue-400";
               shadowStr = "shadow-blue-500/30";
               IconComp = <Calendar className="w-6 h-6 text-white" />;
-            } else if (period === "weekly") {
+            } else if (period === "this_week") {
               gradientStr = "from-emerald-600 to-emerald-400";
               shadowStr = "shadow-emerald-500/30";
               IconComp = <CalendarDays className="w-6 h-6 text-white" />;
-            } else if (period === "monthly") {
+            } else if (period === "this_month") {
               gradientStr = "from-amber-600 to-amber-400";
               shadowStr = "shadow-amber-500/30";
               IconComp = <CalendarRange className="w-6 h-6 text-white" />;
-            } else { // yearly
+            } else { // this_year
               gradientStr = "from-violet-600 to-violet-400";
               shadowStr = "shadow-violet-500/30";
               IconComp = <CalendarClock className="w-6 h-6 text-white" />;
@@ -261,6 +232,7 @@ export default function AccountingOverview() {
                   </Pie>
                   <Tooltip />
                 </PieChart>
+
               </ResponsiveContainer>
             </div>
           </CardContent>
@@ -274,22 +246,26 @@ export default function AccountingOverview() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-full ${activity.type === 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
-                    {activity.type === 'income' ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+            {recentActivity.map((activity, idx) => {
+              const IsIncome = activity.amount.trim().startsWith("+");
+              return (
+                <div key={idx} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-2 rounded-full ${IsIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
+                      {IsIncome ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+                    </div>
+                    <div>
+                      <p className="font-medium">{activity.title}</p>
+                      <p className="text-sm text-muted-foreground">{activity.date}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{activity.description}</p>
-                    <p className="text-sm text-muted-foreground">{format(activity.date, "PPP")}</p>
+                  <div className={`font-semibold ${IsIncome ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {activity.amount}
                   </div>
                 </div>
-                <div className={`font-semibold ${activity.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {activity.type === 'income' ? '+' : '-'} {currency} {activity.amount.toLocaleString()}
-                </div>
-              </div>
-            ))}
+              );
+            })}
+
           </div>
         </CardContent>
       </Card>

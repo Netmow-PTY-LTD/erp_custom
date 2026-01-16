@@ -1,23 +1,29 @@
 
+
 // -------------------- OVERVIEW --------------------
 export type Overview = {
-  daily: {
+  today: {
     income: number;
     expense: number;
-  },
-  weekly: {
+    net: number;
+  };
+  this_week: {
     income: number;
     expense: number;
-  },
-  monthly: {
+    net: number;
+  };
+  this_month: {
     income: number;
     expense: number;
-  },
-  yearly: {
+    net: number;
+  };
+  this_year: {
     income: number;
     expense: number;
-  },
+    net: number;
+  };
 };
+
 
 
 // -------------------- INCOME / EXPENSE --------------------
@@ -124,3 +130,17 @@ export type CreateTransactionInput = {
   date: string;
   description: string;
 };
+
+// -------------------- RECENT ACTIVITY --------------------
+export type RecentActivity = {
+  title: string;
+  date: string;
+  amount: string;
+};
+
+// -------------------- EXPENSE BREAKDOWN --------------------
+export type ExpenseBreakdown = {
+  name: string;
+  value: number;
+};
+

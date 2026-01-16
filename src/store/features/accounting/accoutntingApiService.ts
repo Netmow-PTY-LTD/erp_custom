@@ -8,6 +8,8 @@ import type {
   Payroll,
   Transaction,
   CreateTransactionInput,
+  RecentActivity,
+  ExpenseBreakdown,
 } from "@/types/accounting.types";
 
 
@@ -62,6 +64,22 @@ export type DebitHeadByIdResponse = {
   message: string;
   data: DebitHead;
 };
+
+// -------------------- RECENT ACTIVITY --------------------
+export type RecentActivityResponse = {
+  status: boolean;
+  message: string;
+  data: RecentActivity[];
+};
+
+// -------------------- EXPENSE BREAKDOWN --------------------
+export type ExpenseBreakdownResponse = {
+  status: boolean;
+  message: string;
+  data: ExpenseBreakdown[];
+};
+
+
 
 // -------------------- PAYROLL --------------------
 
@@ -188,6 +206,19 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: () => ({ url: "/accounting/overview", method: "GET" }),
       providesTags: ["Accounting"],
     }),
+
+    // GET RECENT ACTIVITY
+    getRecentActivity: builder.query<RecentActivityResponse, void>({
+      query: () => ({ url: "/accounting/recent-activity", method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET EXPENSE BREAKDOWN
+    getExpenseBreakdown: builder.query<ExpenseBreakdownResponse, void>({
+      query: () => ({ url: "/accounting/expense-breakdown", method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
 
     // GET ALL INCOMES
     getIncomes: builder.query<
@@ -509,6 +540,8 @@ export const accountingApiService = baseApi.injectEndpoints({
 
 export const {
   useGetAccountingOverviewQuery,
+  useGetRecentActivityQuery,
+  useGetExpenseBreakdownQuery,
   useGetIncomesQuery,
   useAddIncomeMutation,
   useGetExpensesQuery,
