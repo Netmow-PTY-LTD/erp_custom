@@ -135,7 +135,8 @@ export const baseApi = createApi({
     'staffRoutes',
     "incomeCreditHead",
     "expenseCreditHead",
-    "AccountingAccounts"
+    "AccountingAccounts",
+    "PayrollStructure"
   ],
   endpoints: () => ({}),
 });

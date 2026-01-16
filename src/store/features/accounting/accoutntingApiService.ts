@@ -8,6 +8,8 @@ import type {
   Payroll,
   Transaction,
   CreateTransactionInput,
+  RecentActivity,
+  ExpenseBreakdown,
 } from "@/types/accounting.types";
 
 
@@ -42,6 +44,12 @@ export type ExpenseResponse = ListResponse<Expense>;
 // -------------------- Credit Head --------------------
 export type CreditHeadResponse = ListResponse<CreditHead>;
 
+export type IncomeHeadResponse = {
+  status: boolean;
+  message: string;
+  data: CreditHead[];
+};
+
 export type CreditHeadByIdResponse = {
   status: boolean;
   message: string;
@@ -56,6 +64,22 @@ export type DebitHeadByIdResponse = {
   message: string;
   data: DebitHead;
 };
+
+// -------------------- RECENT ACTIVITY --------------------
+export type RecentActivityResponse = {
+  status: boolean;
+  message: string;
+  data: RecentActivity[];
+};
+
+// -------------------- EXPENSE BREAKDOWN --------------------
+export type ExpenseBreakdownResponse = {
+  status: boolean;
+  message: string;
+  data: ExpenseBreakdown[];
+};
+
+
 
 // -------------------- PAYROLL --------------------
 
@@ -183,6 +207,19 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET RECENT ACTIVITY
+    getRecentActivity: builder.query<RecentActivityResponse, void>({
+      query: () => ({ url: "/accounting/recent-activity", method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET EXPENSE BREAKDOWN
+    getExpenseBreakdown: builder.query<ExpenseBreakdownResponse, void>({
+      query: () => ({ url: "/accounting/expense-breakdown", method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
+
     // GET ALL INCOMES
     getIncomes: builder.query<
       IncomeResponse,
@@ -198,7 +235,7 @@ export const accountingApiService = baseApi.injectEndpoints({
 
     // ADD INCOME
     addIncome: builder.mutation<IncomeResponse, Partial<Income>>({
-      query: (body) => ({ url: "/accounting/incomes", method: "POST", body }),
+      query: (body) => ({ url: "/accounting/incomes/head-wise", method: "POST", body }),
       invalidatesTags: ["Accounting"],
     }),
 
@@ -240,6 +277,15 @@ export const accountingApiService = baseApi.injectEndpoints({
         url: "/accounting/credit-head",
         method: "GET",
         params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET INCOME HEADS
+    getIncomeHeads: builder.query<IncomeHeadResponse, void>({
+      query: () => ({
+        url: "/accounting/accounts/heads/income",
+        method: "GET",
       }),
       providesTags: ["Accounting"],
     }),
@@ -494,12 +540,15 @@ export const accountingApiService = baseApi.injectEndpoints({
 
 export const {
   useGetAccountingOverviewQuery,
+  useGetRecentActivityQuery,
+  useGetExpenseBreakdownQuery,
   useGetIncomesQuery,
   useAddIncomeMutation,
   useGetExpensesQuery,
   useAddExpenseMutation,
   useAddCreditHeadMutation,
   useGetAllCreditHeadsQuery,
+  useGetIncomeHeadsQuery,
   useGetSingleCreditHeadQuery,
   useUpdateCreditHeadMutation,
   useDeleteCreditHeadMutation,

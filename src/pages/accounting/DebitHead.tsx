@@ -7,7 +7,7 @@ import {
   // useDeleteDebitHeadMutation,
   useGetAllDebitHeadsQuery,
 } from "@/store/features/accounting/accoutntingApiService";
-import type { CreditHead, DebitHead } from "@/types/accounting.types";
+import type { DebitHead } from "@/types/accounting.types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -123,7 +123,7 @@ export default function DebitHead() {
   //   }
   // };
 
-  const debitHeadColumns: ColumnDef<CreditHead>[] = [
+  const debitHeadColumns: ColumnDef<DebitHead>[] = [
     {
       accessorKey: "id",
       header: "ID",

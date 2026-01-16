@@ -1,23 +1,29 @@
 
+
 // -------------------- OVERVIEW --------------------
 export type Overview = {
-  daily: {
+  today: {
     income: number;
     expense: number;
-  },
-  weekly: {
+    net: number;
+  };
+  this_week: {
     income: number;
     expense: number;
-  },
-  monthly: {
+    net: number;
+  };
+  this_month: {
     income: number;
     expense: number;
-  },
-  yearly: {
+    net: number;
+  };
+  this_year: {
     income: number;
     expense: number;
-  },
+    net: number;
+  };
 };
+
 
 
 // -------------------- INCOME / EXPENSE --------------------
@@ -90,8 +96,12 @@ export type CreditHead = {
   id: number;
   name: string;
   code: string;
-  description: string;
-  is_active: boolean;
+  type: string;
+  parent_id: number | null;
+  description?: string;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
 };
 
 // -------------------- Debit Head --------------------
@@ -120,3 +130,17 @@ export type CreateTransactionInput = {
   date: string;
   description: string;
 };
+
+// -------------------- RECENT ACTIVITY --------------------
+export type RecentActivity = {
+  title: string;
+  date: string;
+  amount: string;
+};
+
+// -------------------- EXPENSE BREAKDOWN --------------------
+export type ExpenseBreakdown = {
+  name: string;
+  value: number;
+};
+
