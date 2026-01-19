@@ -220,6 +220,21 @@ export const RouteOperationPermission = {
   STAFF_WISE_ROUTE: "route_operations.staff_wise_route.view" as const,
 };
 
+// --- Payroll Permissions ---
+export const PayrollPermission = {
+  VIEW: "payroll.view" as const,
+  OVERVIEW: "payroll.overview" as const,
+  ATTENDANCE: "payroll.attendance" as const,
+  PAYROLL_RUNS: "payroll.payroll_runs" as const,
+  PAYSLIPS: "payroll.payslips" as const,
+  PAYROLL_REPORTS: "payroll.payroll_reports" as const,
+  EMPLOYMENT_DETAILS: "payroll.employment_details" as const, // optional
+};
+
+
+
+
+
 // --- Help ---
 export const HelpPermission = {
   VIEW: "help.view" as const,
@@ -244,6 +259,7 @@ export const PERMISSION_GROUPS = {
   // Production: ProductionPermission,
   RouteOperations: RouteOperationPermission,
   Help: HelpPermission,
+  Payroll: PayrollPermission,
 } as const;
 
 
@@ -265,4 +281,5 @@ export type PermissionType =
   // | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
   // | typeof ProductionPermission[keyof typeof ProductionPermission]
   | typeof RouteOperationPermission[keyof typeof RouteOperationPermission]
+  | typeof PayrollPermission[keyof typeof PayrollPermission]
   | typeof HelpPermission[keyof typeof HelpPermission];
