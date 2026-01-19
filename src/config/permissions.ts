@@ -192,22 +192,22 @@ export const ReportPermission = {
 };
 
 // --- Raw Materials ---
-export const RawMaterialPermission = {
-  VIEW: "raw_materials.view" as const,
-  LIST: "raw_materials.list" as const,
-  CREATE: "raw_materials.create" as const,
-  EDIT: "raw_materials.edit" as const,
-  DELETE: "raw_materials.delete" as const,
-};
+// export const RawMaterialPermission = {
+//   VIEW: "raw_materials.view" as const,
+//   LIST: "raw_materials.list" as const,
+//   CREATE: "raw_materials.create" as const,
+//   EDIT: "raw_materials.edit" as const,
+//   DELETE: "raw_materials.delete" as const,
+// };
 
-// --- Production ---
-export const ProductionPermission = {
-  VIEW: "production.view" as const,
-  LIST: "production.list" as const,
-  CREATE: "production.create" as const,
-  EDIT: "production.edit" as const,
-  DETAILS: "production.details" as const,
-};
+// // --- Production ---
+// export const ProductionPermission = {
+//   VIEW: "production.view" as const,
+//   LIST: "production.list" as const,
+//   CREATE: "production.create" as const,
+//   EDIT: "production.edit" as const,
+//   DETAILS: "production.details" as const,
+// };
 
 
 
@@ -219,6 +219,21 @@ export const RouteOperationPermission = {
   ORDER_MANAGE: "route_operations.order_manage.view" as const,
   STAFF_WISE_ROUTE: "route_operations.staff_wise_route.view" as const,
 };
+
+// --- Payroll Permissions ---
+export const PayrollPermission = {
+  VIEW: "payroll.view" as const,
+  OVERVIEW: "payroll.overview" as const,
+  ATTENDANCE: "payroll.attendance" as const,
+  PAYROLL_RUNS: "payroll.payroll_runs" as const,
+  PAYSLIPS: "payroll.payslips" as const,
+  PAYROLL_REPORTS: "payroll.payroll_reports" as const,
+  EMPLOYMENT_DETAILS: "payroll.employment_details" as const, // optional
+};
+
+
+
+
 
 // --- Help ---
 export const HelpPermission = {
@@ -240,10 +255,11 @@ export const PERMISSION_GROUPS = {
   Roles: RolePermission,
   Settings: SettingsPermission,
   Reports: ReportPermission,
-  RawMaterials: RawMaterialPermission,
-  Production: ProductionPermission,
+  // RawMaterials: RawMaterialPermission,
+  // Production: ProductionPermission,
   RouteOperations: RouteOperationPermission,
   Help: HelpPermission,
+  Payroll: PayrollPermission,
 } as const;
 
 
@@ -262,7 +278,8 @@ export type PermissionType =
   | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof ReportPermission[keyof typeof ReportPermission]
-  | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
-  | typeof ProductionPermission[keyof typeof ProductionPermission]
+  // | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
+  // | typeof ProductionPermission[keyof typeof ProductionPermission]
   | typeof RouteOperationPermission[keyof typeof RouteOperationPermission]
+  | typeof PayrollPermission[keyof typeof PayrollPermission]
   | typeof HelpPermission[keyof typeof HelpPermission];
