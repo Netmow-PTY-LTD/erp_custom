@@ -39,7 +39,7 @@ export default function DashboardLayout() {
           <Outlet />
         </main>
         <footer>
-          <div className="p-4 text-center text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-3">
+          <div className="p-4 text-center text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-3 print:hidden">
             &copy; {new Date().getFullYear()} ERP. Designed and Developed by{" "}
             <Link
               to="https://inleadsit.com.my"
