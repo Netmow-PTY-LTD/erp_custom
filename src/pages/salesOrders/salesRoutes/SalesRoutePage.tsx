@@ -16,7 +16,7 @@ export default function SalesRoutesPage() {
 
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
-    const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const limit = 10;
 
@@ -192,11 +192,11 @@ export default function SalesRoutesPage() {
                 Assign
               </Button>
             </Link> */}
-             <Button
+            <Button
               size="sm"
               variant="outline-info"
               onClick={() => {
-                setSelectedRouteId(route.id );
+                setSelectedRouteId(route.id);
                 setIsAssignDialogOpen(true);
               }}
             >
@@ -274,7 +274,7 @@ export default function SalesRoutesPage() {
 
       </Card>
 
-       {/* Assign Staff Modal */}
+      {/* Assign Staff Modal */}
       {selectedRouteId && (
         <AssignRouteModal
           isOpen={isAssignDialogOpen}

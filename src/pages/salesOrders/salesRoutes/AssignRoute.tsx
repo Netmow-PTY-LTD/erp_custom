@@ -29,7 +29,7 @@ type AssignStaffForm = {
 type AssignRouteModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  routeId: string;
+  routeId: number;
 };
 
 export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRouteModalProps) {
