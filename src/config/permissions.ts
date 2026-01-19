@@ -87,6 +87,7 @@ export const StaffPermission = {
   DETAILS: "staffs.details.view" as const,
   CREATE: "staffs.create" as const,
   EDIT: "staffs.edit" as const,
+  DELETE: "staffs.delete" as const,
   VIEW_DEPARTMENTS: "departments.view" as const,
   CREATE_DEPARTMENTS: "departments.create" as const,
   EDIT_DEPARTMENTS: "departments.edit" as const,
