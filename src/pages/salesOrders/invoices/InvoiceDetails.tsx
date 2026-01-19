@@ -56,10 +56,6 @@ export default function InvoiceDetailsPage() {
   const [updateInvoiceStatus] = useUpdateInvoiceStatusMutation();
   const handleUpdateInvoiceStatus = async (id: number) => {
     if (!id) return;
-    if (invoice?.payments?.length === 0) {
-      toast.error(`No payments found. Cannot mark as paid.`);
-      return;
-    }
     try {
       const res = await updateInvoiceStatus({
         invoiceId: id,
@@ -114,15 +110,18 @@ export default function InvoiceDetailsPage() {
               <Printer className="w-4 h-4" /> Print / Preview
             </Button>
           </Link>
-          {canMarkAsPaid && invoice?.status !== "paid" && (
-            <Button
-              variant="default"
-              className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm"
-              onClick={() => handleUpdateInvoiceStatus(Number(invoice?.id))}
-            >
-              <CheckCircle2 className="w-4 h-4" /> Mark as Paid
-            </Button>
-          )}
+          {canMarkAsPaid &&
+            invoice?.status !== "paid" &&
+            (invoice?.payments?.length ?? 0) > 0 &&
+            (invoice?.paid_amount ?? 0) > 0 && (
+              <Button
+                variant="default"
+                className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm"
+                onClick={() => handleUpdateInvoiceStatus(Number(invoice?.id))}
+              >
+                <CheckCircle2 className="w-4 h-4" /> Mark as Paid
+              </Button>
+            )}
         </div>
       </div>
 

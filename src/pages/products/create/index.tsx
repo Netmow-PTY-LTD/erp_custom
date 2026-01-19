@@ -49,7 +49,7 @@ import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const productSchema = z.object({
-  sku: z.string().min(1, "Required"),
+  sku: z.string(),
   name: z.string().min(1, "Required"),
   description: z.string().optional(),
   category: z.number().min(1, "Required"),
@@ -72,6 +72,7 @@ const productSchema = z.object({
     name: z.string(),
     values: z.array(z.string())
   })).optional(),
+  specification: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -125,6 +126,7 @@ export default function AddProductPage() {
       length: 0,
       is_active: true,
       attributes: [],
+      specification: "",
     },
   });
 
@@ -163,6 +165,7 @@ export default function AddProductPage() {
       barcode: "9876543210987",
       is_active: values.is_active,
       attributes: values.attributes,
+      specification: values.specification,
     };
 
     try {
@@ -402,6 +405,22 @@ export default function AddProductPage() {
                     </Field>
                   );
                 }}
+              />
+
+              {/* SPECIFICATION */}
+              <Controller
+                control={control}
+                name="specification"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Product Specification</FieldLabel>
+                    <Input
+                      placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
+                      {...field}
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
               />
 
               {/* UNIT */}
