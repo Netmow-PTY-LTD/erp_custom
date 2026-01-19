@@ -17,11 +17,12 @@ import {
 
 import { UserPlus, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
-import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
+// import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import { useGetUserByIdQuery, useUpdateUserMutation } from "@/store/features/users/usersApiService";
 
 import { toast } from "sonner";
-import React, { useState } from "react";
+import React from "react";
+import { RoleSelectField } from "@/components/roles/RoleSelectField";
 
 // -------------------- ZOD SCHEMA --------------------
 const editUserSchema = z.object({
@@ -37,15 +38,15 @@ type EditUserFormValues = z.infer<typeof editUserSchema>;
 export default function EditUserPage() {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const [page] = useState(1);
-  const [search] = useState("");
-  const limit = 10;
+  // const [page] = useState(1);
+  // const [search] = useState("");
+  // const limit = 10;
 
-  const { data: rolesData } = useGetAllRolesQuery({
-    page,
-    limit,
-    search,
-  });
+  // const { data: rolesData } = useGetAllRolesQuery({
+  //   page,
+  //   limit,
+  //   search,
+  // });
   const { data: userData, isLoading: isUserLoading } = useGetUserByIdQuery(userId as string);
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
 
@@ -169,7 +170,7 @@ export default function EditUserPage() {
             />
 
             {/* ROLE */}
-            <Controller
+            {/* <Controller
               control={control}
               name="role_id"
               render={({ field, fieldState }) => (
@@ -200,7 +201,24 @@ export default function EditUserPage() {
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
-            />
+            /> */}
+
+            <Controller
+                          name="role_id"
+                          control={control}
+                          render={({ field, fieldState }) => (
+                            <Field>
+                              <FieldLabel>Role</FieldLabel>
+            
+                              <RoleSelectField
+                                field={field}
+                                disabled={isUpdating}
+                              />
+            
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </Field>
+                          )}
+                        />
 
             <Controller
               control={form.control}

@@ -123,6 +123,7 @@ import {
   SuperAdminPermission,
   RouteOperationPermission,
   HelpPermission,
+  PayrollPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
@@ -1265,52 +1266,80 @@ export const sidebarItemLink = [
     ],
   },
 
+
+
   //HR and Payroll
-  {
-    title: "HR & Payroll",
-    url: "#",
-    icon: HandCoins,
-    items: [
-      {
-        title: "Overview",
-        url: "/dashboard/payroll",
-        element: <HrPayrollOverview />,
-        icon: LayoutDashboard,
-      },
-      // {
-      //   title: "Employment Details",
-      //   url: "/dashboard/payroll/employment-details",
-      //   element: <EmploymentDetails />,
-      //   icon: FileText,
-      // },
-      {
-        title: "Attendance",
-        url: "/dashboard/payroll/attendance",
-        element: <Attendance />,
-        icon: CalendarCheck,
-      },
-
-
-      {
-        title: "Payroll Runs",
-        url: "/dashboard/payroll/payroll-runs",
-        element: <PayrollRuns />,
-        icon: BanknoteArrowDown,
-      },
-      {
-        title: "Payslips",
-        url: "/dashboard/payroll/payslips",
-        element: <Payslips />,
-        icon: FileText,
-      },
-      {
-        title: "Payroll Reports",
-        url: "/dashboard/payroll/payroll-reports",
-        element: <PayrollReports />,
-        icon: LineChart,
-      },
-    ],
-  },
+{
+  title: "HR & Payroll",
+  url: "#",
+  icon: HandCoins,
+  allowedPermissions: [
+    PayrollPermission.VIEW,
+    SuperAdminPermission.ACCESS_ALL,
+  ],
+  items: [
+    {
+      title: "Overview",
+      url: "/dashboard/payroll",
+      element: <HrPayrollOverview />,
+      icon: LayoutDashboard,
+      allowedPermissions: [
+        PayrollPermission.OVERVIEW,
+        SuperAdminPermission.ACCESS_ALL,
+      ],
+    },
+    // {
+    //   title: "Employment Details",
+    //   url: "/dashboard/payroll/employment-details",
+    //   element: <EmploymentDetails />,
+    //   icon: FileText,
+    //   allowedPermissions: [
+    //     PayrollPermission.EMPLOYMENT_DETAILS,
+    //     SuperAdminPermission.ACCESS_ALL,
+    //   ],
+    // },
+    {
+      title: "Attendance",
+      url: "/dashboard/payroll/attendance",
+      element: <Attendance />,
+      icon: CalendarCheck,
+      allowedPermissions: [
+        PayrollPermission.ATTENDANCE,
+        SuperAdminPermission.ACCESS_ALL,
+      ],
+    },
+    {
+      title: "Payroll Runs",
+      url: "/dashboard/payroll/payroll-runs",
+      element: <PayrollRuns />,
+      icon: BanknoteArrowDown,
+      allowedPermissions: [
+        PayrollPermission.PAYROLL_RUNS,
+        SuperAdminPermission.ACCESS_ALL,
+      ],
+    },
+    {
+      title: "Payslips",
+      url: "/dashboard/payroll/payslips",
+      element: <Payslips />,
+      icon: FileText,
+      allowedPermissions: [
+        PayrollPermission.PAYSLIPS,
+        SuperAdminPermission.ACCESS_ALL,
+      ],
+    },
+    {
+      title: "Payroll Reports",
+      url: "/dashboard/payroll/payroll-reports",
+      element: <PayrollReports />,
+      icon: LineChart,
+      allowedPermissions: [
+        PayrollPermission.PAYROLL_REPORTS,
+        SuperAdminPermission.ACCESS_ALL,
+      ],
+    },
+  ],
+},
 
   // USERS
   {
