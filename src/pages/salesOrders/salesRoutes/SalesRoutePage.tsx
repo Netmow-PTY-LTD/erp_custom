@@ -10,11 +10,14 @@ import { useGetAllSalesRouteQuery } from "@/store/features/salesRoute/salesRoute
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Map, MapPin, CheckCircle, XCircle } from "lucide-react";
+import AssignRouteModal from "./AssignRoute";
 
 export default function SalesRoutesPage() {
 
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const limit = 10;
 
   const {
@@ -27,6 +30,7 @@ export default function SalesRoutesPage() {
   // Fetch all for stats (simplified frontend calculation)
   const { data: allRoutesData } = useGetAllSalesRouteQuery({ limit: 1000 });
   const allRoutes = allRoutesData?.data || [];
+
 
   const totalRoutes = allRoutes.length;
   const activeRoutes = allRoutes.filter((r) => r.is_active).length;
@@ -183,11 +187,21 @@ export default function SalesRoutesPage() {
                 Edit
               </Button>
             </Link>
-            <Link to={`/dashboard/sales/sales-routes/${route.id}/assign`}>
+            {/* <Link to={`/dashboard/sales/sales-routes/${route.id}/assign`}>
               <Button size="sm" variant="outline-info">
                 Assign
               </Button>
-            </Link>
+            </Link> */}
+            <Button
+              size="sm"
+              variant="outline-info"
+              onClick={() => {
+                setSelectedRouteId(route.id);
+                setIsAssignDialogOpen(true);
+              }}
+            >
+              Assign
+            </Button>
           </div>
         );
       },
@@ -199,7 +213,7 @@ export default function SalesRoutesPage() {
       <div className="flex flex-wrap items-center justify-between gap-5 mb-5">
         <h2 className="text-xl font-bold">Sales Routes</h2>
         <Link to="/dashboard/sales/sales-routes/create">
-          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
             <PlusCircle size={18} />
             New Route
           </button>
@@ -211,7 +225,7 @@ export default function SalesRoutesPage() {
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -257,7 +271,21 @@ export default function SalesRoutesPage() {
 
 
         </CardContent>
+
       </Card>
+
+      {/* Assign Staff Modal */}
+      {selectedRouteId && (
+        <AssignRouteModal
+          key={selectedRouteId} // Force remount when ID changes
+          isOpen={isAssignDialogOpen}
+          onClose={() => {
+            setIsAssignDialogOpen(false);
+            setSelectedRouteId(null);
+          }}
+          routeId={selectedRouteId}
+        />
+      )}
     </div>
   );
 }

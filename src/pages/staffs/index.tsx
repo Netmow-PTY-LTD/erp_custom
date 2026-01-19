@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   useDeleteStaffMutation,
   useGetAllStaffsQuery,
 } from "@/store/features/staffs/staffApiService";
+import { useAppSelector } from "@/store/store";
 import type { Department, Staff } from "@/types/types";
 import type { Role } from "@/types/users.types";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -57,6 +60,13 @@ export default function Staffs() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [limit] = useState(10);
+
+   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  // permissions
+
+  const canDeleteStaff = userPermissions.includes(StaffPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  
   const { data: staffsData, isLoading } = useGetAllStaffsQuery({
     page,
     limit,
@@ -240,6 +250,8 @@ export default function Staffs() {
                 Edit
               </Button>
             </Link>
+
+            {canDeleteStaff &&
             <Button
               size="sm"
               variant="destructive"
@@ -247,6 +259,8 @@ export default function Staffs() {
             >
               <Trash className="w-4 h-4 mr-1" />
             </Button>
+            }
+            
           </div>
         );
       },
@@ -259,7 +273,7 @@ export default function Staffs() {
         <h1 className="text-2xl font-bold tracking-tight">Staffs Management</h1>
 
         <Link to="/dashboard/staffs/add">
-          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
             <PlusCircle size={18} />
             Add Staff
           </button>
@@ -271,7 +285,7 @@ export default function Staffs() {
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
