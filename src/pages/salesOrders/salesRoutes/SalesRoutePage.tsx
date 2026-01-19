@@ -277,8 +277,12 @@ export default function SalesRoutesPage() {
       {/* Assign Staff Modal */}
       {selectedRouteId && (
         <AssignRouteModal
+          key={selectedRouteId} // Force remount when ID changes
           isOpen={isAssignDialogOpen}
-          onClose={() => setIsAssignDialogOpen(false)}
+          onClose={() => {
+            setIsAssignDialogOpen(false);
+            setSelectedRouteId(null);
+          }}
           routeId={selectedRouteId}
         />
       )}
