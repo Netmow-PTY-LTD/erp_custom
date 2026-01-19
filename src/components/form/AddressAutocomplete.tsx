@@ -247,6 +247,11 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
                                 const placeResult = results[0];
 
                                 // Extract address components
+                                    // ✅ FULL ADDRESS
+                                    
+                                    const fullAddress = placeResult.formatted_address || "";
+
+
                                 let address = "";
                                 let city = "";
                                 let state = "";
@@ -256,13 +261,15 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
                                 if (placeResult.address_components) {
                                     placeResult.address_components.forEach((component: any) => {
                                         const types = component.types;
+                           
+                                        console.log("Full address:", fullAddress);
 
-                                        if (types.includes("street_number")) {
-                                            address += component.long_name + " ";
-                                        }
-                                        if (types.includes("route")) {
-                                            address += component.long_name;
-                                        }
+                                        // if (types.includes("street_number")) {
+                                        //     address += component.long_name + " ";
+                                        // }
+                                        // if (types.includes("route")) {
+                                        //     address += component.long_name;
+                                        // }
                                         if (types.includes("locality")) {
                                             city = component.long_name;
                                         }
@@ -281,8 +288,14 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
                                     });
                                 }
 
-                                address = address.trim() || placeResult.formatted_address;
-                                setInputValue(placeResult.formatted_address);
+                                // address = address.trim() || placeResult.formatted_address;
+                                address = fullAddress;
+
+                                // setInputValue(placeResult.formatted_address);
+
+                                // ✅ Input shows full address
+                                 setInputValue(fullAddress);
+
 
                                 onAddressSelect({
                                     address,
@@ -379,9 +392,10 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
         };
 
         const processPlaceDetails = (place: any, description: string) => {
+            const fullAddress = place.formatted_address || "";
             let address = "";
-            let streetNumber = "";
-            let route = "";
+            // let streetNumber = "";
+            // let route = "";
             let city = "";
             let state = "";
             let postalCode = "";
@@ -398,12 +412,12 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
                 components.forEach((component: any) => {
                     const types = component.types;
 
-                    if (types.includes("street_number")) {
-                        streetNumber = component.longText || component.long_name;
-                    }
-                    if (types.includes("route")) {
-                        route = component.longText || component.long_name;
-                    }
+                    // if (types.includes("street_number")) {
+                    //     streetNumber = component.longText || component.long_name;
+                    // }
+                    // if (types.includes("route")) {
+                    //     route = component.longText || component.long_name;
+                    // }
                     if (types.includes("locality")) {
                         city = component.longText || component.long_name;
                     }
@@ -424,7 +438,11 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, AddressAutocompl
                 });
             }
 
-            address = `${streetNumber} ${route}`.trim();
+            // address = `${streetNumber} ${route}`.trim();
+
+            address = fullAddress;
+
+
             if (!address && place.name) {
                 address = typeof place.name === 'string' ? place.name : place.displayName;
             }

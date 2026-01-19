@@ -60,13 +60,19 @@ export interface SalesOrderFormValues {
   due_date: string;         // e.g., "2025-12-15T00:00:00.000Z"
   customer_id: number;
   shipping_address: string;
+  delivery_date?: string;
+  notes?: string;
   items: {
     product_id: number;
+    sku?: string;
     quantity: number;
     unit_price: number;
     discount: number;
     sales_tax: number;
+    specification?: string;
+    unit?: string;
     stock_quantity?: number;
+    remark?: string;
   }[];
 }
 

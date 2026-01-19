@@ -162,6 +162,7 @@ export const UserPermission = {
   CREATE: "users.create" as const,
   EDIT: "users.edit" as const,
   DETAILS: "users.details.view" as const,
+  DELETE: "users.delete" as const,
 };
 
 // --- Roles & Permissions ---

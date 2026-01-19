@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,8 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import { SuperAdminPermission, UserPermission } from "@/config/permissions";
+import { useAppSelector } from "@/store/store";
 
 
 
@@ -88,6 +91,12 @@ export default function HrPayrollOverview() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [limit] = useState(10);
+
+
+      const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+      const canDeleteUser = userPermissions.includes(UserPermission.DELETE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+    
+
     const { data: staffsData, isLoading } = useGetAllStaffsQuery({
         page,
         limit,
@@ -186,6 +195,7 @@ export default function HrPayrollOverview() {
         { skip: !viewingAttendanceStaff?.id }
     );
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const attendanceRecords = attendanceData?.data || [];
 
     // Calculate Stats from fetched records
@@ -526,13 +536,18 @@ export default function HrPayrollOverview() {
                                 Edit
                             </Button>
                         </Link>
-                        <Button
+                        {
+                            canDeleteUser &&(
+                                      <Button
                             size="sm"
                             variant="destructive"
                             onClick={() => handleDeleteClick(item)}
                         >
                             <Trash className="w-4 h-4 mr-1" />
                         </Button>
+                            ) 
+                        }
+                      
                     </div>
                 );
             },
@@ -545,7 +560,7 @@ export default function HrPayrollOverview() {
                 <h1 className="text-2xl font-bold tracking-tight">Employee & Payroll Overview</h1>
 
                 <Link to="/dashboard/staffs/add">
-                    <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                    <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
                         <PlusCircle size={18} />
                         Add Employee
                     </button>
@@ -557,7 +572,7 @@ export default function HrPayrollOverview() {
                 {stats.map((item, idx) => (
                     <div
                         key={idx}
-                        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+                        className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
                     >
                         {/* Background Pattern */}
                         <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -663,7 +678,7 @@ export default function HrPayrollOverview() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-l-4 border-l-purple-600 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-white to-purple-50">
+                        <Card className="border-l-4 border-l-purple-600 shadow-sm hover:shadow-md transition-shadow bg-linear-to-br from-white to-purple-50">
                             <CardContent className="p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <p className="text-sm font-medium text-gray-500">Est. Net Payable</p>
@@ -683,7 +698,7 @@ export default function HrPayrollOverview() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Allowances Breakdown */}
                         <Card>
-                            <CardHeader className="py-4 border-b-1 gap-0">
+                            <CardHeader className="py-4 border-b gap-0">
                                 <CardTitle className="text-lg flex items-center gap-2 text-emerald-800">
                                     <PieChart className="w-5 h-5" /> Allowance Breakdown
                                 </CardTitle>
@@ -705,7 +720,7 @@ export default function HrPayrollOverview() {
 
                         {/* Deductions Breakdown */}
                         <Card>
-                            <CardHeader className="py-4 border-b-1 gap-0">
+                            <CardHeader className="py-4 border-b gap-0">
                                 <CardTitle className="text-lg flex items-center gap-2 text-rose-800">
                                     <PieChart className="w-5 h-5" /> Deduction Breakdown
                                 </CardTitle>
@@ -931,7 +946,7 @@ export default function HrPayrollOverview() {
                             </Card>
 
                             {/* Payable for Selected Month Card */}
-                            <Card className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg border-none mt-6">
+                            <Card className="bg-linear-to-r from-emerald-600 to-teal-600 text-white shadow-lg border-none mt-6">
                                 <CardContent className="p-6">
                                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                                         <div className="flex-1">
