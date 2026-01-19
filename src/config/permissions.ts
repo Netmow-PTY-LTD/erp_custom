@@ -66,6 +66,7 @@ export const SupplierPermission = {
   LIST: "suppliers.list" as const,
   CREATE: "suppliers.create" as const,
   EDIT: "suppliers.edit" as const,
+  DELETE: "suppliers.delete" as const,
   VIEW_PURCHASE_ORDERS: "suppliers.purchase_orders.view" as const,
   VIEW_PURCHASE_ORDER_DETAILS: "suppliers.purchase_orders.details.view" as const,
   CREATE_PURCHASE_ORDER: "suppliers.purchase_orders.create" as const,
