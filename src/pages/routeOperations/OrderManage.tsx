@@ -30,7 +30,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, Loader2, Search } from "lucide-react";
+import { Eye, UserPlus, Users, CheckCircle2, Package, MapPin, Phone, CreditCard, Clock, Loader2, Search, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useGetAllSalesOrdersQuery, useGetSalesOrderByIdQuery, useAssignStaffToOrderMutation } from "@/store/features/salesOrder/salesOrder";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,7 @@ import type { SalesOrder, SalesOrderItem } from "@/types/salesOrder.types";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import { useAppSelector } from "@/store/store";
 import { selectCurrency } from "@/store/currencySlice";
+import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 
 // Mock Data
 const dummyStaff = [
@@ -71,6 +72,12 @@ const OrderManage = () => {
     const [search, setSearch] = useState("");
     const [viewOrderId, setViewOrderId] = useState<string | number | null>(null);
     const [staffSearch, setStaffSearch] = useState("");
+
+    //permissions
+      const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+      const canAssignStaff = userPermissions.includes(SalesPermission.ASSIGN_STAFF_IN_ORDER)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+    
+    
     const { data: salesOrderData, isLoading, isFetching } = useGetAllSalesOrdersQuery({ search, page, limit });
     const { data: detailedOrderData, isFetching: isFetchingDetail } = useGetSalesOrderByIdQuery(viewOrderId as string | number, { skip: !viewOrderId });
     const [assignStaff, { isLoading: isAssigning }] = useAssignStaffToOrderMutation();
@@ -567,7 +574,30 @@ const OrderManage = () => {
             {/* Assign Dialog - MULTI SELECT */}
             <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
                 <DialogContent>
-                    <DialogHeader>
+
+                    {
+                        !canAssignStaff ?  <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to Assign Staff in Order. <br />
+                Please contact your administrator if you believe this is an
+                error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setIsAssignDialogOpen(false)}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div> : (
+                            <>
+                             <DialogHeader>
                         <DialogTitle>Assign Staff</DialogTitle>
                         <DialogDescription>
                             Select one or more staff members to assign to {ordersToAssign.length} selected order(s).
@@ -645,6 +675,10 @@ const OrderManage = () => {
                             Confirm Assignment
                         </Button>
                     </DialogFooter>
+                            </>
+                        )
+                    }
+                   
                 </DialogContent>
             </Dialog>
         </div>
