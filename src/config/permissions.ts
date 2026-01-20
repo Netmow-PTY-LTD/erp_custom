@@ -158,6 +158,7 @@ export const AccountingPermission = {
   TRANSACTIONS: "accounting.transactions.view" as const,
   CHART_OF_ACCOUNTS: "accounting.chart_of_accounts.view" as const,
   JOURNAL_REPORT: "accounting.reports.journal.view" as const,
+  CREATE_JOURNAL_REPORT: "accounting.reports.journal.create" as const,
   LEDGER_REPORT: "accounting.reports.ledger.view" as const,
   TRIAL_BALANCE: "accounting.reports.trial_balance.view" as const,
   PROFIT_AND_LOSS: "accounting.reports.profit_and_loss.view" as const,

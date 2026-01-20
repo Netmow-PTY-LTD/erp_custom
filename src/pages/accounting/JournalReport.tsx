@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter, Plus, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, Filter, Plus, ShieldAlert, Trash2,  } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -43,6 +44,8 @@ import {
 import { Check, ChevronDown, CornerDownRight } from "lucide-react";
 import { useAddJournalEntryMutation, useGetAccountingAccountsQuery, useGetJournalReportQuery } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { AccountingPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function JournalReport() {
     const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
@@ -50,6 +53,11 @@ export default function JournalReport() {
         to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0), // Last day of current month
     });
     const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
+
+    // Permissions
+    const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+    const CanCreateJournalReport = userPermissions.includes(AccountingPermission.CREATE_JOURNAL_REPORT) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
     // API Hooks
     const { data: accountsData } = useGetAccountingAccountsQuery({ limit: 1000 });
@@ -82,6 +90,7 @@ export default function JournalReport() {
 
     const handleRowChange = (index: number, field: string, value: any) => {
         const newRows = [...rows];
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         newRows[index][field] = value;
         setRows(newRows);
@@ -117,7 +126,7 @@ export default function JournalReport() {
                             <CommandEmpty>No account found.</CommandEmpty>
                             <CommandGroup>
                                 {accounts.map((acc) => {
-                                    // @ts-ignore
+                                   
                                     const level = acc.level || 0;
 
                                     return (
@@ -186,156 +195,179 @@ export default function JournalReport() {
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[800px]">
-                            <DialogHeader>
-                                <DialogTitle>Create New Journal Entry</DialogTitle>
-                                <DialogDescription>
-                                    Record a manual journal entry. Ensure Total Debit equals Total Credit.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full justify-start text-left font-normal",
-                                                        !entryDate && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {entryDate ? format(entryDate, "PPP") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={entryDate}
-                                                    onSelect={setEntryDate}
-                                                    initialFocus
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Narration / Reference</Label>
-                                        <Input
-                                            placeholder="e.g. Adjustment for depreciation"
-                                            value={narration}
-                                            onChange={(e) => setNarration(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
 
-                                <div className="border rounded-md p-4 bg-muted/20 space-y-4">
-                                    <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground mb-2">
-                                        <div className="col-span-5">Account</div>
-                                        <div className="col-span-3 text-right">Debit</div>
-                                        <div className="col-span-3 text-right">Credit</div>
-                                        <div className="col-span-1"></div>
-                                    </div>
-
-                                    {rows.map((row, index) => (
-                                        <div key={index} className="grid grid-cols-12 gap-2 items-center">
-                                            <div className="col-span-5">
-                                                <AccountCombobox
-                                                    value={row.account_id}
-                                                    onChange={(val) => handleRowChange(index, "account_id", val)}
-                                                />
-                                            </div>
-                                            <div className="col-span-3">
-                                                <Input
-                                                    type="number"
-                                                    className="text-right"
-                                                    placeholder="0.00"
-                                                    value={row.debit === 0 ? '' : row.debit}
-                                                    onChange={(e) => handleRowChange(index, "debit", Number(e.target.value))}
-                                                />
-                                            </div>
-                                            <div className="col-span-3">
-                                                <Input
-                                                    type="number"
-                                                    className="text-right"
-                                                    placeholder="0.00"
-                                                    value={row.credit === 0 ? '' : row.credit}
-                                                    onChange={(e) => handleRowChange(index, "credit", Number(e.target.value))}
-                                                />
-                                            </div>
-                                            <div className="col-span-1 flex justify-center">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                    onClick={() => handleRemoveRow(index)}
-                                                    disabled={rows.length <= 2}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
+                            {
+                                !CanCreateJournalReport ? (
+                                    <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+                                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
+                                            <ShieldAlert className="h-10 w-10 text-destructive" />
                                         </div>
-                                    ))}
 
-                                    <Button variant="outline" size="sm" onClick={handleAddRow} className="mt-2">
-                                        <Plus className="mr-2 h-3.5 w-3.5" /> Add Row
-                                    </Button>
-                                </div>
+                                        <h2 className="text-lg font-semibold">Access Denied</h2>
 
-                                <div className="flex justify-end gap-6 px-4 font-semibold text-sm">
-                                    <div className="flex gap-2">
-                                        <span className="text-muted-foreground">Total Debit:</span>
-                                        <span>{totalDebit.toFixed(2)}</span>
+                                        <p className="text-sm text-muted-foreground">
+                                            You do not have permission to create a journal report.
+                                            <br />
+                                            Please contact your administrator.
+                                        </p>
+
+                                        <Button variant="outline" onClick={() => setIsNewEntryOpen(false)}>
+                                            Close
+                                        </Button>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <span className="text-muted-foreground">Total Credit:</span>
-                                        <span>{totalCredit.toFixed(2)}</span>
-                                    </div>
-                                    <div className={cn("flex gap-2", isBalanced ? "text-emerald-600" : "text-destructive")}>
-                                        <span>Difference:</span>
-                                        <span>{(totalDebit - totalCredit).toFixed(2)}</span>
-                                    </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        <DialogHeader>
+                                            <DialogTitle>Create New Journal Entry</DialogTitle>
+                                            <DialogDescription>
+                                                Record a manual journal entry. Ensure Total Debit equals Total Credit.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="grid gap-4 py-4">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <Label>Date</Label>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-full justify-start text-left font-normal",
+                                                                    !entryDate && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                {entryDate ? format(entryDate, "PPP") : <span>Pick a date</span>}
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0">
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={entryDate}
+                                                                onSelect={setEntryDate}
+                                                                initialFocus
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>Narration / Reference</Label>
+                                                    <Input
+                                                        placeholder="e.g. Adjustment for depreciation"
+                                                        value={narration}
+                                                        onChange={(e) => setNarration(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
 
-                            </div>
-                            <DialogFooter>
-                                <Button variant="outline" onClick={() => setIsNewEntryOpen(false)}>Cancel</Button>
-                                <Button
-                                    type="submit"
-                                    disabled={!isBalanced || isLoading}
-                                    onClick={async () => {
-                                        if (!entryDate || !isBalanced) return;
+                                            <div className="border rounded-md p-4 bg-muted/20 space-y-4">
+                                                <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground mb-2">
+                                                    <div className="col-span-5">Account</div>
+                                                    <div className="col-span-3 text-right">Debit</div>
+                                                    <div className="col-span-3 text-right">Credit</div>
+                                                    <div className="col-span-1"></div>
+                                                </div>
 
-                                        try {
-                                            const payload = {
-                                                date: format(entryDate, 'yyyy-MM-dd'),
-                                                narration,
-                                                entries: rows.map(r => ({
-                                                    account_id: Number(r.account_id),
-                                                    debit: r.debit,
-                                                    credit: r.credit
-                                                }))
-                                            };
+                                                {rows.map((row, index) => (
+                                                    <div key={index} className="grid grid-cols-12 gap-2 items-center">
+                                                        <div className="col-span-5">
+                                                            <AccountCombobox
+                                                                value={row.account_id}
+                                                                onChange={(val) => handleRowChange(index, "account_id", val)}
+                                                            />
+                                                        </div>
+                                                        <div className="col-span-3">
+                                                            <Input
+                                                                type="number"
+                                                                className="text-right"
+                                                                placeholder="0.00"
+                                                                value={row.debit === 0 ? '' : row.debit}
+                                                                onChange={(e) => handleRowChange(index, "debit", Number(e.target.value))}
+                                                            />
+                                                        </div>
+                                                        <div className="col-span-3">
+                                                            <Input
+                                                                type="number"
+                                                                className="text-right"
+                                                                placeholder="0.00"
+                                                                value={row.credit === 0 ? '' : row.credit}
+                                                                onChange={(e) => handleRowChange(index, "credit", Number(e.target.value))}
+                                                            />
+                                                        </div>
+                                                        <div className="col-span-1 flex justify-center">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                                onClick={() => handleRemoveRow(index)}
+                                                                disabled={rows.length <= 2}
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
 
-                                            await addJournalEntry(payload).unwrap();
-                                            toast.success("Journal entry created successfully");
-                                            setIsNewEntryOpen(false);
-                                            // Reset form
-                                            setEntryDate(new Date());
-                                            setNarration("");
-                                            setRows([
-                                                { account_id: "", debit: 0, credit: 0 },
-                                                { account_id: "", debit: 0, credit: 0 },
-                                            ]);
-                                        } catch (error) {
-                                            console.error("Failed to create entry:", error);
-                                            toast.error("Failed to create journal entry");
-                                        }
-                                    }}
-                                >
-                                    {isLoading ? "Saving..." : "Save Entry"}
-                                </Button>
-                            </DialogFooter>
+                                                <Button variant="outline" size="sm" onClick={handleAddRow} className="mt-2">
+                                                    <Plus className="mr-2 h-3.5 w-3.5" /> Add Row
+                                                </Button>
+                                            </div>
+
+                                            <div className="flex justify-end gap-6 px-4 font-semibold text-sm">
+                                                <div className="flex gap-2">
+                                                    <span className="text-muted-foreground">Total Debit:</span>
+                                                    <span>{totalDebit.toFixed(2)}</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <span className="text-muted-foreground">Total Credit:</span>
+                                                    <span>{totalCredit.toFixed(2)}</span>
+                                                </div>
+                                                <div className={cn("flex gap-2", isBalanced ? "text-emerald-600" : "text-destructive")}>
+                                                    <span>Difference:</span>
+                                                    <span>{(totalDebit - totalCredit).toFixed(2)}</span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <DialogFooter>
+                                            <Button variant="outline" onClick={() => setIsNewEntryOpen(false)}>Cancel</Button>
+                                            <Button
+                                                type="submit"
+                                                disabled={!isBalanced || isLoading}
+                                                onClick={async () => {
+                                                    if (!entryDate || !isBalanced) return;
+
+                                                    try {
+                                                        const payload = {
+                                                            date: format(entryDate, 'yyyy-MM-dd'),
+                                                            narration,
+                                                            entries: rows.map(r => ({
+                                                                account_id: Number(r.account_id),
+                                                                debit: r.debit,
+                                                                credit: r.credit
+                                                            }))
+                                                        };
+
+                                                        await addJournalEntry(payload).unwrap();
+                                                        toast.success("Journal entry created successfully");
+                                                        setIsNewEntryOpen(false);
+                                                        // Reset form
+                                                        setEntryDate(new Date());
+                                                        setNarration("");
+                                                        setRows([
+                                                            { account_id: "", debit: 0, credit: 0 },
+                                                            { account_id: "", debit: 0, credit: 0 },
+                                                        ]);
+                                                    } catch (error) {
+                                                        console.error("Failed to create entry:", error);
+                                                        toast.error("Failed to create journal entry");
+                                                    }
+                                                }}
+                                            >
+                                                {isLoading ? "Saving..." : "Save Entry"}
+                                            </Button>
+                                        </DialogFooter>
+                                    </>)}
                         </DialogContent>
                     </Dialog>
 
