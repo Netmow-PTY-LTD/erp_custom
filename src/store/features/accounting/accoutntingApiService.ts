@@ -10,6 +10,8 @@ import type {
   CreateTransactionInput,
   RecentActivity,
   ExpenseBreakdown,
+  LedgerReportResponse,
+  ProductProfitLossResponse,
 } from "@/types/accounting.types";
 
 
@@ -479,6 +481,26 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET PRODUCT PROFIT LOSS
+    getProductProfitLoss: builder.query<ProductProfitLossResponse, { from?: string; to?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/product-profit-loss",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET LEDGER REPORT
+    getLedgerReport: builder.query<LedgerReportResponse, { id: string; from?: string; to?: string }>({
+      query: ({ id, ...params }) => ({
+        url: `/accounting/reports/ledger/${id}`,
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
 
     updateAccountingAccount: builder.mutation<ListResponse<ChartOfAccount>, { id: number; body: Partial<ChartOfAccount> }>({
       query: ({ id, body }) => ({
@@ -573,7 +595,9 @@ export const {
   useAddTransactionMutation,
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
+  useGetProductProfitLossQuery,
   useGetExpenseHeadsQuery,
   useAddExpenseHeadwiseMutation,
+  useGetLedgerReportQuery,
 
 } = accountingApiService;

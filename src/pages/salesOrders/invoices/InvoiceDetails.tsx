@@ -111,9 +111,9 @@ export default function InvoiceDetailsPage() {
             </Button>
           </Link>
           {canMarkAsPaid &&
-            invoice?.status !== "paid" &&
+            invoice?.status?.toLowerCase() !== "paid" &&
             (invoice?.payments?.length ?? 0) > 0 &&
-            (invoice?.paid_amount ?? 0) > 0 && (
+            Number(payableAmount) > 0 && (
               <Button
                 variant="default"
                 className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm"
