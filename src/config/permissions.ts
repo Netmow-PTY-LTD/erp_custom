@@ -125,6 +125,7 @@ export const SalesPermission = {
   ASSIGN_ROUTE: "sales.routes.assign" as const,
   MARK_AS_PAID: "sales.invoices.mark_as_paid" as const,
   POS_ORDER: "sales.pos_order.view" as const,
+  ASSIGN_STAFF_IN_ORDER: "sales.assign_staff.in_order" as const,
 };
 
 // --- Accounting ---
