@@ -24,6 +24,7 @@ export const ProductPermission = {
   DETAILS: "products.details" as const,
   CREATE: "products.create" as const,
   EDIT: "products.edit" as const,
+  DELETE: "products.delete" as const,
   // Categories
   VIEW_CATEGORIES: "products.categories.view" as const,
   CREATE_CATEGORIES: "products.categories.create" as const,
@@ -54,8 +55,6 @@ export const CustomerPermission = {
   CREATE_BY_STAFF: "customers.create.by.staff" as const,
   EDIT_BY_STAFF: "customers.edit.by.staff" as const,
   EDIT: "customers.edit" as const,
-  VIEW_ROUTE_DETAILS: "customers.routes.details.view" as const,
-  ASSIGN_ROUTE: "customers.routes.assign" as const,
   VIEW_MAP: "customers.map.view" as const,
   DELETE: "customers.delete" as const,
 };
@@ -97,6 +96,8 @@ export const StaffPermission = {
   VIEW_STAFF_MAP: "staffs.map.view" as const,
   CHECK_IN: "staffs.check_in" as const,
   VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
+    VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
+  ASSIGN_ROUTE: "staff.routes.assign" as const,
 };
 
 // --- Sales & Orders ---
