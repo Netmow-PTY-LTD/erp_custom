@@ -96,7 +96,7 @@ export const StaffPermission = {
   VIEW_STAFF_MAP: "staffs.map.view" as const,
   CHECK_IN: "staffs.check_in" as const,
   VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
-    VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
+  VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
   ASSIGN_ROUTE: "staff.routes.assign" as const,
 };
 
@@ -138,6 +138,10 @@ export const AccountingPermission = {
   CREATE_INCOME: "accounting.incomes.create" as const,
   CREATE_EXPENSE: "accounting.expenses.create" as const,
 
+  CREATE_ACCOUNTING_ACCOUNT: "accounting.accounts.create" as const,
+  EDIT_ACCOUNTING_ACCOUNT: "accounting.accounts.edit" as const,
+  DELETE_ACCOUNTING_ACCOUNT: "accounting.accounts.delete" as const,
+  VIEW_ACCOUNTING_ACCOUNTS: "accounting.accounts.view" as const,
   // Credit Heads
   VIEW_CREDIT_HEADS: "accounting.credit_heads.view" as const,
   CREATE_CREDIT_HEADS: "accounting.credit_heads.create" as const,
