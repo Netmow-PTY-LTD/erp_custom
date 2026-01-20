@@ -2,12 +2,30 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft, Loader } from "lucide-react";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { useAppSelector } from "@/store/store";
+import { sidebarItemLink } from "@/config/sidebarItemLInk";
+import { getFirstAllowedRoute } from "@/utils/permissionUtils";
+import { useEffect } from "react";
+
 
 export default function Login() {
   const navigate = useNavigate();
+  const { user, token } = useAppSelector((state) => state.auth);
+  const permissions = user?.role?.permissions || [];
+
   const { data: companyProfileSettings } = useGetSettingsInfoQuery();
-  console.log("companyProfileSettings", companyProfileSettings);
   const logo = companyProfileSettings?.data?.logo_url;
+
+  useEffect(() => {
+    if (user && token) {
+      const targetRoute = getFirstAllowedRoute(sidebarItemLink, permissions);
+      navigate(targetRoute, { replace: true });
+    }
+  }, [user, token, navigate, permissions]);
+
+  // If redirected, don't render the form (optional, but cleaner)
+  if (user && token) return null;
+
   return (
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 relative">
       <button
@@ -31,7 +49,7 @@ export default function Login() {
               />
             ) : (
               <div className="flex items-center justify-center">
-                <Loader className="w-4 h-4 animate-spin" /> 
+                <Loader className="w-4 h-4 animate-spin" />
               </div>
             )}
           </div>

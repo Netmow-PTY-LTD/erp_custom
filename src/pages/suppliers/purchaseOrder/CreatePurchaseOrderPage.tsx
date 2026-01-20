@@ -39,7 +39,8 @@ import { BackButton } from "@/components/BackButton";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Package, CheckCircle2, ShoppingCart } from "lucide-react";
+import { FileText, Package, CheckCircle2, ShoppingCart, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const orderSchema = z
   .object({
@@ -145,7 +146,17 @@ export default function CreatePurchaseOrderPage() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
-            {selected ? selected.name : "Select Supplier..."}
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={selected?.thumb_url} />
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="truncate">
+                {selected ? selected.name : "Select Supplier..."}
+              </span>
+            </div>
           </Button>
         </PopoverTrigger>
 
@@ -174,8 +185,15 @@ export default function CreatePurchaseOrderPage() {
                         field.onChange(Number(supplier.id));
                         setOpen(false);
                       }}
+                      className="flex items-center gap-2"
                     >
-                      {supplier.name}
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={supplier.thumb_url} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{supplier.name}</span>
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -289,10 +307,20 @@ export default function CreatePurchaseOrderPage() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
-            {selected
-              ? `${selected.name} (SKU: ${selected.sku}) (${selected.unit?.name || "-"
-              })`
-              : "Select Product..."}
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={selected?.thumb_url} />
+                <AvatarFallback>
+                  <Package className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="truncate text-left">
+                {selected
+                  ? `${selected.name} (SKU: ${selected.sku}) (${selected.unit?.name || "-"
+                  })`
+                  : "Select Product..."}
+              </span>
+            </div>
           </Button>
         </PopoverTrigger>
 
@@ -318,9 +346,20 @@ export default function CreatePurchaseOrderPage() {
                     <CommandItem
                       key={product.id}
                       onSelect={() => handleSelect(Number(product.id))}
+                      className="flex items-center gap-2"
                     >
-                      {product.name} (SKU: {product.sku}) (
-                      {product.unit?.name || "-"})
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={product.thumb_url} />
+                        <AvatarFallback>
+                          <Package className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">{product.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          SKU: {product.sku} | Unit: {product.unit?.name || "-"}
+                        </div>
+                      </div>
                     </CommandItem>
                   ))}
               </CommandGroup>
