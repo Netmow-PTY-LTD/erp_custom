@@ -1198,7 +1198,7 @@ export const sidebarItemLink = [
       },
       {
         title: "Ledger Report",
-        url: "/dashboard/accounting/reports/ledger/:id",
+        url: "/dashboard/accounting/reports/ledger",
         element: <LedgerReport />,
         icon: FileText,
         allowedPermissions: [
