@@ -59,7 +59,6 @@ import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersLi
 import EditSupplierPage from "@/pages/suppliers/supplier/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseOrderPage";
-import AssignRoutePage from "@/pages/salesOrders/salesRoutes/AssignRoute";
 import Staffs from "@/pages/staffs";
 import StaffDetails from "@/pages/staffs/StaffDetails";
 import AddStaffPage from "@/pages/staffs/add";
@@ -361,15 +360,6 @@ export const sidebarItemLink = [
         element: <RouteDetails />,
         allowedPermissions: [
           CustomerPermission.VIEW_ROUTE_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/customers/sales-routes/:routeId/assign",
-        element: <AssignRoutePage />,
-        allowedPermissions: [
-          CustomerPermission.ASSIGN_ROUTE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1154,15 +1144,15 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "",
-        url: "/dashboard/sales/sales-routes/:routeId/assign",
-        element: <AssignRoutePage />,
-        allowedPermissions: [
-          SalesPermission.ASSIGN_ROUTE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
+      // {
+      //   title: "",
+      //   url: "/dashboard/sales/sales-routes/:routeId/assign",
+      //   element: <AssignRoutePage />,
+      //   allowedPermissions: [
+      //     SalesPermission.ASSIGN_ROUTE,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
     ],
   },
 
