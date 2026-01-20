@@ -16,11 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Users, CheckCircle2, Loader2 } from "lucide-react";
+import { Search, Users, CheckCircle2, Loader2, ShieldAlert } from "lucide-react";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import { useAssignStaffMutation, useGetSalesRouteByIdQuery } from "@/store/features/salesRoute/salesRoute";
 import type { Staff } from "@/types/staff.types";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 
 type AssignStaffForm = {
   staffIds: number[];
@@ -39,6 +41,14 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
   const [hasMore, setHasMore] = useState(true);
   const limit = 10;
   const hasHydratedRef = useRef(false);
+
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canAssignRoute = userPermissions.includes(StaffPermission.ASSIGN_ROUTE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+
+
+
 
   const form = useForm<AssignStaffForm>({
     defaultValues: { staffIds: [] },
@@ -147,13 +157,41 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+
+   <DialogContent className="max-w-md">
+
+
+   {!canAssignRoute ? (
+      <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                <ShieldAlert className="w-10 h-10 text-destructive" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Access Denied
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                You do not have permission to assign route. <br />
+                Please contact your administrator if you believe this is an
+                error.
+              </p>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="mt-4"
+              >
+                Close
+              </Button>
+            </div>
+    ) : (
+      <>
         <DialogHeader>
           <DialogTitle>Assign Staff</DialogTitle>
           <DialogDescription>
             Select one or more staff members to assign to this route.
           </DialogDescription>
         </DialogHeader>
+
+
 
         {isLoadingRoute || isFetchingRoute ? (
           <div className="flex items-center justify-center p-8">
@@ -273,7 +311,13 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
             />
           </>
         )}
+      </>
+    )}
+
+
+       
       </DialogContent>
+      
     </Dialog>
   );
 }
