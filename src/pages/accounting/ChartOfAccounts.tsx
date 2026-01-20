@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, ChevronsUpDown, Check } from "lucide-react";
+import { Plus, Edit, ChevronsUpDown, Check, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -46,6 +46,8 @@ import {
     // useDeleteAccountingAccountMutation
 } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { AccountingPermission, SuperAdminPermission } from "@/config/permissions";
 
 type CreateAccountFormValues = {
     name: string;
@@ -60,6 +62,12 @@ export default function ChartOfAccounts() {
     const [limit] = useState(200);
     const [search, setSearch] = useState("");
     const [editingAccount, setEditingAccount] = useState<ChartOfAccount | null>(null);
+
+    // Permissions
+    const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+    const canCreateAccount = userPermissions.includes(AccountingPermission.CREATE_ACCOUNTING_ACCOUNT) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+    const canEditAccount = userPermissions.includes(AccountingPermission.EDIT_ACCOUNTING_ACCOUNT) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
 
     const { data, isFetching, refetch } = useGetAccountingAccountsQuery({ page, limit, search });
 
@@ -77,6 +85,10 @@ export default function ChartOfAccounts() {
 
         try {
             if (editingAccount) {
+                if (!canEditAccount) {
+                    toast.error("You do not have permission to edit this account");
+                    return;
+                }
                 const res = await updateAccountingAccount({ id: editingAccount.id, body: payload }).unwrap();
                 if (res.status) {
                     toast.success(res.message || "Account updated successfully");
@@ -128,6 +140,16 @@ export default function ChartOfAccounts() {
             }, 300);
             return () => clearTimeout(timeout);
         }, [query, fetchAccounts]);
+
+
+
+
+
+
+
+
+
+
 
         return (
             <Controller
@@ -193,6 +215,17 @@ export default function ChartOfAccounts() {
         },
     ];
 
+
+
+
+
+
+    
+        const hasDialogPermission = editingAccount ? canEditAccount : canCreateAccount;
+
+
+
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -209,57 +242,79 @@ export default function ChartOfAccounts() {
                             reset();
                             setEditingAccount(null);
                         }} asChild>
-                            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
+                            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
                                 <Plus className="mr-2 h-4 w-4" />  Add Account
                             </button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>{editingAccount ? "Edit Account" : "Add New Account"}</DialogTitle>
-                                <DialogDescription>Create or update an account head.</DialogDescription>
-                            </DialogHeader>
-                            <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-                                <div className="grid gap-2">
-                                    <Label>Account Name</Label>
-                                    <Controller name="name" control={control} rules={{ required: "Account name is required" }} render={({ field }) => <Input {...field} />} />
-                                    {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid gap-2">
-                                        <Label>Code</Label>
-                                        <Controller name="code" control={control} rules={{ required: "Code is required" }} render={({ field }) => <Input {...field} />} />
-                                        {errors.code && <p className="text-sm text-destructive">{errors.code.message}</p>}
+                            {
+                                !hasDialogPermission ? (
+                                    <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
+                                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
+                                            <ShieldAlert className="h-10 w-10 text-destructive" />
+                                        </div>
+                                        <h2 className="text-lg font-semibold">Access Denied</h2>
+                                        <p className="text-sm text-muted-foreground">
+                                            You do not have permission to{" "}
+                                            {editingAccount ? "edit" : "create"} an account.
+                                            <br />
+                                            Please contact your administrator.
+                                        </p>
+                                        <Button variant="outline" onClick={() => setIsOpen(false)}>
+                                            Close
+                                        </Button>
                                     </div>
-                                    <div className="grid gap-2">
-                                        <Label>Type</Label>
-                                        <Controller name="type" control={control} rules={{ required: "Type is required" }} render={({ field }) => (
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="ASSET">Asset</SelectItem>
-                                                    <SelectItem value="LIABILITY">Liability</SelectItem>
-                                                    <SelectItem value="EQUITY">Equity</SelectItem>
-                                                    <SelectItem value="INCOME">Income</SelectItem>
-                                                    <SelectItem value="EXPENSE">Expense</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        )} />
-                                        {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
-                                    </div>
+                                ) : (
+                                    <>
+                                        <DialogHeader>
+                                            <DialogTitle>{editingAccount ? "Edit Account" : "Add New Account"}</DialogTitle>
+                                            <DialogDescription>Create or update an account head.</DialogDescription>
+                                        </DialogHeader>
+                                        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
+                                            <div className="grid gap-2">
+                                                <Label>Account Name</Label>
+                                                <Controller name="name" control={control} rules={{ required: "Account name is required" }} render={({ field }) => <Input {...field} />} />
+                                                {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="grid gap-2">
+                                                    <Label>Code</Label>
+                                                    <Controller name="code" control={control} rules={{ required: "Code is required" }} render={({ field }) => <Input {...field} />} />
+                                                    {errors.code && <p className="text-sm text-destructive">{errors.code.message}</p>}
+                                                </div>
+                                                <div className="grid gap-2">
+                                                    <Label>Type</Label>
+                                                    <Controller name="type" control={control} rules={{ required: "Type is required" }} render={({ field }) => (
+                                                        <Select onValueChange={field.onChange} value={field.value}>
+                                                            <SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="ASSET">Asset</SelectItem>
+                                                                <SelectItem value="LIABILITY">Liability</SelectItem>
+                                                                <SelectItem value="EQUITY">Equity</SelectItem>
+                                                                <SelectItem value="INCOME">Income</SelectItem>
+                                                                <SelectItem value="EXPENSE">Expense</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    )} />
+                                                    {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
+                                                </div>
 
-                                    {/* PARENT ACCOUNT */}
-                                    <div className="grid gap-2">
-                                        <Label>Parent Account (Optional)</Label>
-                                        <ParentAccountSelect control={control} />
-                                    </div>
+                                                {/* PARENT ACCOUNT */}
+                                                <div className="grid gap-2">
+                                                    <Label>Parent Account (Optional)</Label>
+                                                    <ParentAccountSelect control={control} />
+                                                </div>
 
 
-                                </div>
-                                <DialogFooter>
-                                    <Button type="button" variant="outline" onClick={() => { setIsOpen(false); setEditingAccount(null); }}>Cancel</Button>
-                                    <Button type="submit" disabled={isLoading}>{editingAccount ? "Update" : "Create"}</Button>
-                                </DialogFooter>
-                            </form>
+                                            </div>
+                                            <DialogFooter>
+                                                <Button type="button" variant="outline" onClick={() => { setIsOpen(false); setEditingAccount(null); }}>Cancel</Button>
+                                                <Button type="submit" disabled={isLoading}>{editingAccount ? "Update" : "Create"}</Button>
+                                            </DialogFooter>
+                                        </form>
+                                    </>)
+                            }
+
                         </DialogContent>
                     </Dialog>
                 </div>
