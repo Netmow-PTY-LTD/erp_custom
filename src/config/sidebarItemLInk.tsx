@@ -126,7 +126,6 @@ import {
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
-import RouteDetails from "@/pages/salesOrders/salesRoutes/RouteDetails";
 import LeaveRequest from "@/pages/staffs/leaves/LeaveRequest";
 import AttendanceDetailsPage from "@/pages/staffs/attendance/attendanceDetails";
 import RouteWiseOrder from "@/pages/routeOperations/RouteWiseOrder";
@@ -351,15 +350,6 @@ export const sidebarItemLink = [
         element: <EditCustomerPage />,
         allowedPermissions: [
           CustomerPermission.EDIT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/customers/sales-routes/:routeId",
-        element: <RouteDetails />,
-        allowedPermissions: [
-          CustomerPermission.VIEW_ROUTE_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },

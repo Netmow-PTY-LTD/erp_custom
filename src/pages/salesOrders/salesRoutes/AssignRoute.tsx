@@ -16,11 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Users, CheckCircle2, Loader2 } from "lucide-react";
+import { Search, Users, CheckCircle2, Loader2, ShieldAlert } from "lucide-react";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import { useAssignStaffMutation, useGetSalesRouteByIdQuery } from "@/store/features/salesRoute/salesRoute";
 import type { Staff } from "@/types/staff.types";
 import { toast } from "sonner";
+import { useAppSelector } from "@/store/store";
+import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 
 type AssignStaffForm = {
   staffIds: number[];
@@ -39,6 +41,14 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
   const [hasMore, setHasMore] = useState(true);
   const limit = 10;
   const hasHydratedRef = useRef(false);
+
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canAssignRoute = userPermissions.includes(StaffPermission.ASSIGN_ROUTE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+
+
+
 
   const form = useForm<AssignStaffForm>({
     defaultValues: { staffIds: [] },
@@ -147,133 +157,167 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Assign Staff</DialogTitle>
-          <DialogDescription>
-            Select one or more staff members to assign to this route.
-          </DialogDescription>
-        </DialogHeader>
 
-        {isLoadingRoute || isFetchingRoute ? (
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <DialogContent className="max-w-md">
+
+
+        {!canAssignRoute ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+              <ShieldAlert className="w-10 h-10 text-destructive" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">
+              Access Denied
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              You do not have permission to assign route. <br />
+              Please contact your administrator if you believe this is an
+              error.
+            </p>
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="mt-4"
+            >
+              Close
+            </Button>
           </div>
         ) : (
           <>
-            {/* SEARCH */}
-            <div className="relative mt-2">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search staff..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setPage(1);
-                  setAllStaff([]);
-                  setHasMore(true);
-                }}
-              />
-            </div>
+            <DialogHeader>
+              <DialogTitle>Assign Staff</DialogTitle>
+              <DialogDescription>
+                Select one or more staff members to assign to this route.
+              </DialogDescription>
+            </DialogHeader>
 
-            {/* STAFF LIST */}
-            <Controller
-              name="staffIds"
-              control={form.control}
-              render={({ field }) => (
-                <>
-                  {allStaff.length > 0 && (
-                    <div className="flex justify-end mt-2">
-                      <Button variant="ghost" size="sm" onClick={() => toggleSelectAll(field)}>
-                        {field.value.length === allStaff.length ? "Deselect All" : "Select All"}
-                      </Button>
-                    </div>
-                  )}
 
-                  <ScrollArea
-                    className="h-[300px] mt-2 border rounded-md p-2"
-                    onScroll={handleScroll}
-                  >
-                    <div className="space-y-2">
-                      {allStaff.length > 0 ? (
-                        allStaff.map((staff) => {
-                          const isSelected = field.value.includes(staff.id);
-                          const fullName = `${staff.first_name} ${staff.last_name}`;
-                          return (
-                            <div
-                              key={staff.id}
-                              className={`flex items-center space-x-3 p-2 rounded-md hover:bg-accent cursor-pointer ${isSelected ? "bg-accent/50" : ""
-                                }`}
-                              onClick={() => field.onChange(toggleStaff(staff.id, field.value))}
-                            >
-                              <Checkbox
-                                checked={isSelected}
-                                className="pointer-events-none"
-                              />
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage
-                                  src={
-                                    staff.thumb_url ||
-                                    `https://api.dicebear.com/7.x/initials/svg?seed=${fullName}`
-                                  }
-                                />
-                                <AvatarFallback>
-                                  {fullName.substring(0, 2).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium">{fullName}</span>
-                                <span className="text-xs text-muted-foreground">{staff.position}</span>
-                              </div>
+
+            {isLoadingRoute || isFetchingRoute ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <>
+                {/* SEARCH */}
+                <div className="relative mt-2">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="Search staff..."
+                    className="pl-10"
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setPage(1);
+                      setAllStaff([]);
+                      setHasMore(true);
+                    }}
+                  />
+                </div>
+
+                {/* STAFF LIST */}
+                <Controller
+                  name="staffIds"
+                  control={form.control}
+                  render={({ field }) => (
+                    <>
+                      {allStaff.length > 0 && (
+                        <div className="flex justify-end mt-2">
+                          <Button variant="ghost" size="sm" onClick={() => toggleSelectAll(field)}>
+                            {field.value.length === allStaff.length ? "Deselect All" : "Select All"}
+                          </Button>
+                        </div>
+                      )}
+
+                      <ScrollArea
+                        className="h-[300px] mt-2 border rounded-md p-2"
+                        onScroll={handleScroll}
+                      >
+                        <div className="space-y-2">
+                          {allStaff.length > 0 ? (
+                            allStaff.map((staff) => {
+                              const isSelected = field.value.includes(staff.id);
+                              const fullName = `${staff.first_name} ${staff.last_name}`;
+                              return (
+                                <div
+                                  key={staff.id}
+                                  className={`flex items-center space-x-3 p-2 rounded-md hover:bg-accent cursor-pointer ${isSelected ? "bg-accent/50" : ""
+                                    }`}
+                                  onClick={() => field.onChange(toggleStaff(staff.id, field.value))}
+                                >
+                                  <Checkbox
+                                    checked={isSelected}
+                                    className="pointer-events-none"
+                                  />
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage
+                                      src={
+                                        staff.thumb_url ||
+                                        `https://api.dicebear.com/7.x/initials/svg?seed=${fullName}`
+                                      }
+                                    />
+                                    <AvatarFallback>
+                                      {fullName.substring(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-medium">{fullName}</span>
+                                    <span className="text-xs text-muted-foreground">{staff.position}</span>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          ) : !isFetching ? (
+                            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+                              <Users className="h-8 w-8 opacity-20 mb-1" />
+                              <p className="text-sm">No staff found.</p>
                             </div>
-                          );
-                        })
-                      ) : !isFetching ? (
-                        <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-                          <Users className="h-8 w-8 opacity-20 mb-1" />
-                          <p className="text-sm">No staff found.</p>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center h-32">
-                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                        </div>
-                      )}
+                          ) : (
+                            <div className="flex items-center justify-center h-32">
+                              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                            </div>
+                          )}
 
-                      {isFetching && (
-                        <div className="flex justify-center mt-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                          {isFetching && (
+                            <div className="flex justify-center mt-2">
+                              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </ScrollArea>
+                      </ScrollArea>
 
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    {field.value.length} staff selected
-                  </div>
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        {field.value.length} staff selected
+                      </div>
 
-                  <DialogFooter className="mt-4 flex justify-end gap-2">
-                    <Button variant="outline" onClick={onClose}>
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleAssignStaffs}
-                      disabled={field.value.length === 0 || isAssigning}
-                    >
-                      {isAssigning ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <CheckCircle2 className="mr-2 h-4 w-4" />
-                      )}
-                      Assign
-                    </Button>
-                  </DialogFooter>
-                </>
-              )}
-            />
+                      <DialogFooter className="mt-4 flex justify-end gap-2">
+                        <Button variant="outline" onClick={onClose}>
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleAssignStaffs}
+                          disabled={field.value.length === 0 || isAssigning}
+                        >
+                          {isAssigning ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                          )}
+                          Assign
+                        </Button>
+                      </DialogFooter>
+                    </>
+                  )}
+                />
+              </>
+            )}
           </>
         )}
+
+
+
       </DialogContent>
+
     </Dialog>
   );
 }
