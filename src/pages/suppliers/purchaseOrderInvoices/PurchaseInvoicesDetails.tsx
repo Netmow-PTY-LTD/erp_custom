@@ -119,11 +119,13 @@ export default function PurchaseInvoicesDetails() {
 
         <div className="flex flex-wrap items-center gap-2">
 
-          <Link to={`/dashboard/purchase-payments/create?pon=${invoice?.purchase_order.po_number}`}>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 shadow-sm">
-              <CreditCard className="w-4 h-4" /> Record Payment
-            </Button>
-          </Link>
+          {invoice?.status !== 'paid' && (
+            <Link to={`/dashboard/purchase-payments/create?pon=${invoice?.purchase_order.po_number}`}>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 shadow-sm">
+                <CreditCard className="w-4 h-4" /> Record Payment
+              </Button>
+            </Link>
+          )}
 
           <Link to={`/dashboard/purchase-invoices/${invoice?.id}/preview`}>
             <Button variant="outline" className="gap-2 shadow-sm">
