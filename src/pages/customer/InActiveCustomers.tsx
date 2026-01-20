@@ -242,10 +242,7 @@ export default function InActiveCustomersList() {
       header: "Address",
       cell: ({ row }) => {
         const customer = row.original;
-        const parts = [customer.address, customer.city, customer.state].filter(
-          Boolean
-        );
-        return parts.join(", ") || "-";
+        return customer.address || "-";
       },
     },
     {

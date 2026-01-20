@@ -14,6 +14,7 @@ export interface SalesInvoice {
   total_amount: string; // numeric string
   total_payable: string; // numeric string
   status: string;
+  payment_status?: string;
   created_by: number;
   creator: {
     id: number;

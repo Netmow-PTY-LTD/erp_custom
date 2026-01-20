@@ -2,22 +2,30 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import type { DateRange } from "react-day-picker";
+import {
+    useGetAccountingAccountsQuery,
+    useGetLedgerReportQuery
+} from "@/store/features/accounting/accoutntingApiService";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { Check, ChevronDown, CornerDownRight } from "lucide-react";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import {
     Table,
     TableBody,
@@ -27,16 +35,45 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-// Dummy Data
-const ledgerData = [
-    { id: 1, date: "2024-03-01", narration: "Opening Balance", debit: 0, credit: 0, balance: 5000.00 },
-    { id: 2, date: "2024-03-05", narration: "Sales - Invoice #101", debit: 2000.00, credit: 0, balance: 7000.00 },
-    { id: 3, date: "2024-03-08", narration: "Rent Payment", debit: 0, credit: 1500.00, balance: 5500.00 },
-    { id: 4, date: "2024-03-10", narration: "Utility Bill", debit: 0, credit: 200.00, balance: 5300.00 },
-];
+// Dummy Data removed
 
 export default function LedgerReport() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
+    const [dateRange, setDateRange] = useState<DateRange | undefined>();
+    const [openAccount, setOpenAccount] = useState(false);
+    const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+
+    // State for API params
+    const [queryParams, setQueryParams] = useState<{ id: string; from?: string; to?: string } | null>(null);
+
+    const { data: accountsData } = useGetAccountingAccountsQuery({ limit: 1000 });
+    const accounts = accountsData?.data || [];
+
+    // Ledger Query
+    const { data: reportResponse, isLoading: isReportLoading } = useGetLedgerReportQuery(
+        queryParams!,
+        { skip: !queryParams }
+    );
+
+    const reportData = reportResponse?.data;
+    const transactions = reportData?.transactions || [];
+
+    const selectedAccount = accounts.find(acc => String(acc.id) === selectedAccountId);
+
+    const handleGenerateReport = () => {
+        if (!selectedAccountId) {
+            toast.error("Please select an account first");
+            return;
+        }
+        setQueryParams({
+            id: selectedAccountId,
+            from: dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
+            to: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
+        });
+    };
+
+    // Calculate totals
+    const totalDebit = transactions.reduce((sum, tx) => sum + Number(tx.debit || 0), 0);
+    const totalCredit = transactions.reduce((sum, tx) => sum + Number(tx.credit || 0), 0);
 
     return (
         <div className="space-y-6">
@@ -51,78 +88,124 @@ export default function LedgerReport() {
                 <CardContent className="p-6">
                     <div className="grid md:grid-cols-3 gap-4 items-end">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Select Account</label>
-                            <Select defaultValue="cash">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select account" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="cash">Cash in Hand</SelectItem>
-                                    <SelectItem value="bank">Bank Account</SelectItem>
-                                    <SelectItem value="sales">Sales Account</SelectItem>
-                                    <SelectItem value="rent">Rent Expense</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Date Range</label>
-                            <Popover>
+                            <label className="text-sm font-medium inline-block">Select Account</label>
+                            <Popover open={openAccount} onOpenChange={setOpenAccount}>
                                 <PopoverTrigger asChild>
                                     <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-full justify-start text-left font-normal",
-                                            !date && "text-muted-foreground"
-                                        )}
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={openAccount}
+                                        className="w-full justify-between font-normal"
                                     >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                        {selectedAccount ? selectedAccount.name : "Select account..."}
+                                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={date}
-                                        onSelect={setDate}
-                                        initialFocus
-                                    />
+                                <PopoverContent className="w-[300px] p-0" align="start">
+                                    <Command>
+                                        <CommandInput placeholder="Search account..." className="h-9" />
+                                        <CommandList className="max-h-[300px] overflow-y-auto">
+                                            <CommandEmpty>No account found.</CommandEmpty>
+                                            <CommandGroup>
+                                                {accounts.map((acc) => {
+                                                    const level = acc.level || 0;
+                                                    return (
+                                                        <CommandItem
+                                                            key={acc.id}
+                                                            value={`${acc.name}-${acc.id}`}
+                                                            onSelect={() => {
+                                                                setSelectedAccountId(String(acc.id));
+                                                                setOpenAccount(false);
+                                                            }}
+                                                            className="flex items-center gap-2"
+                                                            style={{ paddingLeft: `${level === 0 ? 12 : (level * 20) + 12}px` }}
+                                                        >
+                                                            <div className="flex items-center flex-1 gap-1">
+                                                                {level > 0 && (
+                                                                    <CornerDownRight className="h-3 w-3 text-muted-foreground stroke-[1.5]" />
+                                                                )}
+                                                                <div className="flex flex-col">
+                                                                    <span className={cn(
+                                                                        level === 0 ? "font-semibold text-foreground" : "text-muted-foreground"
+                                                                    )}>
+                                                                        {acc.name}
+                                                                    </span>
+                                                                    <span className="text-[10px] text-muted-foreground/70">{acc.code}</span>
+                                                                </div>
+                                                            </div>
+                                                            <Check
+                                                                className={cn(
+                                                                    "ml-auto h-4 w-4",
+                                                                    selectedAccountId === String(acc.id) ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                        </CommandItem>
+                                                    );
+                                                })}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
                                 </PopoverContent>
                             </Popover>
                         </div>
-                        <Button>Generate Report</Button>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium inline-block">Date Range</label>
+                            <DateRangePicker
+                                dateRange={dateRange}
+                                onDateRangeChange={setDateRange}
+                                placeholder="Pick a date range"
+                                className="w-full"
+                                numberOfMonths={2}
+                            />
+                        </div>
+                        <Button
+                            variant="success"
+                            onClick={handleGenerateReport}
+                            disabled={isReportLoading}
+                        >
+                            {isReportLoading ? "Generating..." : "Generate Report"}
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
 
             {/* Summary Header */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
+                <Card className="py-6">
                     <CardHeader className="pb-2">
                         <CardDescription>Opening Balance</CardDescription>
-                        <CardTitle className="text-2xl">5,000.00</CardTitle>
+                        <CardTitle className="text-2xl">
+                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : Number(reportData?.opening_balance || 0).toFixed(2)}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
-                <Card>
+                <Card className="py-6">
                     <CardHeader className="pb-2">
                         <CardDescription>Total Debit</CardDescription>
-                        <CardTitle className="text-2xl text-emerald-600">2,000.00</CardTitle>
+                        <CardTitle className="text-2xl text-emerald-600">
+                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : totalDebit.toFixed(2)}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
-                <Card>
+                <Card className="py-6">
                     <CardHeader className="pb-2">
                         <CardDescription>Total Credit</CardDescription>
-                        <CardTitle className="text-2xl text-red-600">1,700.00</CardTitle>
+                        <CardTitle className="text-2xl text-red-600">
+                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : totalCredit.toFixed(2)}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
-                <Card className="bg-primary/5 border-primary/20">
+                <Card className="py-6 bg-primary/5 border-primary/20">
                     <CardHeader className="pb-2">
                         <CardDescription>Closing Balance</CardDescription>
-                        <CardTitle className="text-2xl text-primary">5,300.00</CardTitle>
+                        <CardTitle className="text-2xl text-primary">
+                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : Number(reportData?.closing_balance || 0).toFixed(2)}
+                        </CardTitle>
                     </CardHeader>
                 </Card>
             </div>
 
-            <Card>
+            <Card className="py-6">
                 <CardHeader>
                     <CardTitle>Transactions</CardTitle>
                 </CardHeader>
@@ -138,15 +221,35 @@ export default function LedgerReport() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {ledgerData.map((row) => (
-                                <TableRow key={row.id}>
-                                    <TableCell>{row.date}</TableCell>
-                                    <TableCell>{row.narration}</TableCell>
-                                    <TableCell className="text-right">{row.debit > 0 ? row.debit.toFixed(2) : "-"}</TableCell>
-                                    <TableCell className="text-right">{row.credit > 0 ? row.credit.toFixed(2) : "-"}</TableCell>
-                                    <TableCell className="text-right font-medium">{row.balance.toFixed(2)}</TableCell>
+                            {isReportLoading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <TableRow key={i}>
+                                        <TableCell colSpan={5}><Skeleton className="h-10 w-full" /></TableCell>
+                                    </TableRow>
+                                ))
+                            ) : transactions.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground italic">
+                                        {queryParams ? "No transactions found for the selected criteria." : "Select an account and click generate."}
+                                    </TableCell>
                                 </TableRow>
-                            ))}
+                            ) : (
+                                transactions.map((row, idx) => (
+                                    <TableRow key={idx}>
+                                        <TableCell>{row.date}</TableCell>
+                                        <TableCell>{row.narration}</TableCell>
+                                        <TableCell className="text-right">
+                                            {Number(row.debit) > 0 ? Number(row.debit).toFixed(2) : "-"}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {Number(row.credit) > 0 ? Number(row.credit).toFixed(2) : "-"}
+                                        </TableCell>
+                                        <TableCell className="text-right font-medium">
+                                            {Number(row.balance).toFixed(2)}
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
