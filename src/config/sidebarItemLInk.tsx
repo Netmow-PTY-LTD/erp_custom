@@ -59,7 +59,6 @@ import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersLi
 import EditSupplierPage from "@/pages/suppliers/supplier/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseOrderPage";
-import AssignRoutePage from "@/pages/salesOrders/salesRoutes/AssignRoute";
 import Staffs from "@/pages/staffs";
 import StaffDetails from "@/pages/staffs/StaffDetails";
 import AddStaffPage from "@/pages/staffs/add";
@@ -182,6 +181,7 @@ import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
+import ProfitByItem from "@/pages/accounting/ProfitByItem";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -360,15 +360,6 @@ export const sidebarItemLink = [
         element: <RouteDetails />,
         allowedPermissions: [
           CustomerPermission.VIEW_ROUTE_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/customers/sales-routes/:routeId/assign",
-        element: <AssignRoutePage />,
-        allowedPermissions: [
-          CustomerPermission.ASSIGN_ROUTE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1153,15 +1144,15 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "",
-        url: "/dashboard/sales/sales-routes/:routeId/assign",
-        element: <AssignRoutePage />,
-        allowedPermissions: [
-          SalesPermission.ASSIGN_ROUTE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
+      // {
+      //   title: "",
+      //   url: "/dashboard/sales/sales-routes/:routeId/assign",
+      //   element: <AssignRoutePage />,
+      //   allowedPermissions: [
+      //     SalesPermission.ASSIGN_ROUTE,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
     ],
   },
 
@@ -1216,9 +1207,10 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "",
+        title: "Ledger Report",
         url: "/dashboard/accounting/reports/ledger/:id",
         element: <LedgerReport />,
+        icon: FileText,
         allowedPermissions: [
           AccountingPermission.LEDGER_REPORT,
           SuperAdminPermission.ACCESS_ALL,
@@ -1243,6 +1235,16 @@ export const sidebarItemLink = [
           AccountingPermission.PROFIT_AND_LOSS,
           SuperAdminPermission.ACCESS_ALL,
         ],
+      },
+      {
+        title: "Profit by Item",
+        url: "/dashboard/accounting/reports/profit-by-item",
+        element: <ProfitByItem />,
+        icon: CreditCard,
+        // allowedPermissions: [
+        //   AccountingPermission.PROFIT_BY_ITEM,
+        //   SuperAdminPermission.ACCESS_ALL,
+        // ],
       },
       // Hidden Create/Edit Routes
       {
@@ -1269,77 +1271,77 @@ export const sidebarItemLink = [
 
 
   //HR and Payroll
-{
-  title: "HR & Payroll",
-  url: "#",
-  icon: HandCoins,
-  allowedPermissions: [
-    PayrollPermission.VIEW,
-    SuperAdminPermission.ACCESS_ALL,
-  ],
-  items: [
-    {
-      title: "Overview",
-      url: "/dashboard/payroll",
-      element: <HrPayrollOverview />,
-      icon: LayoutDashboard,
-      allowedPermissions: [
-        PayrollPermission.OVERVIEW,
-        SuperAdminPermission.ACCESS_ALL,
-      ],
-    },
-    // {
-    //   title: "Employment Details",
-    //   url: "/dashboard/payroll/employment-details",
-    //   element: <EmploymentDetails />,
-    //   icon: FileText,
-    //   allowedPermissions: [
-    //     PayrollPermission.EMPLOYMENT_DETAILS,
-    //     SuperAdminPermission.ACCESS_ALL,
-    //   ],
-    // },
-    {
-      title: "Attendance",
-      url: "/dashboard/payroll/attendance",
-      element: <Attendance />,
-      icon: CalendarCheck,
-      allowedPermissions: [
-        PayrollPermission.ATTENDANCE,
-        SuperAdminPermission.ACCESS_ALL,
-      ],
-    },
-    {
-      title: "Payroll Runs",
-      url: "/dashboard/payroll/payroll-runs",
-      element: <PayrollRuns />,
-      icon: BanknoteArrowDown,
-      allowedPermissions: [
-        PayrollPermission.PAYROLL_RUNS,
-        SuperAdminPermission.ACCESS_ALL,
-      ],
-    },
-    {
-      title: "Payslips",
-      url: "/dashboard/payroll/payslips",
-      element: <Payslips />,
-      icon: FileText,
-      allowedPermissions: [
-        PayrollPermission.PAYSLIPS,
-        SuperAdminPermission.ACCESS_ALL,
-      ],
-    },
-    {
-      title: "Payroll Reports",
-      url: "/dashboard/payroll/payroll-reports",
-      element: <PayrollReports />,
-      icon: LineChart,
-      allowedPermissions: [
-        PayrollPermission.PAYROLL_REPORTS,
-        SuperAdminPermission.ACCESS_ALL,
-      ],
-    },
-  ],
-},
+  {
+    title: "HR & Payroll",
+    url: "#",
+    icon: HandCoins,
+    allowedPermissions: [
+      PayrollPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "Overview",
+        url: "/dashboard/payroll",
+        element: <HrPayrollOverview />,
+        icon: LayoutDashboard,
+        allowedPermissions: [
+          PayrollPermission.OVERVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      // {
+      //   title: "Employment Details",
+      //   url: "/dashboard/payroll/employment-details",
+      //   element: <EmploymentDetails />,
+      //   icon: FileText,
+      //   allowedPermissions: [
+      //     PayrollPermission.EMPLOYMENT_DETAILS,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
+      {
+        title: "Attendance",
+        url: "/dashboard/payroll/attendance",
+        element: <Attendance />,
+        icon: CalendarCheck,
+        allowedPermissions: [
+          PayrollPermission.ATTENDANCE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Payroll Runs",
+        url: "/dashboard/payroll/payroll-runs",
+        element: <PayrollRuns />,
+        icon: BanknoteArrowDown,
+        allowedPermissions: [
+          PayrollPermission.PAYROLL_RUNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Payslips",
+        url: "/dashboard/payroll/payslips",
+        element: <Payslips />,
+        icon: FileText,
+        allowedPermissions: [
+          PayrollPermission.PAYSLIPS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Payroll Reports",
+        url: "/dashboard/payroll/payroll-reports",
+        element: <PayrollReports />,
+        icon: LineChart,
+        allowedPermissions: [
+          PayrollPermission.PAYROLL_REPORTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+    ],
+  },
 
   // USERS
   {
