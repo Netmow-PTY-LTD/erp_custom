@@ -431,7 +431,7 @@ export default function JournalReport() {
                 ) : (
                     reportData?.data?.map((entry) => (
                         <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg">
-                            <CardHeader className="bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b-1 border-emerald-100 dark:border-emerald-900 py-3 px-6 gap-0">
+                            <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b border-emerald-100 dark:border-emerald-900 py-3 px-6 gap-0">
                                 <div className="flex justify-between items-center">
                                     <div className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{entry.date}</span>
@@ -477,7 +477,7 @@ export default function JournalReport() {
                                             </TableRow>
                                         ))}
                                         {/* Footer for Check */}
-                                        <TableRow className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 border-t-2 border-emerald-200 dark:border-emerald-800 font-bold">
+                                        <TableRow className="bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 border-t-2 border-emerald-200 dark:border-emerald-800 font-bold">
                                             <TableCell className="py-4 px-6 text-gray-800 dark:text-gray-100">Total</TableCell>
                                             <TableCell className="text-right py-4 px-6 font-mono text-blue-700 dark:text-blue-300 text-base">
                                                 {entry.entries.reduce((sum, item) => sum + Number(item.debit), 0).toFixed(2)}
