@@ -13,6 +13,8 @@ import UnauthorizedPage from "@/pages/UnauthorizedPage";
 import Privacy from "@/pages/privacy/Privacy";
 import Terms from "@/pages/terms/Terms";
 import Contact from "@/pages/contact/Contact";
+import { PermissionsGurd } from "./PermissionsGurd";
+import { DashboardPermission } from "@/config/permissions";
 
 // Generate dynamic dashboard routes (relative paths)
 const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
@@ -44,7 +46,12 @@ const rootRouter = createBrowserRouter([
         path: "/dashboard",
         element: <DashboardLayout />,
         children: [
-          { index: true, element: <Dashboard /> },
+          {
+            index: true, element: <PermissionsGurd allowedPermissions={[DashboardPermission.VIEW]}>
+              <Dashboard />
+            </PermissionsGurd>
+
+          },
           ...dashboardRoutes,
         ],
       },

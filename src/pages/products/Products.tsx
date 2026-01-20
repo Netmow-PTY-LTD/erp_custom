@@ -41,6 +41,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
+import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function Products() {
   const [page, setPage] = useState<number>(1);
@@ -50,8 +51,12 @@ export default function Products() {
     index: number;
   } | null>(null);
   const limit = 10;
+  
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  const canDeleteProduct = userPermissions.includes(ProductPermission.DELETE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: productStatsData } = useGetProductStatsQuery(undefined);
 
@@ -359,13 +364,17 @@ export default function Products() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
+             {
+                canDeleteProduct && (
+                   <DropdownMenuItem
                 onClick={() => handleDeleteProduct(product.id)}
                 className="cursor-pointer flex items-center gap-2"
               >
                 <Trash className="w-4 h-4" />
                 Delete
               </DropdownMenuItem>
+                )
+             }
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -385,14 +394,14 @@ export default function Products() {
           </button> */}
 
           <Link to="/dashboard/products/categories">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none">
               <Tags size={18} />
               Categories
             </button>
           </Link>
 
           <Link to="/dashboard/products/create">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
               <PackagePlus size={18} />
               Add Product
             </button>
@@ -407,7 +416,7 @@ export default function Products() {
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative flex-1 min-w-[240px] overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative flex-1 min-w-60 overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />

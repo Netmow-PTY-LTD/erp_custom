@@ -24,6 +24,7 @@ export const ProductPermission = {
   DETAILS: "products.details" as const,
   CREATE: "products.create" as const,
   EDIT: "products.edit" as const,
+  DELETE: "products.delete" as const,
   // Categories
   VIEW_CATEGORIES: "products.categories.view" as const,
   CREATE_CATEGORIES: "products.categories.create" as const,
