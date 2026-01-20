@@ -144,3 +144,39 @@ export type ExpenseBreakdown = {
   value: number;
 };
 
+// -------------------- PRODUCT PROFIT LOSS --------------------
+export type ProductProfitLoss = {
+  product_id: number;
+  product_name: string;
+  sku: string;
+  quantity_sold: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+};
+
+export type ProductProfitLossResponse = {
+  status: boolean;
+  message: string;
+  data: ProductProfitLoss[];
+};
+
+// -------------------- LEDGER REPORT --------------------
+export type LedgerTransaction = {
+  date: string;
+  debit: number;
+  credit: number;
+  balance: number;
+  narration: string;
+};
+
+export type LedgerReportResponse = {
+  status: boolean;
+  message: string;
+  data: {
+    account: string;
+    opening_balance: number;
+    closing_balance: number;
+    transactions: LedgerTransaction[];
+  };
+};
