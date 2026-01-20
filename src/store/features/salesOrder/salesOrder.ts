@@ -155,7 +155,7 @@ export const salesApiService = baseApi.injectEndpoints({
         method: "PATCH",
         body: body.invoiceData,
       }),
-      invalidatesTags: ["SalesInvoices"],
+      invalidatesTags: ["SalesInvoices", "SalesInvoice"],
     }),
 
     // GET ALL SALES INVOICES
@@ -185,7 +185,7 @@ export const salesApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["SalesPayments"],
+      invalidatesTags: ["SalesPayments", "SalesInvoice", "SalesInvoices"],
     }),
 
 
