@@ -21,6 +21,7 @@ export interface RawMaterial {
   min_stock: number;
   description?: string;
   is_active: boolean;
+  thumb_url?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -39,6 +40,7 @@ export interface RawMaterialSupplier {
   country?: string;
   payment_terms?: string;
   is_active?: boolean;
+  thumb_url?: string;
   created_at?: string;
   updated_at?: string;
 }

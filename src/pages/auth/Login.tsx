@@ -14,7 +14,6 @@ export default function Login() {
   const permissions = user?.role?.permissions || [];
 
   const { data: companyProfileSettings } = useGetSettingsInfoQuery();
-  console.log("companyProfileSettings", companyProfileSettings);
   const logo = companyProfileSettings?.data?.logo_url;
 
   useEffect(() => {

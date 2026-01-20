@@ -34,7 +34,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useGetAllRawMaterialSuppliersQuery } from "@/store/features/admin/rawMaterialApiService";
 import { useGetAllRawMaterialsQuery } from "@/store/features/admin/rawMaterialApiService";
 import { useAddRawMaterialPurchaseOrderMutation } from "@/store/features/admin/rawMaterialApiService";
-import { Trash2 } from "lucide-react";
+import { Trash2, User, Package } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const orderSchema = z
   .object({
@@ -115,7 +116,17 @@ export default function CreateRMPurchaseOrder() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
-            {selected ? selected.name : "Select Supplier..."}
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={selected?.thumb_url} />
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="truncate">
+                {selected ? selected.name : "Select Supplier..."}
+              </span>
+            </div>
           </Button>
         </PopoverTrigger>
 
@@ -144,8 +155,15 @@ export default function CreateRMPurchaseOrder() {
                         field.onChange(Number(supplier.id));
                         setOpen(false);
                       }}
+                      className="flex items-center gap-2"
                     >
-                      {supplier.name}
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={supplier.thumb_url} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{supplier.name}</span>
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -177,9 +195,19 @@ export default function CreateRMPurchaseOrder() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between text-left">
-            {selected
-              ? `${selected.name} (SKU: ${selected.sku || "-"})`
-              : "Select Raw Material..."}
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={selected?.thumb_url} />
+                <AvatarFallback>
+                  <Package className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="truncate">
+                {selected
+                  ? `${selected.name} (SKU: ${selected.sku || "-"})`
+                  : "Select Raw Material..."}
+              </span>
+            </div>
           </Button>
         </PopoverTrigger>
 
@@ -208,8 +236,20 @@ export default function CreateRMPurchaseOrder() {
                         field.onChange(Number(material.id));
                         setOpen(false);
                       }}
+                      className="flex items-center gap-2"
                     >
-                      {material.name} (SKU: {material.sku || "-"})
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={material.thumb_url} />
+                        <AvatarFallback>
+                          <Package className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium">{material.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          SKU: {material.sku || "-"}
+                        </div>
+                      </div>
                     </CommandItem>
                   ))}
               </CommandGroup>
