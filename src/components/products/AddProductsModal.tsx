@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState } from "react";
 import {
     Dialog,
@@ -44,6 +45,14 @@ export function AddProductsModal({
     const totalCount = data?.pagination?.total || 0;
 
     const toggleProductSelection = (product: Product) => {
+        const isSelected = (initialSelectedIds.includes(product.id) && !deselectedIds.includes(product.id)) ||
+            selectedProducts.some(p => p.id === product.id);
+
+        if (!isSelected && (product.stock_quantity || 0) <= 0) {
+            toast.warning("This product is out of stock and cannot be selected.");
+            return;
+        }
+
         if (initialSelectedIds.includes(product.id)) {
             setDeselectedIds((prev) =>
                 prev.includes(product.id)
