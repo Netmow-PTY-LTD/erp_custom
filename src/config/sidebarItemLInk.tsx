@@ -1429,38 +1429,6 @@ export const sidebarItemLink = [
     ],
   },
 
-  // SETTINGS
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
-    layout: <SettingsSidebarLayout />,
-    allowedPermissions: [
-      SettingsPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-    items: [
-      {
-        title: "Profile",
-        url: "/dashboard/settings/profile",
-        element: <MyProfileSettings />,
-        allowedPermissions: [
-          SettingsPermission.PROFILE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-
-      {
-        title: "Account",
-        url: "/dashboard/settings/account",
-        element: <AccountSettings />,
-        allowedPermissions: [
-          SettingsPermission.ACCOUNT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-    ],
-  },
 
   {
     title: "",
@@ -1563,7 +1531,42 @@ export const sidebarItemLink = [
       },
     ],
   },
-  // ROUTE OPERATIONS
+
+
+    // SETTINGS
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+    layout: <SettingsSidebarLayout />,
+    allowedPermissions: [
+      SettingsPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "Profile",
+        url: "/dashboard/settings/profile",
+        element: <MyProfileSettings />,
+        allowedPermissions: [
+          SettingsPermission.PROFILE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
+      {
+        title: "Account",
+        url: "/dashboard/settings/account",
+        element: <AccountSettings />,
+        allowedPermissions: [
+          SettingsPermission.ACCOUNT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+    ],
+  },
+
+
   {
     title: "Help",
     url: "/dashboard/help",
