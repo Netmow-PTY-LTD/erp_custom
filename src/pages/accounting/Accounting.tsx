@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import {
   BarChart,
@@ -17,10 +17,12 @@ import {
 import { Plus, Calendar, CalendarDays, CalendarRange, CalendarClock, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
-import { useGetAccountingChartDataQuery, useGetAccountingOverviewQuery, useGetRecentActivityQuery, useGetExpenseBreakdownQuery } from "@/store/features/accounting/accoutntingApiService";
+import { Skeleton } from "@/components/ui/skeleton";
+import { startOfMonth, endOfMonth, format } from "date-fns";
+import { useGetAccountingOverviewQuery, useGetRecentActivityQuery, useGetIncomeExpenseTrendQuery, useGetExpenseBreakdownQuery } from "@/store/features/accounting/accoutntingApiService";
 import type { Overview } from "@/types/accounting.types";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 
 
@@ -28,7 +30,12 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 export default function AccountingOverview() {
   const { data: accountingOverview } = useGetAccountingOverviewQuery();
   const { data: recentActivityData } = useGetRecentActivityQuery();
-  const { data: expenseBreakdownResponse } = useGetExpenseBreakdownQuery();
+
+  const now = new Date();
+  const { data: expenseBreakdownResponse, isLoading: isLoadingBreakdown } = useGetExpenseBreakdownQuery({
+    from: format(startOfMonth(now), "yyyy-MM-dd"),
+    to: format(endOfMonth(now), "yyyy-MM-dd")
+  });
 
   const summaryData = accountingOverview?.data;
   const recentActivity = recentActivityData?.data || [];
@@ -39,13 +46,8 @@ export default function AccountingOverview() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
-  const { data: chartData } = useGetAccountingChartDataQuery();
-
-  console.log("chartData", chartData);
-
-  console.log("expenseBreakdownData", expenseBreakdownData);
-
-  const chartTrendData = chartData?.data || [];
+  const { data: trendResponse, isLoading: isLoadingTrend } = useGetIncomeExpenseTrendQuery({ days: 30 });
+  const chartTrendData = trendResponse?.data || [];
 
   return (
     <div className="space-y-6">
@@ -182,21 +184,40 @@ export default function AccountingOverview() {
               <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <Calendar className="w-6 h-6 text-white" />
               </div>
-              <CardTitle>Income vs Expense Trend</CardTitle>
+              <div>
+                <CardTitle>Income vs Expense Trend</CardTitle>
+                <CardDescription>For Last 30 Days</CardDescription>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pb-6 pt-4">
             <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartTrendData}>
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="income" fill="#22c55e" name="Income" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="expense" fill="#ef4444" name="Expense" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {isLoadingTrend ? (
+                <div className="h-full flex items-center justify-center">
+                  <Skeleton className="h-[250px] w-full bg-slate-100" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartTrendData}>
+                    <XAxis
+                      dataKey="date"
+                      fontSize={10}
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+                      }}
+                    />
+                    <YAxis fontSize={10} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      labelFormatter={(label) => new Date(label).toDateString()}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '11px', fontWeight: 'bold' }} />
+                    <Bar dataKey="income" fill="#22c55e" name="Income" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="expense" fill="#ef4444" name="Expense" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -214,25 +235,32 @@ export default function AccountingOverview() {
           <CardContent className="pb-6 pt-4">
             <div className="h-[300px] flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenseBreakdownData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
-                  >
-                    {expenseBreakdownData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-
+                {isLoadingBreakdown ? (
+                  <div className="h-full flex items-center justify-center">
+                    <Skeleton className="h-[200px] w-[200px] rounded-full bg-slate-100" />
+                  </div>
+                ) : (
+                  <PieChart>
+                    <Pie
+                      data={expenseBreakdownData as any[]}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      paddingAngle={5}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                    >
+                      {expenseBreakdownData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    />
+                  </PieChart>
+                )}
               </ResponsiveContainer>
             </div>
           </CardContent>

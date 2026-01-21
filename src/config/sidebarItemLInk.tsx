@@ -181,6 +181,7 @@ import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
+//import DailyProfitStatus from "@/pages/accounting/DailyProfitStatus";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -1236,6 +1237,16 @@ export const sidebarItemLink = [
         //   SuperAdminPermission.ACCESS_ALL,
         // ],
       },
+      // {
+      //   title: "Daily Profit Status",
+      //   url: "/dashboard/accounting/reports/daily-profit-status",
+      //   element: <DailyProfitStatus />,
+      //   icon: CreditCard,
+      //   // allowedPermissions: [
+      //   //   AccountingPermission.PROFIT_BY_ITEM,
+      //   //   SuperAdminPermission.ACCESS_ALL,
+      //   // ],
+      // },
       // Hidden Create/Edit Routes
       {
         title: "",
@@ -1523,7 +1534,7 @@ export const sidebarItemLink = [
   },
 
 
-    // SETTINGS
+  // SETTINGS
   {
     title: "Settings",
     url: "/dashboard/settings",

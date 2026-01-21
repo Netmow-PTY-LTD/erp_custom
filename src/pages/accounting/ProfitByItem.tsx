@@ -1,30 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Search, TrendingUp, DollarSign, Package, BarChart3, ArrowRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Search as SearchIcon, DollarSign, ArrowDownRight, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import type { DateRange } from "react-day-picker";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useGetProductProfitLossQuery } from "@/store/features/accounting/accoutntingApiService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { useAppSelector } from "@/store/store";
 
 export default function ProfitByItem() {
-    const [dateRange, setDateRange] = useState<DateRange | undefined>();
     const [searchQuery, setSearchQuery] = useState("");
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: new Date(),
+        to: new Date()
+    });
+
+    const currency = useAppSelector((state) => state.currency.value);
 
     // API Query Params
     const queryParams: { from?: string; to?: string } = {
@@ -34,236 +28,197 @@ export default function ProfitByItem() {
 
     const { data: reportResponse, isLoading, isError } = useGetProductProfitLossQuery(queryParams);
 
-    const profitByItemData = reportResponse?.data || [];
-
-    const filteredData = profitByItemData.filter(item =>
-        item.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.sku.toLowerCase().includes(searchQuery.toLowerCase())
-    ).map(item => {
-        // Calculate margin securely
-        const margin = item.revenue > 0
-            ? ((item.profit / item.revenue) * 100)
-            : 0;
-
-        return {
-            ...item,
-            margin: Number(margin.toFixed(2))
-        };
-    });
-
-    const totalSales = filteredData.reduce((sum, item) => sum + Number(item.revenue), 0);
-    const totalCost = filteredData.reduce((sum, item) => sum + Number(item.cost), 0);
-    const totalProfit = filteredData.reduce((sum, item) => sum + Number(item.profit), 0);
-    const averageMargin = filteredData.length > 0
-        ? (filteredData.reduce((sum, item) => sum + item.margin, 0) / filteredData.length)
-        : 0;
-
-    // Handler triggers re-fetch automatically thanks to RTK Query and state change,
-    // but we add a manual refetch button for clarity if needed, or just let the date picker drive it.
-    // For this UI, the "Run Analysis" button conceptually updates the view, 
-    // but in React state terms, changing the date range already does it. 
-    // We can make the button purely visual or force a refetch if we wanted manual control,
-    // but typically reactive is better. 
-    // Let's just keep the button as a manual refresh trigger if needed, or simpler: 
-    // The user picks dates -> State updates -> Query refetches.
-
     if (isError) {
-        toast.error("Failed to fetch product profit data.");
+        toast.error("Failed to fetch profit status data.");
     }
 
-    return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent italic">
-                        Profit by Item
-                    </h2>
-                    <p className="text-muted-foreground italic">Analyze profitability across your entire product catalog.</p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" className="gap-2">
-                        Export Report <ArrowRight className="w-4 h-4" />
-                    </Button>
-                </div>
-            </div>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const profitData: any[] = reportResponse?.data || [];
 
-            {/* Filters Section */}
-            <Card className="border-none shadow-sm bg-slate-50/50 dark:bg-slate-900/50">
-                <CardContent className="p-4">
-                    <div className="flex flex-col md:flex-row gap-4 items-end">
-                        <div className="flex-1 flex flex-col gap-2">
-                            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Search Products</label>
-                            <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder="Search by name or SKU..."
-                                    className="pl-9 bg-white dark:bg-slate-950"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                            </div>
+    const filteredData = profitData.filter(item =>
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.sku?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // Calculate totals for stats cards
+    const totalSales = filteredData.reduce((acc, curr) => acc + (Number(curr.salesAmount) || 0), 0);
+    const totalCost = filteredData.reduce((acc, curr) => acc + (Number(curr.costAmount) || 0), 0);
+    const totalProfit = filteredData.reduce((acc, curr) => acc + (Number(curr.profitAmount) || 0), 0);
+
+    return (
+        <div className="bg-white min-h-screen text-slate-900">
+            <div className="max-w-[1500px] mx-auto space-y-8">
+
+                {/* Row 1: Header - Title (Left) | Filters (Right) */}
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-100">
+                            <TrendingUp className="w-6 h-6 text-white" />
                         </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 italic">Select Period</label>
+                        <div>
+                            <h1 className="text-2xl font-black tracking-tight text-slate-900">Profit Status by Item</h1>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">F & Z Global Trade (M) Sdn Bhd</p>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="relative flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1 group focus-within:border-indigo-500 transition-all">
                             <DateRangePicker
                                 dateRange={dateRange}
                                 onDateRangeChange={setDateRange}
-                                className="w-[300px] bg-white dark:bg-slate-950"
+                                className="border-none shadow-none focus-visible:ring-0 h-9 text-xs font-bold text-slate-700 w-[240px] bg-transparent"
                             />
                         </div>
-                        <Button
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]"
-                            onClick={() => {
-                                // Optional: You could implement manual refetching here if auto-fetch isn't desired
-                                // For now, the date picker state drives the query perfectly.
-                                toast.info("Analysis updated based on selected criteria.");
-                            }}
-                        >
-                            Run Analysis
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border-l-4 border-l-blue-500 shadow-sm transition-all hover:shadow-md py-6">
-                    <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                            <CardDescription className="font-medium">Total Revenue</CardDescription>
-                            <div className="p-1.5 bg-blue-100 dark:bg-blue-900/40 rounded-lg">
-                                <DollarSign className="w-4 h-4 text-blue-600" />
-                            </div>
-                        </div>
-                        <CardTitle className="text-2xl font-bold">
-                            {isLoading ? <Skeleton className="h-8 w-24" /> : `RM ${totalSales.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-
-                <Card className="border-l-4 border-l-slate-400 shadow-sm transition-all hover:shadow-md py-6">
-                    <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                            <CardDescription className="font-medium italic">Total Cost</CardDescription>
-                            <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                                <Package className="w-4 h-4 text-slate-600" />
-                            </div>
-                        </div>
-                        <CardTitle className="text-2xl font-bold">
-                            {isLoading ? <Skeleton className="h-8 w-24" /> : `RM ${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-
-                <Card className="border-l-4 border-l-emerald-500 shadow-sm transition-all hover:shadow-md py-6">
-                    <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                            <CardDescription className="font-medium">Gross Profit</CardDescription>
-                            <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-lg">
-                                <TrendingUp className="w-4 h-4 text-emerald-600" />
-                            </div>
-                        </div>
-                        <CardTitle className="text-2xl font-bold text-emerald-600">
-                            {isLoading ? <Skeleton className="h-8 w-24" /> : `RM ${totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-
-                <Card className="border-l-4 border-l-amber-500 shadow-sm transition-all hover:shadow-md bg-amber-50/30 dark:bg-amber-950/10 py-6">
-                    <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                            <CardDescription className="font-medium italic text-amber-900 dark:text-amber-200">Avg. Margin</CardDescription>
-                            <div className="p-1.5 bg-amber-100 dark:bg-amber-900/40 rounded-lg">
-                                <BarChart3 className="w-4 h-4 text-amber-600" />
-                            </div>
-                        </div>
-                        <CardTitle className="text-2xl font-bold text-amber-700 dark:text-amber-500">
-                            {isLoading ? <Skeleton className="h-8 w-24" /> : `${averageMargin.toFixed(1)}%`}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-            </div>
-
-            {/* Detailed Table */}
-            <Card className="shadow-sm border-none overflow-hidden pb-6">
-                <CardHeader className="border-b bg-slate-50/50 dark:bg-slate-900/50 py-4 gap-0">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <CardTitle className="text-lg">Product Profitability Breakdown</CardTitle>
-                            <CardDescription>Performance of individual SKUs based on sales and COGS.</CardDescription>
+                        <div className="relative group lg:w-72">
+                            <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                            <Input
+                                placeholder="Search products..."
+                                className="w-full h-11 pl-11 bg-slate-50 border-slate-200 rounded-xl text-sm font-medium focus-visible:ring-1 focus-visible:ring-indigo-100 placeholder:text-slate-400"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
                         </div>
                     </div>
-                </CardHeader>
-                <CardContent className="p-0">
+                </div>
+
+                {/* Row 2: Colorful Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Sales Card */}
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-blue-500 p-6 shadow-xl shadow-blue-200 group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                            <DollarSign className="w-24 h-24 text-white" />
+                        </div>
+                        <div className="relative z-10 flex flex-col h-full justify-between gap-4 text-white">
+                            <div className="p-2.5 bg-white/20 rounded-xl w-fit">
+                                <DollarSign className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Total Sales Analytics</p>
+                                <h3 className="text-3xl font-black tracking-tighter mt-1">{currency} {totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Cost Card */}
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 to-amber-500 p-6 shadow-xl shadow-amber-200 group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                            <ArrowDownRight className="w-24 h-24 text-white" />
+                        </div>
+                        <div className="relative z-10 flex flex-col h-full justify-between gap-4 text-white">
+                            <div className="p-2.5 bg-white/20 rounded-xl w-fit">
+                                <ArrowDownRight className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Total Expenditure</p>
+                                <h3 className="text-3xl font-black tracking-tighter mt-1">{currency} {totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Profit Card */}
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-500 p-6 shadow-xl shadow-emerald-200 group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                            <TrendingUp className="w-24 h-24 text-white" />
+                        </div>
+                        <div className="relative z-10 flex flex-col h-full justify-between gap-4 text-white">
+                            <div className="p-2.5 bg-white/20 rounded-xl w-fit">
+                                <TrendingUp className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-widest text-white/70">Net Profit Engine</p>
+                                <h3 className="text-3xl font-black tracking-tighter mt-1">{currency} {totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Row 3: Table with decreased padding-block */}
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
                     <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader className="bg-slate-50/80 dark:bg-slate-900">
-                                <TableRow>
-                                    <TableHead className="w-[300px] px-6 py-4">Item Details</TableHead>
-                                    <TableHead className="text-center px-4 py-4">Qty Sold</TableHead>
-                                    <TableHead className="text-right px-4 py-4">Revenue</TableHead>
-                                    <TableHead className="text-right italic px-4 py-4">COGS</TableHead>
-                                    <TableHead className="text-right font-bold text-indigo-600 px-4 py-4">Net Profit</TableHead>
-                                    <TableHead className="text-right px-6 py-4">Margin</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200">
+                                    <th rowSpan={2} className="px-6 py-4 border-r border-slate-100 text-center w-[120px]">SKU</th>
+                                    <th rowSpan={2} className="px-6 py-4 border-r border-slate-100 text-left">Product / Specification</th>
+                                    <th colSpan={3} className="py-3 border-r border-slate-100 text-center text-blue-700 bg-blue-50/20">Sales</th>
+                                    <th colSpan={2} className="py-3 border-r border-slate-100 text-center text-amber-700 bg-amber-50/20">Cost</th>
+                                    <th colSpan={2} className="py-3 border-r border-slate-100 text-center text-emerald-700 bg-emerald-50/20">Profit</th>
+                                    <th rowSpan={2} className="px-6 py-4 text-center w-[100px]">Margin %</th>
+                                </tr>
+                                <tr className="bg-slate-50/50 text-[9px] font-bold uppercase text-slate-400 border-b border-slate-100">
+                                    <th className="px-3 py-2 border-r border-slate-100 text-center">Qty</th>
+                                    <th className="px-4 py-2 border-r border-slate-100 text-center">Price</th>
+                                    <th className="px-5 py-2 border-r border-slate-100 text-right">Total</th>
+                                    <th className="px-4 py-2 border-r border-slate-100 text-center">Price</th>
+                                    <th className="px-5 py-2 border-r border-slate-100 text-right">Total</th>
+                                    <th className="px-4 py-2 border-r border-slate-100 text-center">Price</th>
+                                    <th className="px-5 py-2 border-r border-slate-100 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-[12.5px] font-medium text-slate-600">
                                 {isLoading ? (
-                                    Array.from({ length: 5 }).map((_, i) => (
-                                        <TableRow key={i}>
-                                            <TableCell colSpan={6}><Skeleton className="h-12 w-full" /></TableCell>
-                                        </TableRow>
+                                    Array.from({ length: 12 }).map((_, i) => (
+                                        <tr key={i} className="border-b border-slate-50">
+                                            <td colSpan={10} className="px-6 py-2"><Skeleton className="h-5 w-full rounded" /></td>
+                                        </tr>
                                     ))
-                                ) : filteredData.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="h-32 text-center text-muted-foreground italic">
-                                            No products found matching your search.
-                                        </TableCell>
-                                    </TableRow>
+                                ) : filteredData.length > 0 ? (
+                                    filteredData.map((item, index) => (
+                                        <tr key={index} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-6 py-2.5 text-center font-mono text-slate-400 border-r border-slate-50/50 group-hover:text-indigo-600 transition-colors uppercase whitespace-nowrap">{item.sku}</td>
+                                            <td className="px-6 py-2.5 text-left font-bold text-slate-800 leading-tight border-r border-slate-50/50 uppercase whitespace-nowrap">{item.name}</td>
+                                            <td className="px-3 py-2.5 text-center border-r border-slate-50/50 tabular-nums whitespace-nowrap">{Number(item.qty).toLocaleString()}</td>
+                                            <td className="px-4 py-2.5 text-right border-r border-slate-50/50 tabular-nums whitespace-nowrap">{Number(item.salesPrice).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td className="px-5 py-2.5 text-right border-r border-slate-50/50 tabular-nums font-black text-slate-900 bg-blue-50/10 group-hover:bg-transparent transition-colors uppercase whitespace-nowrap">{Number(item.salesAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td className="px-4 py-2.5 text-right border-r border-slate-50/50 tabular-nums text-slate-500 uppercase whitespace-nowrap">{Number(item.costPrice).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td className="px-5 py-2.5 text-right border-r border-slate-50/50 tabular-nums font-semibold text-slate-500 uppercase whitespace-nowrap">{Number(item.costAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td className="px-4 py-2.5 text-right border-r border-slate-50/50 tabular-nums font-bold text-emerald-600 uppercase whitespace-nowrap">{Number(item.profitPrice).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td className="px-5 py-2.5 text-right border-r border-slate-50/50 tabular-nums font-black text-slate-900 bg-emerald-50/10 group-hover:bg-transparent transition-colors uppercase whitespace-nowrap">{Number(item.profitAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                            <td className="px-6 py-2.5 text-center whitespace-nowrap">
+                                                <span className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black border transition-all ${parseFloat(item.profitRatio) > 25 ? 'bg-emerald-500 text-white border-emerald-400' :
+                                                    parseFloat(item.profitRatio) > 10 ? 'bg-indigo-500 text-white border-indigo-400' :
+                                                        parseFloat(item.profitRatio) > 0 ? 'bg-amber-500 text-white border-amber-400' :
+                                                            'bg-rose-500 text-white border-rose-400'
+                                                    }`}>
+                                                    {item.profitRatio}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
                                 ) : (
-                                    filteredData.map((item) => (
-                                        <TableRow key={item.product_id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/30 transition-colors">
-                                            <TableCell className="px-6 py-4">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="font-semibold text-slate-800 dark:text-slate-200">{item.product_name}</span>
-                                                    <div className="flex items-center gap-2 text-xs text-muted-foreground italic">
-                                                        <Badge variant="outline" className="text-[10px] py-0 h-4 bg-white dark:bg-slate-950">{item.sku}</Badge>
-                                                        {/* Optional category if API provides it, or remove */}
-                                                    </div>
+                                    <tr>
+                                        <td colSpan={10} className="px-6 py-24 text-center bg-slate-50/20">
+                                            <div className="flex flex-col items-center gap-2 opacity-30 grayscale translate-y-4 animate-in fade-in duration-700">
+                                                <div className="p-6 bg-white rounded-3xl shadow-xl border border-slate-100 ring-1 ring-slate-200">
+                                                    <SearchIcon className="w-12 h-12 text-slate-400" />
                                                 </div>
-                                            </TableCell>
-                                            <TableCell className="text-center font-medium px-4 py-4">{item.quantity_sold}</TableCell>
-                                            <TableCell className="text-right text-slate-600 dark:text-slate-400 px-4 py-4">
-                                                {Number(item.revenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                            </TableCell>
-                                            <TableCell className="text-right text-slate-500 italic px-4 py-4">
-                                                {Number(item.cost).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                            </TableCell>
-                                            <TableCell className="text-right font-bold text-emerald-600 px-4 py-4">
-                                                RM {Number(item.profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                            </TableCell>
-                                            <TableCell className="text-right px-6 py-4">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <div className="w-16 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                                        <div
-                                                            className={cn(
-                                                                "h-full rounded-full transition-all duration-1000",
-                                                                item.margin > 40 ? "bg-emerald-500" : item.margin > 25 ? "bg-amber-500" : "bg-rose-500"
-                                                            )}
-                                                            style={{ width: `${Math.min(item.margin, 100)}%` }}
-                                                        />
-                                                    </div>
-                                                    <span className="text-xs font-semibold w-8">{item.margin.toFixed(0)}%</span>
+                                                <div className="space-y-1">
+                                                    <p className="text-xl font-bold text-slate-900 uppercase tracking-tighter">Inventory Data Not Found</p>
+                                                    <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing with real-time operations...</p>
                                                 </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                            </div>
+                                        </td>
+                                    </tr>
                                 )}
-                            </TableBody>
-                        </Table>
+                            </tbody>
+                        </table>
                     </div>
-                </CardContent>
-            </Card>
+                    {/* Footer Info */}
+                    <div className="px-8 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+                        <div className="flex flex-col gap-1">
+                            <b className="font-bold block">Note:</b>
+                            <div>1. This is a profit report generated based on the current inventory data.</div>
+                            <div>2. All prices are in the default currency.</div>
+                        </div>
+                        <div className="flex items-center gap-8">
+                            <div className="bg-indigo-600 px-3 py-1 rounded text-white flex items-center gap-2 shadow-sm font-medium">
+                                <span>Total Products:</span>
+                                <span className="font-bold">{filteredData.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
