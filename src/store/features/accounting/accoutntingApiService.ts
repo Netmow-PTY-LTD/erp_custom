@@ -7,9 +7,8 @@ import type {
   Overview,
   Payroll,
   Transaction,
-  CreateTransactionInput,
   RecentActivity,
-  ExpenseBreakdown,
+  CreateTransactionInput,
   LedgerReportResponse,
   ProductProfitLossResponse,
 } from "@/types/accounting.types";
@@ -75,10 +74,16 @@ export type RecentActivityResponse = {
 };
 
 // -------------------- EXPENSE BREAKDOWN --------------------
+export interface ExpenseBreakdownData {
+  name: string;
+  value: number;
+  [key: string]: any;
+}
+
 export type ExpenseBreakdownResponse = {
   status: boolean;
   message: string;
-  data: ExpenseBreakdown[];
+  data: ExpenseBreakdownData[];
 };
 
 
@@ -100,6 +105,18 @@ export type ChartResponse = {
   message: string;
   data: ChartDataPoint[];
 };
+
+export interface IncomeExpenseTrendData {
+  date: string;
+  income: number;
+  expense: number;
+}
+
+export interface IncomeExpenseTrendResponse {
+  status: boolean;
+  message: string;
+  data: IncomeExpenseTrendData[];
+}
 
 
 
@@ -216,8 +233,12 @@ export const accountingApiService = baseApi.injectEndpoints({
     }),
 
     // GET EXPENSE BREAKDOWN
-    getExpenseBreakdown: builder.query<ExpenseBreakdownResponse, void>({
-      query: () => ({ url: "/accounting/expense-breakdown", method: "GET" }),
+    getExpenseBreakdown: builder.query<ExpenseBreakdownResponse, { from?: string; to?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/expense-breakdown",
+        method: "GET",
+        params,
+      }),
       providesTags: ["Accounting"],
     }),
 
@@ -548,6 +569,16 @@ export const accountingApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Accounting"],
     }),
 
+    // GET INCOME VS EXPENSE TREND
+    getIncomeExpenseTrend: builder.query<IncomeExpenseTrendResponse, { days: number }>({
+      query: (params) => ({
+        url: "/accounting/reports/income-expense-trend",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
 
 
 
@@ -599,5 +630,5 @@ export const {
   useGetExpenseHeadsQuery,
   useAddExpenseHeadwiseMutation,
   useGetLedgerReportQuery,
-
+  useGetIncomeExpenseTrendQuery,
 } = accountingApiService;
