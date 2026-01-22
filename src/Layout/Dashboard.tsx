@@ -9,6 +9,7 @@ import { ProfileDropdown } from "../components/dashboard/components/ProfileDropd
 
 import { ThemeSwitch } from "../components/theme-switch";
 import { Link, Outlet } from "react-router";
+import { useAuthUserQuery } from "@/store/features/auth/authApiService";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { useAppSelector } from "@/store/store";
@@ -17,6 +18,9 @@ import type { User } from "@/types/users.types";
 export default function DashboardLayout() {
   const { data: settings } = useGetSettingsInfoQuery();
   useAppSettings(settings?.data);
+
+  // Subscribe to auth user to keep permissions in sync when tags are invalidated
+  useAuthUserQuery();
 
   const user = useAppSelector((state) => state.auth.user) as User | null;
 
