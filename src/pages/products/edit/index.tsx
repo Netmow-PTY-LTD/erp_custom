@@ -669,7 +669,7 @@ export default function EditProductPage() {
                 name="purchase_tax"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Purchase Tax</FieldLabel>
+                    <FieldLabel>Purchase Tax (%)</FieldLabel>
                     <Input
                       type="number"
                       value={field.value ?? ""}
@@ -688,7 +688,7 @@ export default function EditProductPage() {
                 name="sales_tax"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Sales Tax</FieldLabel>
+                    <FieldLabel>Sales Tax (%)</FieldLabel>
                     <Input
                       type="number"
                       value={field.value ?? ""}

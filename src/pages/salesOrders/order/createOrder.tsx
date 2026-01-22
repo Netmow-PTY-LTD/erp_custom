@@ -387,7 +387,7 @@ export default function CreateSalesOrderPage() {
               )}
               <span className="truncate text-left min-w-0 flex-1">
                 {selected
-                  ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit.name})`
+                  ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit?.name || 'N/A'})`
                   : "Select product..."}
               </span>
             </div>
@@ -430,7 +430,7 @@ export default function CreateSalesOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
-                          SKU: {product.sku} | Unit: {product.unit.name}
+                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'}
                         </span>
                       </div>
                     </CommandItem>
