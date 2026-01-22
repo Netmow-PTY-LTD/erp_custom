@@ -31,6 +31,16 @@ const authSlice = createSlice({
       Cookies.remove('token');
     },
   },
+  extraReducers: (builder) => {
+    builder.addMatcher(
+      (action) => action.type.includes("executeQuery/fulfilled") && action.meta?.arg?.endpointName === "authUser",
+      (state, action: PayloadAction<{ data: { user: User } }>) => {
+        if (action.payload?.data?.user) {
+          state.user = action.payload.data.user;
+        }
+      }
+    );
+  },
 });
 
 export const { setCredentials, logout } = authSlice.actions;
