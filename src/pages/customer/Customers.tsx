@@ -168,7 +168,7 @@ export default function Customers() {
       accessorKey: "thumb_url", header: "Image",
       cell: ({ row }) => {
         const thumbUrl = row.getValue("thumb_url") as string;
-        const galleryItems = row.original.gallery_items || [];
+        // const galleryItems = row.original.gallery_items || [];
         return thumbUrl ? (
           <img
             src={thumbUrl}
@@ -176,7 +176,7 @@ export default function Customers() {
             className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() =>
               setPreviewData({
-                images: [thumbUrl, ...galleryItems].filter(Boolean),
+                images: [thumbUrl].filter(Boolean),
                 index: 0,
               })
             }
@@ -193,7 +193,7 @@ export default function Customers() {
       header: "Gallery",
       cell: ({ row }) => {
         const gallery = row.original.gallery_items || [];
-        const thumbUrl = row.original.thumb_url;
+        // const thumbUrl = row.original.thumb_url;
 
         return (
           <div className="flex items-center gap-1">
@@ -207,8 +207,8 @@ export default function Customers() {
                     className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
                     onClick={() =>
                       setPreviewData({
-                        images: [thumbUrl, ...gallery].filter(Boolean) as string[],
-                        index: i + 1, // +1 because thumbUrl is at index 0
+                        images: gallery,
+                        index: i,
                       })
                     }
                   />
@@ -218,8 +218,8 @@ export default function Customers() {
                     className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
                     onClick={() =>
                       setPreviewData({
-                        images: [thumbUrl, ...gallery].filter(Boolean) as string[],
-                        index: 4, // 1 thumbnail + 3 gallery items displayed
+                        images: gallery,
+                        index: 3,
                       })
                     }
                   >

@@ -95,6 +95,17 @@ export function AddProductsModal({
             },
         },
         {
+            accessorKey: "thumb_url",
+            header: "Image",
+            cell: ({ row }) => (
+                <img
+                    src={row.original.thumb_url || "/placeholder.png"}
+                    alt={row.original.name}
+                    className="w-10 h-10 rounded-full object-cover border"
+                />
+            ),
+        },
+        {
             accessorKey: "name",
             header: "Product Name",
             cell: ({ row }) => {
