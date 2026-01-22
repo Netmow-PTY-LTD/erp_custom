@@ -581,7 +581,7 @@ export default function CreateSalesOrderPage() {
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Add products to the order</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="button"
                     onClick={() =>
