@@ -74,9 +74,9 @@ export default function AddRMSupplier() {
         reset();
         navigate("/dashboard/raw-materials/suppliers");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Failed to add supplier");
+      toast.error(error?.data?.message || "Failed to add supplier");
     }
   };
 
