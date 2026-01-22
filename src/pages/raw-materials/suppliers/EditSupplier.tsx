@@ -99,9 +99,9 @@ export default function EditRMSupplier() {
         toast.success("Supplier updated successfully");
         navigate("/dashboard/raw-materials/suppliers");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Failed to update supplier");
+      toast.error(error?.data?.message || "Failed to update supplier");
     }
   };
 
