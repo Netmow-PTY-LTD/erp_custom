@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { useGetCustomerMapsQuery } from "@/store/features/customers/customersApi";
+import { ResizeMap } from "@/components/maps/ResizeMap";
 
 // Default Marker icon fix
 const DefaultIcon = L.icon({
@@ -68,6 +69,11 @@ const CustomersMapPage: React.FC = () => {
         ? [customers[0].coordinates.lat, customers[0].coordinates.lng]
         : defaultCenter;
 
+
+
+ 
+
+
     return (
         <div className="max-w-7xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Customers Map ({total} locations)</h1>
@@ -76,8 +82,10 @@ const CustomersMapPage: React.FC = () => {
                 center={center}
                 zoom={6}
                 scrollWheelZoom={true}
-                className="w-full h-[600px] z-0 rounded-lg shadow"
+                className="w-full h-[clamp(320px,60vh,720px)] rounded-lg shadow z-0"
+              
             >
+                <ResizeMap />
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution="&copy; OpenStreetMap contributors"
@@ -89,7 +97,7 @@ const CustomersMapPage: React.FC = () => {
                             key={customer.id}
                             position={[customer.coordinates.lat, customer.coordinates.lng]}
                         >
-                            <Popup>
+                            <Popup maxWidth={260} minWidth={200}>
                                 <div className="text-sm">
                                     <strong>{customer.name}</strong>
                                     {customer.company && <><br />{customer.company}</>}
