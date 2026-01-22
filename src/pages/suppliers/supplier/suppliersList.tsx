@@ -14,11 +14,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import {
   useDeleteSupplierMutation,
   useGetAllSuppliersQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart } from "lucide-react";
+import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart, User } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import type { Supplier } from "@/types/supplier.types";
@@ -65,11 +69,11 @@ export default function SuppliersList() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
-   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  
-    // permissions
-  
-    const canDeleteSupplier = userPermissions.includes(SupplierPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  // permissions
+
+  const canDeleteSupplier = userPermissions.includes(SupplierPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({ search, page, limit });
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
@@ -115,6 +119,10 @@ export default function SuppliersList() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | number | null>(null);
+  const [previewData, setPreviewData] = useState<{
+    images: string[];
+    index: number;
+  } | null>(null);
 
   const handleDeleteClick = (id: string | number) => {
     setSelectedSupplierId(id);
@@ -146,6 +154,30 @@ export default function SuppliersList() {
       accessorKey: "name",
       header: "Name",
       meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+    },
+    {
+      accessorKey: "thumb_url",
+      header: "Image",
+      cell: ({ row }) => {
+        const thumbUrl = row.original.thumb_url;
+        return thumbUrl ? (
+          <img
+            src={thumbUrl}
+            alt={row.original.name}
+            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() =>
+              setPreviewData({
+                images: [thumbUrl].filter(Boolean) as string[],
+                index: 0,
+              })
+            }
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+            <User className="w-5 h-5 text-gray-500" />
+          </div>
+        );
+      },
     },
     {
       accessorKey: "contact_person",
@@ -227,15 +259,15 @@ export default function SuppliersList() {
             </Link>
             {
               canDeleteSupplier && <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleDeleteClick(supplier.id)}
-              disabled={isDeleting}
-            >
-              <Trash2 className="w-4 h-4 mr-1" /> Delete
-            </Button>
+                size="sm"
+                variant="destructive"
+                onClick={() => handleDeleteClick(supplier.id)}
+                disabled={isDeleting}
+              >
+                <Trash2 className="w-4 h-4 mr-1" /> Delete
+              </Button>
             }
-            
+
           </div>
         );
       },
@@ -320,6 +352,25 @@ export default function SuppliersList() {
         onConfirm={handleConfirmDelete}
         message="Are you sure you want to delete this supplier? This action cannot be undone."
       />
+
+      <Dialog
+        open={!!previewData}
+        onOpenChange={(open) => !open && setPreviewData(null)}
+      >
+        <DialogContent className="max-w-3xl p-5 overflow-hidden bg-white">
+          <div className="relative flex items-center justify-center">
+            {previewData && (
+              <>
+                <img
+                  src={previewData.images[previewData.index]}
+                  alt="Supplier Preview"
+                  className="max-w-full max-h-[70vh] rounded-lg object-contain"
+                />
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

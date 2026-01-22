@@ -51,12 +51,12 @@ export default function Products() {
     index: number;
   } | null>(null);
   const limit = 10;
-  
+
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canDeleteProduct = userPermissions.includes(ProductPermission.DELETE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canDeleteProduct = userPermissions.includes(ProductPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: productStatsData } = useGetProductStatsQuery(undefined);
 
@@ -182,10 +182,7 @@ export default function Products() {
           className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() =>
             setPreviewData({
-              images: [
-                row.original.thumb_url,
-                ...(row.original.gallery_items || []),
-              ].filter(Boolean),
+              images: [row.original.thumb_url].filter(Boolean),
               index: 0,
             })
           }
@@ -209,11 +206,8 @@ export default function Products() {
                     className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
                     onClick={() =>
                       setPreviewData({
-                        images: [
-                          row.original.thumb_url,
-                          ...(row.original.gallery_items || []),
-                        ].filter(Boolean),
-                        index: i + 1,
+                        images: gallery,
+                        index: i,
                       })
                     }
                   />
@@ -223,11 +217,8 @@ export default function Products() {
                     className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
                     onClick={() =>
                       setPreviewData({
-                        images: [
-                          row.original.thumb_url,
-                          ...(row.original.gallery_items || []),
-                        ].filter(Boolean),
-                        index: 4,
+                        images: gallery,
+                        index: 3, // Start viewing from the 4th item (index 3)
                       })
                     }
                   >
@@ -364,17 +355,17 @@ export default function Products() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-             {
+              {
                 canDeleteProduct && (
-                   <DropdownMenuItem
-                onClick={() => handleDeleteProduct(product.id)}
-                className="cursor-pointer flex items-center gap-2"
-              >
-                <Trash className="w-4 h-4" />
-                Delete
-              </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleDeleteProduct(product.id)}
+                    className="cursor-pointer flex items-center gap-2"
+                  >
+                    <Trash className="w-4 h-4" />
+                    Delete
+                  </DropdownMenuItem>
                 )
-             }
+              }
             </DropdownMenuContent>
           </DropdownMenu>
         );
