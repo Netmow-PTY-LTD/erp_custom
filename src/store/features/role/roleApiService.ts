@@ -4,7 +4,7 @@ import type { Role } from "@/types/users.types";
 
 
 export type RoleResponse<T> = {
- status: boolean;
+  status: boolean;
   message: string;
   data: T;
   pagination?: {
@@ -38,7 +38,7 @@ export const roleApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Roles","Role"],
+      invalidatesTags: ["Roles", "Role"],
     }),
 
     // GET SINGLE ROLE (GET /get/:id)
@@ -60,7 +60,7 @@ export const roleApiService = baseApi.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: ["Roles","Role"],
+      invalidatesTags: ["Roles", "Role", "Auth"],
     }),
 
     // DELETE ROLE (DELETE /delete/:id)
@@ -69,7 +69,7 @@ export const roleApiService = baseApi.injectEndpoints({
         url: `/roles/delete/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Roles","Role"],
+      invalidatesTags: ["Roles", "Role", "Auth"],
     }),
 
   }),

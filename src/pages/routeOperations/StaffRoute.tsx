@@ -105,7 +105,7 @@ const StaffRoute = () => {
     const selectedStaffId = explicitSelectedId ?? (allStaff.length > 0 ? allStaff[0].id : null);
 
     // Fetch Available Routes
-    const { data: allRoutesData, isFetching: isRoutesFetching } = useGetAllSalesRouteQuery({
+    const { data: allRoutesData, isFetching: isRoutesFetching ,refetch} = useGetAllSalesRouteQuery({
         search: assignSearchTerm,
         limit: 15,
         page: assignPage
@@ -121,6 +121,7 @@ const StaffRoute = () => {
     const handleAssignModalOpenChange = (open: boolean) => {
         setIsAssignModal(open);
         if (open) {
+            refetch()
             setAssignPage(1);
             setAllAssignRoutes([]);
             setHasMoreRoutes(true);
@@ -363,6 +364,8 @@ const StaffRoute = () => {
                                             onChange={(e) => setRouteSearchTerm(e.target.value)}
                                         />
                                     </div>
+
+                                    {/*   this assign new route logic here */}
                                     <Dialog open={isAssignModalOpen} onOpenChange={handleAssignModalOpenChange}>
                                         <DialogTrigger asChild>
                                             <Button size="sm" className="gap-2">
@@ -451,6 +454,11 @@ const StaffRoute = () => {
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
+
+
+
+
+
                                 </div>
                             </CardHeader>
                             <ScrollArea className="flex-1 bg-muted/5 p-4">
