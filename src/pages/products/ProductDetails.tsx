@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router";
 import {
   useGetAllStockMovementsQuery,
   useGetProductByIdQuery,
+  useGetOrdersByProductIdQuery,
 } from "@/store/features/admin/productsApiService";
 import type { Product, StockMovement } from "@/types/types";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -14,6 +15,10 @@ import { useState } from "react";
 import EditStockForm from "@/components/products/EditStockForm";
 import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
+
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 
 export default function ProductDetailsPage() {
   const [open, setOpen] = useState<boolean>(false);
@@ -77,6 +82,61 @@ export default function ProductDetailsPage() {
       header: "Notes",
       cell: ({ row }) => row.original.notes,
     },
+  ];
+
+  /* ---------------- PRODUCT ORDERS LOGIC ---------------- */
+  const [ordersPage, setOrdersPage] = useState<number>(1);
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  const {
+    data: fetchedOrders,
+    isFetching: isOrdersFetching
+  } = useGetOrdersByProductIdQuery({
+    id: Number(productId),
+    page: ordersPage,
+    limit,
+    status: statusFilter || undefined,
+    start_date: dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : undefined,
+    end_date: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
+  }, {
+    skip: !productId
+  });
+
+  const orderColumns: ColumnDef<any>[] = [
+    {
+      accessorKey: "order_number",
+      header: "Order #",
+      cell: ({ row }) => (
+        <Link to={`/dashboard/sales/orders/${row.original.id}`} className="text-blue-600 hover:underline">
+          {row.original.order_number}
+        </Link>
+      )
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge variant="outline" className={`capitalize ${row.original.status === 'delivered' ? 'bg-green-100 text-green-800 border-green-200' :
+          row.original.status === 'cancelled' ? 'bg-red-100 text-red-800 border-red-200' :
+            'bg-gray-100 text-gray-800 border-gray-200'
+          }`}>
+          {row.original.status}
+        </Badge>
+      )
+    },
+    {
+      accessorKey: "order_date",
+      header: "Order Date",
+      cell: ({ row }) => {
+        if (!row.original.order_date) return <span>N/A</span>;
+        return <span>{format(new Date(row.original.order_date), "yyyy-MM-dd")}</span>;
+      }
+    },
+    {
+      accessorKey: "customer.name",
+      header: "Customer",
+    }
   ];
 
   return (
@@ -198,13 +258,67 @@ export default function ProductDetailsPage() {
             </CardContent>
           </Card>
 
+
           {/* Recent Orders */}
           <Card className="py-6">
-            <CardHeader>
+            <CardHeader className="flex flex-wrap items-center justify-between gap-4">
               <CardTitle>Recent Orders Containing This Product</CardTitle>
+              <div className="flex flex-wrap gap-4">
+                {/* Status Filter */}
+                <select
+                  className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setOrdersPage(1);
+                  }}
+                >
+                  <option value="">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+
+                {/* Date Range */}
+                <DateRangePicker
+                  dateRange={dateRange}
+                  onDateRangeChange={(range: DateRange | undefined) => {
+                    setDateRange(range);
+                    setOrdersPage(1);
+                  }}
+                  placeholder="Pick a date range"
+                  className="w-[240px]"
+                  numberOfMonths={2}
+                />
+
+                {(statusFilter || dateRange) && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setStatusFilter("");
+                      setDateRange(undefined);
+                      setOrdersPage(1);
+                    }}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+
             </CardHeader>
-            <CardContent className="text-sm text-gray-600">
-              No recent orders for this product.
+            <CardContent>
+              <DataTable
+                columns={orderColumns}
+                data={fetchedOrders?.data}
+                pageIndex={ordersPage - 1}
+                pageSize={limit}
+                totalCount={fetchedOrders?.pagination?.total ?? 0}
+                onPageChange={(p) => setOrdersPage(p + 1)}
+                isFetching={isOrdersFetching}
+              />
             </CardContent>
           </Card>
         </div>
