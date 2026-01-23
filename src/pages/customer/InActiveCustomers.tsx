@@ -35,6 +35,10 @@ import {
 import type { Customer } from "@/store/features/customers/types";
 import { toast } from "sonner";
 import {
+  CustomerPermission,
+  SuperAdminPermission,
+} from "@/config/permissions";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -58,6 +62,15 @@ export default function InActiveCustomersList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [mapLocation, setMapLocation] = useState<string | null>(null);
+
+  const userPermissions = useAppSelector(
+    (state) => state.auth.user?.role.permissions || []
+  );
+
+  const canDeleteCustomer =
+    userPermissions.includes(CustomerPermission.DELETE) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
   const [previewData, setPreviewData] = useState<{
     images: string[];
     index: number;
@@ -340,14 +353,18 @@ export default function InActiveCustomersList() {
                   View
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setDeleteId(id)}
-                className="flex items-center text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              {canDeleteCustomer && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setDeleteId(id)}
+                    className="flex items-center text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
