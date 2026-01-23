@@ -328,7 +328,7 @@ export default function InActiveCustomersList() {
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/customers/${id}/edit`} className="flex items-center">
+                <Link to={`/dashboard/customers/${id}/edit/by-staff`} className="flex items-center">
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </Link>
