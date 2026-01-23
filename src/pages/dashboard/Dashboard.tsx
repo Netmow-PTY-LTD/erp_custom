@@ -3,6 +3,7 @@ import { Overview } from "@/components/dashboard/components/Overview";
 import RecentCustomers from "@/components/dashboard/components/RecentCustomers";
 import RecentOrders from "@/components/dashboard/components/RecentOrders";
 import StatusOrdersTable from "@/components/dashboard/components/StatusOrdersTable";
+import RecentStatusCustomers from "@/components/dashboard/components/RecentStatusCustomers";
 
 import {
   Card,
@@ -35,6 +36,8 @@ export default function Dashboard() {
   const canConfirmedSalesListShow = userPermissions.includes(DashboardPermission.CONFIRMED_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canDeliveredSalesListShow = userPermissions.includes(DashboardPermission.DELIVERED_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canInTransitSalesListShow = userPermissions.includes(DashboardPermission.INTRANSIT_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentActiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_ACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentInactiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_INACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -160,6 +163,42 @@ export default function Dashboard() {
               <RecentCustomers />
             </CardContent>
           </Card>}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {canRecentActiveCustomersShow && <Card className="py-6">
+              <CardHeader className="flex justify-between gap-4">
+                <div>
+                  <CardTitle>Recent Active Customers</CardTitle>
+                  <CardDescription>Currently active profiles</CardDescription>
+                </div>
+                <Link to="/dashboard/customers">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-violet-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
+                    View All Active
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <RecentStatusCustomers status="active" />
+              </CardContent>
+            </Card>}
+
+            {canRecentInactiveCustomersShow && <Card className="py-6">
+              <CardHeader className="flex justify-between gap-4">
+                <div>
+                  <CardTitle>Recent Inactive Customers</CardTitle>
+                  <CardDescription>Currently inactive profiles</CardDescription>
+                </div>
+                <Link to="/dashboard/customers/inactive">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-rose-600 to-rose-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-rose-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-rose-500/40 active:translate-y-0 active:shadow-none">
+                    View All Inactive
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <RecentStatusCustomers status="inactive" />
+              </CardContent>
+            </Card>}
+          </div>
           {
             canRecentSalesListShow && <Card className="pt-6 pb-2">
               <CardHeader className="flex justify-between gap-4 items-center">
