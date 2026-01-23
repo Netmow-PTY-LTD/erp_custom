@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/store/baseApi";
 import type { Staff } from "@/types/staff.types";
 

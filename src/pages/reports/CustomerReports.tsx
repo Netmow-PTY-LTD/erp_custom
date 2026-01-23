@@ -4,12 +4,12 @@ import { useState } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Badge } from "@/components/ui/badge";
 
-import { Input } from "@/components/ui/input";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   useGetAccountsReceivableReportQuery,
   useGetSalesReportByCustomerQuery,
+  useGetCustomerStatisticsQuery,
 } from "@/store/features/reports/reportApiService";
 import { useAppSelector } from "@/store/store";
 import { Users, DollarSign, AlertCircle } from "lucide-react";
@@ -35,8 +35,6 @@ interface AR {
 /* ------------------------ MAIN COMPONENT ------------------------ */
 
 export default function CustomerReports() {
-  const [start, setStart] = useState("2025-12-01");
-  const [end, setEnd] = useState("2025-12-19");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 10;
@@ -54,12 +52,10 @@ export default function CustomerReports() {
 
   console.log("Sales by Customer Data:", salesByCustomerData);
 
-  // Calculate stats
-  const totalCustomers = salesByCustomerData?.pagination?.total || 0;
-  const totalSales = salesByCustomerData?.data?.reduce(
-    (sum: number, item: SalesCustomer) => sum + Number(item.sales),
-    0
-  ) || 0;
+  // Fetch customer statistics from API
+  const { data: customerStatsData } = useGetCustomerStatisticsQuery();
+
+  console.log("Customer Statistics Data:", customerStatsData);
 
   const {
     data: accountsReceivableData,
@@ -71,10 +67,11 @@ export default function CustomerReports() {
   });
 
   console.log("Accounts Receivable Data:", accountsReceivableData);
-  const totalOutstanding = accountsReceivableData?.data?.reduce(
-    (sum: number, item: AR) => sum + Number(item.balance),
-    0
-  ) || 0;
+
+  // Use API data for stats
+  const totalCustomers = customerStatsData?.data?.total_customers || 0;
+  const totalSales = customerStatsData?.data?.total_sales || 0;
+  const totalOutstanding = customerStatsData?.data?.total_outstanding_balance || 0;
 
   const stats = [
     {
@@ -173,8 +170,7 @@ export default function CustomerReports() {
         <h1 className="text-2xl font-bold">Customer Reports</h1>
 
         {/* Filter Section */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          {/* Start Date */}
+        {/* <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex flex-col">
             <label className="text-sm font-medium mb-1">Start Date</label>
             <Input
@@ -185,7 +181,6 @@ export default function CustomerReports() {
             />
           </div>
 
-          {/* End Date */}
           <div className="flex flex-col">
             <label className="text-sm font-medium mb-1">End Date</label>
             <Input
@@ -196,13 +191,12 @@ export default function CustomerReports() {
             />
           </div>
 
-          {/* Filter Button */}
           <button
             className="mt-2 sm:mt-6 self-start sm:self-auto rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none"
           >
             Filter
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Stats Cards */}
@@ -242,9 +236,6 @@ export default function CustomerReports() {
         <Card className="pt-6">
           <CardHeader className="flex justify-between">
             <CardTitle>Sales by Customer</CardTitle>
-            <span className="text-sm text-muted-foreground">
-              {start} → {end}
-            </span>
           </CardHeader>
           <CardContent>
             <DataTable
@@ -267,7 +258,7 @@ export default function CustomerReports() {
         <Card className="pt-6">
           <CardHeader className="flex justify-between">
             <CardTitle>Accounts Receivable</CardTitle>
-            <span className="text-sm text-muted-foreground">Open invoices</span>
+            {/* <span className="text-sm text-muted-foreground">Open invoices</span> */}
           </CardHeader>
           <CardContent>
             <DataTable
