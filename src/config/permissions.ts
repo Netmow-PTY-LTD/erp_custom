@@ -258,6 +258,11 @@ export const HelpPermission = {
 
 };
 
+// --- System/Database ---
+export const SystemPermission = {
+  VIEW_TABLES: "system.tables.view" as const,
+};
+
 //   for sidebar
 export const PERMISSION_GROUPS = {
 
@@ -277,6 +282,7 @@ export const PERMISSION_GROUPS = {
   RouteOperations: RouteOperationPermission,
   Help: HelpPermission,
   Payroll: PayrollPermission,
+  System: SystemPermission,
 } as const;
 
 
@@ -299,4 +305,5 @@ export type PermissionType =
   // | typeof ProductionPermission[keyof typeof ProductionPermission]
   | typeof RouteOperationPermission[keyof typeof RouteOperationPermission]
   | typeof PayrollPermission[keyof typeof PayrollPermission]
-  | typeof HelpPermission[keyof typeof HelpPermission];
+  | typeof HelpPermission[keyof typeof HelpPermission]
+  | typeof SystemPermission[keyof typeof SystemPermission];

@@ -14,7 +14,7 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useGetStaffByIdQuery } from "@/store/features/staffs/staffApiService";
 import { BackButton } from "@/components/BackButton";
-import { useGetStaffAttendanceByIdQuery } from "@/store/features/attendence/attendenceApiService";
+import { useGetStaffAttendanceByIdQuery, useGetStaffAttendanceStatsQuery } from "@/store/features/attendence/attendenceApiService";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -45,29 +45,48 @@ export default function StaffDetails() {
 
   const staff = data?.data;
 
+  // Month Filter State
+  const currentDate = new Date();
+  const currentMonthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+  const [selectedMonth, setSelectedMonth] = useState(currentMonthStr);
+
   const { data: attendanceByStaff, isFetching: isFetchingAttendance } =
     useGetStaffAttendanceByIdQuery({
       staffId: Number(staffId),
       page,
       limit,
       search,
+      month: selectedMonth,
     });
 
+  const { data: attendanceStats } = useGetStaffAttendanceStatsQuery({
+    staffId: staffId as string,
+    month: selectedMonth
+  });
+  const stats = attendanceStats?.data;
+
+  // Fetch Leaves separately (dynamic, filtered by month, show up to 100)
+  const { data: leavesResponse } = useGetStaffAttendanceByIdQuery({
+    staffId: Number(staffId),
+    page: 1,
+    limit: 100,
+    month: selectedMonth,
+    status: 'on_leave'
+  });
+
   const attendanceData: AttendanceRecord[] = attendanceByStaff?.data || [];
+  const leavesData: AttendanceRecord[] = leavesResponse?.data || [];
 
   // Calculate Stats
-  const presentCount = attendanceData.filter(a => a.status === 'present').length;
-  const lateCount = attendanceData.filter(a => a.status === 'late').length;
-  const absentCount = attendanceData.filter(a => a.status === 'absent').length;
-  // const leaveCount = attendanceData.filter(a => a.status === 'on_leave').length;
+  const presentCount = stats?.present || 0;
+  const lateCount = stats?.late || 0;
+  const absentCount = stats?.absent || 0;
 
-  const leaveRequests: LeaveRequest[] = attendanceData
-    .filter((item) => item.status === "on_leave")
-    .map((item) => ({
-      date: item.date,
-      type: item.notes || "N/A",
-      status: "approved",
-    }));
+  const leaveRequests: LeaveRequest[] = leavesData.map((item) => ({
+    date: item.date,
+    type: item.notes || "N/A",
+    status: "approved",
+  }));
 
   const formatStatusLabel = (status: string) =>
     status
@@ -160,6 +179,14 @@ export default function StaffDetails() {
       },
     },
   ];
+
+  // Payroll Data
+  const payroll = staff?.payrollStructure;
+  const basicSalary = payroll?.basic_salary || staff?.basic_salary || (staff?.salary ? staff.salary * 0.7 : 0);
+  const allowances = payroll?.allowances || staff?.allowances || [];
+  const deductions = payroll?.deductions || staff?.deductions || [];
+  const bankDetails = payroll?.bank_details || staff?.bank_details;
+  const totalSalary = staff?.salary || (basicSalary + allowances.reduce((sum, item) => sum + item.amount, 0) - deductions.reduce((sum, item) => sum + item.amount, 0));
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-6 pb-10">
@@ -280,10 +307,24 @@ export default function StaffDetails() {
         {/* RIGHT COLUMN — TABS & CONTENT */}
         <div className="lg:col-span-8 xl:col-span-9">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="w-full justify-start h-12 p-1 bg-muted/50 rounded-lg mb-6 gap-2">
-              <TabsTrigger value="overview" className="h-10 px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm">Overview</TabsTrigger>
-              <TabsTrigger value="payroll" className="h-10 px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm">Payroll & Financials</TabsTrigger>
-            </TabsList>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <TabsList className="bg-muted/50 rounded-lg h-12 p-1">
+                <TabsTrigger value="overview" className="h-10 px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm">Overview</TabsTrigger>
+                <TabsTrigger value="payroll" className="h-10 px-6 data-[state=active]:bg-background data-[state=active]:shadow-sm">Payroll & Financials</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="mt-0">
+                <div className="flex items-center gap-2 bg-background border px-3 py-2 rounded-md shadow-sm">
+                  <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Filter By Month:</span>
+                  <input
+                    type="month"
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="bg-transparent text-sm font-medium focus:outline-none"
+                  />
+                </div>
+              </TabsContent>
+            </div>
 
             {/* OVERVIEW TAB */}
             <TabsContent value="overview" className="space-y-6 animate-in fade-in-50 duration-500">
@@ -292,7 +333,7 @@ export default function StaffDetails() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card className="bg-primary/5 border-primary/10 shadow-none">
                   <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                    <span className="text-3xl font-bold text-primary">{attendanceByStaff?.pagination?.total || 0}</span>
+                    <span className="text-3xl font-bold text-primary">{stats?.total || attendanceByStaff?.pagination?.total || 0}</span>
                     <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">Total Days</span>
                   </CardContent>
                 </Card>
@@ -374,14 +415,14 @@ export default function StaffDetails() {
                   </CardHeader>
                   <CardContent>
                     <div className="mb-1 text-4xl font-bold">
-                      RM {staff?.salary?.toLocaleString() || "0.00"}
+                      RM {totalSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
                     <p className="text-sm text-slate-400">Total Monthly Gross Salary</p>
 
                     <div className="mt-8 grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-xs text-slate-400 uppercase tracking-wider">Basic</p>
-                        <p className="font-semibold">RM {staff?.basic_salary?.toLocaleString() || (staff?.salary ? (staff.salary * 0.7).toLocaleString() : "0.00")}</p>
+                        <p className="font-semibold">RM {basicSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                       </div>
                       <div>
                         <p className="text-xs text-slate-400 uppercase tracking-wider">Date</p>
@@ -403,16 +444,16 @@ export default function StaffDetails() {
                   <CardContent className="relative z-10 space-y-6">
                     <div>
                       <p className="text-xs text-indigo-200 uppercase tracking-wider mb-1">Bank Name</p>
-                      <p className="font-bold text-lg tracking-wide">{staff?.bank_details?.bank_name || "NOT CONFIGURED"}</p>
+                      <p className="font-bold text-lg tracking-wide">{bankDetails?.bank_name || staff?.bank_details?.bank_name || "NOT CONFIGURED"}</p>
                     </div>
                     <div className="flex justify-between items-end">
                       <div>
                         <p className="text-xs text-indigo-200 uppercase tracking-wider mb-1">Account Number</p>
-                        <p className="font-mono text-xl tracking-widest">{staff?.bank_details?.account_number || "•••• •••• ••••"}</p>
+                        <p className="font-mono text-xl tracking-widest">{bankDetails?.account_number || staff?.bank_details?.account_number || "•••• •••• ••••"}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-indigo-200 uppercase tracking-wider mb-1">Holder</p>
-                        <p className="font-medium text-sm">{staff?.bank_details?.account_name || "-"}</p>
+                        <p className="font-medium text-sm">{bankDetails?.account_name || staff?.bank_details?.account_name || "-"}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -429,9 +470,9 @@ export default function StaffDetails() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {staff?.allowances && staff.allowances.length > 0 ? (
+                    {allowances && allowances.length > 0 ? (
                       <div className="space-y-3">
-                        {staff.allowances.map((item, idx) => (
+                        {allowances.map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-emerald-50/50 border border-emerald-100 hover:bg-emerald-50 transition-colors">
                             <span className="font-medium text-sm text-slate-700">{item.name}</span>
                             <span className="font-bold text-sm text-emerald-700">+ RM {item.amount.toLocaleString()}</span>
@@ -454,9 +495,9 @@ export default function StaffDetails() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {staff?.deductions && staff.deductions.length > 0 ? (
+                    {deductions && deductions.length > 0 ? (
                       <div className="space-y-3">
-                        {staff.deductions.map((item, idx) => (
+                        {deductions.map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-rose-50/50 border border-rose-100 hover:bg-rose-50 transition-colors">
                             <span className="font-medium text-sm text-slate-700">{item.name}</span>
                             <span className="font-bold text-sm text-rose-700">- RM {item.amount.toLocaleString()}</span>
