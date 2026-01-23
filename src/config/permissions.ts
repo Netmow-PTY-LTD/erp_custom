@@ -15,6 +15,12 @@ export const DashboardPermission = {
   // LIST: "dashboard.list" as const,
   RECENT_SALES_LIST: "dashboard.recent_sales.list" as const,
   RECENT_CUSTOMERS_LIST: "dashboard.recent_customers.list" as const,
+  PENDING_SALES_LIST: "dashboard.pending_sales.list" as const,
+  CONFIRMED_SALES_LIST: "dashboard.confirmed_sales.list" as const,
+  DELIVERED_SALES_LIST: "dashboard.delivered_sales.list" as const,
+  INTRANSIT_SALES_LIST: "dashboard.intransit_sales.list" as const,
+  RECENT_ACTIVE_CUSTOMERS_LIST: "dashboard.recent_active_customers.list" as const,
+  RECENT_INACTIVE_CUSTOMERS_LIST: "dashboard.recent_inactive_customers.list" as const,
 };
 
 // --- Products ---
