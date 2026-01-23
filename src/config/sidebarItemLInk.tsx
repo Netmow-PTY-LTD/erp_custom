@@ -182,6 +182,7 @@ import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
 import ProductsByStaff from "@/pages/products/ProductsByStaff";
+import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
 //import DailyProfitStatus from "@/pages/accounting/DailyProfitStatus";
 
 export const sidebarItemLink = [
@@ -1034,6 +1035,16 @@ export const sidebarItemLink = [
         icon: Package,
         allowedPermissions: [
           SalesPermission.DELIVERED_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Sales Return",
+        url: "/dashboard/sales/orders/returned",
+        element: <ReturnedOrders />,
+        icon: List,
+        allowedPermissions: [
+          SalesPermission.RETURNED_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
