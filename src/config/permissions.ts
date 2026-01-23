@@ -115,6 +115,7 @@ export const SalesPermission = {
   CONFIRMED_ORDERS: "sales.orders.confirmed.view" as const,
   DELIVERED_ORDERS: "sales.orders.delivered.view" as const,
   INTRANSIT_ORDERS: "sales.orders.intransit.view" as const,
+  RETURNED_ORDERS: "sales.orders.returned.view" as const,
   ORDER_DETAILS: "sales.orders.details.view" as const,
   CREATE_ORDER: "sales.orders.create" as const,
   EDIT_ORDER: "sales.orders.edit" as const,
@@ -258,6 +259,11 @@ export const HelpPermission = {
 
 };
 
+// --- System/Database ---
+export const SystemPermission = {
+  VIEW_TABLES: "system.tables.view" as const,
+};
+
 //   for sidebar
 export const PERMISSION_GROUPS = {
 
@@ -277,6 +283,7 @@ export const PERMISSION_GROUPS = {
   RouteOperations: RouteOperationPermission,
   Help: HelpPermission,
   Payroll: PayrollPermission,
+  System: SystemPermission,
 } as const;
 
 
@@ -299,4 +306,5 @@ export type PermissionType =
   // | typeof ProductionPermission[keyof typeof ProductionPermission]
   | typeof RouteOperationPermission[keyof typeof RouteOperationPermission]
   | typeof PayrollPermission[keyof typeof PayrollPermission]
-  | typeof HelpPermission[keyof typeof HelpPermission];
+  | typeof HelpPermission[keyof typeof HelpPermission]
+  | typeof SystemPermission[keyof typeof SystemPermission];
