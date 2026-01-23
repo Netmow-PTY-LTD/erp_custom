@@ -49,10 +49,10 @@ export const payrollApiService = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // Get all payroll runs
         getAllPayrollRuns: builder.query<PayrollResponse<PayrollRun[]>, PayrollQueryParams | void>({
-            query: (params = {}) => ({
+            query: (params) => ({
                 url: "/payroll",
                 method: "GET",
-                params,
+                params: (params as PayrollQueryParams) || undefined,
             }),
             providesTags: ["Payroll"],
         }),
