@@ -181,6 +181,7 @@ import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
+import ProductsByStaff from "@/pages/products/ProductsByStaff";
 //import DailyProfitStatus from "@/pages/accounting/DailyProfitStatus";
 
 export const sidebarItemLink = [
@@ -225,6 +226,18 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+
+      {
+        title: "Products By Staff",
+        url: "/dashboard/products-by-staff",
+        element: <ProductsByStaff />,
+        icon: List, // product list
+        allowedPermissions: [
+          ProductPermission.LIST_BY_STAFF,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
       {
         title: "Add Product",
         url: "/dashboard/products/create",

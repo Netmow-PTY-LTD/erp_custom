@@ -27,6 +27,7 @@ export const DashboardPermission = {
 export const ProductPermission = {
   VIEW: "products.view" as const,
   LIST: "products.list" as const,
+  LIST_BY_STAFF: "products.list.by.staff" as const,
   DETAILS: "products.details" as const,
   CREATE: "products.create" as const,
   EDIT: "products.edit" as const,
