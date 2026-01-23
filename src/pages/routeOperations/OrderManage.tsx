@@ -40,8 +40,15 @@ import { useAppSelector } from "@/store/store";
 import { selectCurrency } from "@/store/currencySlice";
 import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 
+interface StaffMember {
+    id: string;
+    name: string;
+    role: string;
+    thumb_url?: string;
+}
+
 // Mock Data
-const dummyStaff = [
+const dummyStaff: StaffMember[] = [
     { id: "S001", name: "Alice Johnson", role: "Sales Rep" },
     { id: "S002", name: "Bob Smith", role: "Driver" },
     { id: "S003", name: "Charlie Brown", role: "Sales Rep" },
@@ -192,7 +199,7 @@ const OrderManage = () => {
         setIsViewSheetOpen(true);
     };
 
-    const getStaffDetails = (id: string) => {
+    const getStaffDetails = (id: string): StaffMember | null => {
         // Try to get from staffData first
         if (staffData?.data) {
             const staff = staffData.data.find((s) => s.id.toString() === id);
@@ -200,12 +207,13 @@ const OrderManage = () => {
                 return {
                     id: staff.id.toString(),
                     name: `${staff.first_name} ${staff.last_name}`,
-                    role: staff.position
+                    role: staff.position,
+                    thumb_url: staff.thumb_url
                 };
             }
         }
         // Fallback to dummy staff
-        return dummyStaff.find((s) => s.id === id);
+        return dummyStaff.find((s) => s.id === id) || null;
     };
 
 
@@ -311,7 +319,7 @@ const OrderManage = () => {
                                                     if (!staff) return null;
                                                     return (
                                                         <Avatar key={staffId} className="h-8 w-8 border-2 border-background ring-1 ring-muted" title={staff.name}>
-                                                            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${staff.name}`} />
+                                                            <AvatarImage src={staff?.thumb_url ? staff.thumb_url : `https://api.dicebear.com/7.x/initials/svg?seed=${staff.name}`} />
                                                             <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
                                                                 {staff.name.substring(0, 2).toUpperCase()}
                                                             </AvatarFallback>
