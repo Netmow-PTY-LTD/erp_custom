@@ -74,10 +74,10 @@ const OrderManage = () => {
     const [staffSearch, setStaffSearch] = useState("");
 
     //permissions
-      const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-      const canAssignStaff = userPermissions.includes(SalesPermission.ASSIGN_STAFF_IN_ORDER)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-    
-    
+    const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+    const canAssignStaff = userPermissions.includes(SalesPermission.ASSIGN_STAFF_IN_ORDER) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+
     const { data: salesOrderData, isLoading, isFetching } = useGetAllSalesOrdersQuery({ search, page, limit });
     const { data: detailedOrderData, isFetching: isFetchingDetail } = useGetSalesOrderByIdQuery(viewOrderId as string | number, { skip: !viewOrderId });
     const [assignStaff, { isLoading: isAssigning }] = useAssignStaffToOrderMutation();
@@ -576,109 +576,109 @@ const OrderManage = () => {
                 <DialogContent>
 
                     {
-                        !canAssignStaff ?  <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
-                <ShieldAlert className="w-10 h-10 text-destructive" />
-              </div>
-              <h2 className="text-lg font-semibold text-foreground">
-                Access Denied
-              </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                You do not have permission to Assign Staff in Order. <br />
-                Please contact your administrator if you believe this is an
-                error.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => setIsAssignDialogOpen(false)}
-                className="mt-4"
-              >
-                Close
-              </Button>
-            </div> : (
-                            <>
-                             <DialogHeader>
-                        <DialogTitle>Assign Staff</DialogTitle>
-                        <DialogDescription>
-                            Select one or more staff members to assign to {ordersToAssign.length} selected order(s).
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <div className="relative">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search staff by name or position..."
-                                className="pl-8"
-                                value={staffSearch}
-                                onChange={(e) => setStaffSearch(e.target.value)}
-                            />
-                        </div>
-                        <ScrollArea className="h-[250px] border rounded-md p-2">
-                            <div className="space-y-1">
-                                {isFetchingStaff ? (
-                                    <div className="flex items-center justify-center h-32">
-                                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                                    </div>
-                                ) : staffData?.data && staffData.data.length > 0 ? (
-                                    staffData.data.map((staff) => {
-                                        const isSelected = selectedStaffIds.includes(staff.id.toString());
-                                        const fullName = `${staff.first_name} ${staff.last_name}`;
-                                        return (
-                                            <div
-                                                key={staff.id}
-                                                className={`flex items-center space-x-3 p-2 rounded-md hover:bg-accent cursor-pointer ${isSelected ? 'bg-accent/50' : ''}`}
-                                                onClick={() => toggleStaffSelection(staff.id.toString())}
-                                            >
-                                                <Checkbox
-                                                    id={`staff-${staff.id}`}
-                                                    checked={isSelected}
-                                                    onCheckedChange={() => toggleStaffSelection(staff.id.toString())}
-                                                />
-                                                <div className="flex items-center gap-3 flex-1">
-                                                    <Avatar className="h-8 w-8">
-                                                        <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${fullName}`} />
-                                                        <AvatarFallback>{fullName.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="flex flex-col">
-                                                        <label
-                                                            htmlFor={`staff-${staff.id}`}
-                                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-left"
-                                                        >
-                                                            {fullName}
-                                                        </label>
-                                                        <span className="text-xs text-muted-foreground text-left">{staff.position}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-                                        <Users className="h-8 w-8 opacity-20 mb-1" />
-                                        <p className="text-sm">No staff found.</p>
-                                    </div>
-                                )}
+                        !canAssignStaff ? <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+                            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                                <ShieldAlert className="w-10 h-10 text-destructive" />
                             </div>
-                        </ScrollArea>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                            {selectedStaffIds.length} staff member{selectedStaffIds.length !== 1 ? 's' : ''} selected
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsAssignDialogOpen(false)}>Cancel</Button>
-                        <Button onClick={handleAssignStaff} disabled={isAssigning}>
-                            {isAssigning ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <CheckCircle2 className="mr-2 h-4 w-4" />
-                            )}
-                            Confirm Assignment
-                        </Button>
-                    </DialogFooter>
+                            <h2 className="text-lg font-semibold text-foreground">
+                                Access Denied
+                            </h2>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                You do not have permission to Assign Staff in Order. <br />
+                                Please contact your administrator if you believe this is an
+                                error.
+                            </p>
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsAssignDialogOpen(false)}
+                                className="mt-4"
+                            >
+                                Close
+                            </Button>
+                        </div> : (
+                            <>
+                                <DialogHeader>
+                                    <DialogTitle>Assign Staff</DialogTitle>
+                                    <DialogDescription>
+                                        Select one or more staff members to assign to {ordersToAssign.length} selected order(s).
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="py-4 space-y-4">
+                                    <div className="relative">
+                                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            placeholder="Search staff by name or position..."
+                                            className="pl-8"
+                                            value={staffSearch}
+                                            onChange={(e) => setStaffSearch(e.target.value)}
+                                        />
+                                    </div>
+                                    <ScrollArea className="h-[250px] border rounded-md p-2">
+                                        <div className="space-y-1">
+                                            {isFetchingStaff ? (
+                                                <div className="flex items-center justify-center h-32">
+                                                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                                </div>
+                                            ) : staffData?.data && staffData.data.length > 0 ? (
+                                                staffData.data.map((staff) => {
+                                                    const isSelected = selectedStaffIds.includes(staff.id.toString());
+                                                    const fullName = `${staff.first_name} ${staff.last_name}`;
+                                                    return (
+                                                        <div
+                                                            key={staff.id}
+                                                            className={`flex items-center space-x-3 p-2 rounded-md hover:bg-accent cursor-pointer ${isSelected ? 'bg-accent/50' : ''}`}
+                                                            onClick={() => toggleStaffSelection(staff.id.toString())}
+                                                        >
+                                                            <Checkbox
+                                                                id={`staff-${staff.id}`}
+                                                                checked={isSelected}
+                                                                onCheckedChange={() => toggleStaffSelection(staff.id.toString())}
+                                                            />
+                                                            <div className="flex items-center gap-3 flex-1">
+                                                                <Avatar className="h-8 w-8">
+                                                                    <AvatarImage src={staff?.thumb_url ? staff?.thumb_url : `https://api.dicebear.com/7.x/initials/svg?seed=${fullName}`} />
+                                                                    <AvatarFallback>{fullName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                                                </Avatar>
+                                                                <div className="flex flex-col">
+                                                                    <label
+                                                                        htmlFor={`staff-${staff.id}`}
+                                                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-left"
+                                                                    >
+                                                                        {fullName}
+                                                                    </label>
+                                                                    <span className="text-xs text-muted-foreground text-left">{staff.position}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+                                                    <Users className="h-8 w-8 opacity-20 mb-1" />
+                                                    <p className="text-sm">No staff found.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </ScrollArea>
+                                    <div className="mt-2 text-xs text-muted-foreground">
+                                        {selectedStaffIds.length} staff member{selectedStaffIds.length !== 1 ? 's' : ''} selected
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button variant="outline" onClick={() => setIsAssignDialogOpen(false)}>Cancel</Button>
+                                    <Button onClick={handleAssignStaff} disabled={isAssigning}>
+                                        {isAssigning ? (
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <CheckCircle2 className="mr-2 h-4 w-4" />
+                                        )}
+                                        Confirm Assignment
+                                    </Button>
+                                </DialogFooter>
                             </>
                         )
                     }
-                   
+
                 </DialogContent>
             </Dialog>
         </div>
