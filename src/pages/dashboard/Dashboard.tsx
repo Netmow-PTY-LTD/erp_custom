@@ -234,7 +234,7 @@ export default function Dashboard() {
                 </Link>
               </CardHeader>
               <CardContent>
-                <StatusOrdersTable status="intransit" />
+                <StatusOrdersTable status="in_transit" />
               </CardContent>
             </Card>
           }

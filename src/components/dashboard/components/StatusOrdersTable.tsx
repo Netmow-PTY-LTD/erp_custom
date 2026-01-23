@@ -9,7 +9,7 @@ import { Link } from "react-router";
 import { DataTable } from "./DataTable";
 
 interface StatusOrdersTableProps {
-    status: "pending" | "confirmed" | "delivered" | "intransit";
+    status: "pending" | "confirmed" | "delivered" | "in_transit";
 }
 
 export default function StatusOrdersTable({ status }: StatusOrdersTableProps) {
