@@ -2,6 +2,8 @@ import { Analytics } from "@/components/dashboard/components/Analytics";
 import { Overview } from "@/components/dashboard/components/Overview";
 import RecentCustomers from "@/components/dashboard/components/RecentCustomers";
 import RecentOrders from "@/components/dashboard/components/RecentOrders";
+import StatusOrdersTable from "@/components/dashboard/components/StatusOrdersTable";
+import RecentStatusCustomers from "@/components/dashboard/components/RecentStatusCustomers";
 
 import {
   Card,
@@ -29,6 +31,13 @@ export default function Dashboard() {
   const canRecentCustomersListShow = userPermissions.includes(DashboardPermission.RECENT_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canRecentSalesListShow = userPermissions.includes(DashboardPermission.RECENT_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canStatsShow = userPermissions.includes(DashboardPermission.STATS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
+  const canPendingSalesListShow = userPermissions.includes(DashboardPermission.PENDING_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canConfirmedSalesListShow = userPermissions.includes(DashboardPermission.CONFIRMED_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canDeliveredSalesListShow = userPermissions.includes(DashboardPermission.DELIVERED_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canInTransitSalesListShow = userPermissions.includes(DashboardPermission.INTRANSIT_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentActiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_ACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentInactiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_INACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -154,6 +163,42 @@ export default function Dashboard() {
               <RecentCustomers />
             </CardContent>
           </Card>}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {canRecentActiveCustomersShow && <Card className="py-6">
+              <CardHeader className="flex justify-between gap-4">
+                <div>
+                  <CardTitle>Recent Active Customers</CardTitle>
+                  <CardDescription>Currently active profiles</CardDescription>
+                </div>
+                <Link to="/dashboard/customers">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-violet-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
+                    View All Active
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <RecentStatusCustomers status="active" />
+              </CardContent>
+            </Card>}
+
+            {canRecentInactiveCustomersShow && <Card className="py-6">
+              <CardHeader className="flex justify-between gap-4">
+                <div>
+                  <CardTitle>Recent Inactive Customers</CardTitle>
+                  <CardDescription>Currently inactive profiles</CardDescription>
+                </div>
+                <Link to="/dashboard/customers/inactive">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-rose-600 to-rose-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-rose-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-rose-500/40 active:translate-y-0 active:shadow-none">
+                    View All Inactive
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <RecentStatusCustomers status="inactive" />
+              </CardContent>
+            </Card>}
+          </div>
           {
             canRecentSalesListShow && <Card className="pt-6 pb-2">
               <CardHeader className="flex justify-between gap-4 items-center">
@@ -169,6 +214,86 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <RecentOrders />
+              </CardContent>
+            </Card>
+          }
+
+          {/* Pending Sales Orders */}
+          {
+            canPendingSalesListShow && <Card className="pt-6 pb-2">
+              <CardHeader className="flex justify-between gap-4 items-center">
+                <div>
+                  <CardTitle>Pending Sales Orders</CardTitle>
+                  <CardDescription>Sales orders awaiting processing</CardDescription>
+                </div>
+                <Link to="/dashboard/sales/orders/pending">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-amber-600 to-amber-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-amber-500/40 active:translate-y-0 active:shadow-none">
+                    View All Pending
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <StatusOrdersTable status="pending" />
+              </CardContent>
+            </Card>
+          }
+
+          {/* Confirmed Sales Orders */}
+          {
+            canConfirmedSalesListShow && <Card className="pt-6 pb-2">
+              <CardHeader className="flex justify-between gap-4 items-center">
+                <div>
+                  <CardTitle>Confirmed Sales Orders</CardTitle>
+                  <CardDescription>Orders confirmed and ready for transit</CardDescription>
+                </div>
+                <Link to="/dashboard/sales/orders/confirmed">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                    View All Confirmed
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <StatusOrdersTable status="confirmed" />
+              </CardContent>
+            </Card>
+          }
+
+          {/* In Transit Sales Orders */}
+          {
+            canInTransitSalesListShow && <Card className="pt-6 pb-2">
+              <CardHeader className="flex justify-between gap-4 items-center">
+                <div>
+                  <CardTitle>In Transit Sales Orders</CardTitle>
+                  <CardDescription>Orders currently on the way</CardDescription>
+                </div>
+                <Link to="/dashboard/sales/orders/intransit-order">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-purple-600 to-purple-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-purple-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-purple-500/40 active:translate-y-0 active:shadow-none">
+                    View All In Transit
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <StatusOrdersTable status="in_transit" />
+              </CardContent>
+            </Card>
+          }
+
+          {/* Delivered Sales Orders */}
+          {
+            canDeliveredSalesListShow && <Card className="pt-6 pb-2">
+              <CardHeader className="flex justify-between gap-4 items-center">
+                <div>
+                  <CardTitle>Delivered Sales Orders</CardTitle>
+                  <CardDescription>Successfully delivered orders</CardDescription>
+                </div>
+                <Link to="/dashboard/sales/orders/delivered">
+                  <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-emerald-600 to-emerald-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-emerald-500/40 active:translate-y-0 active:shadow-none">
+                    View All Delivered
+                  </button>
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <StatusOrdersTable status="delivered" />
               </CardContent>
             </Card>
           }
