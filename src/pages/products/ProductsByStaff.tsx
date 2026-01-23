@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/dialog";
 import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
-export default function Products() {
+export default function ProductsByStaff() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [previewData, setPreviewData] = useState<{
@@ -52,16 +52,12 @@ export default function Products() {
   } | null>(null);
   const limit = 10;
 
-  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   const canDeleteProduct = userPermissions.includes(ProductPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: productStatsData } = useGetProductStatsQuery(undefined);
-
-  //const productStats = productStatsData?.data;
-  console.log("productStats", productStatsData);
 
   const totalProductsCount = productStatsData?.data?.filter(
     (p: { label: string; value: number }) => p.label === "Total Products"
@@ -117,7 +113,6 @@ export default function Products() {
   } = useGetAllProductsQuery({ page, limit, search });
 
   const products: Product[] = fetchedProducts?.data || [];
-  //console.log("Fetched Products: ", fetchedProducts);
   const pagination = fetchedProducts?.pagination ?? {
     total: 0,
     page: 1,
@@ -140,8 +135,6 @@ export default function Products() {
       // resolve false if toast disappears automatically
       setTimeout(() => resolve(false), 10000);
     });
-
-    console.log("User confirmed deletion: ", confirmed);
 
     if (!confirmed) return; // stop if user didn’t confirm
 
@@ -218,7 +211,7 @@ export default function Products() {
                     onClick={() =>
                       setPreviewData({
                         images: gallery,
-                        index: 3, // Start viewing from the 4th item (index 3)
+                        index: 3,
                       })
                     }
                   >
@@ -238,19 +231,7 @@ export default function Products() {
       header: "Category",
       cell: ({ row }) => row?.original?.category?.name
     },
-    {
-      accessorKey: "cost",
-      header: () => (
-        <div className="text-right">
-          Cost Price {currency ? `(${currency})` : ""}
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="text-right">
-          {parseFloat(row.getValue("cost")).toFixed(2)}
-        </div>
-      ),
-    },
+
     {
       accessorKey: "price",
       header: () => (
@@ -290,12 +271,7 @@ export default function Products() {
         </div>
       ),
     },
-    // {
-    //   accessorKey: "unit",
-    //   header: "Unit",
-    //   cell: ({ row }) =>
-    //     `${row.original.unit.name} (${row.original.unit.symbol})`,
-    // },
+
     {
       accessorKey: "stock_quantity",
       header: () => <div className="text-right">Stock</div>,

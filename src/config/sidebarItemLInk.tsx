@@ -59,7 +59,6 @@ import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersLi
 import EditSupplierPage from "@/pages/suppliers/supplier/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseOrderPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseOrderPage";
-import AssignRoutePage from "@/pages/salesOrders/salesRoutes/AssignRoute";
 import Staffs from "@/pages/staffs";
 import StaffDetails from "@/pages/staffs/StaffDetails";
 import AddStaffPage from "@/pages/staffs/add";
@@ -123,10 +122,10 @@ import {
   SuperAdminPermission,
   RouteOperationPermission,
   HelpPermission,
+  PayrollPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
-import RouteDetails from "@/pages/salesOrders/salesRoutes/RouteDetails";
 import LeaveRequest from "@/pages/staffs/leaves/LeaveRequest";
 import AttendanceDetailsPage from "@/pages/staffs/attendance/attendanceDetails";
 import RouteWiseOrder from "@/pages/routeOperations/RouteWiseOrder";
@@ -181,6 +180,9 @@ import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
+import ProfitByItem from "@/pages/accounting/ProfitByItem";
+import ProductsByStaff from "@/pages/products/ProductsByStaff";
+//import DailyProfitStatus from "@/pages/accounting/DailyProfitStatus";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -224,6 +226,18 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+
+      {
+        title: "Products By Staff",
+        url: "/dashboard/products-by-staff",
+        element: <ProductsByStaff />,
+        icon: List, // product list
+        allowedPermissions: [
+          ProductPermission.LIST_BY_STAFF,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
       {
         title: "Add Product",
         url: "/dashboard/products/create",
@@ -350,24 +364,6 @@ export const sidebarItemLink = [
         element: <EditCustomerPage />,
         allowedPermissions: [
           CustomerPermission.EDIT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/customers/sales-routes/:routeId",
-        element: <RouteDetails />,
-        allowedPermissions: [
-          CustomerPermission.VIEW_ROUTE_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/customers/sales-routes/:routeId/assign",
-        element: <AssignRoutePage />,
-        allowedPermissions: [
-          CustomerPermission.ASSIGN_ROUTE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1152,15 +1148,15 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "",
-        url: "/dashboard/sales/sales-routes/:routeId/assign",
-        element: <AssignRoutePage />,
-        allowedPermissions: [
-          SalesPermission.ASSIGN_ROUTE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
+      // {
+      //   title: "",
+      //   url: "/dashboard/sales/sales-routes/:routeId/assign",
+      //   element: <AssignRoutePage />,
+      //   allowedPermissions: [
+      //     SalesPermission.ASSIGN_ROUTE,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
     ],
   },
 
@@ -1215,9 +1211,10 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "",
-        url: "/dashboard/accounting/reports/ledger/:id",
+        title: "Ledger Report",
+        url: "/dashboard/accounting/reports/ledger",
         element: <LedgerReport />,
+        icon: FileText,
         allowedPermissions: [
           AccountingPermission.LEDGER_REPORT,
           SuperAdminPermission.ACCESS_ALL,
@@ -1243,6 +1240,26 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+      {
+        title: "Profit by Item",
+        url: "/dashboard/accounting/reports/profit-by-item",
+        element: <ProfitByItem />,
+        icon: CreditCard,
+        // allowedPermissions: [
+        //   AccountingPermission.PROFIT_BY_ITEM,
+        //   SuperAdminPermission.ACCESS_ALL,
+        // ],
+      },
+      // {
+      //   title: "Daily Profit Status",
+      //   url: "/dashboard/accounting/reports/daily-profit-status",
+      //   element: <DailyProfitStatus />,
+      //   icon: CreditCard,
+      //   // allowedPermissions: [
+      //   //   AccountingPermission.PROFIT_BY_ITEM,
+      //   //   SuperAdminPermission.ACCESS_ALL,
+      //   // ],
+      // },
       // Hidden Create/Edit Routes
       {
         title: "",
@@ -1265,49 +1282,77 @@ export const sidebarItemLink = [
     ],
   },
 
+
+
   //HR and Payroll
   {
     title: "HR & Payroll",
     url: "#",
     icon: HandCoins,
+    allowedPermissions: [
+      PayrollPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
     items: [
       {
         title: "Overview",
         url: "/dashboard/payroll",
         element: <HrPayrollOverview />,
         icon: LayoutDashboard,
+        allowedPermissions: [
+          PayrollPermission.OVERVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       // {
       //   title: "Employment Details",
       //   url: "/dashboard/payroll/employment-details",
       //   element: <EmploymentDetails />,
       //   icon: FileText,
+      //   allowedPermissions: [
+      //     PayrollPermission.EMPLOYMENT_DETAILS,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
       // },
       {
         title: "Attendance",
         url: "/dashboard/payroll/attendance",
         element: <Attendance />,
         icon: CalendarCheck,
+        allowedPermissions: [
+          PayrollPermission.ATTENDANCE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
-
-
       {
         title: "Payroll Runs",
         url: "/dashboard/payroll/payroll-runs",
         element: <PayrollRuns />,
         icon: BanknoteArrowDown,
+        allowedPermissions: [
+          PayrollPermission.PAYROLL_RUNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Payslips",
         url: "/dashboard/payroll/payslips",
         element: <Payslips />,
         icon: FileText,
+        allowedPermissions: [
+          PayrollPermission.PAYSLIPS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Payroll Reports",
         url: "/dashboard/payroll/payroll-reports",
         element: <PayrollReports />,
         icon: LineChart,
+        allowedPermissions: [
+          PayrollPermission.PAYROLL_REPORTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
     ],
   },
@@ -1398,38 +1443,6 @@ export const sidebarItemLink = [
     ],
   },
 
-  // SETTINGS
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
-    layout: <SettingsSidebarLayout />,
-    allowedPermissions: [
-      SettingsPermission.VIEW,
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-    items: [
-      {
-        title: "Profile",
-        url: "/dashboard/settings/profile",
-        element: <MyProfileSettings />,
-        allowedPermissions: [
-          SettingsPermission.PROFILE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-
-      {
-        title: "Account",
-        url: "/dashboard/settings/account",
-        element: <AccountSettings />,
-        allowedPermissions: [
-          SettingsPermission.ACCOUNT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-    ],
-  },
 
   {
     title: "",
@@ -1532,7 +1545,42 @@ export const sidebarItemLink = [
       },
     ],
   },
-  // ROUTE OPERATIONS
+
+
+  // SETTINGS
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings,
+    layout: <SettingsSidebarLayout />,
+    allowedPermissions: [
+      SettingsPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "Profile",
+        url: "/dashboard/settings/profile",
+        element: <MyProfileSettings />,
+        allowedPermissions: [
+          SettingsPermission.PROFILE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
+      {
+        title: "Account",
+        url: "/dashboard/settings/account",
+        element: <AccountSettings />,
+        allowedPermissions: [
+          SettingsPermission.ACCOUNT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+    ],
+  },
+
+
   {
     title: "Help",
     url: "/dashboard/help",

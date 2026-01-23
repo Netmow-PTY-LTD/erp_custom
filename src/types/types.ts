@@ -41,6 +41,7 @@ export type Product = {
   barcode: string | null;
   thumb_url: string;
   gallery_items: string[];
+  specification?: string;
   is_active: boolean;
   // Nested relationship
   category: Category;
@@ -75,12 +76,12 @@ export type Order = {
   date: string;
   dueDate: string | "-";
   status:
-    | "Pending"
-    | "Delivered"
-    | "Confirmed"
-    | "Processing"
-    | "Draft"
-    | "Shipped";
+  | "Pending"
+  | "Delivered"
+  | "Confirmed"
+  | "Processing"
+  | "Draft"
+  | "Shipped";
   amount: number;
   staff: string | "-";
 };

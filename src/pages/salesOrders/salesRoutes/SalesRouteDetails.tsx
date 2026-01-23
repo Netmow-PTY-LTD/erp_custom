@@ -190,7 +190,7 @@ export default function SalesRouteDetails() {
           </Card>
           {/* Customer & Orders Section */}
           <Card className="shadow-sm overflow-hidden">
-            <CardHeader className="py-4 border-b-1 bg-muted/20 gap-0">
+            <CardHeader className="py-4 border-b bg-muted/20 gap-0">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
                 <span className="flex items-center gap-2"><Users className="h-4 w-4" /> Customers</span>
                 <Badge variant="outline" className="font-mono">{route?.customers?.length || 0}</Badge>

@@ -1,23 +1,29 @@
 
+
 // -------------------- OVERVIEW --------------------
 export type Overview = {
-  daily: {
+  today: {
     income: number;
     expense: number;
-  },
-  weekly: {
+    net: number;
+  };
+  this_week: {
     income: number;
     expense: number;
-  },
-  monthly: {
+    net: number;
+  };
+  this_month: {
     income: number;
     expense: number;
-  },
-  yearly: {
+    net: number;
+  };
+  this_year: {
     income: number;
     expense: number;
-  },
+    net: number;
+  };
 };
+
 
 
 // -------------------- INCOME / EXPENSE --------------------
@@ -123,4 +129,54 @@ export type CreateTransactionInput = {
   payment_mode: string;
   date: string;
   description: string;
+};
+
+// -------------------- RECENT ACTIVITY --------------------
+export type RecentActivity = {
+  title: string;
+  date: string;
+  amount: string;
+};
+
+// -------------------- EXPENSE BREAKDOWN --------------------
+export type ExpenseBreakdown = {
+  name: string;
+  value: number;
+};
+
+// -------------------- PRODUCT PROFIT LOSS --------------------
+export type ProductProfitLoss = {
+  product_id: number;
+  product_name: string;
+  sku: string;
+  quantity_sold: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+};
+
+export type ProductProfitLossResponse = {
+  status: boolean;
+  message: string;
+  data: ProductProfitLoss[];
+};
+
+// -------------------- LEDGER REPORT --------------------
+export type LedgerTransaction = {
+  date: string;
+  debit: number;
+  credit: number;
+  balance: number;
+  narration: string;
+};
+
+export type LedgerReportResponse = {
+  status: boolean;
+  message: string;
+  data: {
+    account: string;
+    opening_balance: number;
+    closing_balance: number;
+    transactions: LedgerTransaction[];
+  };
 };

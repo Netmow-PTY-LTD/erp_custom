@@ -25,6 +25,7 @@ import { Check, ChevronDown, Package, Image as ImageIcon, Tag, DollarSign, Truck
 import {
   useGetAllCategoriesQuery,
   useGetAllUnitsQuery,
+  useGetUnitByIdQuery,
   useGetProductByIdQuery,
   useUpdateProductMutation,
 } from "@/store/features/admin/productsApiService";
@@ -74,6 +75,7 @@ const productSchema = z.object({
     name: z.string(),
     values: z.array(z.string())
   })).optional(),
+  specification: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -81,10 +83,13 @@ type ProductFormValues = z.infer<typeof productSchema>;
 /* ------------------ PAGE ------------------ */
 export default function EditProductPage() {
   const [open, setOpen] = useState(false);
+  const [unitOpen, setUnitOpen] = useState(false);
   const [page] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [unitPage] = useState<number>(1);
   const [unitSearch, setUnitSearch] = useState<string>("");
   const limit = 10;
+  const [unitLimit] = useState<number>(10);
   const navigate = useNavigate();
   const { data: fetchedCategories } = useGetAllCategoriesQuery({
     page,
@@ -97,6 +102,8 @@ export default function EditProductPage() {
   //const categories: any[] = fetchedCategories?.data || [];
 
   const { data: fetchedUnits } = useGetAllUnitsQuery({
+    page: unitPage,
+    limit: unitLimit,
     search: unitSearch,
   });
 
@@ -127,6 +134,7 @@ export default function EditProductPage() {
       length: 0,
       is_active: true,
       attributes: [],
+      specification: "",
     },
   });
 
@@ -165,6 +173,7 @@ export default function EditProductPage() {
         height: fetchedProduct?.data?.height || 0,
         length: fetchedProduct?.data?.length || 0,
         is_active: fetchedProduct?.data?.is_active,
+        specification: fetchedProduct?.data?.specification || "",
       });
     }
   }, [fetchedProduct?.data, form]);
@@ -192,6 +201,7 @@ export default function EditProductPage() {
       length: Number(values.length),
       barcode: "9876543210987",
       is_active: values.is_active,
+      specification: values.specification,
     };
 
     try {
@@ -251,7 +261,7 @@ export default function EditProductPage() {
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel>SKU</FieldLabel>
-                        <Input placeholder="SKU123" {...field} />
+                        <Input disabled placeholder="SKU123" {...field} />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </Field>
                     )}
@@ -435,14 +445,43 @@ export default function EditProductPage() {
                 }}
               />
 
+              {/* SPECIFICATION */}
+              <Controller
+                control={control}
+                name="specification"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Product Specification</FieldLabel>
+                    <Input
+                      placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
+                      {...field}
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
               {/* UNIT */}
               <Controller
                 control={control}
                 name="unit"
                 render={({ field, fieldState }) => {
-                  const selectedUnit = fetchedUnits?.data?.find(
-                    (u) => u.id === field.value
+                  // Try to find the unit in the current page data
+                  let selectedUnit = fetchedUnits?.data?.find(
+                    (u) => Number(u.id) === Number(field.value)
                   );
+
+                  // If not found in current page, fetch it directly
+                  // eslint-disable-next-line react-hooks/rules-of-hooks
+                  const { data: fetchedUnitById } = useGetUnitByIdQuery(
+                    Number(field.value),
+                    { skip: !field.value || !!selectedUnit }
+                  );
+
+                  // Use the directly fetched unit if the paginated one wasn't found
+                  if (!selectedUnit && fetchedUnitById?.data) {
+                    selectedUnit = fetchedUnitById.data;
+                  }
 
                   const selectedLabel = selectedUnit?.name ?? "Select a unit";
 
@@ -450,7 +489,7 @@ export default function EditProductPage() {
                     <Field>
                       <FieldLabel>Unit</FieldLabel>
 
-                      <Popover>
+                      <Popover open={unitOpen} onOpenChange={setUnitOpen}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -479,11 +518,14 @@ export default function EditProductPage() {
                                   <CommandItem
                                     key={unit.id}
                                     value={unit.name} // for built-in filtering
-                                    onSelect={() => field.onChange(unit.id)}
+                                    onSelect={() => {
+                                      field.onChange(unit.id);
+                                      setUnitOpen(false);
+                                    }}
                                   >
                                     <span>{unit.name}</span>
 
-                                    {field.value === unit.id && (
+                                    {Number(field.value) === Number(unit.id) && (
                                       <Check className="ml-auto h-4 w-4" />
                                     )}
                                   </CommandItem>
@@ -649,7 +691,7 @@ export default function EditProductPage() {
                 name="purchase_tax"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Purchase Tax</FieldLabel>
+                    <FieldLabel>Purchase Tax (%)</FieldLabel>
                     <Input
                       type="number"
                       value={field.value ?? ""}
@@ -668,7 +710,7 @@ export default function EditProductPage() {
                 name="sales_tax"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Sales Tax</FieldLabel>
+                    <FieldLabel>Sales Tax (%)</FieldLabel>
                     <Input
                       type="number"
                       value={field.value ?? ""}
@@ -728,7 +770,7 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Width(cm)</FieldLabel>
-                    <Input placeholder="e.g. 2 cm" {...field} />
+                    <Input placeholder="e.g. 2 cm" {...field} onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -741,7 +783,7 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Height(cm)</FieldLabel>
-                    <Input placeholder="e.g. 2 cm" {...field} />
+                    <Input placeholder="e.g. 2 cm" {...field} onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -753,7 +795,7 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Length(cm)</FieldLabel>
-                    <Input placeholder="e.g. 2 cm" {...field} />
+                    <Input placeholder="e.g. 2 cm" {...field} onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}

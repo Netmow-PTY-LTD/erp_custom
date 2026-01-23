@@ -59,6 +59,7 @@ interface DataTableProps<TData> {
 
   globalFilterValue?: string;
   onGlobalFilterChange?: (value: string) => void;
+  onRowClick?: (row: TData) => void;
 }
 
 /* ---------------------------
@@ -75,6 +76,7 @@ export function DataTable<TData>({
   isFetching = null,
   // onGlobalFilterChange = () => {},
   globalFilterValue = "",
+  onRowClick,
 }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = useState(globalFilterValue || "");
 
@@ -154,6 +156,8 @@ export function DataTable<TData>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick?.(row.original)}
+                  className={onRowClick ? "cursor-pointer hover:bg-muted/30 transition-colors" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

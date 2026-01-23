@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -13,15 +14,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import {
   useDeleteSupplierMutation,
   useGetAllSuppliersQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart } from "lucide-react";
+import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart, User } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import type { Supplier } from "@/types/supplier.types";
 import { useAppSelector } from "@/store/store";
+import { SuperAdminPermission, SupplierPermission } from "@/config/permissions";
 
 
 
@@ -62,6 +68,12 @@ export default function SuppliersList() {
   const limit = 10;
 
   const currency = useAppSelector((state) => state.currency.value);
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  // permissions
+
+  const canDeleteSupplier = userPermissions.includes(SupplierPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({ search, page, limit });
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
@@ -107,6 +119,10 @@ export default function SuppliersList() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | number | null>(null);
+  const [previewData, setPreviewData] = useState<{
+    images: string[];
+    index: number;
+  } | null>(null);
 
   const handleDeleteClick = (id: string | number) => {
     setSelectedSupplierId(id);
@@ -138,6 +154,30 @@ export default function SuppliersList() {
       accessorKey: "name",
       header: "Name",
       meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+    },
+    {
+      accessorKey: "thumb_url",
+      header: "Image",
+      cell: ({ row }) => {
+        const thumbUrl = row.original.thumb_url;
+        return thumbUrl ? (
+          <img
+            src={thumbUrl}
+            alt={row.original.name}
+            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() =>
+              setPreviewData({
+                images: [thumbUrl].filter(Boolean) as string[],
+                index: 0,
+              })
+            }
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+            <User className="w-5 h-5 text-gray-500" />
+          </div>
+        );
+      },
     },
     {
       accessorKey: "contact_person",
@@ -217,14 +257,17 @@ export default function SuppliersList() {
                 <Edit className="w-4 h-4 mr-1" /> Edit
               </Button>
             </Link>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleDeleteClick(supplier.id)}
-              disabled={isDeleting}
-            >
-              <Trash2 className="w-4 h-4 mr-1" /> Delete
-            </Button>
+            {
+              canDeleteSupplier && <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => handleDeleteClick(supplier.id)}
+                disabled={isDeleting}
+              >
+                <Trash2 className="w-4 h-4 mr-1" /> Delete
+              </Button>
+            }
+
           </div>
         );
       },
@@ -236,7 +279,7 @@ export default function SuppliersList() {
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
         <Link to="/dashboard/suppliers/create">
-          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+          <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
             <PlusCircle size={18} />
             Add Supplier
           </button>
@@ -248,7 +291,7 @@ export default function SuppliersList() {
         {stats.map((item, idx) => (
           <div
             key={idx}
-            className={`relative flex-1 min-w-[240px] overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative flex-1 min-w-60 overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -309,6 +352,25 @@ export default function SuppliersList() {
         onConfirm={handleConfirmDelete}
         message="Are you sure you want to delete this supplier? This action cannot be undone."
       />
+
+      <Dialog
+        open={!!previewData}
+        onOpenChange={(open) => !open && setPreviewData(null)}
+      >
+        <DialogContent className="max-w-3xl p-5 overflow-hidden bg-white">
+          <div className="relative flex items-center justify-center">
+            {previewData && (
+              <>
+                <img
+                  src={previewData.images[previewData.index]}
+                  alt="Supplier Preview"
+                  className="max-w-full max-h-[70vh] rounded-lg object-contain"
+                />
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

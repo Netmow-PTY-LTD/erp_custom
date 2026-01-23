@@ -15,15 +15,23 @@ export const DashboardPermission = {
   // LIST: "dashboard.list" as const,
   RECENT_SALES_LIST: "dashboard.recent_sales.list" as const,
   RECENT_CUSTOMERS_LIST: "dashboard.recent_customers.list" as const,
+  PENDING_SALES_LIST: "dashboard.pending_sales.list" as const,
+  CONFIRMED_SALES_LIST: "dashboard.confirmed_sales.list" as const,
+  DELIVERED_SALES_LIST: "dashboard.delivered_sales.list" as const,
+  INTRANSIT_SALES_LIST: "dashboard.intransit_sales.list" as const,
+  RECENT_ACTIVE_CUSTOMERS_LIST: "dashboard.recent_active_customers.list" as const,
+  RECENT_INACTIVE_CUSTOMERS_LIST: "dashboard.recent_inactive_customers.list" as const,
 };
 
 // --- Products ---
 export const ProductPermission = {
   VIEW: "products.view" as const,
   LIST: "products.list" as const,
+  LIST_BY_STAFF: "products.list.by.staff" as const,
   DETAILS: "products.details" as const,
   CREATE: "products.create" as const,
   EDIT: "products.edit" as const,
+  DELETE: "products.delete" as const,
   // Categories
   VIEW_CATEGORIES: "products.categories.view" as const,
   CREATE_CATEGORIES: "products.categories.create" as const,
@@ -54,8 +62,6 @@ export const CustomerPermission = {
   CREATE_BY_STAFF: "customers.create.by.staff" as const,
   EDIT_BY_STAFF: "customers.edit.by.staff" as const,
   EDIT: "customers.edit" as const,
-  VIEW_ROUTE_DETAILS: "customers.routes.details.view" as const,
-  ASSIGN_ROUTE: "customers.routes.assign" as const,
   VIEW_MAP: "customers.map.view" as const,
   DELETE: "customers.delete" as const,
 };
@@ -66,6 +72,7 @@ export const SupplierPermission = {
   LIST: "suppliers.list" as const,
   CREATE: "suppliers.create" as const,
   EDIT: "suppliers.edit" as const,
+  DELETE: "suppliers.delete" as const,
   VIEW_PURCHASE_ORDERS: "suppliers.purchase_orders.view" as const,
   VIEW_PURCHASE_ORDER_DETAILS: "suppliers.purchase_orders.details.view" as const,
   CREATE_PURCHASE_ORDER: "suppliers.purchase_orders.create" as const,
@@ -86,6 +93,7 @@ export const StaffPermission = {
   DETAILS: "staffs.details.view" as const,
   CREATE: "staffs.create" as const,
   EDIT: "staffs.edit" as const,
+  DELETE: "staffs.delete" as const,
   VIEW_DEPARTMENTS: "departments.view" as const,
   CREATE_DEPARTMENTS: "departments.create" as const,
   EDIT_DEPARTMENTS: "departments.edit" as const,
@@ -95,6 +103,8 @@ export const StaffPermission = {
   VIEW_STAFF_MAP: "staffs.map.view" as const,
   CHECK_IN: "staffs.check_in" as const,
   VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
+  VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
+  ASSIGN_ROUTE: "staff.routes.assign" as const,
 };
 
 // --- Sales & Orders ---
@@ -123,6 +133,7 @@ export const SalesPermission = {
   ASSIGN_ROUTE: "sales.routes.assign" as const,
   MARK_AS_PAID: "sales.invoices.mark_as_paid" as const,
   POS_ORDER: "sales.pos_order.view" as const,
+  ASSIGN_STAFF_IN_ORDER: "sales.assign_staff.in_order" as const,
 };
 
 // --- Accounting ---
@@ -134,6 +145,10 @@ export const AccountingPermission = {
   CREATE_INCOME: "accounting.incomes.create" as const,
   CREATE_EXPENSE: "accounting.expenses.create" as const,
 
+  CREATE_ACCOUNTING_ACCOUNT: "accounting.accounts.create" as const,
+  EDIT_ACCOUNTING_ACCOUNT: "accounting.accounts.edit" as const,
+  DELETE_ACCOUNTING_ACCOUNT: "accounting.accounts.delete" as const,
+  VIEW_ACCOUNTING_ACCOUNTS: "accounting.accounts.view" as const,
   // Credit Heads
   VIEW_CREDIT_HEADS: "accounting.credit_heads.view" as const,
   CREATE_CREDIT_HEADS: "accounting.credit_heads.create" as const,
@@ -150,6 +165,7 @@ export const AccountingPermission = {
   TRANSACTIONS: "accounting.transactions.view" as const,
   CHART_OF_ACCOUNTS: "accounting.chart_of_accounts.view" as const,
   JOURNAL_REPORT: "accounting.reports.journal.view" as const,
+  CREATE_JOURNAL_REPORT: "accounting.reports.journal.create" as const,
   LEDGER_REPORT: "accounting.reports.ledger.view" as const,
   TRIAL_BALANCE: "accounting.reports.trial_balance.view" as const,
   PROFIT_AND_LOSS: "accounting.reports.profit_and_loss.view" as const,
@@ -162,6 +178,7 @@ export const UserPermission = {
   CREATE: "users.create" as const,
   EDIT: "users.edit" as const,
   DETAILS: "users.details.view" as const,
+  DELETE: "users.delete" as const,
 };
 
 // --- Roles & Permissions ---
@@ -192,22 +209,22 @@ export const ReportPermission = {
 };
 
 // --- Raw Materials ---
-export const RawMaterialPermission = {
-  VIEW: "raw_materials.view" as const,
-  LIST: "raw_materials.list" as const,
-  CREATE: "raw_materials.create" as const,
-  EDIT: "raw_materials.edit" as const,
-  DELETE: "raw_materials.delete" as const,
-};
+// export const RawMaterialPermission = {
+//   VIEW: "raw_materials.view" as const,
+//   LIST: "raw_materials.list" as const,
+//   CREATE: "raw_materials.create" as const,
+//   EDIT: "raw_materials.edit" as const,
+//   DELETE: "raw_materials.delete" as const,
+// };
 
-// --- Production ---
-export const ProductionPermission = {
-  VIEW: "production.view" as const,
-  LIST: "production.list" as const,
-  CREATE: "production.create" as const,
-  EDIT: "production.edit" as const,
-  DETAILS: "production.details" as const,
-};
+// // --- Production ---
+// export const ProductionPermission = {
+//   VIEW: "production.view" as const,
+//   LIST: "production.list" as const,
+//   CREATE: "production.create" as const,
+//   EDIT: "production.edit" as const,
+//   DETAILS: "production.details" as const,
+// };
 
 
 
@@ -219,6 +236,21 @@ export const RouteOperationPermission = {
   ORDER_MANAGE: "route_operations.order_manage.view" as const,
   STAFF_WISE_ROUTE: "route_operations.staff_wise_route.view" as const,
 };
+
+// --- Payroll Permissions ---
+export const PayrollPermission = {
+  VIEW: "payroll.view" as const,
+  OVERVIEW: "payroll.overview" as const,
+  ATTENDANCE: "payroll.attendance" as const,
+  PAYROLL_RUNS: "payroll.payroll_runs" as const,
+  PAYSLIPS: "payroll.payslips" as const,
+  PAYROLL_REPORTS: "payroll.payroll_reports" as const,
+  EMPLOYMENT_DETAILS: "payroll.employment_details" as const, // optional
+};
+
+
+
+
 
 // --- Help ---
 export const HelpPermission = {
@@ -240,10 +272,11 @@ export const PERMISSION_GROUPS = {
   Roles: RolePermission,
   Settings: SettingsPermission,
   Reports: ReportPermission,
-  RawMaterials: RawMaterialPermission,
-  Production: ProductionPermission,
+  // RawMaterials: RawMaterialPermission,
+  // Production: ProductionPermission,
   RouteOperations: RouteOperationPermission,
   Help: HelpPermission,
+  Payroll: PayrollPermission,
 } as const;
 
 
@@ -262,7 +295,8 @@ export type PermissionType =
   | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof ReportPermission[keyof typeof ReportPermission]
-  | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
-  | typeof ProductionPermission[keyof typeof ProductionPermission]
+  // | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
+  // | typeof ProductionPermission[keyof typeof ProductionPermission]
   | typeof RouteOperationPermission[keyof typeof RouteOperationPermission]
+  | typeof PayrollPermission[keyof typeof PayrollPermission]
   | typeof HelpPermission[keyof typeof HelpPermission];

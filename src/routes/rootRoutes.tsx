@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import App from "../App";
 import NotFound from "../pages/NotFound";
 import DashboardLayout from "../Layout/Dashboard";
-import Dashboard from "../pages/dashboard/Dashboard";
+
 import { generateRoutes } from "../utils/routesGenerators";
 import Login from "@/pages/auth/Login";
 import RegisterPage from "@/pages/auth/Register";
@@ -13,6 +13,8 @@ import UnauthorizedPage from "@/pages/UnauthorizedPage";
 import Privacy from "@/pages/privacy/Privacy";
 import Terms from "@/pages/terms/Terms";
 import Contact from "@/pages/contact/Contact";
+
+import DashboardRedirect from "@/routes/DashboardRedirect";
 
 // Generate dynamic dashboard routes (relative paths)
 const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
@@ -44,7 +46,11 @@ const rootRouter = createBrowserRouter([
         path: "/dashboard",
         element: <DashboardLayout />,
         children: [
-          { index: true, element: <Dashboard /> },
+          {
+            index: true,
+            element: <DashboardRedirect />
+
+          },
           ...dashboardRoutes,
         ],
       },

@@ -85,6 +85,29 @@ type StockMovementResponse = {
 //   data: StockMovement;
 // };
 
+type ProductOrder = {
+  id: number;
+  order_number: string;
+  status: string;
+  order_date: string;
+  customer: {
+    id: number;
+    name: string;
+  };
+};
+
+type ProductOrdersResponse = {
+  success: boolean;
+  message: string;
+  pagination: {
+    total: number;
+    page: string;
+    limit: string;
+    totalPage: number;
+  };
+  data: ProductOrder[];
+};
+
 export const productsApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     //product stats
@@ -271,6 +294,23 @@ export const productsApiService = baseApi.injectEndpoints({
         params: { page, limit, search },
       }),
     }),
+    getOrdersByProductId: builder.query<
+      ProductOrdersResponse,
+      {
+        id: number;
+        page?: number;
+        limit?: number;
+        status?: string;
+        start_date?: string;
+        end_date?: string;
+      }
+    >({
+      query: ({ id, page, limit, status, start_date, end_date }) => ({
+        url: `/products/${id}/orders`,
+        method: "GET",
+        params: { page, limit, status, start_date, end_date },
+      }),
+    }),
   }),
 });
 
@@ -294,4 +334,5 @@ export const {
   useGetAllStocksQuery,
   useUpdateStockMutation,
   useGetAllStockMovementsQuery,
+  useGetOrdersByProductIdQuery,
 } = productsApiService;

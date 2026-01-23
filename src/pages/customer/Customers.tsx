@@ -168,7 +168,7 @@ export default function Customers() {
       accessorKey: "thumb_url", header: "Image",
       cell: ({ row }) => {
         const thumbUrl = row.getValue("thumb_url") as string;
-        const galleryItems = row.original.gallery_items || [];
+        // const galleryItems = row.original.gallery_items || [];
         return thumbUrl ? (
           <img
             src={thumbUrl}
@@ -176,7 +176,7 @@ export default function Customers() {
             className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() =>
               setPreviewData({
-                images: [thumbUrl, ...galleryItems].filter(Boolean),
+                images: [thumbUrl].filter(Boolean),
                 index: 0,
               })
             }
@@ -193,7 +193,7 @@ export default function Customers() {
       header: "Gallery",
       cell: ({ row }) => {
         const gallery = row.original.gallery_items || [];
-        const thumbUrl = row.original.thumb_url;
+        // const thumbUrl = row.original.thumb_url;
 
         return (
           <div className="flex items-center gap-1">
@@ -207,8 +207,8 @@ export default function Customers() {
                     className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
                     onClick={() =>
                       setPreviewData({
-                        images: [thumbUrl, ...gallery].filter(Boolean) as string[],
-                        index: i + 1, // +1 because thumbUrl is at index 0
+                        images: gallery,
+                        index: i,
                       })
                     }
                   />
@@ -218,8 +218,8 @@ export default function Customers() {
                     className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
                     onClick={() =>
                       setPreviewData({
-                        images: [thumbUrl, ...gallery].filter(Boolean) as string[],
-                        index: 4, // 1 thumbnail + 3 gallery items displayed
+                        images: gallery,
+                        index: 3,
                       })
                     }
                   >
@@ -249,10 +249,7 @@ export default function Customers() {
       header: "Address",
       cell: ({ row }) => {
         const customer = row.original;
-        const parts = [customer.address, customer.city, customer.state].filter(
-          Boolean
-        );
-        return parts.join(", ") || "-";
+        return customer.address || "-";
       },
     },
     {
@@ -265,6 +262,36 @@ export default function Customers() {
         return (
           <div className="text-right">
             {limit ? Number(limit).toFixed(2) : "-"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "total_sales",
+      header: () => (
+        <div className="text-right">Purchase Amount ({currency})</div>
+      ),
+      cell: ({ row }) => {
+        const amount = row.getValue("total_sales") as number;
+        return (
+          <div className="text-right">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
+      id: "paid_amount",
+      header: () => (
+        <div className="text-right">Paid Amount ({currency})</div>
+      ),
+      cell: ({ row }) => {
+        const total = (row.original.total_sales || 0) as number;
+        const balance = (row.original.outstanding_balance || 0) as number;
+        const paid = total - balance;
+        return (
+          <div className="text-right text-green-600 font-medium">
+            {paid ? Number(paid).toFixed(2) : "0.00"}
           </div>
         );
       },
@@ -391,16 +418,16 @@ export default function Customers() {
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h2 className="text-3xl font-semibold">All Active Customers</h2>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 ">
           <Link to="/dashboard/customers/create">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
               <PackagePlus size={18} />
               Add Customer
             </button>
           </Link>
 
           <Link to="/dashboard/customers/map">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none">
               <MapPin size={18} />
               Customer Map
             </button>
@@ -413,7 +440,7 @@ export default function Customers() {
         {stats?.map((item, idx) => (
           <div
             key={idx}
-            className={`relative flex-1 min-w-[240px] overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
+            className={`relative flex-1 min-w-60 overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />

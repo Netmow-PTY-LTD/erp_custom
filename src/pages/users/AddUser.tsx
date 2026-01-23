@@ -5,13 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectTrigger,
+//   SelectValue,
+//   SelectContent,
+//   SelectItem,
+// } from "@/components/ui/select";
 
 import { UserPlus, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
@@ -19,6 +19,7 @@ import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import { useAddUserMutation } from "@/store/features/users/usersApiService";
 import { toast } from "sonner";
 import { useState } from "react";
+import { RoleSelectField } from "@/components/roles/RoleSelectField";
 
 // -------------------- ZOD SCHEMA --------------------
 const userSchema = z.object({
@@ -149,7 +150,7 @@ export default function AddUserPage() {
             />
 
             {/* ROLE */}
-            <Controller
+            {/* <Controller
               control={control}
               name="role_id"
               render={({ field, fieldState }) => (
@@ -178,7 +179,25 @@ export default function AddUserPage() {
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
+            /> */}
+
+            <Controller
+              name="role_id"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Role</FieldLabel>
+
+                  <RoleSelectField
+                    field={field}
+                    disabled={isLoading}
+                  />
+
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
             />
+
 
             {/* STATUS */}
             {/* <Controller

@@ -7,7 +7,10 @@ import type {
   Overview,
   Payroll,
   Transaction,
+  RecentActivity,
   CreateTransactionInput,
+  LedgerReportResponse,
+  ProductProfitLossResponse,
 } from "@/types/accounting.types";
 
 
@@ -63,6 +66,28 @@ export type DebitHeadByIdResponse = {
   data: DebitHead;
 };
 
+// -------------------- RECENT ACTIVITY --------------------
+export type RecentActivityResponse = {
+  status: boolean;
+  message: string;
+  data: RecentActivity[];
+};
+
+// -------------------- EXPENSE BREAKDOWN --------------------
+export interface ExpenseBreakdownData {
+  name: string;
+  value: number;
+  [key: string]: any;
+}
+
+export type ExpenseBreakdownResponse = {
+  status: boolean;
+  message: string;
+  data: ExpenseBreakdownData[];
+};
+
+
+
 // -------------------- PAYROLL --------------------
 
 export type PayrollResponse = ListResponse<Payroll>;
@@ -80,6 +105,18 @@ export type ChartResponse = {
   message: string;
   data: ChartDataPoint[];
 };
+
+export interface IncomeExpenseTrendData {
+  date: string;
+  income: number;
+  expense: number;
+}
+
+export interface IncomeExpenseTrendResponse {
+  status: boolean;
+  message: string;
+  data: IncomeExpenseTrendData[];
+}
 
 
 
@@ -188,6 +225,23 @@ export const accountingApiService = baseApi.injectEndpoints({
       query: () => ({ url: "/accounting/overview", method: "GET" }),
       providesTags: ["Accounting"],
     }),
+
+    // GET RECENT ACTIVITY
+    getRecentActivity: builder.query<RecentActivityResponse, void>({
+      query: () => ({ url: "/accounting/recent-activity", method: "GET" }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET EXPENSE BREAKDOWN
+    getExpenseBreakdown: builder.query<ExpenseBreakdownResponse, { from?: string; to?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/expense-breakdown",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
 
     // GET ALL INCOMES
     getIncomes: builder.query<
@@ -448,6 +502,26 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET PRODUCT PROFIT LOSS
+    getProductProfitLoss: builder.query<ProductProfitLossResponse, { from?: string; to?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/product-profit-loss",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // GET LEDGER REPORT
+    getLedgerReport: builder.query<LedgerReportResponse, { id: string; from?: string; to?: string }>({
+      query: ({ id, ...params }) => ({
+        url: `/accounting/reports/ledger/${id}`,
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
 
     updateAccountingAccount: builder.mutation<ListResponse<ChartOfAccount>, { id: number; body: Partial<ChartOfAccount> }>({
       query: ({ id, body }) => ({
@@ -495,6 +569,16 @@ export const accountingApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Accounting"],
     }),
 
+    // GET INCOME VS EXPENSE TREND
+    getIncomeExpenseTrend: builder.query<IncomeExpenseTrendResponse, { days: number }>({
+      query: (params) => ({
+        url: "/accounting/reports/income-expense-trend",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
 
 
 
@@ -509,6 +593,8 @@ export const accountingApiService = baseApi.injectEndpoints({
 
 export const {
   useGetAccountingOverviewQuery,
+  useGetRecentActivityQuery,
+  useGetExpenseBreakdownQuery,
   useGetIncomesQuery,
   useAddIncomeMutation,
   useGetExpensesQuery,
@@ -540,7 +626,9 @@ export const {
   useAddTransactionMutation,
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
+  useGetProductProfitLossQuery,
   useGetExpenseHeadsQuery,
   useAddExpenseHeadwiseMutation,
-
+  useGetLedgerReportQuery,
+  useGetIncomeExpenseTrendQuery,
 } = accountingApiService;
