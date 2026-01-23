@@ -163,6 +163,26 @@ export const reportsApiService = baseApi.injectEndpoints({
       providesTags: ["Reports"],
     }),
 
+    // GET /api/reports/customers - Customer Statistics
+    getCustomerStatistics: builder.query<
+      {
+        success: boolean;
+        message: string;
+        data: {
+          total_customers: number;
+          total_sales: number;
+          total_outstanding_balance: number;
+        };
+      },
+      void
+    >({
+      query: () => ({
+        url: "/reports/customers",
+        method: "GET",
+      }),
+      providesTags: ["Reports"],
+    }),
+
     // ===================== HR REPORTS =====================
 
     // GET /api/reports/hr/attendance
@@ -208,6 +228,7 @@ export const {
   useGetInventoryLowStockListQuery,
   useGetSalesReportByCustomerQuery,
   useGetAccountsReceivableReportQuery,
+  useGetCustomerStatisticsQuery,
   useGetHrAttendanceQuery,
   useGetHrPayrollQuery,
   useGetProfitLossQuery,
