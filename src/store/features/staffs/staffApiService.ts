@@ -48,6 +48,7 @@ export interface StaffWiseRoutes {
   id: number;
   name: string;
   role: "Sales Representative" | "Delivery Driver" | "Area Manager";
+  thumb_url: string;
   email: string;
   phone: string;
   active: boolean;
