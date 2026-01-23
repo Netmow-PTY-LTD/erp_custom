@@ -1,29 +1,35 @@
-import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
+import { useGetActiveCustomersQuery, useGetInactiveCustomersQuery } from "@/store/features/customers/customersApi";
 import type { Customer } from "@/store/features/customers/types";
-import { useState } from "react";
 
 interface RecentStatusCustomersProps {
     status: "active" | "inactive";
 }
 
 export default function RecentStatusCustomers({ status }: RecentStatusCustomersProps) {
-    const [page] = useState(1);
     const limit = 6;
 
-    const { data, isLoading, error } = useGetCustomersQuery({
-        page,
-        limit,
-        is_active: status === "active" ? true : false,
-    });
+    // Call both hooks but skip the one that isn't needed for the current status
+    // This maintains hook call order while only fetching what's required
+    const activeQuery = useGetActiveCustomersQuery(
+        { page: 1, limit },
+        { skip: status !== "active" }
+    );
+    const inactiveQuery = useGetInactiveCustomersQuery(
+        { page: 1, limit },
+        { skip: status !== "inactive" }
+    );
+
+    // Select the appropriate query result based on status
+    const { data, isLoading, error } = status === "active" ? activeQuery : inactiveQuery;
 
     const customers: Customer[] = data?.data?.slice(0, limit) || [];
 
     if (isLoading) {
-        return <div className="text-sm text-muted-foreground">Loading...</div>;
+        return <div className="p-4 text-sm text-muted-foreground">Loading...</div>;
     }
 
     if (error) {
-        return <div className="text-sm text-red-500">Failed to load customers</div>;
+        return <div className="p-4 text-sm text-red-500">Failed to load customers</div>;
     }
 
     return (
@@ -59,13 +65,13 @@ export default function RecentStatusCustomers({ status }: RecentStatusCustomersP
 
                             {/* Right Amount */}
                             <div className="text-sm font-medium">
-                                {Number(customer?.total_sales).toFixed(2)}
+                                {Number(customer?.total_sales || 0).toFixed(2)}
                             </div>
                         </div>
                     );
                 })
             ) : (
-                <div className="text-sm text-muted-foreground">No {status} customers found.</div>
+                <div className="p-4 text-sm text-muted-foreground text-center">No {status} customers found.</div>
             )}
         </div>
     );
