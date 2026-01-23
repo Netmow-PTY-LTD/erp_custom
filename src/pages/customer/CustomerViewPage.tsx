@@ -20,7 +20,6 @@ import {
     CreditCard,
     Wallet,
     FileText,
-    Globe,
     Calendar,
     Star,
     Hash
@@ -28,6 +27,7 @@ import {
 import { useGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
+import { MapEmbed } from "@/components/MapEmbed";
 
 export default function CustomerViewPage() {
     const { customerId } = useParams();
@@ -180,18 +180,24 @@ export default function CustomerViewPage() {
                         </CardContent>
                     </Card>
 
-                    {/* LOCATION / MAP PLACEHOLDER */}
-                    {(customer.latitude && customer.longitude) && (
-                        <Card className="shadow-sm border-border/60 pt-4 pb-6">
-                            <CardHeader className="gap-0">
-                                <CardTitle className="text-base flex items-center gap-2">
-                                    <Globe size={16} className="text-blue-500" /> Location
+                    {/* LOCATION / MAP */}
+                    {(customer.latitude && customer.longitude || fullAddress) && (
+                        <Card className="shadow-sm border-border/60 overflow-hidden ">
+                            <CardHeader>
+                                <CardTitle className="text-base flex items-center gap-2 mt-4">
+                                    <MapPin size={16} className="text-blue-500" /> Location / Map
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <div className="bg-muted/50 rounded-lg p-4 text-center text-sm text-muted-foreground border border-dashed">
-                                    <p>Map Preview Unavailable</p>
-                                    <p className="text-xs mt-1 font-mono">{customer.latitude}, {customer.longitude}</p>
+                            <CardContent className="p-0 border-t">
+                                <div className="w-full h-[300px]">
+                                    <MapEmbed
+                                        location={
+                                            (customer.latitude && customer.longitude)
+                                                ? `${customer.latitude},${customer.longitude}`
+                                                : fullAddress
+                                        }
+                                        height={300}
+                                    />
                                 </div>
                             </CardContent>
                         </Card>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/store/baseApi";
 import type { Staff } from "@/types/staff.types";
 
@@ -47,6 +48,7 @@ export interface StaffWiseRoutes {
   id: number;
   name: string;
   role: "Sales Representative" | "Delivery Driver" | "Area Manager";
+  thumb_url: string;
   email: string;
   phone: string;
   active: boolean;

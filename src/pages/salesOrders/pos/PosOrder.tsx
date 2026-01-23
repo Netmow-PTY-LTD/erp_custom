@@ -299,83 +299,12 @@ export default function PosOrder() {
     };
 
     return (
-        <div className="flex h-[calc(100vh-6rem)] gap-4">
-            {/* LEFT: Product Grid */}
-            <div className="flex-1 flex flex-col gap-4">
-                <div className="flex items-center gap-4 bg-card p-4 rounded-xl shadow-sm border">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Search products by name or SKU..."
-                            className="pl-8 bg-background"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 overflow-y-auto p-1 pr-2">
-                    {productsData?.data?.map((product) => {
-                        const stock = product.stock_quantity ?? 0;
-                        const isOutOfStock = stock <= 0;
-                        return (
-                            <Card
-                                key={product.id}
-                                className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 ${isOutOfStock ? 'opacity-60 grayscale' : ''}`}
-                                onClick={() => addToCart(product)}
-                            >
-                                <CardContent className="p-0">
-                                    <div className="aspect-square bg-muted relative">
-                                        {product.thumb_url ? (
-                                            <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="flex items-center justify-center h-full text-muted-foreground">
-                                                No Image
-                                            </div>
-                                        )}
-                                        {!isOutOfStock && (
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <Plus className="text-white w-8 h-8" />
-                                            </div>
-                                        )}
-                                        {isOutOfStock && (
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                                                <Badge variant="destructive">Out of Stock</Badge>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-3">
-                                        <div className="font-semibold truncate" title={product.name}>{product.name}</div>
-                                        <div className="flex justify-between items-center mt-1">
-                                            <div className="text-xs text-muted-foreground">SKU: {product.sku}</div>
-                                            <div className={`text-xs font-medium px-1.5 py-0.5 rounded ${stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                Stock: {stock}
-                                            </div>
-                                        </div>
-                                        <div className="font-bold text-blue-600 mt-2 flex items-center gap-1">
-                                            {currency} {Number(product.price).toFixed(2)}
-                                            {product.unit?.name && <span className="text-sm font-normal text-muted-foreground">/ {product.unit.name}</span>}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        );
-                    })}
-                    {productsData?.data?.length === 0 && (
-                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-                            <Search className="w-12 h-12 mb-2 opacity-20" />
-                            <p>No products found matching "{search}"</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* RIGHT: Cart / Checkout Form */}
-            <div className="w-[400px] flex flex-col h-full">
+        <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-6rem)] gap-4">
+            {/* RIGHT: Cart / Checkout Form - Shows first on mobile */}
+            <div className="w-full lg:w-[400px] flex flex-col lg:order-2">
                 <Form {...form}>
                     <form onSubmit={handleSubmit(onSubmit)} className="h-full flex flex-col">
-                        <Card className="flex-1 flex flex-col h-full border-0 shadow-xl rounded-none lg:rounded-xl overflow-hidden">
+                        <Card className="flex-1 flex flex-col h-full border-0 shadow-xl rounded-xl lg:rounded-xl overflow-hidden">
                             {/* 1. Header & Customer Info */}
                             <CardHeader className="bg-muted/30 pb-4 px-4 border-b space-y-3 pt-4">
                                 <div className="flex items-center justify-between">
@@ -422,14 +351,14 @@ export default function PosOrder() {
                                 </div>
 
                                 {/* Dates & Address (Collapsible or Compact) */}
-                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                                     <FormField
                                         control={control}
                                         name="order_date"
                                         render={({ field }) => (
                                             <FormItem className="space-y-0">
                                                 <FormControl>
-                                                    <Input type="date" {...field} className="h-8 text-xs" />
+                                                    <Input type="date" {...field} className="h-8 text-xs block" />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -440,7 +369,7 @@ export default function PosOrder() {
                                         render={({ field }) => (
                                             <FormItem className="space-y-0">
                                                 <FormControl>
-                                                    <Input type="date" {...field} className="h-8 text-xs" />
+                                                    <Input type="date" {...field} className="h-8 text-xs block" />
                                                 </FormControl>
                                             </FormItem>
                                         )}
@@ -466,7 +395,7 @@ export default function PosOrder() {
                             </CardHeader>
 
                             {/* 2. Cart Items List */}
-                            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
+                            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-white max-h-[300px] lg:max-h-none">
                                 {fields.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50">
                                         <ShoppingCart className="w-12 h-12 mb-2" />
@@ -599,6 +528,77 @@ export default function PosOrder() {
                         </Card>
                     </form>
                 </Form>
+            </div>
+
+            {/* LEFT: Product Grid - Shows second on mobile */}
+            <div className="flex-1 flex flex-col gap-4 lg:order-1">
+                <div className="flex items-center gap-4 bg-card p-3 lg:p-4 rounded-xl shadow-sm border">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            placeholder="Search products by name or SKU..."
+                            className="pl-8 bg-background"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 lg:gap-4 overflow-y-auto p-1 pr-2 pb-4 lg:pb-1">
+                    {productsData?.data?.map((product) => {
+                        const stock = product.stock_quantity ?? 0;
+                        const isOutOfStock = stock <= 0;
+                        return (
+                            <Card
+                                key={product.id}
+                                className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 ${isOutOfStock ? 'opacity-60 grayscale' : ''}`}
+                                onClick={() => addToCart(product)}
+                            >
+                                <CardContent className="p-0">
+                                    <div className="aspect-square bg-muted relative">
+                                        {product.thumb_url ? (
+                                            <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                                                No Image
+                                            </div>
+                                        )}
+                                        {!isOutOfStock && (
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <Plus className="text-white w-8 h-8" />
+                                            </div>
+                                        )}
+                                        {isOutOfStock && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                                                <Badge variant="destructive">Out of Stock</Badge>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-3">
+                                        <div className="font-semibold truncate" title={product.name}>{product.name}</div>
+                                        <div className="flex justify-between items-center mt-1">
+                                            <div className="text-xs text-muted-foreground">SKU: {product.sku}</div>
+                                            <div className={`text-xs font-medium px-1.5 py-0.5 rounded ${stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                Stock: {stock}
+                                            </div>
+                                        </div>
+                                        <div className="font-bold text-blue-600 mt-2 flex items-center gap-1">
+                                            {currency} {Number(product.price).toFixed(2)}
+                                            {product.unit?.name && <span className="text-sm font-normal text-muted-foreground">/ {product.unit.name}</span>}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        );
+                    })}
+                    {productsData?.data?.length === 0 && (
+                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
+                            <Search className="w-12 h-12 mb-2 opacity-20" />
+                            <p>No products found matching "{search}"</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

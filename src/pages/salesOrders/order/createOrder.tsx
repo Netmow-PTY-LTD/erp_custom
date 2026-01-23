@@ -852,8 +852,8 @@ export default function CreateSalesOrderPage() {
                                 type="number"
                                 min={0}
                                 {...field}
-                                readOnly
-                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 text-center h-9"
+                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 text-center h-9"
                               />
                             </FormControl>
                             <FormMessage />

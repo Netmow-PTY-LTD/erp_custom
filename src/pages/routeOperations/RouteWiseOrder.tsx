@@ -5,6 +5,8 @@ import { Calendar } from "lucide-react";
 interface Order {
     id: string;
     customer: string;
+    order_number: string;
+    customer_image: string;
     amount: number;
     status: string;
     date: string;
@@ -36,7 +38,9 @@ const dummyRoutes: Route[] = [
         region: "Dhaka",
         orders: Array.from({ length: 50 }).map((_, i) => ({
             id: `ORD-N${1000 + i}`,
+            order_number: `ORD-N${1000 + i}`,
             customer: `Customer ${i + 1}`,
+            customer_image: `https://api.dicebear.com/7.x/initials/svg?seed=${i + 1}`,
             amount: Math.floor(Math.random() * 10000) + 500,
             status: i % 5 === 0 ? "Delivered" : i % 3 === 0 ? "Processing" : "Pending",
             date: "2024-03-20",
@@ -334,7 +338,7 @@ const RouteWiseOrder = () => {
                             <Table>
                                 <TableHeader className="sticky top-0 z-10 bg-background shadow-sm">
                                     <TableRow>
-                                        <TableHead className="w-[100px]">Order ID</TableHead>
+                                        <TableHead className="w-[100px]">Order Number</TableHead>
                                         <TableHead>Customer</TableHead>
                                         <TableHead>Date</TableHead>
                                         <TableHead>Status</TableHead>
@@ -345,11 +349,12 @@ const RouteWiseOrder = () => {
                                     {filteredOrders && filteredOrders.length > 0 ? (
                                         filteredOrders.map((order) => (
                                             <TableRow key={order.id} className="hover:bg-muted/50 transition-colors cursor-pointer">
-                                                <TableCell className="font-medium text-primary">{order.id}</TableCell>
+                                                <TableCell className="font-medium text-primary">{order.order_number}</TableCell>
                                                 <TableCell className="font-medium">
                                                     <div className="flex items-center gap-2">
                                                         <Avatar className="h-6 w-6">
-                                                            <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${order.customer}`} />
+                                                            <AvatarImage src={order?.customer_image ? order.customer_image : `https://api.dicebear.com/7.x/initials/svg?seed=${order?.customer || "User"}`} />
+
                                                             <AvatarFallback>{order.customer.substring(0, 2)}</AvatarFallback>
                                                         </Avatar>
                                                         {order.customer}

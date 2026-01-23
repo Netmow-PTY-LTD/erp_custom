@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Package, AlertTriangle, XCircle, DollarSign } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
-import AddStockForm from "@/components/products/AddStockForm";
+// import AddStockForm from "@/components/products/AddStockForm";
 import type { Product } from "@/types/types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import { Link } from "react-router";
@@ -20,7 +20,7 @@ import { useAppSelector } from "@/store/store";
 // import { ProductPermission } from "@/config/permissions";
 
 export default function StockManagement() {
-  const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
+  // const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
   //const [productId, setProductId] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
@@ -34,7 +34,7 @@ export default function StockManagement() {
   const {
     data: fetchedProducts,
     isFetching,
-    refetch: refetchProducts,
+    // refetch: refetchProducts,
   } = useGetAllProductsQuery({ page, limit, search });
 
   const products: Product[] = fetchedProducts?.data || [];
@@ -174,7 +174,7 @@ export default function StockManagement() {
           </h1>
           <p className="text-muted-foreground mt-2">Monitor and manage product inventory</p>
         </div>
-        <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} />
+        {/* <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} /> */}
       </div>
 
       {/* Statistics Cards */}
