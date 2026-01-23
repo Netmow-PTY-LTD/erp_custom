@@ -28,6 +28,7 @@ import {
   Users,
   CheckCircle,
   Clock,
+  Database,
 } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Products from "../pages/products/Products";
@@ -123,6 +124,7 @@ import {
   RouteOperationPermission,
   HelpPermission,
   PayrollPermission,
+  SystemPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
 import SalesRouteDetails from "@/pages/salesOrders/salesRoutes/SalesRouteDetails";
@@ -182,8 +184,7 @@ import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
 import ProductsByStaff from "@/pages/products/ProductsByStaff";
-import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
-//import DailyProfitStatus from "@/pages/accounting/DailyProfitStatus";
+import DatabaseTables from "@/pages/data_management/DatabaseTables";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -1585,6 +1586,30 @@ export const sidebarItemLink = [
         element: <AccountSettings />,
         allowedPermissions: [
           SettingsPermission.ACCOUNT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+    ],
+  },
+
+
+  // DATABASE
+  {
+    title: "Database",
+    url: "#",
+    icon: Database,
+    allowedPermissions: [
+      SystemPermission.VIEW_TABLES,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "All Tables",
+        url: "/dashboard/database",
+        element: <DatabaseTables />,
+        icon: List,
+        allowedPermissions: [
+          SystemPermission.VIEW_TABLES,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
