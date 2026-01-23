@@ -4,56 +4,59 @@ import { Button } from "@/components/ui/button";
 
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useGetPayrollQuery } from "@/store/features/accounting/accoutntingApiService";
+import { useGetAllPayrollRunsQuery } from "@/store/features/payroll/payrollApiService";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import { useAppSelector } from "@/store/store";
 
 export default function Payslips() {
-    const [selectedRun, setSelectedRun] = useState<string>("");
+    const [selectedRunId, setSelectedRunId] = useState<number | null>(null);
 
-    const { data: payrollData, isLoading: isPayrollLoading } = useGetPayrollQuery();
+    const { data: payrollRunsData, isLoading: isPayrollLoading } = useGetAllPayrollRunsQuery();
     const { data: staffData } = useGetAllStaffsQuery({ limit: 1000 }); // Fetch all staff
     const currency = useAppSelector((state) => state.currency.value);
 
-    const payrolls = payrollData?.data || [];
+    const payrollRuns = payrollRunsData?.data || [];
     const staffs = staffData?.data || [];
 
     // --- Compute Available Payroll Runs (Months) ---
-    const payrollRuns = useMemo(() => {
-        const months = new Set(payrolls.map((p) => p.salary_month));
-        const sortedMonths = Array.from(months).sort().reverse();
-        return sortedMonths.map((m) => ({
-            value: m,
-            label: `${new Date(m + "-01").toLocaleString("default", { month: "long", year: "numeric" })} (${m})`,
+    const payrollRunOptions = useMemo(() => {
+        return payrollRuns.map((run) => ({
+            value: run.id,
+            label: `${new Date(run.month + "-01").toLocaleString("default", { month: "long", year: "numeric" })} - ${run.status.toUpperCase()}`,
+            month: run.month,
         }));
-    }, [payrolls]);
+    }, [payrollRuns]);
 
     // Set default selected run
     useEffect(() => {
-        if (!selectedRun && payrollRuns.length > 0) {
-            setSelectedRun(payrollRuns[0].value);
+        if (selectedRunId === null && payrollRunOptions.length > 0) {
+            setSelectedRunId(payrollRunOptions[0].value);
         }
-    }, [payrollRuns, selectedRun]);
+    }, [payrollRunOptions, selectedRunId]);
 
     // --- Prepare Payslip Data ---
     const payslipData = useMemo(() => {
-        if (!selectedRun) return [];
+        if (selectedRunId === null) return [];
 
-        return payrolls
-            .filter((p) => p.salary_month === selectedRun)
-            .map((p) => {
-                const staff = staffs.find((s) => Number(s.id) === Number(p.staff_id));
-                return {
-                    id: p.id,
-                    empCode: staff?.id ? `EMP-${staff.id}` : `ID-${p.staff_id}`,
-                    employee: staff ? `${staff.first_name} ${staff.last_name}` : "Unknown Staff",
-                    gross: 0, // Not available
-                    net: p.net_salary,
-                    status: p.status,
-                    email: staff?.email,
-                };
-            });
-    }, [payrolls, staffs, selectedRun]);
+        const selectedRun = payrollRuns.find((run) => run.id === selectedRunId);
+        if (!selectedRun || !selectedRun.items) return [];
+
+        return selectedRun.items.map((item) => {
+            const staff = staffs.find((s) => Number(s.id) === Number(item.staff_id));
+            return {
+                id: item.id,
+                empCode: staff?.id ? `EMP-${staff.id}` : `ID-${item.staff_id}`,
+                employee: staff ? `${staff.first_name} ${staff.last_name}` : "Unknown Staff",
+                gross: item.gross_pay,
+                net: item.net_pay,
+                status: selectedRun.status,
+                email: staff?.email,
+                runId: selectedRun.id,
+                staffId: item.staff_id,
+            };
+        });
+    }, [payrollRuns, staffs, selectedRunId]);
+
 
 
     const columns = [
@@ -114,13 +117,13 @@ export default function Payslips() {
                 <CardContent className="pt-4 pb-6 space-y-4">
                     {/* Payroll Run Selector */}
                     <div className="max-w-xs">
-                        <Select value={selectedRun} onValueChange={setSelectedRun} disabled={payrollRuns.length === 0}>
+                        <Select value={selectedRunId?.toString() || ""} onValueChange={(val) => setSelectedRunId(Number(val))} disabled={payrollRunOptions.length === 0}>
                             <SelectTrigger className="w-full">
-                                <SelectValue placeholder={payrollRuns.length === 0 ? "No Payroll Data" : "Select Payroll Run"} />
+                                <SelectValue placeholder={payrollRunOptions.length === 0 ? "No Payroll Data" : "Select Payroll Run"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {payrollRuns.map((run) => (
-                                    <SelectItem key={run.value} value={run.value}>
+                                {payrollRunOptions.map((run) => (
+                                    <SelectItem key={run.value} value={run.value.toString()}>
                                         {run.label}
                                     </SelectItem>
                                 ))}
