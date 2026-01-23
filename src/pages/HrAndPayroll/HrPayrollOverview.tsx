@@ -48,7 +48,7 @@ import {
     XCircle,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
@@ -88,6 +88,10 @@ function ConfirmModal({
 
 
 
+// Month names constant for date formatting
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+
 export default function HrPayrollOverview() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
@@ -95,6 +99,7 @@ export default function HrPayrollOverview() {
 
     // Get auth token from Redux
     const token = useSelector((state: RootState) => state.auth.token);
+    const navigate = useNavigate();
 
     const { data: staffsData, isLoading } = useGetAllStaffsQuery({
         page,
@@ -180,22 +185,49 @@ export default function HrPayrollOverview() {
     // -----------------------
     const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
     const [viewingAttendanceStaff, setViewingAttendanceStaff] = useState<Staff | null>(null);
-    const [attendanceMonth, setAttendanceMonth] = useState("January");
-    const [attendanceYear, setAttendanceYear] = useState("2025");
+
+    // Set default month to current month and year
+    const currentDate = new Date();
+    const currentMonthName = MONTH_NAMES[currentDate.getMonth()];
+    const currentYear = currentDate.getFullYear().toString();
+
+    const [attendanceMonth, setAttendanceMonth] = useState(currentMonthName);
+    const [attendanceYear, setAttendanceYear] = useState(currentYear);
     const [customPayrollAmount, setCustomPayrollAmount] = useState("");
     const [isProcessingPayroll, setIsProcessingPayroll] = useState(false);
 
     // Fetch Attendance Data
+    // Convert month name to number and format as YYYY-MM
+    const monthString = useMemo(() => {
+        const monthNumber = (MONTH_NAMES.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
+        return `${attendanceYear}-${monthNumber}`;
+    }, [attendanceMonth, attendanceYear]);
+
     const { data: attendanceData, isLoading: isLoadingAttendance } = useGetStaffAttendanceByIdQuery(
         {
             staffId: viewingAttendanceStaff?.id as number,
             limit: 31, // Fetch enough for a month overview
-            page: 1
+            page: 1,
+            month: monthString // Pass the formatted month string
         },
         { skip: !viewingAttendanceStaff?.id }
     );
 
     const attendanceRecords = attendanceData?.data || [];
+
+    // Debug: Log filter parameters and response
+    useEffect(() => {
+        if (viewingAttendanceStaff?.id) {
+            console.log('Attendance Filter:', {
+                staffId: viewingAttendanceStaff.id,
+                staffName: `${viewingAttendanceStaff.first_name} ${viewingAttendanceStaff.last_name}`,
+                month: attendanceMonth,
+                year: attendanceYear,
+                monthString,
+                recordsCount: attendanceRecords.length
+            });
+        }
+    }, [viewingAttendanceStaff, attendanceMonth, attendanceYear, monthString, attendanceRecords.length]);
 
     // Calculate Stats from fetched records
     const attendanceStats = useMemo(() => {
@@ -227,9 +259,7 @@ export default function HrPayrollOverview() {
         setIsProcessingPayroll(true);
         try {
             // Convert month name to number (January = 1, etc.)
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
-            const monthNumber = (monthNames.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
+            const monthNumber = (MONTH_NAMES.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
             const monthString = `${attendanceYear}-${monthNumber}`;
 
             // Call the generate payroll API
@@ -259,6 +289,18 @@ export default function HrPayrollOverview() {
         } finally {
             setIsProcessingPayroll(false);
         }
+    };
+
+    // View Payslip Handler
+    const handleViewPayslip = () => {
+        if (!viewingAttendanceStaff) return;
+
+        // Convert month name to number for the month string
+        const monthNumber = (MONTH_NAMES.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
+        const monthString = `${attendanceYear}-${monthNumber}`;
+
+        // Navigate to payslips page with query parameters
+        navigate(`/dashboard/payroll/payslips?month=${monthString}&staffId=${viewingAttendanceStaff.id}`);
     };
 
     // -----------------------
@@ -828,9 +870,9 @@ export default function HrPayrollOverview() {
                                         <SelectValue placeholder="Year" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="2024">2024</SelectItem>
-                                        <SelectItem value="2025">2025</SelectItem>
-                                        <SelectItem value="2026">2026</SelectItem>
+                                        {Array.from({ length: new Date().getFullYear() - 2023 }, (_, i) => 2024 + i).map(year => (
+                                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -1037,10 +1079,7 @@ export default function HrPayrollOverview() {
                                                 <Button
                                                     variant="outline"
                                                     className="border-emerald-400 text-emerald-100 hover:bg-emerald-700 hover:text-white bg-transparent"
-                                                    onClick={() => {
-                                                        // TODO: Implement view payslip functionality
-                                                        toast.info('Payslip view coming soon!');
-                                                    }}
+                                                    onClick={handleViewPayslip}
                                                 >
                                                     View Slip
                                                 </Button>
