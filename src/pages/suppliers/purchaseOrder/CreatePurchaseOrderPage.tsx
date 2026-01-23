@@ -736,12 +736,12 @@ export default function CreatePurchaseOrderPage() {
                             <FormControl>
                               <Input
                                 type="number"
+                                min={0}
                                 {...field}
                                 onChange={(e) =>
                                   field.onChange(Number(e.target.value))
                                 }
-                                readOnly
-                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-center"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-center"
                               />
                             </FormControl>
                           </FormItem>
