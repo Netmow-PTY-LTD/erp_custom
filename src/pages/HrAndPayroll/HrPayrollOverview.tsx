@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -51,8 +50,8 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
-import { SuperAdminPermission, UserPermission } from "@/config/permissions";
-import { useAppSelector } from "@/store/store";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
 
 
@@ -87,15 +86,15 @@ function ConfirmModal({
     );
 }
 
+
+
 export default function HrPayrollOverview() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [limit] = useState(10);
 
-
-      const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-      const canDeleteUser = userPermissions.includes(UserPermission.DELETE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-    
+    // Get auth token from Redux
+    const token = useSelector((state: RootState) => state.auth.token);
 
     const { data: staffsData, isLoading } = useGetAllStaffsQuery({
         page,
@@ -184,6 +183,7 @@ export default function HrPayrollOverview() {
     const [attendanceMonth, setAttendanceMonth] = useState("January");
     const [attendanceYear, setAttendanceYear] = useState("2025");
     const [customPayrollAmount, setCustomPayrollAmount] = useState("");
+    const [isProcessingPayroll, setIsProcessingPayroll] = useState(false);
 
     // Fetch Attendance Data
     const { data: attendanceData, isLoading: isLoadingAttendance } = useGetStaffAttendanceByIdQuery(
@@ -195,7 +195,6 @@ export default function HrPayrollOverview() {
         { skip: !viewingAttendanceStaff?.id }
     );
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const attendanceRecords = attendanceData?.data || [];
 
     // Calculate Stats from fetched records
@@ -219,6 +218,47 @@ export default function HrPayrollOverview() {
     const handleAttendanceClick = (staff: Staff) => {
         setViewingAttendanceStaff(staff);
         setAttendanceModalOpen(true);
+    };
+
+    // Process Payroll Handler
+    const handleProcessPayroll = async () => {
+        if (!viewingAttendanceStaff) return;
+
+        setIsProcessingPayroll(true);
+        try {
+            // Convert month name to number (January = 1, etc.)
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            const monthNumber = (monthNames.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
+            const monthString = `${attendanceYear}-${monthNumber}`;
+
+            // Call the generate payroll API
+            const response = await fetch('http://localhost:5000/api/payroll/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    month: monthString,
+                    staff_ids: [viewingAttendanceStaff.id] // Process only this staff
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.status) {
+                toast.success(`Payroll processed successfully for ${attendanceMonth} ${attendanceYear}!`);
+                setAttendanceModalOpen(false);
+            } else {
+                toast.error(data.message || 'Failed to process payroll');
+            }
+        } catch (error) {
+            console.error('Error processing payroll:', error);
+            toast.error('An error occurred while processing payroll');
+        } finally {
+            setIsProcessingPayroll(false);
+        }
     };
 
     // -----------------------
@@ -386,16 +426,20 @@ export default function HrPayrollOverview() {
         const deductionBreakdown: Record<string, number> = {};
 
         staffsList.forEach((staff) => {
-            const salary = Number(staff.basic_salary) || Number(staff.salary) || 0;
+            // Extract payroll data from payrollStructure or fallback to staff object
+            const payroll = staff.payrollStructure || staff;
+            const salary = Number(payroll.basic_salary) || Number(staff.salary) || 0;
             basic += salary;
 
-            staff.allowances?.forEach((a) => {
+            const allowances = payroll.allowances || [];
+            allowances.forEach((a: any) => {
                 const amt = Number(a.amount) || 0;
                 totalAllowances += amt;
                 allowanceBreakdown[a.name] = (allowanceBreakdown[a.name] || 0) + amt;
             });
 
-            staff.deductions?.forEach((d) => {
+            const deductions = payroll.deductions || [];
+            deductions.forEach((d: any) => {
                 const amt = Number(d.amount) || 0;
                 totalDeductions += amt;
                 deductionBreakdown[d.name] = (deductionBreakdown[d.name] || 0) + amt;
@@ -411,6 +455,7 @@ export default function HrPayrollOverview() {
             deductionBreakdown,
         };
     }, [staffsList]);
+
 
     const staffColumns: ColumnDef<Staff>[] = [
         {
@@ -536,18 +581,13 @@ export default function HrPayrollOverview() {
                                 Edit
                             </Button>
                         </Link>
-                        {
-                            canDeleteUser &&(
-                                      <Button
+                        <Button
                             size="sm"
                             variant="destructive"
                             onClick={() => handleDeleteClick(item)}
                         >
                             <Trash className="w-4 h-4 mr-1" />
                         </Button>
-                            ) 
-                        }
-                      
                     </div>
                 );
             },
@@ -560,7 +600,7 @@ export default function HrPayrollOverview() {
                 <h1 className="text-2xl font-bold tracking-tight">Employee & Payroll Overview</h1>
 
                 <Link to="/dashboard/staffs/add">
-                    <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                    <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
                         <PlusCircle size={18} />
                         Add Employee
                     </button>
@@ -572,7 +612,7 @@ export default function HrPayrollOverview() {
                 {stats.map((item, idx) => (
                     <div
                         key={idx}
-                        className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
+                        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]`}
                     >
                         {/* Background Pattern */}
                         <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -678,7 +718,7 @@ export default function HrPayrollOverview() {
                             </CardContent>
                         </Card>
 
-                        <Card className="border-l-4 border-l-purple-600 shadow-sm hover:shadow-md transition-shadow bg-linear-to-br from-white to-purple-50">
+                        <Card className="border-l-4 border-l-purple-600 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-white to-purple-50">
                             <CardContent className="p-6">
                                 <div className="flex items-center justify-between mb-4">
                                     <p className="text-sm font-medium text-gray-500">Est. Net Payable</p>
@@ -698,7 +738,7 @@ export default function HrPayrollOverview() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Allowances Breakdown */}
                         <Card>
-                            <CardHeader className="py-4 border-b gap-0">
+                            <CardHeader className="py-4 border-b-1 gap-0">
                                 <CardTitle className="text-lg flex items-center gap-2 text-emerald-800">
                                     <PieChart className="w-5 h-5" /> Allowance Breakdown
                                 </CardTitle>
@@ -720,7 +760,7 @@ export default function HrPayrollOverview() {
 
                         {/* Deductions Breakdown */}
                         <Card>
-                            <CardHeader className="py-4 border-b gap-0">
+                            <CardHeader className="py-4 border-b-1 gap-0">
                                 <CardTitle className="text-lg flex items-center gap-2 text-rose-800">
                                     <PieChart className="w-5 h-5" /> Deduction Breakdown
                                 </CardTitle>
@@ -875,133 +915,145 @@ export default function HrPayrollOverview() {
                     </div>
 
                     {/* Salary Structure Reference (Read-Only) */}
-                    {viewingAttendanceStaff && (
-                        <>
-                            <Card className="bg-slate-50 border-slate-200">
-                                <CardHeader className="py-3 px-4 border-b border-slate-200">
-                                    <h4 className="font-semibold text-slate-700 flex items-center gap-2 text-sm">
-                                        <Wallet className="w-4 h-4" /> Salary Structure Reference
-                                    </h4>
-                                </CardHeader>
-                                <CardContent className="p-4">
-                                    <div className="grid grid-cols-2 gap-8 text-sm">
-                                        {/* Allowances */}
-                                        <div>
-                                            <h5 className="font-medium text-emerald-700 mb-2 border-b border-emerald-100 pb-1">Allowances (Additions)</h5>
-                                            <ul className="space-y-1">
-                                                <li className="flex justify-between">
-                                                    <span className="text-slate-600">Basic Salary</span>
-                                                    <span className="font-medium text-slate-800">
-                                                        {(Number(viewingAttendanceStaff.basic_salary) || Number(viewingAttendanceStaff.salary) || 0).toLocaleString()}
-                                                    </span>
-                                                </li>
-                                                {viewingAttendanceStaff.allowances?.map((item, idx: number) => (
-                                                    <li key={idx} className="flex justify-between">
-                                                        <span className="text-slate-600">{item.name || "Allowance"}</span>
-                                                        <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
+                    {viewingAttendanceStaff && (() => {
+                        // Extract payroll data from payrollStructure or fallback to staff object
+                        const payroll = viewingAttendanceStaff.payrollStructure || viewingAttendanceStaff;
+                        const basicSalary = Number(payroll.basic_salary) || Number(viewingAttendanceStaff.salary) || 0;
+                        const allowances = payroll.allowances || [];
+                        const deductions = payroll.deductions || [];
+                        const totalAllowances = allowances.reduce((sum: number, i: any) => sum + Number(i.amount), 0);
+                        const totalDeductions = deductions.reduce((sum: number, i: any) => sum + Number(i.amount), 0);
+                        const grossSalary = basicSalary + totalAllowances;
+                        const netSalary = grossSalary - totalDeductions;
+
+                        return (
+                            <>
+                                <Card className="bg-slate-50 border-slate-200">
+                                    <CardHeader className="py-3 px-4 border-b border-slate-200">
+                                        <h4 className="font-semibold text-slate-700 flex items-center gap-2 text-sm">
+                                            <Wallet className="w-4 h-4" /> Salary Structure Reference
+                                        </h4>
+                                    </CardHeader>
+                                    <CardContent className="p-4">
+                                        <div className="grid grid-cols-2 gap-8 text-sm">
+                                            {/* Allowances */}
+                                            <div>
+                                                <h5 className="font-medium text-emerald-700 mb-2 border-b border-emerald-100 pb-1">Allowances (Additions)</h5>
+                                                <ul className="space-y-1">
+                                                    <li className="flex justify-between">
+                                                        <span className="text-slate-600">Basic Salary</span>
+                                                        <span className="font-medium text-slate-800">
+                                                            {basicSalary.toLocaleString()}
+                                                        </span>
                                                     </li>
-                                                ))}
-                                                {(!viewingAttendanceStaff.allowances || viewingAttendanceStaff.allowances.length === 0) && (
-                                                    <li className="text-xs text-slate-400 italic">No additional allowances</li>
-                                                )}
-                                            </ul>
-                                        </div>
-
-                                        {/* Deductions */}
-                                        <div>
-                                            <h5 className="font-medium text-rose-700 mb-2 border-b border-rose-100 pb-1">Deductions (Subtractions)</h5>
-                                            <ul className="space-y-1">
-                                                {viewingAttendanceStaff.deductions?.map((item, idx: number) => (
-                                                    <li key={idx} className="flex justify-between">
-                                                        <span className="text-slate-600">{item.name || "Deduction"}</span>
-                                                        <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
-                                                    </li>
-                                                ))}
-                                                {(!viewingAttendanceStaff.deductions || viewingAttendanceStaff.deductions.length === 0) && (
-                                                    <li className="text-xs text-slate-400 italic">No deductions defined</li>
-                                                )}
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    {/* Net Summary Small */}
-                                    <div className="mt-4 pt-3 border-t border-slate-200 flex justify-end gap-6 text-sm font-semibold">
-                                        <div className="text-emerald-700">
-                                            Gross: {
-                                                ((Number(viewingAttendanceStaff.basic_salary) || 0) +
-                                                    (viewingAttendanceStaff.allowances?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0))
-                                                    .toLocaleString()
-                                            }
-                                        </div>
-                                        <div className="text-slate-800">
-                                            Net Payable: {
-                                                ((Number(viewingAttendanceStaff.basic_salary) || 0) +
-                                                    (viewingAttendanceStaff.allowances?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0) -
-                                                    (viewingAttendanceStaff.deductions?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0))
-                                                    .toLocaleString()
-                                            }
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Payable for Selected Month Card */}
-                            <Card className="bg-linear-to-r from-emerald-600 to-teal-600 text-white shadow-lg border-none mt-6">
-                                <CardContent className="p-6">
-                                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                                        <div className="flex-1">
-                                            <p className="text-emerald-100 font-medium mb-1">
-                                                Estimated Payable for {attendanceMonth} {attendanceYear}
-                                            </p>
-                                            <h3 className="text-4xl font-bold flex items-baseline">
-                                                <span className="text-xl mr-1 font-normal opacity-80">RM</span>
-                                                {((Number(viewingAttendanceStaff.basic_salary) || 0) +
-                                                    (viewingAttendanceStaff.allowances?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0) -
-                                                    (viewingAttendanceStaff.deductions?.reduce((sum: number, i) => sum + Number(i.amount), 0) || 0))
-                                                    .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </h3>
-                                            <div className="flex items-center gap-2 mt-2 mb-4">
-                                                <Badge className="bg-white/20 hover:bg-white/30 text-white border-none">
-                                                    Status: Pending
-                                                </Badge>
-                                                <span className="text-xs text-emerald-100 opacity-80">
-                                                    (Based on 30 working days)
-                                                </span>
+                                                    {allowances.map((item: any, idx: number) => (
+                                                        <li key={idx} className="flex justify-between">
+                                                            <span className="text-slate-600">{item.name || "Allowance"}</span>
+                                                            <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
+                                                        </li>
+                                                    ))}
+                                                    {allowances.length === 0 && (
+                                                        <li className="text-xs text-slate-400 italic">No additional allowances</li>
+                                                    )}
+                                                </ul>
                                             </div>
 
-                                            <div className="max-w-xs">
-                                                <label className="text-xs text-emerald-100 font-semibold uppercase tracking-wider mb-1 block">
-                                                    Override Amount
-                                                </label>
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-emerald-700 font-bold">RM</span>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="Enter custom amount..."
-                                                        className="pl-10 bg-white/90 border-none text-emerald-900 placeholder:text-emerald-900/50 focus-visible:ring-emerald-500"
-                                                        value={customPayrollAmount}
-                                                        onChange={(e) => setCustomPayrollAmount(e.target.value)}
-                                                    />
+                                            {/* Deductions */}
+                                            <div>
+                                                <h5 className="font-medium text-rose-700 mb-2 border-b border-rose-100 pb-1">Deductions (Subtractions)</h5>
+                                                <ul className="space-y-1">
+                                                    {deductions.map((item: any, idx: number) => (
+                                                        <li key={idx} className="flex justify-between">
+                                                            <span className="text-slate-600">{item.name || "Deduction"}</span>
+                                                            <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
+                                                        </li>
+                                                    ))}
+                                                    {deductions.length === 0 && (
+                                                        <li className="text-xs text-slate-400 italic">No deductions defined</li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        {/* Net Summary Small */}
+                                        <div className="mt-4 pt-3 border-t border-slate-200 flex justify-end gap-6 text-sm font-semibold">
+                                            <div className="text-emerald-700">
+                                                Gross: {grossSalary.toLocaleString()}
+                                            </div>
+                                            <div className="text-slate-800">
+                                                Net Payable: {netSalary.toLocaleString()}
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Payable for Selected Month Card */}
+                                <Card className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg border-none mt-6">
+                                    <CardContent className="p-6">
+                                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                                            <div className="flex-1">
+                                                <p className="text-emerald-100 font-medium mb-1">
+                                                    Estimated Payable for {attendanceMonth} {attendanceYear}
+                                                </p>
+                                                <h3 className="text-4xl font-bold flex items-baseline">
+                                                    <span className="text-xl mr-1 font-normal opacity-80">RM</span>
+                                                    {netSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </h3>
+                                                <div className="flex items-center gap-2 mt-2 mb-4">
+                                                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none">
+                                                        Status: Pending
+                                                    </Badge>
+                                                    <span className="text-xs text-emerald-100 opacity-80">
+                                                        (Based on 30 working days)
+                                                    </span>
+                                                </div>
+
+                                                <div className="max-w-xs">
+                                                    <label className="text-xs text-emerald-100 font-semibold uppercase tracking-wider mb-1 block">
+                                                        Override Amount
+                                                    </label>
+                                                    <div className="relative">
+                                                        <span className="absolute left-3 top-2.5 text-emerald-700 font-bold">RM</span>
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="Enter custom amount..."
+                                                            className="pl-10 bg-white/90 border-none text-emerald-900 placeholder:text-emerald-900/50 focus-visible:ring-emerald-500"
+                                                            value={customPayrollAmount}
+                                                            onChange={(e) => setCustomPayrollAmount(e.target.value)}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex flex-col gap-2 min-w-[150px]">
-                                            <Button className="bg-white text-emerald-700 hover:bg-emerald-50 font-bold shadow-md">
-                                                <Wallet className="w-4 h-4 mr-2" />
-                                                Process Payroll
-                                            </Button>
-                                            <Button variant="outline" className="border-emerald-400 text-emerald-100 hover:bg-emerald-700 hover:text-white bg-transparent">
-                                                View Slip
-                                            </Button>
+                                            <div className="flex flex-col gap-2 min-w-[150px]">
+                                                <Button
+                                                    className="bg-white text-emerald-700 hover:bg-emerald-50 font-bold shadow-md"
+                                                    onClick={handleProcessPayroll}
+                                                    disabled={isProcessingPayroll}
+                                                >
+                                                    <Wallet className="w-4 h-4 mr-2" />
+                                                    {isProcessingPayroll ? 'Processing...' : 'Process Payroll'}
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    className="border-emerald-400 text-emerald-100 hover:bg-emerald-700 hover:text-white bg-transparent"
+                                                    onClick={() => {
+                                                        // TODO: Implement view payslip functionality
+                                                        toast.info('Payslip view coming soon!');
+                                                    }}
+                                                >
+                                                    View Slip
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </>
-                    )}
+                                    </CardContent>
+                                </Card>
+                            </>
+                        );
+                    })()}
 
                     <DialogFooter>
+
                         <Button onClick={() => setAttendanceModalOpen(false)}>Close</Button>
                     </DialogFooter>
                 </DialogContent>
@@ -1198,6 +1250,6 @@ export default function HrPayrollOverview() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div >
+        </div>
     );
 }
