@@ -30,7 +30,7 @@ export interface Staff {
   notes: string | null;
   role_id: number | null;
   role?: Role | null;
-  // Payroll info
+  // Payroll info (legacy fields, may be deprecated)
   basic_salary?: number;
   bank_details?: {
     account_name: string;
@@ -39,4 +39,15 @@ export interface Staff {
   };
   allowances?: { name: string; amount: number }[];
   deductions?: { name: string; amount: number }[];
+  // Payroll structure (nested object from API)
+  payrollStructure?: {
+    basic_salary: number;
+    allowances: { name: string; amount: number }[];
+    deductions: { name: string; amount: number }[];
+    bank_details: {
+      account_name: string;
+      account_number: string;
+      bank_name: string;
+    };
+  };
 }
