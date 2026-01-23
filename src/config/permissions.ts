@@ -115,6 +115,7 @@ export const SalesPermission = {
   CONFIRMED_ORDERS: "sales.orders.confirmed.view" as const,
   DELIVERED_ORDERS: "sales.orders.delivered.view" as const,
   INTRANSIT_ORDERS: "sales.orders.intransit.view" as const,
+  RETURNED_ORDERS: "sales.orders.returned.view" as const,
   ORDER_DETAILS: "sales.orders.details.view" as const,
   CREATE_ORDER: "sales.orders.create" as const,
   EDIT_ORDER: "sales.orders.edit" as const,
