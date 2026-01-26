@@ -59,15 +59,13 @@ export default function PayrollReports() {
         let totalPaid = 0;
         let totalDue = 0;
 
-
-
         // Filter Data
         const filteredItems = payrollItems.filter(() => {
             // const matchesDept = departmentFilter === "all" || item.staff?.department?.name === departmentFilter; // If staff dept available in item
             // For now, assume simple search filter
-            // const searchTerm = search.toLowerCase();
+            //const searchTerm = search.toLowerCase();
             // Ideally back-populate staff details into item
-            // const fullName = `Staff #${item.staff_id}`; // Placeholder if staff not joined
+            //const fullName = `Staff #${item.staff_id}`; // Placeholder if staff not joined
             // In real app, include Staff model in PayrollItem
 
             return true; // Simplified for now as we might lack deep staff inclusions in this specific endpoint without update

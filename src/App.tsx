@@ -9,7 +9,6 @@ import { sidebarItemLink } from "./config/sidebarItemLInk";
 import { getFirstAllowedRoute } from "./utils/permissionUtils";
 
 
-
 const APP = () => {
   const token = useAppSelector((state) => state.auth.token);
   const { data: user, isLoading } = useAuthUserQuery(undefined, {
@@ -20,6 +19,8 @@ const APP = () => {
   const isLoggedIn = user?.data?.user?.email;
 
   useAppSettings(settings?.data);
+
+
 
 
 

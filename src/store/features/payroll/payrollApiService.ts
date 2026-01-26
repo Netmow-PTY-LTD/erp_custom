@@ -21,9 +21,8 @@ export interface PayrollItem {
     allowances: { name: string; amount: number }[];
     deductions: { name: string; amount: number }[];
     gross_pay: number;
-    gross_salary?: number; // fallback for naming inconsistency
+    gross_salary?: number;
     total_allowances?: number;
-    total_deductions?: number;
     net_pay: number;
     paid_amount?: number;
     payment_status?: "unpaid" | "partial" | "paid";

@@ -23,8 +23,6 @@ import {
 
 
 
-
-
 import type { Department } from "@/types/types";
 import type { Staff } from "@/types/staff.types";
 import type { Role } from "@/types/users.types";
@@ -171,7 +169,6 @@ export default function HrPayrollOverview() {
             console.error(err);
         }
     };
-
 
 
     const handleAttendanceClick = (staff: Staff) => {
