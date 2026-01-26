@@ -71,14 +71,8 @@ export default function Payslips() {
             const staff = staffs.find((s) => Number(s.id) === Number(item.staff_id));
 
             // Parse JSON fields safely (handle both array and stringified JSON)
-            let allowances = [];
             let deductions = [];
             try {
-                allowances = Array.isArray(item.allowances)
-                    ? item.allowances
-                    : typeof item.allowances === 'string'
-                        ? JSON.parse(item.allowances)
-                        : [];
                 deductions = Array.isArray(item.deductions)
                     ? item.deductions
                     : typeof item.deductions === 'string'
