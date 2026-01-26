@@ -51,7 +51,14 @@ const layoutSlice = createSlice({
             state.pos.cardStyle = action.payload;
         },
         updatePosLayout: (state, action: PayloadAction<Partial<PosLayoutSettings>>) => {
-            state.pos = { ...state.pos, ...action.payload };
+            state.pos = {
+                ...state.pos,
+                ...action.payload,
+                columns: {
+                    ...state.pos.columns,
+                    ...action.payload.columns
+                }
+            };
         },
     },
 });
