@@ -12,15 +12,16 @@ import {
     CardDescription,
     CardContent,
 } from "@/components/ui/card";
-import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Trash2, FileText, PlusCircle, RotateCcw } from "lucide-react";
+import { Edit, Eye, Trash2, FileText, CheckCircle, Clock, XCircle, PlusCircle } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import UpdatePOStatusModal from "./UpdatePOStatusModal";
 
 
 // Simple confirmation modal
@@ -84,22 +85,39 @@ export default function ReturnedPurchaseOrders() {
     const { data: allPOData } = useGetAllPurchasesQuery({ limit: 1000 });
     const allPOs = (Array.isArray(allPOData?.data) ? allPOData?.data : []) as any[];
 
-    const returnedPOsCount = allPOs.filter((po: any) => po.status === "returned").length;
+    const totalPOs = data?.pagination?.total || 0;
+    const approvedPOs = allPOs.filter((po: any) => po.status === "approved" || po.status === "received").length;
+    const pendingPOs = allPOs.filter((po: any) => po.status === "pending").length;
+    const rejectedPOs = allPOs.filter((po: any) => po.status === "rejected").length;
 
     const stats = [
         {
-            label: "Returned Orders",
-            value: returnedPOsCount,
-            gradient: "from-rose-600 to-rose-400",
-            shadow: "shadow-rose-500/30",
-            icon: <RotateCcw className="w-6 h-6 text-white" />,
-        },
-        {
             label: "Total Orders",
-            value: allPOs.length,
+            value: totalPOs,
             gradient: "from-blue-600 to-blue-400",
             shadow: "shadow-blue-500/30",
             icon: <FileText className="w-6 h-6 text-white" />,
+        },
+        {
+            label: "Approved/Received",
+            value: approvedPOs,
+            gradient: "from-emerald-600 to-emerald-400",
+            shadow: "shadow-emerald-500/30",
+            icon: <CheckCircle className="w-6 h-6 text-white" />,
+        },
+        {
+            label: "Pending Orders",
+            value: pendingPOs,
+            gradient: "from-amber-600 to-amber-400",
+            shadow: "shadow-amber-500/30",
+            icon: <Clock className="w-6 h-6 text-white" />,
+        },
+        {
+            label: "Rejected Orders",
+            value: rejectedPOs,
+            gradient: "from-rose-600 to-rose-400",
+            shadow: "shadow-rose-500/30",
+            icon: <XCircle className="w-6 h-6 text-white" />,
         },
     ];
 
@@ -111,6 +129,29 @@ export default function ReturnedPurchaseOrders() {
 
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedPOId, setSelectedPOId] = useState<number | null>(null);
+
+    const [isUpdateStatusModalOpen, setIsUpdateStatusModalOpen] = useState(false);
+    const [selectedPO, setSelectedPO] = useState<any>(null);
+
+    const handleOpenUpdateStatusModal = (po: any) => {
+        setSelectedPO(po);
+        setIsUpdateStatusModalOpen(true);
+    };
+
+    const handleCloseUpdateStatusModal = () => {
+        setIsUpdateStatusModalOpen(false);
+        setSelectedPO(null);
+    };
+
+    const poStatusOptions = [
+        { value: "pending", label: "Pending" },
+        { value: "approved", label: "Approved" },
+        { value: "ordered", label: "Ordered" },
+        { value: "received", label: "Received" },
+        { value: "partial", label: "Partial" },
+        { value: "cancelled", label: "Cancelled" },
+        { value: "returned", label: "Returned" },
+    ] as const;
 
     /* DELETE HANDLER */
     const handleDelete = useCallback(async () => {
@@ -131,8 +172,7 @@ export default function ReturnedPurchaseOrders() {
         }
     }, [selectedPOId, deletePurchaseOrder]);
 
-    const [updatePurchaseOrder] = useUpdatePurchaseOrderMutation();
-
+    // const [updatePurchaseOrder] = useUpdatePurchaseOrderMutation();
 
 
     /* COLUMNS */
@@ -152,6 +192,11 @@ export default function ReturnedPurchaseOrders() {
             accessorKey: "order_date",
             header: "Order Date",
             cell: ({ row }) => new Date(row.original.order_date as string).toLocaleDateString(),
+        },
+        {
+            accessorKey: "expected_delivery_date",
+            header: "Expected Delivery Date",
+            cell: ({ row }) => new Date(row.original.expected_delivery_date as string).toLocaleDateString(),
         },
         {
             accessorKey: "status",
@@ -174,6 +219,31 @@ export default function ReturnedPurchaseOrders() {
             },
         },
         {
+            accessorKey: "total_amount",
+            header: () => <div className="text-right">Total Price ({currency})</div>,
+            cell: ({ row }) => (
+                <div className="text-right">{row.original.total_amount.toFixed(2)}</div>
+            ),
+        },
+        {
+            accessorKey: "discount_amount",
+            header: () => (
+                <div className="text-right">Total Discount ({currency})</div>
+            ),
+            cell: ({ row }) => (
+                <div className="text-right">
+                    {row.original.discount_amount.toFixed(2)}
+                </div>
+            ),
+        },
+        {
+            accessorKey: "tax_amount",
+            header: () => <div className="text-right">Tax Amount ({currency})</div>,
+            cell: ({ row }) => (
+                <div className="text-right">{row.original.tax_amount.toFixed(2)}</div>
+            ),
+        },
+        {
             accessorKey: "total_payable_amount",
             header: () => <div className="text-right">Total Payable ({currency})</div>,
             cell: ({ row }) => (
@@ -187,7 +257,7 @@ export default function ReturnedPurchaseOrders() {
             header: "Actions",
             cell: ({ row }) => {
                 const po = row.original;
-                const isEditable = !["approved", "received", "delivered"].includes(po.status);
+                const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
 
                 return (
                     <div className="flex gap-2">
@@ -196,6 +266,14 @@ export default function ReturnedPurchaseOrders() {
                                 <Eye className="w-4 h-4 mr-1" /> View
                             </Button>
                         </Link>
+
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenUpdateStatusModal(po)}
+                        >
+                            Change Status
+                        </Button>
 
                         {isEditable && (
                             <>
@@ -294,6 +372,14 @@ export default function ReturnedPurchaseOrders() {
                 onClose={() => setModalOpen(false)}
                 onConfirm={handleDelete}
                 message="Are you sure you want to delete this purchase order? This action cannot be undone."
+            />
+
+            {/* Status Update Modal */}
+            <UpdatePOStatusModal
+                isOpen={isUpdateStatusModalOpen}
+                onClose={handleCloseUpdateStatusModal}
+                selectedPO={selectedPO}
+                statusOptions={poStatusOptions}
             />
         </div>
     );
