@@ -186,6 +186,9 @@ import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
 import ProductsByStaff from "@/pages/products/ProductsByStaff";
 import DatabaseTables from "@/pages/data_management/DatabaseTables";
+import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
+import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
+import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -1457,12 +1460,6 @@ export const sidebarItemLink = [
   },
 
 
-  {
-    title: "",
-    url: "/dashboard/settings/profile",
-    element: <MyProfileSettings />,
-  },
-
   // REPORTS
   {
     title: "Reports",
@@ -1566,11 +1563,21 @@ export const sidebarItemLink = [
     url: "/dashboard/settings",
     icon: Settings,
     layout: <SettingsSidebarLayout />,
+    element: <SettingsSidebarLayout />,
     allowedPermissions: [
       SettingsPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
+      {
+        title: "Company Profile",
+        url: "/dashboard/settings",
+        element: <EditProfilePage />,
+        allowedPermissions: [
+          SettingsPermission.PROFILE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
       {
         title: "Profile",
         url: "/dashboard/settings/profile",
@@ -1587,6 +1594,15 @@ export const sidebarItemLink = [
         element: <AccountSettings />,
         allowedPermissions: [
           SettingsPermission.ACCOUNT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Layout Settings",
+        url: "/dashboard/settings/layout",
+        element: <LayoutSettings />,
+        allowedPermissions: [
+          SettingsPermission.LAYOUT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },

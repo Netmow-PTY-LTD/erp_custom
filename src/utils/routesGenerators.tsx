@@ -43,19 +43,28 @@ export const generateRoutes = (items: TUserPath[], parentPath = ""): RouteObject
     };
 
     if (item.items && item.items.length > 0 && item.layout) {
+      const children: RouteObject[] = item.items.map((child) => {
+        const isIndex = child.url === item.url;
+        const childPath = isIndex ? undefined : (child.url.split("/").pop() || "");
+        return {
+          index: isIndex,
+          path: childPath,
+          element: wrapWithPermission(child.element || <DummyPage title={child.title} />),
+        };
+      });
+
+      // If none of the children are index routes, add a redirect to the first child
+      if (!children.some(c => c.index)) {
+        children.unshift({
+          index: true,
+          element: <Navigate to={item.items[0].url.split("/").pop() || ""} replace />,
+        });
+      }
+
       routes.push({
-        path: relativePath + "/*",
+        path: relativePath,
         element: wrapWithPermission(item.layout),
-        children: [
-          {
-            index: true,
-            element: <Navigate to={item.items[0].url.split("/").pop() || ""} replace />,
-          },
-          ...item.items.map((child) => ({
-            path: child.url.split("/").pop(),
-            element: wrapWithPermission(child.element || <DummyPage title={child.title} />),
-          })),
-        ],
+        children,
       });
       return;
     }

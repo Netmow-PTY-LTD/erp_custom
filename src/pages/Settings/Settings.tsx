@@ -1,6 +1,25 @@
-import { Settings as SettingsIcon } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Wrench, UserCog } from 'lucide-react';
 import { Card, CardHeader } from "@/components/ui/card";
-import EditProfilePage from "./pages/UserProfilePage";
+import { SettingsSidebar } from './SettingsSidebar';
+import { Outlet } from 'react-router';
+
+const sidebarNavItems = [
+  {
+    title: 'Company Profile',
+    href: '/dashboard/settings',
+    icon: <Building2 size={18} />,
+  },
+  {
+    title: 'Profile',
+    href: '/dashboard/settings/profile',
+    icon: <UserCog size={18} />,
+  },
+  {
+    title: 'Layout Settings',
+    href: '/dashboard/settings/layout',
+    icon: <Wrench size={18} />,
+  },
+]
 
 export default function Settings() {
   return (
@@ -17,7 +36,7 @@ export default function Settings() {
                 Settings
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
-                Manage company account settings and set e-mail preferences
+                Manage account settings and set e-mail preferences
               </p>
             </div>
           </div>
@@ -25,8 +44,13 @@ export default function Settings() {
       </Card>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col space-y-2 overflow-hidden md:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-12">
-        <EditProfilePage />
+      <div className="flex flex-1 flex-col space-y-2 overflow-hidden md:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-12 max-w-[1000px]">
+        <div className="w-full lg:w-1/4">
+          <SettingsSidebar items={sidebarNavItems || []} />
+        </div>
+        <div className="w-full lg:w-3/4">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
