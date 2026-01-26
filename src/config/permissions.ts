@@ -198,6 +198,7 @@ export const SettingsPermission = {
   VIEW: "settings.view" as const,
   PROFILE: "settings.profile.view" as const,
   ACCOUNT: "settings.account.view" as const,
+  LAYOUT: "settings.layout.view" as const,
 };
 
 // --- Reports ---
