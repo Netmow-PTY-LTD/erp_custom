@@ -1,9 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import { useGetAllPayrollRunsQuery } from "@/store/features/payroll/payrollApiService";
-import type { Staff } from "@/types/staff.types";
 import {
     Loader2,
     Download,
@@ -61,15 +59,13 @@ export default function PayrollReports() {
         let totalPaid = 0;
         let totalDue = 0;
 
-        const deptWise: Record<string, number> = {};
-
         // Filter Data
-        const filteredItems = payrollItems.filter((item: any) => {
+        const filteredItems = payrollItems.filter(() => {
             // const matchesDept = departmentFilter === "all" || item.staff?.department?.name === departmentFilter; // If staff dept available in item
             // For now, assume simple search filter
-            const searchTerm = search.toLowerCase();
+            //const searchTerm = search.toLowerCase();
             // Ideally back-populate staff details into item
-            const fullName = `Staff #${item.staff_id}`; // Placeholder if staff not joined
+            //const fullName = `Staff #${item.staff_id}`; // Placeholder if staff not joined
             // In real app, include Staff model in PayrollItem
 
             return true; // Simplified for now as we might lack deep staff inclusions in this specific endpoint without update
@@ -107,13 +103,13 @@ export default function PayrollReports() {
     }, [payrollItems, search]);
 
     // Chart Data Config
-    const compositionData = [
-        { name: 'Basic Salary', value: reportData.totalBasic },
-        { name: 'Allowances', value: reportData.totalAllowances },
-        { name: 'Deductions', value: reportData.totalDeductions }, // Deductions technically reduce cost, but for visualization of components
-    ];
+    // const compositionData = [
+    //     { name: 'Basic Salary', value: reportData.totalBasic },
+    //     { name: 'Allowances', value: reportData.totalAllowances },
+    //     { name: 'Deductions', value: reportData.totalDeductions }, // Deductions technically reduce cost, but for visualization of components
+    // ];
 
-    const COLORS = ['#3b82f6', '#10b981', '#ef4444'];
+    // const COLORS = ['#3b82f6', '#10b981', '#ef4444'];
 
     // Export CSV
     const handleExport = () => {
