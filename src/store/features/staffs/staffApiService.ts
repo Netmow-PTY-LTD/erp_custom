@@ -22,6 +22,7 @@ export type StaffQueryParams = {
   limit?: number;        // Items per page, default 10
   status?: "active" | "inactive" | "terminated" | "on_leave"; // Status filter
   department?: string;   // Department filter
+  role_id?: string | number; // Role filter
   search?: string;       // Search by name, email, or position
 };
 

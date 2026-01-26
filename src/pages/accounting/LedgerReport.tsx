@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
+
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
@@ -38,9 +40,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 // Dummy Data removed
 
 export default function LedgerReport() {
+    const [searchParams] = useSearchParams();
+    const initialAccountId = searchParams.get("accountId") || "";
+
     const [dateRange, setDateRange] = useState<DateRange | undefined>();
     const [openAccount, setOpenAccount] = useState(false);
-    const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+    const [selectedAccountId, setSelectedAccountId] = useState<string>(initialAccountId);
+
 
     // State for API params
     const [queryParams, setQueryParams] = useState<{ id: string; from?: string; to?: string } | null>(null);
@@ -70,6 +76,19 @@ export default function LedgerReport() {
             to: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
         });
     };
+
+    // Auto-generate if accountId is in URL
+    useEffect(() => {
+        if (initialAccountId) {
+            setSelectedAccountId(initialAccountId);
+            setQueryParams({
+                id: initialAccountId,
+                from: undefined,
+                to: undefined,
+            });
+        }
+    }, [initialAccountId]);
+
 
     // Calculate totals
     const totalDebit = transactions.reduce((sum, tx) => sum + Number(tx.debit || 0), 0);

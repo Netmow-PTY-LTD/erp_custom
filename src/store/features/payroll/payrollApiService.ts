@@ -22,6 +22,8 @@ export interface PayrollItem {
     deductions: { name: string; amount: number }[];
     gross_pay: number;
     net_pay: number;
+    paid_amount?: number;
+    payment_status?: "unpaid" | "partial" | "paid";
     created_at: string;
     updated_at: string;
 }
@@ -45,9 +47,39 @@ export interface PayrollQueryParams {
     month?: string;
 }
 
+export interface PayrollAdvanceReturn {
+    id: number;
+    advance_id: number;
+    amount: number;
+    return_date: string;
+    remarks: string | null;
+    created_at: string;
+}
+
+export interface PayrollAdvance {
+    id: number;
+    staff_id: number;
+    amount: number;
+    advance_date: string;
+    reason: string | null;
+    status: 'pending' | 'approved' | 'paid' | 'returned' | 'cancelled';
+    returned_amount: number;
+    returned_date: string | null;
+    remarks: string | null;
+    created_at: string;
+    updated_at: string;
+    returns?: PayrollAdvanceReturn[];
+    staff?: {
+        id: number;
+        first_name: string;
+        last_name: string;
+        email: string;
+    };
+}
+
 export const payrollApiService = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // Get all payroll runs
+        // ... (existing endpoints)
         getAllPayrollRuns: builder.query<PayrollResponse<PayrollRun[]>, PayrollQueryParams | void>({
             query: (params) => ({
                 url: "/payroll",
@@ -57,7 +89,6 @@ export const payrollApiService = baseApi.injectEndpoints({
             providesTags: ["Payroll"],
         }),
 
-        // Get single payroll run by ID
         getPayrollRunById: builder.query<PayrollResponse<PayrollRun>, number>({
             query: (id) => ({
                 url: `/payroll/${id}`,
@@ -66,7 +97,6 @@ export const payrollApiService = baseApi.injectEndpoints({
             providesTags: ["Payroll"],
         }),
 
-        // Generate payroll run
         generatePayrollRun: builder.mutation<PayrollResponse<PayrollRun>, { month: string; staff_ids?: number[] }>({
             query: (body) => ({
                 url: "/payroll/generate",
@@ -76,7 +106,6 @@ export const payrollApiService = baseApi.injectEndpoints({
             invalidatesTags: ["Payroll"],
         }),
 
-        // Approve payroll run
         approvePayrollRun: builder.mutation<PayrollResponse<PayrollRun>, number>({
             query: (id) => ({
                 url: `/payroll/${id}/approve`,
@@ -85,7 +114,6 @@ export const payrollApiService = baseApi.injectEndpoints({
             invalidatesTags: ["Payroll"],
         }),
 
-        // Pay payroll run
         payPayrollRun: builder.mutation<PayrollResponse<PayrollRun>, number>({
             query: (id) => ({
                 url: `/payroll/${id}/pay`,
@@ -94,10 +122,54 @@ export const payrollApiService = baseApi.injectEndpoints({
             invalidatesTags: ["Payroll"],
         }),
 
-        // Delete payroll run
         deletePayrollRun: builder.mutation<PayrollResponse<null>, number>({
             query: (id) => ({
                 url: `/payroll/${id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["Payroll"],
+        }),
+
+        // Advance Endpoints
+        getAllAdvances: builder.query<PayrollResponse<PayrollAdvance[]>, { staff_id?: number, status?: string, month?: string, page?: number, limit?: number } | void>({
+            query: (params) => ({
+                url: "/payroll/advances",
+                method: "GET",
+                params: params || undefined,
+            }),
+            providesTags: ["Payroll"],
+        }),
+
+        createAdvance: builder.mutation<PayrollResponse<PayrollAdvance>, Partial<PayrollAdvance>>({
+            query: (body) => ({
+                url: "/payroll/advances",
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: ["Payroll"],
+        }),
+
+        updateAdvance: builder.mutation<PayrollResponse<PayrollAdvance>, { id: number; body: Partial<PayrollAdvance> }>({
+            query: ({ id, body }) => ({
+                url: `/payroll/advances/${id}`,
+                method: "PATCH",
+                body,
+            }),
+            invalidatesTags: ["Payroll"],
+        }),
+
+        returnAdvance: builder.mutation<PayrollResponse<PayrollAdvanceReturn>, { id: number; body: { amount: number, return_date: string, remarks?: string } }>({
+            query: ({ id, body }) => ({
+                url: `/payroll/advances/${id}/return`,
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: ["Payroll"],
+        }),
+
+        deleteAdvance: builder.mutation<PayrollResponse<null>, number>({
+            query: (id) => ({
+                url: `/payroll/advances/${id}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Payroll"],
@@ -112,4 +184,11 @@ export const {
     useApprovePayrollRunMutation,
     usePayPayrollRunMutation,
     useDeletePayrollRunMutation,
+    useGetAllAdvancesQuery,
+    useCreateAdvanceMutation,
+    useUpdateAdvanceMutation,
+    useReturnAdvanceMutation, // Exporting the new mutation
+    useDeleteAdvanceMutation,
 } = payrollApiService;
+
+
