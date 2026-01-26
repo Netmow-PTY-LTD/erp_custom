@@ -50,4 +50,6 @@ export interface Staff {
       bank_name: string;
     };
   };
+  total_advance?: number;
+  total_returned?: number;
 }

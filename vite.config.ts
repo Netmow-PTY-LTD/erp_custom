@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+// Force Vite Config Reload
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from "path"
@@ -21,6 +22,9 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  optimizeDeps: {
+    include: ['leaflet', 'react-leaflet'],
   },
 })
 
