@@ -176,14 +176,17 @@ import Attendance from "@/pages/HrAndPayroll/Attendance";
 // import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
 import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
 import Payslips from "@/pages/HrAndPayroll/Payslips";
+
 import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
+
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
+import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
+import ReturnedPurchaseOrders from "@/pages/suppliers/purchaseOrder/ReturnedPurchaseOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
 import ProductsByStaff from "@/pages/products/ProductsByStaff";
 import DatabaseTables from "@/pages/data_management/DatabaseTables";
-import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
 import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
 import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 
@@ -851,6 +854,16 @@ export const sidebarItemLink = [
         title: "List of Purchase Orders",
         url: "/dashboard/purchase-orders",
         element: <PurchaseOrdersList />,
+        icon: List,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Returned Purchase Orders",
+        url: "/dashboard/purchase-orders/returned",
+        element: <ReturnedPurchaseOrders />,
         icon: List,
         allowedPermissions: [
           SupplierPermission.LIST,

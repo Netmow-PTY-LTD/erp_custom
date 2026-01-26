@@ -58,6 +58,7 @@ const orderSchema = z
         unit_cost: z.number().min(1, "Unit price must be at least 1"),
         discount: z.number().min(0, "Discount must be 0 or more"),
         purchase_tax: z.number().min(0, "Purchase tax must be 0 or more"),
+        stock_quantity: z.number().optional(),
       })
     ),
   })
@@ -106,6 +107,7 @@ export default function CreatePurchaseOrderPage() {
           unit_cost: 0,
           discount: 0,
           purchase_tax: 0,
+          stock_quantity: 0,
         },
       ],
     },
@@ -282,6 +284,7 @@ export default function CreatePurchaseOrderPage() {
         setValue(`items.${index}.sku`, product.sku || "");
         setValue(`items.${index}.specification`, product.specification || "");
         setValue(`items.${index}.unit`, product.unit?.name || "");
+        setValue(`items.${index}.stock_quantity`, product.stock_quantity || 0);
       }
     };
 
@@ -508,6 +511,7 @@ export default function CreatePurchaseOrderPage() {
                         unit_cost: 0,
                         discount: 0,
                         purchase_tax: 0,
+                        stock_quantity: 0,
                       })
                     }
                     className="flex items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
@@ -634,12 +638,12 @@ export default function CreatePurchaseOrderPage() {
                         )}
                       />
 
-                      {/* Stock (Placeholder for now as PO shouldn't strictly depend on stock but handy to see) */}
+                      {/* Stock */}
                       <div className="w-20 xl:w-16">
                         <label className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold block mb-1">Stock</label>
                         <Input
                           type="number"
-                          value={0}
+                          value={items[index].stock_quantity || 0}
                           readOnly
                           className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-center"
                         />
@@ -878,6 +882,7 @@ export default function CreatePurchaseOrderPage() {
               unit_cost: Number(product.cost) || 0,
               discount: 0,
               purchase_tax: product.purchase_tax ?? 0,
+              stock_quantity: product.stock_quantity ?? 0,
             });
           });
 
