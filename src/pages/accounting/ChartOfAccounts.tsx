@@ -3,7 +3,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, ChevronsUpDown, Check, ShieldAlert } from "lucide-react";
+import { Plus, Edit, ChevronsUpDown, Check, ShieldAlert, FileText } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -36,6 +37,8 @@ import { Popover } from "@radix-ui/react-popover";
 import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import { Link, useNavigate } from "react-router";
+
 
 import {
     type ChartOfAccount,
@@ -57,7 +60,9 @@ type CreateAccountFormValues = {
 };
 
 export default function ChartOfAccounts() {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
+
     const [page, setPage] = useState(1);
     const [limit] = useState(200);
     const [search, setSearch] = useState("");
@@ -198,20 +203,56 @@ export default function ChartOfAccounts() {
             cell: ({ row }) => (
                 <div className="flex items-center" style={{ paddingLeft: `${row.original.level * 20}px` }}>
                     {row.original.level > 0 && <span className="mr-2 text-muted-foreground">└─</span>}
-                    <span className={row.original.level === 0 ? "font-semibold" : ""}>{row.original.name}</span>
+                    <Link
+                        to={`/dashboard/accounting/reports/ledger?accountId=${row.original.id}`}
+                        className={cn(
+                            "hover:underline hover:text-primary transition-colors",
+                            row.original.level === 0 ? "font-semibold text-foreground" : "text-muted-foreground"
+                        )}
+                    >
+                        {row.original.name}
+                    </Link>
                 </div>
             ),
+
         },
         { accessorKey: "type", header: "Type", cell: ({ row }) => <Badge variant="outline">{row.original.type}</Badge> },
+        {
+            accessorKey: "debit",
+            header: "Debit",
+            cell: ({ row }) => <span className="font-medium text-emerald-600">RM {Number(row.original.debit || 0).toLocaleString()}</span>
+        },
+        {
+            accessorKey: "credit",
+            header: "Credit",
+            cell: ({ row }) => <span className="font-medium text-rose-600">RM {Number(row.original.credit || 0).toLocaleString()}</span>
+        },
         {
             id: "actions",
             header: () => <div className="text-right">Actions</div>,
             cell: ({ row }) => (
                 <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => onEdit(row.original)}><Edit className="h-4 w-4" /></Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-primary hover:text-primary hover:bg-primary/10"
+                        title="View Ledger"
+                        onClick={() => navigate(`/dashboard/accounting/reports/ledger?accountId=${row.original.id}`)}
+                    >
+                        <FileText className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Edit Account"
+                        onClick={() => onEdit(row.original)}
+                    >
+                        <Edit className="h-4 w-4" />
+                    </Button>
                     {/* <Button variant="ghost" size="icon" className="text-destructive" onClick={() => onDelete(row.original.id)}><Trash2 className="h-4 w-4" /></Button> */}
                 </div>
             ),
+
         },
     ];
 
@@ -220,8 +261,8 @@ export default function ChartOfAccounts() {
 
 
 
-    
-        const hasDialogPermission = editingAccount ? canEditAccount : canCreateAccount;
+
+    const hasDialogPermission = editingAccount ? canEditAccount : canCreateAccount;
 
 
 

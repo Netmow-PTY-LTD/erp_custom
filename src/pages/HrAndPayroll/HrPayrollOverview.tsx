@@ -14,20 +14,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import {
     useDeleteStaffMutation,
     useGetAllStaffsQuery,
     useUpdatePayrollStructureMutation,
     useGetStaffByIdQuery,
     useGetPayrollStructureQuery,
 } from "@/store/features/staffs/staffApiService";
-import { useGetStaffAttendanceByIdQuery } from "@/store/features/attendence/attendenceApiService";
+
+
+
 import type { Department } from "@/types/types";
 import type { Staff } from "@/types/staff.types";
 import type { Role } from "@/types/users.types";
@@ -50,9 +45,6 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store/store";
-
 
 
 // Simple modal
@@ -88,17 +80,13 @@ function ConfirmModal({
 
 
 
-// Month names constant for date formatting
-const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
+
 
 export default function HrPayrollOverview() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [limit] = useState(10);
 
-    // Get auth token from Redux
-    const token = useSelector((state: RootState) => state.auth.token);
     const navigate = useNavigate();
 
     const { data: staffsData, isLoading } = useGetAllStaffsQuery({
@@ -180,128 +168,11 @@ export default function HrPayrollOverview() {
         }
     };
 
-    // -----------------------
-    // ATTENDANCE HANDLER
-    // -----------------------
-    const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
-    const [viewingAttendanceStaff, setViewingAttendanceStaff] = useState<Staff | null>(null);
-
-    // Set default month to current month and year
-    const currentDate = new Date();
-    const currentMonthName = MONTH_NAMES[currentDate.getMonth()];
-    const currentYear = currentDate.getFullYear().toString();
-
-    const [attendanceMonth, setAttendanceMonth] = useState(currentMonthName);
-    const [attendanceYear, setAttendanceYear] = useState(currentYear);
-    const [customPayrollAmount, setCustomPayrollAmount] = useState("");
-    const [isProcessingPayroll, setIsProcessingPayroll] = useState(false);
-
-    // Fetch Attendance Data
-    // Convert month name to number and format as YYYY-MM
-    const monthString = useMemo(() => {
-        const monthNumber = (MONTH_NAMES.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
-        return `${attendanceYear}-${monthNumber}`;
-    }, [attendanceMonth, attendanceYear]);
-
-    const { data: attendanceData, isLoading: isLoadingAttendance } = useGetStaffAttendanceByIdQuery(
-        {
-            staffId: viewingAttendanceStaff?.id as number,
-            limit: 31, // Fetch enough for a month overview
-            page: 1,
-            month: monthString // Pass the formatted month string
-        },
-        { skip: !viewingAttendanceStaff?.id }
-    );
-
-    const attendanceRecords = attendanceData?.data || [];
-
-    // Debug: Log filter parameters and response
-    useEffect(() => {
-        if (viewingAttendanceStaff?.id) {
-            console.log('Attendance Filter:', {
-                staffId: viewingAttendanceStaff.id,
-                staffName: `${viewingAttendanceStaff.first_name} ${viewingAttendanceStaff.last_name}`,
-                month: attendanceMonth,
-                year: attendanceYear,
-                monthString,
-                recordsCount: attendanceRecords.length
-            });
-        }
-    }, [viewingAttendanceStaff, attendanceMonth, attendanceYear, monthString, attendanceRecords.length]);
-
-    // Calculate Stats from fetched records
-    const attendanceStats = useMemo(() => {
-        let present = 0;
-        let absent = 0;
-        let late = 0;
-        let leaves = 0;
-
-        attendanceRecords.forEach((record: any) => {
-            const status = record.status?.toLowerCase() || "";
-            if (status === "present") present++;
-            else if (status === "absent") absent++;
-            else if (status === "late") late++;
-            else if (status.includes("leave")) leaves++;
-        });
-
-        return { present, absent, late, leaves };
-    }, [attendanceRecords]);
 
     const handleAttendanceClick = (staff: Staff) => {
-        setViewingAttendanceStaff(staff);
-        setAttendanceModalOpen(true);
+        navigate(`/dashboard/payroll/${staff.id}/payroll-run`);
     };
 
-    // Process Payroll Handler
-    const handleProcessPayroll = async () => {
-        if (!viewingAttendanceStaff) return;
-
-        setIsProcessingPayroll(true);
-        try {
-            // Convert month name to number (January = 1, etc.)
-            const monthNumber = (MONTH_NAMES.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
-            const monthString = `${attendanceYear}-${monthNumber}`;
-
-            // Call the generate payroll API
-            const response = await fetch('http://localhost:5000/api/payroll/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    month: monthString,
-                    staff_ids: [viewingAttendanceStaff.id] // Process only this staff
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.status) {
-                toast.success(`Payroll processed successfully for ${attendanceMonth} ${attendanceYear}!`);
-                setAttendanceModalOpen(false);
-            } else {
-                toast.error(data.message || 'Failed to process payroll');
-            }
-        } catch (error) {
-            console.error('Error processing payroll:', error);
-            toast.error('An error occurred while processing payroll');
-        } finally {
-            setIsProcessingPayroll(false);
-        }
-    };
-
-    // View Payslip Handler
-    const handleViewPayslip = () => {
-        if (!viewingAttendanceStaff) return;
-
-        // Convert month name to number for the month string
-        const monthNumber = (MONTH_NAMES.indexOf(attendanceMonth) + 1).toString().padStart(2, '0');
-        const monthString = `${attendanceYear}-${monthNumber}`;
-
-        // Navigate to payslips page with query parameters
-        navigate(`/dashboard/payroll/payslips?month=${monthString}&staffId=${viewingAttendanceStaff.id}`);
-    };
 
     // -----------------------
     // SALARY MANAGE HANDLER
@@ -357,7 +228,6 @@ export default function HrPayrollOverview() {
 
     const handleSalaryClick = (staff: Staff) => {
         setEditingSalaryStaff(staff);
-        // Initial set from list data (optional, but good for immediate feedback)
         setSalaryForm({
             basic_salary: staff.basic_salary || 0,
             bank_name: staff.bank_details?.bank_name || "",
@@ -368,6 +238,15 @@ export default function HrPayrollOverview() {
         });
         setSalaryModalOpen(true);
     };
+
+    // -----------------------
+    // -----------------------
+    // ADVANCE MANAGE HANDLER
+    // -----------------------
+    const handleAdvanceClick = (staff: Staff) => {
+        navigate(`/dashboard/payroll/${staff.id}/advance`);
+    };
+
 
     const addAllowance = () => {
         setSalaryForm(prev => ({
@@ -542,7 +421,23 @@ export default function HrPayrollOverview() {
             header: "Basic Salary",
             cell: ({ row }) => {
                 const salary = row.original.basic_salary || row.original.salary || 0;
-                return <span>{salary.toLocaleString()}</span>
+                return <span className="font-medium">{salary.toLocaleString()}</span>
+            }
+        },
+        {
+            accessorKey: "total_advance",
+            header: "Advance",
+            cell: ({ row }) => {
+                const amount = Number(row.original.total_advance || 0);
+                return <span className="font-semibold text-rose-600">{amount > 0 ? amount.toLocaleString() : "-"}</span>
+            }
+        },
+        {
+            accessorKey: "total_returned",
+            header: "Returned",
+            cell: ({ row }) => {
+                const amount = Number(row.original.total_returned || 0);
+                return <span className="font-semibold text-emerald-600">{amount > 0 ? amount.toLocaleString() : "-"}</span>
             }
         },
 
@@ -611,7 +506,15 @@ export default function HrPayrollOverview() {
                             className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200"
                             onClick={() => handleAttendanceClick(item)}
                         >
-                            <CalendarCheck className="w-4 h-4 mr-1" /> Attendance
+                            <CalendarCheck className="w-4 h-4 mr-1" /> Payroll Run
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-orange-50 text-orange-600 hover:bg-orange-100 border-orange-200"
+                            onClick={() => handleAdvanceClick(item)}
+                        >
+                            <ArrowUpCircle className="w-4 h-4 mr-1" /> Advance
                         </Button>
                         <Link to={`/dashboard/staffs/${item.id}`}>
                             <Button size="sm" variant="outline-info">
@@ -833,270 +736,6 @@ export default function HrPayrollOverview() {
                 message={`Are you sure you want to delete ${selectedStaff?.first_name} ${selectedStaff?.last_name}?`}
             />
 
-            {/* ATTENDANCE SUMMARY MODAL */}
-            <Dialog open={attendanceModalOpen} onOpenChange={setAttendanceModalOpen}>
-                <DialogContent className="sm:max-w-3xl">
-                    <DialogHeader>
-                        <div className="flex justify-between items-center mr-6">
-                            <div>
-                                <DialogTitle>Attendance Record: {viewingAttendanceStaff?.first_name}</DialogTitle>
-                                <DialogDescription>
-                                    Summary for {attendanceMonth} {attendanceYear}
-                                </DialogDescription>
-                            </div>
-                            <div className="flex gap-2">
-                                <Select value={attendanceMonth} onValueChange={setAttendanceMonth}>
-                                    <SelectTrigger className="w-[120px]">
-                                        <SelectValue placeholder="Month" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="January">January</SelectItem>
-                                        <SelectItem value="February">February</SelectItem>
-                                        <SelectItem value="March">March</SelectItem>
-                                        <SelectItem value="April">April</SelectItem>
-                                        <SelectItem value="May">May</SelectItem>
-                                        <SelectItem value="June">June</SelectItem>
-                                        <SelectItem value="July">July</SelectItem>
-                                        <SelectItem value="August">August</SelectItem>
-                                        <SelectItem value="September">September</SelectItem>
-                                        <SelectItem value="October">October</SelectItem>
-                                        <SelectItem value="November">November</SelectItem>
-                                        <SelectItem value="December">December</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Select value={attendanceYear} onValueChange={setAttendanceYear}>
-                                    <SelectTrigger className="w-[100px]">
-                                        <SelectValue placeholder="Year" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {Array.from({ length: new Date().getFullYear() - 2023 }, (_, i) => 2024 + i).map(year => (
-                                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    </DialogHeader>
-
-                    <div className="space-y-6 py-4">
-                        {isLoadingAttendance ? (
-                            <div className="text-center py-10 text-gray-500">Loading attendance records...</div>
-                        ) : (
-                            <>
-                                {/* Summary Cards */}
-                                <div className="grid grid-cols-4 gap-4">
-                                    <Card className="bg-green-50 border-green-100 shadow-sm">
-                                        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                                            <span className="text-2xl font-bold text-green-700">{attendanceStats.present}</span>
-                                            <span className="text-xs font-semibold text-green-600 uppercase">Present</span>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="bg-red-50 border-red-100 shadow-sm">
-                                        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                                            <span className="text-2xl font-bold text-red-700">{attendanceStats.absent}</span>
-                                            <span className="text-xs font-semibold text-red-600 uppercase">Absent</span>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="bg-orange-50 border-orange-100 shadow-sm">
-                                        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                                            <span className="text-2xl font-bold text-orange-700">{attendanceStats.late}</span>
-                                            <span className="text-xs font-semibold text-orange-600 uppercase">Late</span>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="bg-blue-50 border-blue-100 shadow-sm">
-                                        <CardContent className="p-4 flex flex-col items-center justify-center text-center">
-                                            <span className="text-2xl font-bold text-blue-700">{attendanceStats.leaves}</span>
-                                            <span className="text-xs font-semibold text-blue-600 uppercase">Leaves</span>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Recent Activity Table */}
-                                <div className="border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
-                                    <table className="w-full text-sm text-left">
-                                        <thead className="bg-gray-50 text-gray-500 font-medium border-b sticky top-0">
-                                            <tr>
-                                                <th className="px-4 py-3">Date</th>
-                                                <th className="px-4 py-3">Status</th>
-                                                <th className="px-4 py-3">Check In</th>
-                                                <th className="px-4 py-3">Check Out</th>
-                                                <th className="px-4 py-3">Work Hours</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y relative z-0">
-                                            {attendanceRecords.length > 0 ? (
-                                                attendanceRecords.map((record: any, idx: number) => (
-                                                    <tr key={idx}>
-                                                        <td className="px-4 py-3">{new Date(record.date).toLocaleDateString()}</td>
-                                                        <td className="px-4 py-3">
-                                                            <Badge className={`
-                                                    ${record.status === 'Present' ? 'bg-green-100 text-green-700 hover:bg-green-100' : ''}
-                                                    ${record.status === 'Absent' ? 'bg-red-100 text-red-700 hover:bg-red-100' : ''}
-                                                    ${record.status === 'Late' ? 'bg-orange-100 text-orange-700 hover:bg-orange-100' : ''}
-                                                    ${record.status?.includes('Leave') ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' : ''}
-                                                `}>
-                                                                {record.status}
-                                                            </Badge>
-                                                        </td>
-                                                        <td className="px-4 py-3">{record.check_in || "-"}</td>
-                                                        <td className="px-4 py-3">{record.check_out || "-"}</td>
-                                                        <td className="px-4 py-3">{record.working_hours || "0h 0m"}</td>
-                                                    </tr>
-                                                ))
-                                            ) : (
-                                                <tr>
-                                                    <td colSpan={5} className="text-center py-4 text-gray-500">No attendance records found.</td>
-                                                </tr>
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Salary Structure Reference (Read-Only) */}
-                    {viewingAttendanceStaff && (() => {
-                        // Extract payroll data from payrollStructure or fallback to staff object
-                        const payroll = viewingAttendanceStaff.payrollStructure || viewingAttendanceStaff;
-                        const basicSalary = Number(payroll.basic_salary) || Number(viewingAttendanceStaff.salary) || 0;
-                        const allowances = payroll.allowances || [];
-                        const deductions = payroll.deductions || [];
-                        const totalAllowances = allowances.reduce((sum: number, i: any) => sum + Number(i.amount), 0);
-                        const totalDeductions = deductions.reduce((sum: number, i: any) => sum + Number(i.amount), 0);
-                        const grossSalary = basicSalary + totalAllowances;
-                        const netSalary = grossSalary - totalDeductions;
-
-                        return (
-                            <>
-                                <Card className="bg-slate-50 border-slate-200">
-                                    <CardHeader className="py-3 px-4 border-b border-slate-200">
-                                        <h4 className="font-semibold text-slate-700 flex items-center gap-2 text-sm">
-                                            <Wallet className="w-4 h-4" /> Salary Structure Reference
-                                        </h4>
-                                    </CardHeader>
-                                    <CardContent className="p-4">
-                                        <div className="grid grid-cols-2 gap-8 text-sm">
-                                            {/* Allowances */}
-                                            <div>
-                                                <h5 className="font-medium text-emerald-700 mb-2 border-b border-emerald-100 pb-1">Allowances (Additions)</h5>
-                                                <ul className="space-y-1">
-                                                    <li className="flex justify-between">
-                                                        <span className="text-slate-600">Basic Salary</span>
-                                                        <span className="font-medium text-slate-800">
-                                                            {basicSalary.toLocaleString()}
-                                                        </span>
-                                                    </li>
-                                                    {allowances.map((item: any, idx: number) => (
-                                                        <li key={idx} className="flex justify-between">
-                                                            <span className="text-slate-600">{item.name || "Allowance"}</span>
-                                                            <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
-                                                        </li>
-                                                    ))}
-                                                    {allowances.length === 0 && (
-                                                        <li className="text-xs text-slate-400 italic">No additional allowances</li>
-                                                    )}
-                                                </ul>
-                                            </div>
-
-                                            {/* Deductions */}
-                                            <div>
-                                                <h5 className="font-medium text-rose-700 mb-2 border-b border-rose-100 pb-1">Deductions (Subtractions)</h5>
-                                                <ul className="space-y-1">
-                                                    {deductions.map((item: any, idx: number) => (
-                                                        <li key={idx} className="flex justify-between">
-                                                            <span className="text-slate-600">{item.name || "Deduction"}</span>
-                                                            <span className="font-medium text-slate-800">{Number(item.amount).toLocaleString()}</span>
-                                                        </li>
-                                                    ))}
-                                                    {deductions.length === 0 && (
-                                                        <li className="text-xs text-slate-400 italic">No deductions defined</li>
-                                                    )}
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        {/* Net Summary Small */}
-                                        <div className="mt-4 pt-3 border-t border-slate-200 flex justify-end gap-6 text-sm font-semibold">
-                                            <div className="text-emerald-700">
-                                                Gross: {grossSalary.toLocaleString()}
-                                            </div>
-                                            <div className="text-slate-800">
-                                                Net Payable: {netSalary.toLocaleString()}
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Payable for Selected Month Card */}
-                                <Card className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg border-none mt-6">
-                                    <CardContent className="p-6">
-                                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                                            <div className="flex-1">
-                                                <p className="text-emerald-100 font-medium mb-1">
-                                                    Estimated Payable for {attendanceMonth} {attendanceYear}
-                                                </p>
-                                                <h3 className="text-4xl font-bold flex items-baseline">
-                                                    <span className="text-xl mr-1 font-normal opacity-80">RM</span>
-                                                    {netSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                                </h3>
-                                                <div className="flex items-center gap-2 mt-2 mb-4">
-                                                    <Badge className="bg-white/20 hover:bg-white/30 text-white border-none">
-                                                        Status: Pending
-                                                    </Badge>
-                                                    <span className="text-xs text-emerald-100 opacity-80">
-                                                        (Based on 30 working days)
-                                                    </span>
-                                                </div>
-
-                                                <div className="max-w-xs">
-                                                    <label className="text-xs text-emerald-100 font-semibold uppercase tracking-wider mb-1 block">
-                                                        Override Amount
-                                                    </label>
-                                                    <div className="relative">
-                                                        <span className="absolute left-3 top-2.5 text-emerald-700 font-bold">RM</span>
-                                                        <Input
-                                                            type="number"
-                                                            placeholder="Enter custom amount..."
-                                                            className="pl-10 bg-white/90 border-none text-emerald-900 placeholder:text-emerald-900/50 focus-visible:ring-emerald-500"
-                                                            value={customPayrollAmount}
-                                                            onChange={(e) => setCustomPayrollAmount(e.target.value)}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col gap-2 min-w-[150px]">
-                                                <Button
-                                                    className="bg-white text-emerald-700 hover:bg-emerald-50 font-bold shadow-md"
-                                                    onClick={handleProcessPayroll}
-                                                    disabled={isProcessingPayroll}
-                                                >
-                                                    <Wallet className="w-4 h-4 mr-2" />
-                                                    {isProcessingPayroll ? 'Processing...' : 'Process Payroll'}
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    className="border-emerald-400 text-emerald-100 hover:bg-emerald-700 hover:text-white bg-transparent"
-                                                    onClick={handleViewPayslip}
-                                                >
-                                                    View Slip
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </>
-                        );
-                    })()}
-
-                    <DialogFooter>
-
-                        <Button onClick={() => setAttendanceModalOpen(false)}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
 
             {/* SALARY SETUP MODAL */}
             <Dialog open={salaryModalOpen} onOpenChange={setSalaryModalOpen}>
@@ -1289,6 +928,8 @@ export default function HrPayrollOverview() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+
         </div>
     );
 }

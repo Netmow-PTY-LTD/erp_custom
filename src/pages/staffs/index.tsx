@@ -9,7 +9,9 @@ import {
   useDeleteStaffMutation,
   useGetAllStaffsQuery,
 } from "@/store/features/staffs/staffApiService";
+import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
 import { useAppSelector } from "@/store/store";
+
 import type { Department, Staff } from "@/types/types";
 import type { Role } from "@/types/users.types";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -23,7 +25,15 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
+
 
 // Simple modal
 function ConfirmModal({
@@ -59,19 +69,26 @@ function ConfirmModal({
 export default function Staffs() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [roleId, setRoleId] = useState<string>("all");
   const [limit] = useState(10);
 
-   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+
+  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
   // permissions
 
   const canDeleteStaff = userPermissions.includes(StaffPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  
+
   const { data: staffsData, isLoading } = useGetAllStaffsQuery({
     page,
     limit,
     search,
+    role_id: roleId === "all" ? undefined : roleId,
   });
+
+  const { data: rolesData } = useGetAllRolesQuery({ limit: 100 });
+  const roles = rolesData?.data ?? [];
+
   const staffsList = staffsData?.data as Staff[] | [];
   const [deleteStaff] = useDeleteStaffMutation();
 
@@ -252,15 +269,15 @@ export default function Staffs() {
             </Link>
 
             {canDeleteStaff &&
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleDeleteClick(item)}
-            >
-              <Trash className="w-4 h-4 mr-1" />
-            </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => handleDeleteClick(item)}
+              >
+                <Trash className="w-4 h-4 mr-1" />
+              </Button>
             }
-            
+
           </div>
         );
       },
@@ -312,9 +329,26 @@ export default function Staffs() {
       </div>
 
       <Card className="pt-6 pb-2">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>All Staffs</CardTitle>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Filter by Role:</span>
+            <Select value={roleId} onValueChange={(val) => { setRoleId(val); setPage(1); }}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Roles" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Roles</SelectItem>
+                {roles.map((role) => (
+                  <SelectItem key={role.id} value={String(role.id)}>
+                    {role.display_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
+
         <CardContent>
           {isLoading ? (
             <p>Loading...</p>

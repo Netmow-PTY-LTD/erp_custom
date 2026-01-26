@@ -22,12 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-} from "@/components/ui/dropdown-menu";
-import { Calendar } from "@/components/ui/calendar";
+
+
 import { CalendarPlus, Info } from "lucide-react";
 import LeaveRequestModal from "../leaves/LeaveRequestModal";
 import ShortLeaveRequestModal from "../leaves/ShortLeaveModal";
@@ -35,7 +31,7 @@ import AttendanceDetailsModal from "./AttendanceDetailsModal";
 
 export default function AttendancePage() {
   const today = new Date();
-  const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const [selectedDate] = useState<Date>(today);
   const [currentStaff, setCurrentStaff] = useState<Staff | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [leaveRequestModalOpen, setLeaveRequestModalOpen] = useState(false);
@@ -66,10 +62,7 @@ export default function AttendancePage() {
   const totalCount = staffsData?.pagination?.total || 0;
   const totalPages = staffsData?.pagination?.totalPage || 1;
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (!date) return;
-    setSelectedDate(date);
-  };
+
 
   const handleOpenModal = (staff: Staff) => {
     setCurrentStaff(staff);
