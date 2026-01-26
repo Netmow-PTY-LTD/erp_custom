@@ -66,7 +66,7 @@ import EditStaff from "@/pages/staffs/edit";
 import EditCustomerPage from "@/pages/customer/EditCustomerPage";
 import CustomerViewPage from "@/pages/customer/CustomerViewPage";
 import CustomersMapPage from "@/pages/customer/CustomersMapPage";
-import AccountSettings from "@/pages/Settings/pages/Account";
+//import AccountSettings from "@/pages/Settings/pages/Account";
 import InventoryReports from "@/pages/reports/InventoryReports";
 import SettingsSidebarLayout from "@/pages/Settings/Settings";
 //import Roles from "@/pages/roles";
@@ -189,6 +189,9 @@ import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
 import ProductsByStaff from "@/pages/products/ProductsByStaff";
 import DatabaseTables from "@/pages/data_management/DatabaseTables";
+import ReturnedPurchaseOrders from "@/pages/suppliers/purchaseOrder/ReturnedPurchaseOrders";
+import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
+import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -861,6 +864,16 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "Returned Purchase Orders",
+        url: "/dashboard/purchase-orders/returned",
+        element: <ReturnedPurchaseOrders />,
+        icon: List,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Add New Order",
         url: "/dashboard/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
@@ -1478,13 +1491,6 @@ export const sidebarItemLink = [
     ],
   },
 
-
-  {
-    title: "",
-    url: "/dashboard/settings/profile",
-    element: <MyProfileSettings />,
-  },
-
   // REPORTS
   {
     title: "Reports",
@@ -1588,13 +1594,23 @@ export const sidebarItemLink = [
     url: "/dashboard/settings",
     icon: Settings,
     layout: <SettingsSidebarLayout />,
+    element: <SettingsSidebarLayout />,
     allowedPermissions: [
       SettingsPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
       {
-        title: "Profile",
+        title: "",
+        url: "/dashboard/settings",
+        element: <EditProfilePage />,
+        allowedPermissions: [
+          SettingsPermission.PROFILE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
         url: "/dashboard/settings/profile",
         element: <MyProfileSettings />,
         allowedPermissions: [
@@ -1602,13 +1618,12 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-
       {
-        title: "Account",
-        url: "/dashboard/settings/account",
-        element: <AccountSettings />,
+        title: "",
+        url: "/dashboard/settings/layout",
+        element: <LayoutSettings />,
         allowedPermissions: [
-          SettingsPermission.ACCOUNT,
+          SettingsPermission.LAYOUT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
