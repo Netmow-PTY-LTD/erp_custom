@@ -85,6 +85,7 @@ export default function PosOrder() {
     const [search, setSearch] = useState("");
     const [newlyAddedCustomer, setNewlyAddedCustomer] = useState<any>(null);
     const currency = useAppSelector((state) => state.currency.value);
+    const posLayout = useAppSelector((state) => state.layout.pos);
 
     // API Hooks
     const { data: productsData } = useGetAllProductsQuery({
@@ -545,53 +546,86 @@ export default function PosOrder() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 lg:gap-4 overflow-y-auto p-1 pr-2 pb-4 lg:pb-1">
-                    {productsData?.data?.map((product) => {
-                        const stock = product.stock_quantity ?? 0;
-                        const isOutOfStock = stock <= 0;
-                        return (
-                            <Card
-                                key={product.id}
-                                className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 ${isOutOfStock ? 'opacity-60 grayscale' : ''}`}
-                                onClick={() => addToCart(product)}
-                            >
-                                <CardContent className="p-0">
-                                    <div className="aspect-square bg-muted relative">
-                                        {product.thumb_url ? (
-                                            <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="flex items-center justify-center h-full text-muted-foreground">
-                                                No Image
+                <div
+                    className="grid overflow-y-auto p-1 pr-2 pb-4 lg:pb-1"
+                    style={{
+                        gridTemplateColumns: `repeat(auto-fill, minmax(0, 1fr))`,
+                        display: 'grid',
+                        gap: `${posLayout.gap * 4}px`,
+                    }}
+                >
+                    <style>{`
+                        @media (min-width: 0px) {
+                            .pos-grid { grid-template-columns: repeat(${posLayout.columns.mobile}, minmax(0, 1fr)) !important; }
+                        }
+                        @media (min-width: 640px) {
+                            .pos-grid { grid-template-columns: repeat(${posLayout.columns.sm}, minmax(0, 1fr)) !important; }
+                        }
+                        @media (min-width: 768px) {
+                            .pos-grid { grid-template-columns: repeat(${posLayout.columns.md}, minmax(0, 1fr)) !important; }
+                        }
+                        @media (min-width: 1024px) {
+                            .pos-grid { grid-template-columns: repeat(${posLayout.columns.lg}, minmax(0, 1fr)) !important; }
+                        }
+                        @media (min-width: 1280px) {
+                            .pos-grid { grid-template-columns: repeat(${posLayout.columns.xl}, minmax(0, 1fr)) !important; }
+                        }
+                        @media (min-width: 1536px) {
+                            .pos-grid { grid-template-columns: repeat(${posLayout.columns.xxl}, minmax(0, 1fr)) !important; }
+                        }
+                    `}</style>
+                    <div className="pos-grid grid w-full col-span-full" style={{ gap: `${posLayout.gap * 4}px` }}>
+                        {productsData?.data?.map((product) => {
+                            const stock = product.stock_quantity ?? 0;
+                            const isOutOfStock = stock <= 0;
+                            return (
+                                <Card
+                                    key={product.id}
+                                    className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 ${isOutOfStock ? 'opacity-60 grayscale' : ''} ${posLayout.cardStyle === 'compact' ? 'h-fit' : ''} ${posLayout.cardStyle === 'bordered' ? 'border-muted-foreground/20' : ''}`}
+                                    onClick={() => addToCart(product)}
+                                >
+                                    <CardContent className={posLayout.cardStyle === 'compact' ? 'p-0' : 'p-0'}>
+                                        {posLayout.showImages && (
+                                            <div className={`${posLayout.cardStyle === 'compact' ? 'aspect-[16/9]' : 'aspect-square'} bg-muted relative`}>
+                                                {product.thumb_url ? (
+                                                    <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                                                        No Image
+                                                    </div>
+                                                )}
+                                                {!isOutOfStock && (
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Plus className="text-white w-8 h-8" />
+                                                    </div>
+                                                )}
+                                                {isOutOfStock && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                                                        <Badge variant="destructive">Out of Stock</Badge>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
-                                        {!isOutOfStock && (
-                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                <Plus className="text-white w-8 h-8" />
-                                            </div>
-                                        )}
-                                        {isOutOfStock && (
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                                                <Badge variant="destructive">Out of Stock</Badge>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-3">
-                                        <div className="font-semibold truncate" title={product.name}>{product.name}</div>
-                                        <div className="flex justify-between items-center mt-1">
-                                            <div className="text-xs text-muted-foreground">SKU: {product.sku}</div>
-                                            <div className={`text-xs font-medium px-1.5 py-0.5 rounded ${stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                Stock: {stock}
+                                        <div className={posLayout.cardStyle === 'compact' ? 'p-2' : 'p-3'}>
+                                            <div className="font-semibold truncate text-sm lg:text-base" title={product.name}>{product.name}</div>
+                                            {posLayout.cardStyle !== 'compact' && (
+                                                <div className="flex justify-between items-center mt-1">
+                                                    <div className="text-[10px] lg:text-xs text-muted-foreground">SKU: {product.sku}</div>
+                                                    <div className={`text-[10px] lg:text-xs font-medium px-1.5 py-0.5 rounded ${stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                        Stock: {stock}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className={`font-bold text-blue-600 ${posLayout.cardStyle === 'compact' ? 'mt-1 text-sm' : 'mt-2 text-base'} flex items-center gap-1`}>
+                                                {currency} {Number(product.price).toFixed(2)}
+                                                {product.unit?.name && <span className="text-[10px] lg:text-sm font-normal text-muted-foreground">/ {product.unit.name}</span>}
                                             </div>
                                         </div>
-                                        <div className="font-bold text-blue-600 mt-2 flex items-center gap-1">
-                                            {currency} {Number(product.price).toFixed(2)}
-                                            {product.unit?.name && <span className="text-sm font-normal text-muted-foreground">/ {product.unit.name}</span>}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        );
-                    })}
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
                     {productsData?.data?.length === 0 && (
                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
                             <Search className="w-12 h-12 mb-2 opacity-20" />

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter, Plus, ShieldAlert, Trash2,  } from "lucide-react";
+import { Calendar as CalendarIcon, Filter, Plus, ShieldAlert, Trash2, } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -126,7 +126,7 @@ export default function JournalReport() {
                             <CommandEmpty>No account found.</CommandEmpty>
                             <CommandGroup>
                                 {accounts.map((acc) => {
-                                   
+
                                     const level = acc.level || 0;
 
                                     return (
@@ -430,8 +430,8 @@ export default function JournalReport() {
                     <div className="text-center py-10">Loading journal entries...</div>
                 ) : (
                     reportData?.data?.map((entry) => (
-                        <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg">
-                            <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b border-emerald-100 dark:border-emerald-900 py-3 px-6 gap-0">
+                        <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg gap-4">
+                            <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b-1 border-emerald-100 dark:border-emerald-900 py-2 px-6 gap-0">
                                 <div className="flex justify-between items-center">
                                     <div className="flex flex-col gap-1">
                                         <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{entry.date}</span>
@@ -446,28 +446,28 @@ export default function JournalReport() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-muted/30 hover:bg-muted/30">
-                                            <TableHead className="w-[50%] py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Account Name</TableHead>
-                                            <TableHead className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Debit</TableHead>
-                                            <TableHead className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Credit</TableHead>
+                                            <TableHead className="w-[50%] py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Account Name</TableHead>
+                                            <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Debit</TableHead>
+                                            <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Credit</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {entry.entries.map((row) => (
                                             <TableRow key={row.id} className="hover:bg-muted/20 transition-colors">
-                                                <TableCell className="font-medium py-4 px-6">
+                                                <TableCell className="font-medium py-1.5 px-6">
                                                     <div className="flex flex-col">
                                                         <span className="text-gray-900 dark:text-gray-100">{row.account?.name}</span>
                                                         <span className="text-xs text-muted-foreground mt-0.5">Code: {row.account?.code}</span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-right py-4 px-6 font-mono text-gray-800 dark:text-gray-200">
+                                                <TableCell className="text-right py-1.5 px-6 font-mono text-gray-800 dark:text-gray-200">
                                                     {Number(row.debit) > 0 ? (
                                                         <span className="text-blue-600 dark:text-blue-400 font-semibold">{Number(row.debit).toFixed(2)}</span>
                                                     ) : (
                                                         <span className="text-gray-400">-</span>
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="text-right py-4 px-6 font-mono text-gray-800 dark:text-gray-200">
+                                                <TableCell className="text-right py-1.5 px-6 font-mono text-gray-800 dark:text-gray-200">
                                                     {Number(row.credit) > 0 ? (
                                                         <span className="text-green-600 dark:text-green-400 font-semibold">{Number(row.credit).toFixed(2)}</span>
                                                     ) : (
@@ -478,11 +478,11 @@ export default function JournalReport() {
                                         ))}
                                         {/* Footer for Check */}
                                         <TableRow className="bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 border-t-2 border-emerald-200 dark:border-emerald-800 font-bold">
-                                            <TableCell className="py-4 px-6 text-gray-800 dark:text-gray-100">Total</TableCell>
-                                            <TableCell className="text-right py-4 px-6 font-mono text-blue-700 dark:text-blue-300 text-base">
+                                            <TableCell className="py-1.5 px-6 text-gray-800 dark:text-gray-100">Total</TableCell>
+                                            <TableCell className="text-right py-1.5 px-6 font-mono text-blue-700 dark:text-blue-300 text-base">
                                                 {entry.entries.reduce((sum, item) => sum + Number(item.debit), 0).toFixed(2)}
                                             </TableCell>
-                                            <TableCell className="text-right py-4 px-6 font-mono text-green-700 dark:text-green-300 text-base">
+                                            <TableCell className="text-right py-1.5 px-6 font-mono text-green-700 dark:text-green-300 text-base">
                                                 {entry.entries.reduce((sum, item) => sum + Number(item.credit), 0).toFixed(2)}
                                             </TableCell>
                                         </TableRow>
