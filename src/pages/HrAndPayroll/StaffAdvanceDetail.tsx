@@ -193,7 +193,7 @@ export default function StaffAdvanceDetail() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* LEFT: ADVANCE ISSUANCE */}
                 <div className="space-y-6">
-                    <Card className="border-orange-100 shadow-sm overflow-hidden">
+                    <Card className="border-orange-100 shadow-sm overflow-hidden pb-6">
                         <CardHeader className="bg-orange-50 border-b-1 border-orange-100 py-3 gap-0">
                             <CardTitle className="text-orange-800 flex items-center gap-2">
                                 <PlusCircle className="w-5 h-5 text-orange-600" /> Issue New Advance
