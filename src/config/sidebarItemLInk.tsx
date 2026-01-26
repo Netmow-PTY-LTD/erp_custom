@@ -168,6 +168,8 @@ import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 import Help from "@/pages/help/Help";
 import EditCustomerByStaffPage from "@/pages/customer/EditCustomerByStaffPage";
 import HrPayrollOverview from "@/pages/HrAndPayroll/HrPayrollOverview";
+import StaffAdvanceDetail from "@/pages/HrAndPayroll/StaffAdvanceDetail";
+
 // import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
 // import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
 import Attendance from "@/pages/HrAndPayroll/Attendance";
@@ -178,17 +180,16 @@ import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
 import Payslips from "@/pages/HrAndPayroll/Payslips";
 
 import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
+import StaffPayrollRun from "@/pages/HrAndPayroll/StaffPayrollRun";
+
 
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
-import ReturnedPurchaseOrders from "@/pages/suppliers/purchaseOrder/ReturnedPurchaseOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
 import ProductsByStaff from "@/pages/products/ProductsByStaff";
 import DatabaseTables from "@/pages/data_management/DatabaseTables";
-import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
-import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -223,7 +224,16 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-    
+      {
+        title: "",
+        url: "/dashboard/products/:productId",
+        element: <ProductDetailsPage />,
+        allowedPermissions: [
+          ProductPermission.DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
       {
         title: "Products By Staff",
         url: "/dashboard/products-by-staff",
@@ -231,16 +241,6 @@ export const sidebarItemLink = [
         icon: List, // product list
         allowedPermissions: [
           ProductPermission.LIST_BY_STAFF,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-
-       {
-        title: "",
-        url: "/dashboard/products/:productId",
-        element: <ProductDetailsPage />,
-        allowedPermissions: [
-          ProductPermission.DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -862,16 +862,6 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "Returned Purchase Orders",
-        url: "/dashboard/purchase-orders/returned",
-        element: <ReturnedPurchaseOrders />,
-        icon: List,
-        allowedPermissions: [
-          SupplierPermission.LIST,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
         title: "Add New Order",
         url: "/dashboard/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
@@ -1331,6 +1321,25 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+      {
+        title: "",
+        url: "/dashboard/payroll/:staffId/advance",
+        element: <StaffAdvanceDetail />,
+        allowedPermissions: [
+          PayrollPermission.OVERVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/payroll/:staffId/payroll-run",
+        element: <StaffPayrollRun />,
+        allowedPermissions: [
+          PayrollPermission.OVERVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
       // {
       //   title: "Employment Details",
       //   url: "/dashboard/payroll/employment-details",
@@ -1342,7 +1351,7 @@ export const sidebarItemLink = [
       //   ],
       // },
       {
-        title: "Attendance",
+        title: "Manual Attendance",
         url: "/dashboard/payroll/attendance",
         element: <Attendance />,
         icon: CalendarCheck,
@@ -1351,16 +1360,16 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "Payroll Runs",
-        url: "/dashboard/payroll/payroll-runs",
-        element: <PayrollRuns />,
-        icon: BanknoteArrowDown,
-        allowedPermissions: [
-          PayrollPermission.PAYROLL_RUNS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
+      // {
+      //   title: "Payroll Runs",
+      //   url: "/dashboard/payroll/payroll-runs",
+      //   element: <PayrollRuns />,
+      //   icon: BanknoteArrowDown,
+      //   allowedPermissions: [
+      //     PayrollPermission.PAYROLL_RUNS,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
       {
         title: "Payslips",
         url: "/dashboard/payroll/payslips",
@@ -1471,6 +1480,12 @@ export const sidebarItemLink = [
   },
 
 
+  {
+    title: "",
+    url: "/dashboard/settings/profile",
+    element: <MyProfileSettings />,
+  },
+
   // REPORTS
   {
     title: "Reports",
@@ -1574,21 +1589,11 @@ export const sidebarItemLink = [
     url: "/dashboard/settings",
     icon: Settings,
     layout: <SettingsSidebarLayout />,
-    element: <SettingsSidebarLayout />,
     allowedPermissions: [
       SettingsPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
-      {
-        title: "Company Profile",
-        url: "/dashboard/settings",
-        element: <EditProfilePage />,
-        allowedPermissions: [
-          SettingsPermission.PROFILE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
       {
         title: "Profile",
         url: "/dashboard/settings/profile",
@@ -1605,15 +1610,6 @@ export const sidebarItemLink = [
         element: <AccountSettings />,
         allowedPermissions: [
           SettingsPermission.ACCOUNT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Layout Settings",
-        url: "/dashboard/settings/layout",
-        element: <LayoutSettings />,
-        allowedPermissions: [
-          SettingsPermission.LAYOUT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },

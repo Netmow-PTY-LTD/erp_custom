@@ -14,12 +14,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
     useDeleteStaffMutation,
     useGetAllStaffsQuery,
     useUpdatePayrollStructureMutation,
     useGetStaffByIdQuery,
     useGetPayrollStructureQuery,
 } from "@/store/features/staffs/staffApiService";
+import { useGetStaffAttendanceByIdQuery } from "@/store/features/attendence/attendenceApiService";
+import {
+    useGetAllAdvancesQuery,
+    useGetAllPayrollRunsQuery,
+} from "@/store/features/payroll/payrollApiService";
 
 
 
@@ -47,7 +59,8 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
-
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
 
 
@@ -84,13 +97,17 @@ function ConfirmModal({
 
 
 
-
+// Month names constant for date formatting
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
 
 export default function HrPayrollOverview() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [limit] = useState(10);
 
+    // Get auth token from Redux
+    const token = useSelector((state: RootState) => state.auth.token);
     const navigate = useNavigate();
 
     const { data: staffsData, isLoading } = useGetAllStaffsQuery({
@@ -172,7 +189,16 @@ export default function HrPayrollOverview() {
         }
     };
 
+    // -----------------------
+    // ATTENDANCE HANDLER
+    // -----------------------
+    const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
+    const [viewingAttendanceStaff, setViewingAttendanceStaff] = useState<Staff | null>(null);
 
+    // Set default month to current month and year
+    const currentDate = new Date();
+    const currentMonthName = MONTH_NAMES[currentDate.getMonth()];
+    const currentYear = currentDate.getFullYear().toString();
 
     const handleAttendanceClick = (staff: Staff) => {
         navigate(`/dashboard/payroll/${staff.id}/payroll-run`);
