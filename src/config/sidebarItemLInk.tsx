@@ -1,5 +1,4 @@
 import {
-  BanknoteArrowDown,
   Boxes,
   CalendarCheck,
   Car,
@@ -176,7 +175,7 @@ import Attendance from "@/pages/HrAndPayroll/Attendance";
 
 // import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
 // import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
-import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
+//import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
 import Payslips from "@/pages/HrAndPayroll/Payslips";
 
 import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
