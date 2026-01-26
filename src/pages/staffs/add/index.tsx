@@ -88,7 +88,7 @@ export default function AddStaffPage() {
   const limit = 10;
   const [rolePage] = useState(1);
   const [roleSearch] = useState("");
-  const roleLimit = 10;
+  const roleLimit = 100;
 
   const navigate = useNavigate();
 
