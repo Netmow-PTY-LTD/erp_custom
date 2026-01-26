@@ -20,6 +20,18 @@ type StaffAttendanceResponse = {
   };
 };
 
+type AttendanceStatsResponse = {
+  status: boolean;
+  message: string;
+  data: {
+    total: number;
+    present: number;
+    late: number;
+    absent: number;
+    on_leave: number;
+  };
+};
+
 export const attendanceApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // CHECK-IN
@@ -71,15 +83,23 @@ export const attendanceApiService = baseApi.injectEndpoints({
         page?: number;
         limit?: number;
         search?: string;
+        month?: string;
+        status?: string;
+        start_date?: string;
+        end_date?: string;
       }
     >({
-      query: ({ staffId, page = 1, limit = 10, search = "" }) => ({
+      query: ({ staffId, page = 1, limit = 10, search = "", month, status, start_date, end_date }) => ({
         url: `/staff-attendance/staff/${staffId}`,
         method: "GET",
         params: {
           page,
           limit,
           search,
+          month,
+          status,
+          start_date,
+          end_date,
         },
       }),
       providesTags: ["Attendance"],
@@ -121,6 +141,19 @@ export const attendanceApiService = baseApi.injectEndpoints({
         body,
       }),
     }),
+
+    // GET STAFF ATTENDANCE STATS
+    getStaffAttendanceStats: builder.query<
+      AttendanceStatsResponse,
+      { staffId: string | number; month?: string }
+    >({
+      query: ({ staffId, month }) => ({
+        url: `/staff-attendance/staff/${staffId}/stats`,
+        method: "GET",
+        params: { month },
+      }),
+      providesTags: ["Attendance"],
+    }),
   }),
 });
 
@@ -134,4 +167,5 @@ export const {
   useDeleteAttendanceMutation,
   useStaffWiseFullDayLeaveApplicationMutation,
   useStaffWiseShortLeaveApplicationMutation,
+  useGetStaffAttendanceStatsQuery,
 } = attendanceApiService;

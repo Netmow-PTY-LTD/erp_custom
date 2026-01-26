@@ -120,23 +120,8 @@ export default function AttendancePage() {
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center gap-4">
         <h1 className="text-3xl font-bold">
-          Attendance - {format(selectedDate, "PPP")}
+          Attendance
         </h1>
-
-        {/* Date picker from header */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">{format(selectedDate, "PPP")}</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="p-2 w-auto">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              autoFocus
-            />
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {/* Staff list */}

@@ -60,6 +60,7 @@ const StaffSchema = z.object({
   email: z.string().min(1, "Required").email("Invalid email"),
   password: z.string().min(4, "Password must be at least 4 characters"),
   phone: z.string().optional(),
+  address: z.string().optional(),
   department: z.number().min(1, "Required"),
   position: z.string().optional(),
   // hire_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
@@ -67,7 +68,6 @@ const StaffSchema = z.object({
   // }),
   hire_date: z.string().optional(),
   salary: z.number().optional(),
-  // address: z.string().optional(),
   status: z.enum(["active", "terminated", "on_leave"]),
   image: z.string().optional(),
   gallery_items: z.array(z.string()).optional().nullable(),
@@ -115,6 +115,7 @@ export default function AddStaffPage() {
       email: "",
       password: "",
       phone: "",
+      address: "",
       department: 0,
       position: "",
       hire_date: "",
@@ -137,6 +138,7 @@ export default function AddStaffPage() {
       email: values.email,
       password: values.password,
       phone: values.phone,
+      address: values.address,
       department_id: values.department,
       position: values.position,
       hire_date: values.hire_date,
@@ -413,6 +415,21 @@ export default function AddStaffPage() {
                         }}
                       />
                     </div>
+
+                    {/* ROW 3.5: ADDRESS (Full Width) */}
+                    <FormField
+                      control={form.control}
+                      name="address"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Address</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Street address" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     {/* ROW 4 — POSITION + HIRE DATE */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
