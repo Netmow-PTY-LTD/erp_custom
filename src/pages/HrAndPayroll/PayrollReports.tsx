@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
+import { useGetAllPayrollRunsQuery } from "@/store/features/payroll/payrollApiService";
 import type { Staff } from "@/types/staff.types";
 import {
     Loader2,
@@ -38,15 +39,16 @@ export default function PayrollReports() {
     const [departmentFilter, setDepartmentFilter] = useState("all");
     const [search, setSearch] = useState("");
 
-    // Fetch all active staff for reporting
-    // In a real app, this might come from a dedicated /reports endpoint
-    // But calculating from current staff structure provides real-time projection
-    const { data: staffsData, isLoading } = useGetAllStaffsQuery({
-        limit: 1000, // Fetch all for accurate report
-        status: "active"
+    // Fetch Payroll Run for the selected month
+    const monthIndex = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].indexOf(month) + 1;
+    const monthString = `${year}-${monthIndex.toString().padStart(2, '0')}`;
+
+    const { data: payrollRunData, isLoading } = useGetAllPayrollRunsQuery({
+        month: monthString
     });
 
-    const staffs = (staffsData?.data as Staff[]) || [];
+    const payrollRun = payrollRunData?.data?.[0]; // Assuming one run per month
+    const payrollItems = payrollRun?.items || [];
 
     // -------------------------
     //  AGGREGATION LOGIC
@@ -56,35 +58,39 @@ export default function PayrollReports() {
         let totalAllowances = 0;
         let totalDeductions = 0;
         let totalNet = 0;
+        let totalPaid = 0;
+        let totalDue = 0;
 
         const deptWise: Record<string, number> = {};
 
         // Filter Data
-        const filteredStaff = staffs.filter(s => {
-            const matchesDept = departmentFilter === "all" || s.department?.name === departmentFilter;
+        const filteredItems = payrollItems.filter((item: any) => {
+            // const matchesDept = departmentFilter === "all" || item.staff?.department?.name === departmentFilter; // If staff dept available in item
+            // For now, assume simple search filter
             const searchTerm = search.toLowerCase();
-            const fullName = `${s.first_name} ${s.last_name}`.toLowerCase();
-            const matchesSearch = !search ||
-                fullName.includes(searchTerm) ||
-                (s.email && s.email.toLowerCase().includes(searchTerm)) ||
-                (s.position && s.position.toLowerCase().includes(searchTerm));
+            // Ideally back-populate staff details into item
+            const fullName = `Staff #${item.staff_id}`; // Placeholder if staff not joined
+            // In real app, include Staff model in PayrollItem
 
-            return matchesDept && matchesSearch;
+            return true; // Simplified for now as we might lack deep staff inclusions in this specific endpoint without update
         });
 
         // Compute Stats
-        filteredStaff.forEach(staff => {
-            const basic = Number(staff.basic_salary) || Number(staff.salary) || 0;
-            const allow = staff.allowances?.reduce((sum, a) => sum + Number(a.amount), 0) || 0;
-            const deduc = staff.deductions?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+        filteredItems.forEach((item: any) => {
+            const basic = Number(item.basic_salary) || 0;
+            const allow = Number(item.total_allowances) || 0;
+            const deduc = Number(item.total_deductions) || 0;
+            const net = Number(item.net_pay) || 0;
+            const paid = Number(item.paid_amount) || 0;
 
             totalBasic += basic;
             totalAllowances += allow;
             totalDeductions += deduc;
-            totalNet += (basic + allow - deduc);
+            totalNet += net;
+            totalPaid += paid;
+            totalDue += (net - paid);
 
-            const deptName = staff.department?.name || "Unassigned";
-            deptWise[deptName] = (deptWise[deptName] || 0) + (basic + allow - deduc);
+            // Dept logic needs staff join. Skipping dept aggregation for this step unless available.
         });
 
         return {
@@ -92,11 +98,13 @@ export default function PayrollReports() {
             totalAllowances,
             totalDeductions,
             totalNet,
-            count: filteredStaff.length,
-            deptWise: Object.entries(deptWise).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value),
-            filteredData: filteredStaff
+            totalPaid,
+            totalDue,
+            count: filteredItems.length,
+            deptWise: [], // Placeholder
+            filteredData: filteredItems
         };
-    }, [staffs, departmentFilter, search]);
+    }, [payrollItems, search]);
 
     // Chart Data Config
     const compositionData = [
@@ -109,19 +117,25 @@ export default function PayrollReports() {
 
     // Export CSV
     const handleExport = () => {
-        const headers = ["Employee ID", "Name", "Department", "Basic Salary", "Allowances", "Deductions", "Net Pay"];
-        const rows = reportData.filteredData.map(s => {
-            const basic = Number(s.basic_salary) || Number(s.salary) || 0;
-            const allow = s.allowances?.reduce((sum, a) => sum + Number(a.amount), 0) || 0;
-            const deduc = s.deductions?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+        const headers = ["Employee", "Basic Salary", "Allowances", "Deductions", "Net Pay", "Paid", "Due"];
+        const rows = reportData.filteredData.map((item: any) => {
+            const basic = Number(item.basic_salary) || 0;
+            const allow = Number(item.total_allowances) || 0;
+            const deduc = Number(item.total_deductions) || 0;
+            const net = Number(item.net_pay) || 0;
+            const paid = Number(item.paid_amount) || 0;
+
+            // Should fetch staff name properly if possible
+            const staffName = `Staff #${item.staff_id}`;
+
             return [
-                s.id,
-                `"${s.first_name} ${s.last_name}"`,
-                s.department?.name || "N/A",
+                `"${staffName}"`,
                 basic,
                 allow,
                 deduc,
-                (basic + allow - deduc)
+                net,
+                paid,
+                (net - paid)
             ].join(",");
         });
 
@@ -138,34 +152,28 @@ export default function PayrollReports() {
     };
 
     // Table Columns
-    const columns: ColumnDef<Staff>[] = [
+    const columns: ColumnDef<any>[] = [
         {
-            accessorKey: "id",
-            header: "ID",
-            cell: ({ row }) => <span className="font-mono text-xs text-gray-500">#{row.getValue("id")}</span>
+            accessorKey: "staff_id",
+            header: "Staff ID",
+            cell: ({ row }) => <span className="font-mono text-xs text-gray-500">#{row.getValue("staff_id")}</span>
         },
+        // In a real scenario, we'd want joined staff data. For now, we only have ID
+        // {
+        //     accessorKey: "first_name",
+        //     header: "Employee",
+        //     cell: ({ row }) => (
+        //         <div>
+        //             <div className="font-medium text-gray-900">{row.original.first_name}</div>
+        //         </div>
+        //     )
+        // },
         {
-            accessorKey: "first_name",
-            header: "Employee",
-            cell: ({ row }) => (
-                <div>
-                    <div className="font-medium text-gray-900">{row.original.first_name} {row.original.last_name}</div>
-                    <div className="text-xs text-gray-500">{row.original.position}</div>
-                </div>
-            )
-        },
-        {
-            accessorKey: "department.name",
-            header: "Department",
-            cell: ({ row }) => <Badge variant="outline">{row.original.department?.name || "N/A"}</Badge>
-        },
-        {
-            id: "breakdown",
             header: "Salary Breakdown",
             cell: ({ row }) => {
-                const basic = Number(row.original.basic_salary) || Number(row.original.salary) || 0;
-                const allow = row.original.allowances?.reduce((sum, a) => sum + Number(a.amount), 0) || 0;
-                const deduc = row.original.deductions?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+                const basic = Number(row.original.basic_salary) || 0;
+                const allow = Number(row.original.total_allowances) || 0;
+                const deduc = Number(row.original.total_deductions) || 0;
                 return (
                     <div className="text-xs space-y-1">
                         <div className="flex justify-between w-[160px]">
@@ -185,14 +193,29 @@ export default function PayrollReports() {
             }
         },
         {
-            id: "net",
-            header: "Net Payable",
+            accessorKey: "net_pay",
+            header: "Final Payable",
+            cell: ({ row }) => <span className="font-bold text-gray-800">{Number(row.original.net_pay).toLocaleString()}</span>
+        },
+        {
+            accessorKey: "paid_amount",
+            header: "Paid",
+            cell: ({ row }) => <span className="font-medium text-emerald-600">{Number(row.original.paid_amount).toLocaleString()}</span>
+        },
+        {
+            id: "details",
+            header: "Due",
             cell: ({ row }) => {
-                const basic = Number(row.original.basic_salary) || Number(row.original.salary) || 0;
-                const allow = row.original.allowances?.reduce((sum, a) => sum + Number(a.amount), 0) || 0;
-                const deduc = row.original.deductions?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
-                return <Badge className="bg-emerald-600 text-base px-3 py-1">{(basic + allow - deduc).toLocaleString()}</Badge>
+                const net = Number(row.original.net_pay) || 0;
+                const paid = Number(row.original.paid_amount) || 0;
+                const due = net - paid;
+                return <span className={`font-medium ${due > 0 ? "text-rose-600" : "text-gray-400"}`}>{due.toLocaleString()}</span>
             }
+        },
+        {
+            accessorKey: "payment_status",
+            header: "Status",
+            cell: ({ row }) => <Badge variant={row.original.payment_status === 'paid' ? 'default' : 'secondary'}>{row.original.payment_status}</Badge>
         }
     ];
 
@@ -264,10 +287,40 @@ export default function PayrollReports() {
                             <div className="p-2 bg-white/20 rounded-lg">
                                 <DollarSign className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-blue-100 font-medium">Total Payroll Cost</span>
+                            <span className="text-blue-100 font-medium">Total Net Payable</span>
                         </div>
                         <h3 className="text-3xl font-bold">{reportData.totalNet.toLocaleString()}</h3>
-                        <p className="text-sm text-blue-100 mt-2 opacity-80">Estimated Net Payable</p>
+                        <p className="text-sm text-blue-100 mt-2 opacity-80">Estimated Payroll Cost</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-none shadow-md bg-white">
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-emerald-100 rounded-lg">
+                                <Users className="w-5 h-5 text-emerald-600" />
+                            </div>
+                            <span className="text-gray-500 font-medium">Total Paid</span>
+                        </div>
+                        <h3 className="text-3xl font-bold text-gray-900">{reportData.totalPaid.toLocaleString()}</h3>
+                        <p className="text-sm text-emerald-600 mt-2 font-medium">
+                            {reportData.totalNet > 0 ? ((reportData.totalPaid / reportData.totalNet) * 100).toFixed(1) : 0}% of Total
+                        </p>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-none shadow-md bg-white">
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-orange-100 rounded-lg">
+                                <TrendingUp className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <span className="text-gray-500 font-medium">Pending Due</span>
+                        </div>
+                        <h3 className="text-3xl font-bold text-gray-900">
+                            {reportData.totalDue.toLocaleString()}
+                        </h3>
+                        <p className="text-sm text-gray-400 mt-2">Unpaid Balances</p>
                     </CardContent>
                 </Card>
 
@@ -277,38 +330,10 @@ export default function PayrollReports() {
                             <div className="p-2 bg-purple-100 rounded-lg">
                                 <Users className="w-5 h-5 text-purple-600" />
                             </div>
-                            <span className="text-gray-500 font-medium">Active Employees</span>
+                            <span className="text-gray-500 font-medium">Staff Count</span>
                         </div>
                         <h3 className="text-3xl font-bold text-gray-900">{reportData.count}</h3>
-                        <p className="text-sm text-gray-400 mt-2">Processed in this report</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-md bg-white">
-                    <CardContent className="p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-emerald-100 rounded-lg">
-                                <TrendingUp className="w-5 h-5 text-emerald-600" />
-                            </div>
-                            <span className="text-gray-500 font-medium">Avg. Salary</span>
-                        </div>
-                        <h3 className="text-3xl font-bold text-gray-900">
-                            {(reportData.totalNet / (reportData.count || 1)).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                        </h3>
-                        <p className="text-sm text-gray-400 mt-2">Per active employee</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-md bg-white">
-                    <CardContent className="p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-orange-100 rounded-lg">
-                                <Building2 className="w-5 h-5 text-orange-600" />
-                            </div>
-                            <span className="text-gray-500 font-medium">Departments</span>
-                        </div>
-                        <h3 className="text-3xl font-bold text-gray-900">{Object.keys(reportData.deptWise).length}</h3>
-                        <p className="text-sm text-gray-400 mt-2">With active payroll</p>
+                        <p className="text-sm text-gray-400 mt-2">Processed Employees</p>
                     </CardContent>
                 </Card>
             </div>
@@ -320,13 +345,17 @@ export default function PayrollReports() {
                     <CardHeader >
                         <CardTitle className="flex items-center gap-2">
                             <Building2 className="w-5 h-5 text-blue-600" />
-                            Department Distribution
+                            Component Distribution
                         </CardTitle>
-                        <CardDescription>Cost allocation by department</CardDescription>
+                        <CardDescription>Salary Structure Breakdown</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={reportData.deptWise} layout="vertical" margin={{ left: 40 }}>
+                            <BarChart data={[
+                                { name: 'Basic', value: reportData.totalBasic },
+                                { name: 'Allowances', value: reportData.totalAllowances },
+                                { name: 'Deductions', value: reportData.totalDeductions },
+                            ]} layout="vertical" margin={{ left: 40 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                                 <XAxis type="number" hide />
                                 <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 12 }} />
@@ -345,15 +374,18 @@ export default function PayrollReports() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <PieIcon className="w-5 h-5 text-emerald-600" />
-                            Payroll Composition
+                            Payment Status
                         </CardTitle>
-                        <CardDescription>Breakdown of total cost components</CardDescription>
+                        <CardDescription>Paid vs Due Amount</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={compositionData}
+                                    data={[
+                                        { name: 'Paid Amount', value: reportData.totalPaid },
+                                        { name: 'Pending Due', value: reportData.totalDue },
+                                    ]}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
@@ -361,9 +393,8 @@ export default function PayrollReports() {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {compositionData.map((_, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
+                                    <Cell key="cell-paid" fill="#10b981" />
+                                    <Cell key="cell-due" fill="#ef4444" />
                                 </Pie>
                                 <Tooltip formatter={(value: number) => value.toLocaleString()} />
                                 <Legend verticalAlign="bottom" height={36} />

@@ -38,7 +38,7 @@ export default function AccountSettings() {
     };
 
     return (
-        <div className=" p-6 bg-white ">
+        <div className="py-6 px-4 space-y-6 max-w-[700px] w-full">
             <h2 className="text-2xl font-semibold mb-2">Account</h2>
             <p className="text-gray-500 mb-6 text-sm">
                 Update your account settings. Set your preferred language and timezone.

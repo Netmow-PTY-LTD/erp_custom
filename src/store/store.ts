@@ -8,6 +8,7 @@ import {
 } from "react-redux";
 import { baseApi } from "./baseApi";
 import currencyReducer from "./currencySlice";
+import layoutReducer from "./layoutSlice";
 
 const LOCAL_STORAGE_KEY = "reduxState";
 
@@ -20,6 +21,7 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     currency: currencyReducer,
+    layout: layoutReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -32,6 +34,7 @@ store.subscribe(() => {
   saveState(LOCAL_STORAGE_KEY, {
     auth: store.getState().auth,
     currency: store.getState().currency,
+    layout: store.getState().layout,
   });
 });
 

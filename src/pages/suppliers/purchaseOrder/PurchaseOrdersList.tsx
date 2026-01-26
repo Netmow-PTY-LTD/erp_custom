@@ -12,7 +12,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery, useUpdatePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
@@ -21,6 +21,7 @@ import { Edit, Eye, Trash2, FileText, CheckCircle, Clock, XCircle, PlusCircle } 
 import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import UpdatePOStatusModal from "./UpdatePOStatusModal";
 
 
 // Simple confirmation modal
@@ -118,6 +119,29 @@ export default function PurchaseOrdersList() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPOId, setSelectedPOId] = useState<number | null>(null);
 
+  const [isUpdateStatusModalOpen, setIsUpdateStatusModalOpen] = useState(false);
+  const [selectedPO, setSelectedPO] = useState<any>(null);
+
+  const handleOpenUpdateStatusModal = (po: any) => {
+    setSelectedPO(po);
+    setIsUpdateStatusModalOpen(true);
+  };
+
+  const handleCloseUpdateStatusModal = () => {
+    setIsUpdateStatusModalOpen(false);
+    setSelectedPO(null);
+  };
+
+  const poStatusOptions = [
+    { value: "pending", label: "Pending" },
+    { value: "approved", label: "Approved" },
+    { value: "ordered", label: "Ordered" },
+    { value: "received", label: "Received" },
+    { value: "partial", label: "Partial" },
+    { value: "cancelled", label: "Cancelled" },
+    { value: "returned", label: "Returned" },
+  ] as const;
+
   /* DELETE HANDLER */
   const handleDelete = useCallback(async () => {
     if (!selectedPOId) return;
@@ -142,21 +166,21 @@ export default function PurchaseOrdersList() {
 
 
 
-  const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
+  // const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 
-  const handleApprove = async (id: number) => {
-    try {
-      const res = await updatePurchaseOrder({ id, body: { status: "approved" } }).unwrap();
-      if (res.status) {
-        toast.success("Purchase Order Approved Successfully");
-      } else {
-        toast.error(res?.message || "Approve failed");
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Approve failed");
-    }
-  };
+  // const handleApprove = async (id: number) => {
+  //   try {
+  //     const res = await updatePurchaseOrder({ id, body: { status: "approved" } }).unwrap();
+  //     if (res.status) {
+  //       toast.success("Purchase Order Approved Successfully");
+  //     } else {
+  //       toast.error(res?.message || "Approve failed");
+  //     }
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   } catch (error: any) {
+  //     toast.error(error?.data?.message || "Approve failed");
+  //   }
+  // };
 
   /* COLUMNS */
   const poColumns: ColumnDef<PurchaseOrder>[] = [
@@ -239,11 +263,11 @@ export default function PurchaseOrdersList() {
       cell: ({ row }) => {
         const po = row.original;
         const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
-        const isPending = po.status === "pending";
+        // const isPending = po.status === "pending";
 
         return (
           <div className="flex gap-2">
-            {isPending && (
+            {/* {isPending && (
               <Button
                 size="sm"
                 variant="outline"
@@ -255,13 +279,21 @@ export default function PurchaseOrdersList() {
                 <CheckCircle className="w-4 h-4 mr-1" />
                 Approve
               </Button>
-            )}
+            )} */}
 
             <Link to={`/dashboard/purchase-orders/${po.id}`}>
               <Button size="sm" variant="outline">
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleOpenUpdateStatusModal(po)}
+            >
+              Change Status
+            </Button>
 
             {isEditable && (
               <>
@@ -366,12 +398,19 @@ export default function PurchaseOrdersList() {
         </CardContent>
       </Card>
 
-      {/* Delete confirmation modal */}
       <ConfirmModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleDelete}
-        message="Are you sure you want to delete this supplier? This action cannot be undone."
+        message="Are you sure you want to delete this purchase order? This action cannot be undone."
+      />
+
+      {/* Status Update Modal */}
+      <UpdatePOStatusModal
+        isOpen={isUpdateStatusModalOpen}
+        onClose={handleCloseUpdateStatusModal}
+        selectedPO={selectedPO}
+        statusOptions={poStatusOptions}
       />
     </div>
   );

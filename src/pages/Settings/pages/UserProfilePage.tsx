@@ -98,7 +98,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className=" py-6 px-4 space-y-6 max-w-[700px] w-full">
+    <div className=" py-2 px-2 space-y-6 max-w-[700px] w-full">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-semibold">Company Profile</h1>
