@@ -168,15 +168,19 @@ import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 import Help from "@/pages/help/Help";
 import EditCustomerByStaffPage from "@/pages/customer/EditCustomerByStaffPage";
 import HrPayrollOverview from "@/pages/HrAndPayroll/HrPayrollOverview";
+import StaffAdvanceDetail from "@/pages/HrAndPayroll/StaffAdvanceDetail";
+
 // import DepartmentsDesignations from "@/pages/HrAndPayroll/DepartmentsDesignations";
 // import EmploymentDetails from "@/pages/HrAndPayroll/EmploymentDetails";
 import Attendance from "@/pages/HrAndPayroll/Attendance";
 
 // import PayrollComponents from "@/pages/HrAndPayroll/PayrollComponents";
 // import SalaryStructures from "@/pages/HrAndPayroll/SalaryStructures";
-import PayrollRuns from "@/pages/HrAndPayroll/PayrollRuns";
 import Payslips from "@/pages/HrAndPayroll/Payslips";
 import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
+import StaffPayrollRun from "@/pages/HrAndPayroll/StaffPayrollRun";
+
+
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
@@ -1317,6 +1321,25 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+      {
+        title: "",
+        url: "/dashboard/payroll/:staffId/advance",
+        element: <StaffAdvanceDetail />,
+        allowedPermissions: [
+          PayrollPermission.OVERVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/payroll/:staffId/payroll-run",
+        element: <StaffPayrollRun />,
+        allowedPermissions: [
+          PayrollPermission.OVERVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
       // {
       //   title: "Employment Details",
       //   url: "/dashboard/payroll/employment-details",
@@ -1328,7 +1351,7 @@ export const sidebarItemLink = [
       //   ],
       // },
       {
-        title: "Attendance",
+        title: "Manual Attendance",
         url: "/dashboard/payroll/attendance",
         element: <Attendance />,
         icon: CalendarCheck,
@@ -1337,16 +1360,16 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      {
-        title: "Payroll Runs",
-        url: "/dashboard/payroll/payroll-runs",
-        element: <PayrollRuns />,
-        icon: BanknoteArrowDown,
-        allowedPermissions: [
-          PayrollPermission.PAYROLL_RUNS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
+      // {
+      //   title: "Payroll Runs",
+      //   url: "/dashboard/payroll/payroll-runs",
+      //   element: <PayrollRuns />,
+      //   icon: BanknoteArrowDown,
+      //   allowedPermissions: [
+      //     PayrollPermission.PAYROLL_RUNS,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
       {
         title: "Payslips",
         url: "/dashboard/payroll/payslips",

@@ -138,6 +138,8 @@ export interface ChartOfAccount {
   type: AccountType;
   parent: number | null;
   level: number;
+  debit?: number;
+  credit?: number;
 }
 
 // -------------------- JOURNAL REPORT --------------------
