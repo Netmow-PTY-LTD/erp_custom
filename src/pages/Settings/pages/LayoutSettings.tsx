@@ -12,19 +12,46 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import {
+    useGetLayoutSettingsQuery,
+    useUpdateLayoutSettingsMutation
+} from "@/store/features/admin/settingsApiService";
+import { useEffect } from "react";
 
 /* ------------------ PAGE ------------------ */
 export default function LayoutSettings() {
     const dispatch = useAppDispatch();
     const posSettings = useAppSelector((state) => state.layout.pos);
 
+    // API Hooks
+    const { data: layoutData, isLoading: isFetching } = useGetLayoutSettingsQuery();
+    const [updateLayout, { isLoading: isUpdating }] = useUpdateLayoutSettingsMutation();
+
+    // Sync Redux with API data on load
+    useEffect(() => {
+        if (layoutData?.data?.pos) {
+            dispatch(updatePosLayout(layoutData.data.pos));
+        }
+    }, [layoutData, dispatch]);
+
     const handleUpdate = (updates: Partial<typeof posSettings>) => {
         dispatch(updatePosLayout(updates));
     };
 
-    const handleSave = () => {
-        toast.success("Layout settings saved successfully!");
+    const handleSave = async () => {
+        try {
+            const res = await updateLayout({ pos: posSettings }).unwrap();
+            if (res.status) {
+                toast.success(res.message || "Layout settings saved successfully!");
+            }
+        } catch (error: any) {
+            toast.error(error?.data?.message || "Failed to save layout settings");
+        }
     };
+
+    if (isFetching) {
+        return <div className="p-8 text-center">Loading layout settings...</div>;
+    }
 
     return (
         <div className="py-4 px-4 space-y-6 max-w-[700px] w-full">
@@ -173,8 +200,12 @@ export default function LayoutSettings() {
 
                 {/* SUBMIT */}
                 <div className="pt-4 flex justify-end">
-                    <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
-                        Save Layout Settings
+                    <Button
+                        onClick={handleSave}
+                        className="bg-blue-600 hover:bg-blue-700"
+                        disabled={isUpdating}
+                    >
+                        {isUpdating ? "Saving..." : "Save Layout Settings"}
                     </Button>
                 </div>
             </div>

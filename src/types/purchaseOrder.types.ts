@@ -18,7 +18,7 @@ export interface POItem {
   total_price: number;
   created_at: string;
   updated_at: string;
-  purchase_tax:number
+  purchase_tax: number
 }
 
 
@@ -47,10 +47,10 @@ export interface POItem {
 // }
 
 // ===== Purchase Order =====
-export type PurchaseOrderStatus ="pending"| "draft" | "approved" | "rejected";
+export type PurchaseOrderStatus = "pending" | "draft" | "approved" | "rejected" | "returned";
 export type PurchasePaymentStatus = "paid" | "unpaid" | "partial";
 
-export interface  PurchaseOrder {
+export interface PurchaseOrder {
   id: number;
   po_number: string;
 
@@ -75,7 +75,7 @@ export interface  PurchaseOrder {
   updated_at?: string;
 
   supplier: Supplier;
-  items?: POItem[]|any; 
+  items?: POItem[] | any;
   invoice?: PurchaseInvoice;
   payments?: Payment[];
   creator?: User;

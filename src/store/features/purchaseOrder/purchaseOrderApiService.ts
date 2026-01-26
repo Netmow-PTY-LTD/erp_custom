@@ -56,7 +56,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     // GET ALL PURCHASE ORDERS
     getAllPurchases: builder.query<
       PurchaseResponse<PurchaseOrder>,
-      { page?: number; limit?: number; search?: string }
+      { page?: number; limit?: number; search?: string; status?: string }
     >({
       query: (params) => ({
         url: "/purchase/orders",
@@ -66,7 +66,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
       providesTags: ["Purchases"],
     }),
 
-  getAllApprovedPurchaseOrders: builder.query<
+    getAllApprovedPurchaseOrders: builder.query<
       PurchaseResponse<PurchaseOrder>,
       { page?: number; limit?: number; search?: string }
     >({
