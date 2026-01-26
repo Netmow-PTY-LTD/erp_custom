@@ -34,7 +34,6 @@ export default function ProductDetailsPage() {
 
   const {
     data: fetchedStockMovements,
-    refetch: refetchStockMovements,
     isFetching,
   } = useGetAllStockMovementsQuery(
     { id: Number(productId), page, limit, search },

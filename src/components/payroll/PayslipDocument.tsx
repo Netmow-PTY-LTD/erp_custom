@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { Badge } from "@/components/ui/badge";
 
 export interface PayslipData {
