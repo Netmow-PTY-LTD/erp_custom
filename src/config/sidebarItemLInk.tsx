@@ -180,6 +180,7 @@ import Payslips from "@/pages/HrAndPayroll/Payslips";
 import PayrollReports from "@/pages/HrAndPayroll/PayrollReports";
 
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
+import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";

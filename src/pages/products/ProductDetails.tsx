@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Link, useParams } from "react-router";
 import {
   useGetAllStockMovementsQuery,
@@ -11,8 +11,6 @@ import {
 import type { Product, StockMovement } from "@/types/types";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { useState } from "react";
-import EditStockForm from "@/components/products/EditStockForm";
 import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
 
@@ -21,7 +19,6 @@ import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 
 export default function ProductDetailsPage() {
-  const [open, setOpen] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
@@ -220,16 +217,7 @@ export default function ProductDetailsPage() {
                 <strong>Max:</strong> {product?.max_stock_level}
               </p>
 
-              <Separator />
 
-              <div className="flex justify-center">
-                <EditStockForm
-                  productId={Number(productId)}
-                  open={open}
-                  setOpen={setOpen}
-                  refetchStockMovements={refetchStockMovements}
-                />
-              </div>
             </CardContent>
           </Card>
         </div>
