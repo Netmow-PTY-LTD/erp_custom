@@ -197,6 +197,8 @@ import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
 import EInvoiceList from "@/pages/salesOrders/invoices/EInvoiceList";
 import EInvoiceSettings from "@/pages/Settings/pages/EInvoiceSettings";
 import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
+import StaffWiseSalesReport from "@/pages/reports/StaffWiseSalesReport";
+
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -1577,16 +1579,16 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-      // {
-      //   title: "Staff Reports",
-      //   url: "/dashboard/reports/staffs",
-      //   element: <StaffReports />,
-      //   icon: UserCheck,
-      //   allowedPermissions: [
-      //     ReportPermission.STAFFS,
-      //     SuperAdminPermission.ACCESS_ALL,
-      //   ],
-      // },
+      {
+        title: "Staff Wise Sales Report",
+        url: "/dashboard/reports/staff-wise-sales",
+        element: <StaffWiseSalesReport />,
+        icon: Users,
+        allowedPermissions: [
+          ReportPermission.SALES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
     ],
   },
 
