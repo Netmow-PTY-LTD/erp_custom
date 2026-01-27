@@ -1000,19 +1000,22 @@ export default function CreateSalesOrderPage() {
           // 3. Add new items
           addedProducts.forEach((product) => {
             append({
-              product_id: product.id,
+              product_id: Number(product.id),
               sku: product.sku ?? "",
               specification: product.specification ?? "",
               unit: product.unit?.name ?? "",
-              quantity: product.stock_quantity > 0 ? 1 : 0,
-              unit_price: Number(product.price),
+              quantity: 1,
+              unit_price: Number(product.price) || 0,
               discount: 0,
               sales_tax: product.sales_tax ?? 0,
               stock_quantity: product.stock_quantity ?? 0,
               remark: "",
             });
           });
+
+          setIsModalOpen(false);
         }}
+        orderType="sales"
       />
     </div>
   );

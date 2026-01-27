@@ -28,6 +28,7 @@ interface AddProductsModalProps {
     onClose: () => void;
     onApply: (addedProducts: Product[], removedIds: number[]) => void;
     initialSelectedIds?: number[];
+    orderType: "purchase" | "sales";
 }
 
 export function AddProductsModal({
@@ -35,6 +36,7 @@ export function AddProductsModal({
     onClose,
     onApply,
     initialSelectedIds = [],
+    orderType,
 }: AddProductsModalProps) {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
@@ -60,7 +62,8 @@ export function AddProductsModal({
         const isSelected = (initialSelectedIds.includes(product.id) && !deselectedIds.includes(product.id)) ||
             selectedProducts.some(p => p.id === product.id);
 
-        if (!isSelected && (product.stock_quantity || 0) <= 0) {
+        // Only block if it is a sales order and out of stock
+        if (orderType === "sales" && !isSelected && (product.stock_quantity || 0) <= 0) {
             toast.warning("This product is out of stock and cannot be selected.");
             return;
         }

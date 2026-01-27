@@ -106,6 +106,8 @@ import LedgerReport from "@/pages/accounting/LedgerReport";
 import TrialBalance from "@/pages/accounting/TrialBalance";
 import ProfitAndLoss from "@/pages/accounting/ProfitAndLoss";
 import TaxSubmission from "@/pages/accounting/TaxSubmission";
+import IncomePage from "@/pages/accounting/Income";
+import ExpensesPage from "@/pages/accounting/Expenses";
 import {
   DashboardPermission,
   ProductPermission,
@@ -192,6 +194,8 @@ import ProductsByStaff from "@/pages/products/ProductsByStaff";
 import DatabaseTables from "@/pages/data_management/DatabaseTables";
 import ReturnedPurchaseOrders from "@/pages/suppliers/purchaseOrder/ReturnedPurchaseOrders";
 import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
+import EInvoiceList from "@/pages/salesOrders/invoices/EInvoiceList";
+import EInvoiceSettings from "@/pages/Settings/pages/EInvoiceSettings";
 import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 
 export const sidebarItemLink = [
@@ -1097,6 +1101,16 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "E-Invoices",
+        url: "/dashboard/sales/einvoices",
+        element: <EInvoiceList />,
+        icon: FileText,
+        allowedPermissions: [
+          SalesPermission.INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "",
         url: "/dashboard/sales/invoices/:invoiceId",
         element: <InvoiceDetailsPage />,
@@ -1228,6 +1242,26 @@ export const sidebarItemLink = [
         icon: List,
         allowedPermissions: [
           AccountingPermission.CHART_OF_ACCOUNTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Income List",
+        url: "/dashboard/accounting/income",
+        element: <IncomePage />,
+        icon: List,
+        allowedPermissions: [
+          AccountingPermission.TRANSACTIONS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Expense List",
+        url: "/dashboard/accounting/expenses",
+        element: <ExpensesPage />,
+        icon: List,
+        allowedPermissions: [
+          AccountingPermission.TRANSACTIONS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1636,6 +1670,15 @@ export const sidebarItemLink = [
         element: <LayoutSettings />,
         allowedPermissions: [
           SettingsPermission.LAYOUT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/settings/einvoice",
+        element: <EInvoiceSettings />,
+        allowedPermissions: [
+          SettingsPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
