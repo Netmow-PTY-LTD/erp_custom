@@ -27,7 +27,7 @@ import { useNavigate } from "react-router";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { User, CheckCircle2, Phone, MapPin, Briefcase, Plus, Edit2, Trash2, BadgeCheck, Mail } from "lucide-react";
+import { User, CheckCircle2, Phone, MapPin, Briefcase, Plus, Edit2, Trash2, BadgeCheck, Mail, Image as ImageIcon } from "lucide-react";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
@@ -166,115 +166,89 @@ export default function AddCustomerByStaffPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="pb-6">
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                            <Controller
-                                control={control}
-                                name="name"
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Customer Name *</FieldLabel>
-                                        <Input placeholder="e.g. John Doe" {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="company"
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Company Name</FieldLabel>
-                                        <Input placeholder="e.g. Acme Corp" {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="customer_type"
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Customer Type</FieldLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="individual">Individual</SelectItem>
-                                                <SelectItem value="business">Business</SelectItem>
-                                                <SelectItem value="retail">Retail</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="tax_id"
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Tax ID / Registration Number</FieldLabel>
-                                        <Input placeholder="GST / VAT / Company Reg." {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="thumb_url"
-                                render={({ field, fieldState }) => (
-                                    <div>
+                        <div className="flex flex-col md:flex-row gap-6 md:gap-12">
+                            {/* Left side: Name, Company, Type, Tax ID in a grid */}
+                            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Controller
+                                    control={control}
+                                    name="name"
+                                    render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel>Primary Image</FieldLabel>
-                                            <div className="max-w-xs">
+                                            <FieldLabel>Customer Name *</FieldLabel>
+                                            <Input placeholder="e.g. John Doe" {...field} />
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={control}
+                                    name="company"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Company Name</FieldLabel>
+                                            <Input placeholder="e.g. Acme Corp" {...field} />
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={control}
+                                    name="customer_type"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Customer Type</FieldLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select type" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="individual">Individual</SelectItem>
+                                                    <SelectItem value="business">Business</SelectItem>
+                                                    <SelectItem value="retail">Retail</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={control}
+                                    name="tax_id"
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Tax ID / Registration Number</FieldLabel>
+                                            <Input placeholder="GST / VAT / Company Reg." {...field} />
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+                            </div>
+
+                            {/* Right side: Primary Image */}
+                            <div className="flex md:justify-end">
+                                <div>
+                                    <Controller
+                                        control={control}
+                                        name="thumb_url"
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Primary Image</FieldLabel>
                                                 <ImageUploaderPro
                                                     value={field.value}
                                                     onChange={field.onChange}
                                                 />
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mt-2">
-                                                Optional. Single primary image. Recommended size: 400×400 px.
-                                            </p>
-                                            <FieldError>{fieldState?.error?.message}</FieldError>
-                                        </Field>
-                                    </div>
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="gallery_items"
-                                render={({ field, fieldState }) => (
-                                    <div className="md:col-span-2">
-                                        <Field>
-                                            <FieldLabel>Gallery (max 10)</FieldLabel>
-                                            <div className="max-w-xs">
-                                                <ImageUploaderPro
-                                                    multiple
-                                                    value={field.value || []}
-                                                    onChange={(v) => {
-                                                        const arr = Array.isArray(v) ? v : v ? [v] : [];
-                                                        if (arr.length > 10) {
-                                                            toast.error("You can upload up to 10 images only");
-                                                            arr.splice(10);
-                                                        }
-                                                        field.onChange(arr);
-                                                    }}
-                                                />
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mt-2">
-                                                Optional. Upload up to 10 additional images for the customer.
-                                            </p>
-                                            <FieldError>{fieldState?.error?.message}</FieldError>
-                                        </Field>
-                                    </div>
-                                )}
-                            />
+                                                <FieldError>{fieldState?.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    {/* <p className="text-sm text-muted-foreground">
+                                        Optional. Recommended size: 400×400 px.
+                                    </p> */}
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
@@ -730,6 +704,48 @@ export default function AddCustomerByStaffPage() {
                                 )}
                             />
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* CUSTOMER GALLERY */}
+                <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                                <ImageIcon className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Customer Gallery</CardTitle>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload additional customer images</p>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pb-6">
+                        <Controller
+                            control={control}
+                            name="gallery_items"
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Gallery (max 10)</FieldLabel>
+                                    <ImageUploaderPro
+                                        multiple
+                                        value={field.value || []}
+                                        onChange={(v) => {
+                                            const arr = Array.isArray(v) ? v : v ? [v] : [];
+                                            if (arr.length > 10) {
+                                                toast.error("You can upload up to 10 images only");
+                                                arr.splice(10);
+                                            }
+                                            field.onChange(arr);
+                                        }}
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                        Optional. Upload up to 10 additional images for the customer.
+                                    </p>
+                                    <FieldError>{fieldState?.error?.message}</FieldError>
+                                </Field>
+                            )}
+                        />
                     </CardContent>
                 </Card>
 
