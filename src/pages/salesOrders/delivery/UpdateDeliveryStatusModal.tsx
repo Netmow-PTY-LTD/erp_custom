@@ -308,11 +308,12 @@ export default function UpdateDeliveryStatusModal({
     useEffect(() => {
         if (selectedOrder) {
             const today = new Date().toISOString().split("T")[0];
-            const existingDate = selectedOrder.delivery?.delivery_date
-                ? new Date(selectedOrder.delivery.delivery_date)
-                    .toISOString()
-                    .split("T")[0]
-                : today;
+            // const existingDate = selectedOrder.delivery?.delivery_date
+            //     ? new Date(selectedOrder.delivery.delivery_date)
+            //         .toISOString()
+            //         .split("T")[0]
+            //     : today;
+            const existingDate = today;
 
             form.reset({
                 status: defaultStatus || selectedOrder.delivery_status || "pending",
