@@ -46,7 +46,7 @@ import {
     useLazyGetAccountingAccountsQuery,
     useAddAccountingAccountMutation,
     useUpdateAccountingAccountMutation,
-    // useDeleteAccountingAccountMutation
+    useSeedAccountingAccountsMutation
 } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
@@ -78,7 +78,17 @@ export default function ChartOfAccounts() {
 
     const [addAccountingAccount, { isLoading }] = useAddAccountingAccountMutation();
     const [updateAccountingAccount] = useUpdateAccountingAccountMutation();
-    // const [deleteAccountingAccount] = useDeleteAccountingAccountMutation();
+    const [seedAccounts, { isLoading: isSeeding }] = useSeedAccountingAccountsMutation();
+
+    const handleSeed = async () => {
+        try {
+            await seedAccounts().unwrap();
+            toast.success("Accounts seeded successfully");
+            refetch();
+        } catch (error: any) {
+            toast.error(error?.data?.message || "Seeding failed");
+        }
+    };
 
     const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<CreateAccountFormValues>({
         defaultValues: { name: "", code: "", type: undefined, parent_id: undefined },
@@ -219,13 +229,43 @@ export default function ChartOfAccounts() {
         { accessorKey: "type", header: "Type", cell: ({ row }) => <Badge variant="outline">{row.original.type}</Badge> },
         {
             accessorKey: "debit",
-            header: "Debit",
-            cell: ({ row }) => <span className="font-medium text-emerald-600">RM {Number(row.original.debit || 0).toLocaleString()}</span>
+            header: () => <div className="text-right">Debit (RM)</div>,
+            cell: ({ row }) => (
+                <div className="text-right font-medium text-emerald-600">
+                    {Number(row.original.debit || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+            )
         },
         {
             accessorKey: "credit",
-            header: "Credit",
-            cell: ({ row }) => <span className="font-medium text-rose-600">RM {Number(row.original.credit || 0).toLocaleString()}</span>
+            header: () => <div className="text-right">Credit (RM)</div>,
+            cell: ({ row }) => (
+                <div className="text-right font-medium text-rose-600">
+                    {Number(row.original.credit || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+            )
+        },
+        {
+            id: "balance",
+            header: () => <div className="text-right">Balance (RM)</div>,
+            cell: ({ row }) => {
+                const debit = Number(row.original.debit || 0);
+                const credit = Number(row.original.credit || 0);
+                const type = row.original.type.toLowerCase();
+
+                let balance = 0;
+                if (["asset", "expense"].includes(type)) {
+                    balance = debit - credit;
+                } else {
+                    balance = credit - debit;
+                }
+
+                return (
+                    <div className={cn("text-right font-bold", balance >= 0 ? "text-slate-900" : "text-amber-600")}>
+                        {balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                );
+            }
         },
         {
             id: "actions",
@@ -275,6 +315,7 @@ export default function ChartOfAccounts() {
                     <p className="text-muted-foreground">Manage your financial head hierarchy.</p>
                 </div>
                 <div className="flex gap-2">
+
                     <CreateIncomeHeadForm />
                     <CreateExpenseHeadForm />
 

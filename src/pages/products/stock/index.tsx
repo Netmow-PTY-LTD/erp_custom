@@ -1,41 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Package, AlertTriangle, XCircle, DollarSign } from "lucide-react";
+import { Eye, Package, AlertTriangle, XCircle, DollarSign, Trash2 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
-// import AddStockForm from "@/components/products/AddStockForm";
+import DamageWastageForm from "@/components/products/DamageWastageForm";
 import type { Product } from "@/types/types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
-// import { ProductPermission } from "@/config/permissions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function StockManagement() {
-  // const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
-  //const [productId, setProductId] = useState<number>(0);
+  const [openDamageForm, setOpenDamageForm] = useState<boolean>(false);
+  const [selectedProductId, setSelectedProductId] = useState<number | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [stockStatus, setStockStatus] = useState<string>("all");
   const limit = 10;
-  //   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-
-  // const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-
-
 
   const {
     data: fetchedProducts,
     isFetching,
-    // refetch: refetchProducts,
-  } = useGetAllProductsQuery({ page, limit, search });
+  } = useGetAllProductsQuery({
+    page,
+    limit,
+    search,
+    stock_status: stockStatus === "all" ? undefined : stockStatus
+  });
 
   const products: Product[] = fetchedProducts?.data || [];
 
@@ -45,11 +42,6 @@ export default function StockManagement() {
     limit: 10,
     totalPage: 1,
   };
-
-  // const handleDeleteStock = (sku: string) => {
-  //   // Handle stock deletion logic here
-  //   console.log(`Deleting stock with SKU: ${sku}`);
-  // };
 
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -98,18 +90,58 @@ export default function StockManagement() {
         <div className="text-right">{Number(row.original.price).toFixed(2)}</div>
       ),
     },
-    // {
-    //   accessorKey: "unit",
-    //   header: "Unit",
-    //   cell: ({ row }) =>
-    //     `${row.original.unit.name} (${row.original.unit.symbol})`,
-    // },
     {
       accessorKey: "stock_quantity",
       header: () => <div className="text-right">Stock</div>,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.stock_quantity}</div>
+        <div className="text-right font-medium">{row.original.stock_quantity}</div>
       ),
+    },
+    {
+      id: "stock_status",
+      header: "Stock wise status",
+      cell: ({ row }) => {
+        const stock = row.original.stock_quantity || 0;
+        const isAvailable = stock > 0;
+        return (
+          <span
+            className={`py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider ${isAvailable
+              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+              : "bg-rose-100 text-rose-700 border border-rose-200"
+              }`}
+          >
+            {isAvailable ? "Available" : "Out of Stock"}
+          </span>
+        );
+      },
+    },
+    {
+      id: "total_cost",
+      header: () => <div className="text-right">Total Cost Price ({currency})</div>,
+      cell: ({ row }) => {
+        const totalCost = (row.original.stock_quantity || 0) * (row.original.cost || 0);
+        return <div className="text-right text-blue-600">{totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>;
+      },
+    },
+    {
+      id: "total_sell",
+      header: () => <div className="text-right">Total Sell Price ({currency})</div>,
+      cell: ({ row }) => {
+        const totalSell = (row.original.stock_quantity || 0) * (row.original.price || 0);
+        return <div className="text-right text-emerald-600">{totalSell.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>;
+      },
+    },
+    {
+      id: "profit",
+      header: () => <div className="text-right">Total Profitable ({currency})</div>,
+      cell: ({ row }) => {
+        const profit = ((row.original.price || 0) - (row.original.cost || 0)) * (row.original.stock_quantity || 0);
+        return (
+          <div className={`text-right font-bold ${profit >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+            {profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "is_active",
@@ -133,26 +165,29 @@ export default function StockManagement() {
         const product = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link
-                  to={`/dashboard/products/${product.id}`}
-                  className="w-full"
-                >
-                  View Stock
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/dashboard/products/${product.id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              View
+            </Link>
+            <button
+              onClick={() => {
+                setSelectedProductId(product.id);
+                setOpenDamageForm(true);
+              }}
+              disabled={Number(product.stock_quantity) <= 0}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${Number(product.stock_quantity) <= 0
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+            >
+              <Trash2 className="w-4 h-4" />
+              Damage
+            </button>
+          </div>
         );
       },
     },
@@ -174,7 +209,19 @@ export default function StockManagement() {
           </h1>
           <p className="text-muted-foreground mt-2">Monitor and manage product inventory</p>
         </div>
-        {/* <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} /> */}
+        <div className="flex items-center gap-4">
+          <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
+            <SelectTrigger className="w-[200px] bg-white shadow-sm border-gray-200 rounded-xl font-medium">
+              <SelectValue placeholder="Stock Status" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl border-gray-100 shadow-xl">
+              <SelectItem value="all">All Stock Status</SelectItem>
+              <SelectItem value="available" className="text-emerald-600 font-medium focus:text-emerald-700">Available</SelectItem>
+              <SelectItem value="low_stock" className="text-orange-600 font-medium focus:text-orange-700">Low Stock</SelectItem>
+              <SelectItem value="out_of_stock" className="text-rose-600 font-medium focus:text-rose-700">Out of Stock</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Statistics Cards */}
@@ -288,6 +335,14 @@ export default function StockManagement() {
           setPage(1);
         }}
         isFetching={isFetching}
+      />
+
+      <DamageWastageForm
+        open={openDamageForm}
+        setOpen={setOpenDamageForm}
+        products={products}
+        initialProductId={selectedProductId}
+        refetchProducts={async () => { }}
       />
     </div>
   );

@@ -1,4 +1,12 @@
 // Customer API Types
+export interface Contact {
+    id?: number;
+    name: string;
+    phone?: string;
+    role?: string;
+    email?: string;
+    is_primary?: boolean;
+}
 
 export interface Customer {
     id: number;
@@ -25,6 +33,7 @@ export interface Customer {
     is_active: boolean;
     thumb_url?: string;
     gallery_items?: string[];
+    contacts?: Contact[];
     created_at: string;
     updated_at?: string;
 }
@@ -50,6 +59,7 @@ export interface CreateCustomerRequest {
     sales_route_id?: number;
     notes?: string;
     is_active?: boolean;
+    contacts?: Contact[];
 }
 
 export interface UpdateCustomerRequest {
@@ -73,7 +83,7 @@ export interface UpdateCustomerRequest {
     sales_route_id?: number;
     notes?: string;
     is_active?: boolean;
-
+    contacts?: Contact[];
 }
 
 export interface GetCustomersParams {
@@ -82,6 +92,7 @@ export interface GetCustomersParams {
     customer_type?: "individual" | "business" | "retail";
     is_active?: boolean;
     search?: string;
+    sort?: string;
 }
 
 export interface Pagination {

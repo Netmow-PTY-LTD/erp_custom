@@ -17,7 +17,15 @@ import {
   Edit,
   Eye,
   ShoppingCart,
+  Filter,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,6 +67,7 @@ export default function Customers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [mapLocation, setMapLocation] = useState<string | null>(null);
+  const [sort, setSort] = useState<string>("newest");
   const [previewData, setPreviewData] = useState<{
     images: string[];
     index: number;
@@ -81,6 +90,7 @@ export default function Customers() {
     page: currentPage,
     limit: pageSize,
     search: searchTerm || undefined,
+    sort: sort !== 'newest' ? sort : undefined
   });
 
   const [deleteCustomer, { isLoading: isDeleting }] =
@@ -434,11 +444,31 @@ export default function Customers() {
               Customer Map
             </button>
           </Link>
+
+          <div className="w-[180px]">
+            <Select
+              value={sort}
+              onValueChange={(value) => {
+                setSort(value);
+                setPageIndex(0);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="top_sold">Top Sold Order</SelectItem>
+                <SelectItem value="low_sold">Low Sold Order</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
+      </div >
 
       {/* Stats Cards */}
-      <div className="flex flex-wrap gap-6 mb-6">
+      < div className="flex flex-wrap gap-6 mb-6" >
         {stats?.map((item, idx) => (
           <div
             key={idx}
@@ -465,8 +495,9 @@ export default function Customers() {
               <div className="h-full w-2/3 rounded-full bg-white/40" />
             </div>
           </div>
-        ))}
-      </div>
+        ))
+        }
+      </div >
 
       <Card className="pt-6 pb-2">
         <CardHeader>
@@ -619,6 +650,6 @@ export default function Customers() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }
