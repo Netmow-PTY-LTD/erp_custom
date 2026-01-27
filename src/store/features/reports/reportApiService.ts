@@ -213,6 +213,26 @@ export const reportsApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Reports"],
     }),
+
+    // GET /api/reports/sales/staff-wise
+    getStaffWiseSales: builder.query<
+      ReportResponse,
+      {
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+        staff_id?: string | number;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/sales/staff-wise",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
   }),
 });
 
@@ -232,4 +252,5 @@ export const {
   useGetHrAttendanceQuery,
   useGetHrPayrollQuery,
   useGetProfitLossQuery,
+  useGetStaffWiseSalesQuery,
 } = reportsApiService;
