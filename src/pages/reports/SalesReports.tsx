@@ -267,7 +267,7 @@ export default function SalesReportsPage() {
             icon: <ShoppingCart className="w-6 h-6 text-white" />,
           },
           {
-            label: "Revenue",
+            label: "Sales Revenue",
             value: salesSummaryIsLoading ? "—" : formatCurrency(summary?.total_sales),
             gradient: "from-emerald-600 to-emerald-400",
             shadow: "shadow-emerald-500/30",
