@@ -282,6 +282,23 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesOrdersByRoute", "SalesOrders"],
     }),
 
+    // E-INVOICE
+    generateEInvoice: builder.mutation<SalesResponse<any>, number | string>({
+      query: (id) => ({
+        url: `/sales/orders/invoices/${id}/einvoice/generate`,
+        method: "POST",
+      }),
+      invalidatesTags: ["SalesInvoices", "SalesInvoice"],
+    }),
+
+    submitEInvoice: builder.mutation<SalesResponse<any>, number | string>({
+      query: (id) => ({
+        url: `/sales/orders/invoices/${id}/einvoice/submit`,
+        method: "POST",
+      }),
+      invalidatesTags: ["SalesInvoices", "SalesInvoice"],
+    }),
+
 
   }),
 });
@@ -307,4 +324,6 @@ export const {
   useUpdateSalesOrderStatusMutation,
   useGetSalesOrdersByRouteQuery,
   useAssignStaffToOrderMutation,
+  useGenerateEInvoiceMutation,
+  useSubmitEInvoiceMutation,
 } = salesApiService;
