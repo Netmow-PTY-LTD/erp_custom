@@ -95,7 +95,6 @@ export default function AddCustomerByStaffPage() {
             credit_limit: 0,
             notes: "",
             is_active: false,
-            is_active: false,
             salesRouteId: '',
             contacts: [],
         },
