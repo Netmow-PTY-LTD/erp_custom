@@ -330,8 +330,8 @@ export default function JournalReport() {
                                             <div className="border rounded-md p-4 bg-muted/20 space-y-4">
                                                 <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground mb-2">
                                                     <div className="col-span-5">Account</div>
-                                                    <div className="col-span-3 text-right">Debit</div>
-                                                    <div className="col-span-3 text-right">Credit</div>
+                                                    <div className="col-span-3 text-right">Debit (RM)</div>
+                                                    <div className="col-span-3 text-right">Credit (RM)</div>
                                                     <div className="col-span-1"></div>
                                                 </div>
 
@@ -515,8 +515,8 @@ export default function JournalReport() {
                                         <TableHeader>
                                             <TableRow className="bg-muted/30 hover:bg-muted/30">
                                                 <TableHead className="w-[50%] py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Account Name</TableHead>
-                                                <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Debit</TableHead>
-                                                <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Credit</TableHead>
+                                                <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Debit (RM)</TableHead>
+                                                <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Credit (RM)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
