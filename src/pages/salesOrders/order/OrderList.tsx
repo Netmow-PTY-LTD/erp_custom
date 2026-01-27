@@ -10,6 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   useGetAllSalesOrdersQuery,
@@ -35,13 +42,15 @@ export default function Orders() {
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<string>("all");
   const [page, setPage] = useState(1); // backend starts from 1
   const [limit] = useState(10);
 
   const { data, isLoading } = useGetAllSalesOrdersQuery({
     page,
     limit,
-    search
+    search,
+    status: status === "all" ? undefined : status,
   });
 
   const orders = data?.data ?? [];
@@ -341,9 +350,26 @@ export default function Orders() {
         ))}
       </div>
       <Card className="py-6">
-        <CardHeader>
-          <CardTitle>Orders</CardTitle>
-          <CardDescription>Manage your orders</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Orders</CardTitle>
+            <CardDescription>Manage your orders</CardDescription>
+          </div>
+          <div className="flex items-center gap-4">
+            <Select value={status} onValueChange={(val) => { setStatus(val); setPage(1); }}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                {orderStatusOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           <DataTable

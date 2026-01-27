@@ -58,6 +58,7 @@ export default function AddStockForm({
   search,
   setSearch,
   refetchProducts,
+  initialProductId,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -65,6 +66,7 @@ export default function AddStockForm({
   search?: string;
   setSearch?: (val: string) => void;
   refetchProducts?: () => void;
+  initialProductId?: number;
 }) {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -88,16 +90,30 @@ export default function AddStockForm({
     },
   });
 
-  const { control, setValue } = form;
+  const { control, setValue, reset } = form;
+
+  // Set initial product if provided
+  useEffect(() => {
+    if (open && initialProductId) {
+      setValue("product_id", initialProductId);
+    } else if (open && !initialProductId) {
+      reset({
+        product_id: 0,
+        current_stock: 0,
+        quantity: 0,
+        operation: "add",
+        date: new Date().toISOString().split("T")[0],
+        movement_type: "adjustment",
+        notes: "",
+      });
+    }
+  }, [open, initialProductId, setValue, reset]);
 
   // Watch selected productId
-  // const selectedProductId = watch("product_id");
   const selectedProductId = useWatch({
     control,
     name: "product_id",
   });
-
-  console.log("Selected Product ID:", selectedProductId);
 
   // Find the selected product from parent products
   const selectedProduct = products?.find(
