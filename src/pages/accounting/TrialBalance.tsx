@@ -115,7 +115,27 @@ export default function TrialBalance() {
                                     <TableRow key={idx}>
                                         <TableCell className="font-mono text-xs text-muted-foreground">{row.code}</TableCell>
                                         <TableCell className="font-medium">{row.account}</TableCell>
-                                        <TableCell className="text-xs text-muted-foreground">{row.type}</TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                variant="secondary"
+                                                className={cn(
+                                                    "border px-2.5 py-0.5 rounded-full font-semibold transition-colors",
+                                                    (() => {
+                                                        const t = (row.type || "").toUpperCase();
+                                                        switch (t) {
+                                                            case "ASSET": return "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200 shadow-xs shadow-blue-100";
+                                                            case "LIABILITY": return "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200 shadow-xs shadow-orange-100";
+                                                            case "EQUITY": return "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200 shadow-xs shadow-purple-100";
+                                                            case "INCOME": return "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200 shadow-xs shadow-emerald-100";
+                                                            case "EXPENSE": return "bg-rose-100 text-rose-800 border-rose-200 hover:bg-rose-200 shadow-xs shadow-rose-100";
+                                                            default: return "bg-gray-100 text-gray-800 border-gray-200";
+                                                        }
+                                                    })()
+                                                )}
+                                            >
+                                                {row.type}
+                                            </Badge>
+                                        </TableCell>
                                         <TableCell className="text-right font-mono text-sm">
                                             {row.debit > 0 ? row.debit.toLocaleString(undefined, { minimumFractionDigits: 2 }) : "-"}
                                         </TableCell>
