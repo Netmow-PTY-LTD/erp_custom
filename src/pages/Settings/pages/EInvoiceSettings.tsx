@@ -52,7 +52,7 @@ export default function EInvoiceSettings() {
 
     return (
         <div className="space-y-6">
-            <Card>
+            <Card className="py-6">
                 <CardHeader>
                     <CardTitle>E-Invoice Configuration (LHDN)</CardTitle>
                     <CardDescription>
