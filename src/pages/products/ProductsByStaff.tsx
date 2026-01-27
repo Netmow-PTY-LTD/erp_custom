@@ -168,11 +168,12 @@ export default function ProductsByStaff() {
     {
       accessorKey: "thumb_url",
       header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => (
         <img
           src={row.original.thumb_url}
           alt={row.original.name}
-          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity shrink-0"
           onClick={() =>
             setPreviewData({
               images: [row.original.thumb_url].filter(Boolean),

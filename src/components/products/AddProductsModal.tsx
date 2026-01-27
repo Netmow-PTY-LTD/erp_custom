@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import { useGetAllProductsQuery, useGetAllCategoriesQuery } from "@/store/features/admin/productsApiService";
 import type { Product } from "@/types/types";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -34,12 +34,17 @@ export function AddProductsModal({
     const [limit] = useState(10);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [deselectedIds, setDeselectedIds] = useState<number[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
     const { data, isFetching } = useGetAllProductsQuery({
         page,
         limit,
         search: search || undefined,
+        category_id: selectedCategory === "all" ? undefined : selectedCategory,
     });
+
+    const { data: categoriesData } = useGetAllCategoriesQuery();
+    const categories = categoriesData?.data || [];
 
     const products = Array.isArray(data?.data) ? data.data : [];
     const totalCount = data?.pagination?.total || 0;
@@ -101,7 +106,7 @@ export function AddProductsModal({
                 <img
                     src={row.original.thumb_url || "/placeholder.png"}
                     alt={row.original.name}
-                    className="w-10 h-10 rounded-full object-cover border"
+                    className="w-16 h-16 rounded-full object-cover border"
                 />
             ),
         },
@@ -144,6 +149,11 @@ export function AddProductsModal({
             },
         },
         {
+            accessorKey: "category.name",
+            header: "Category",
+            cell: ({ row }) => row.original.category?.name || "N/A",
+        },
+        {
             accessorKey: "unit.name",
             header: "Unit",
         },
@@ -152,11 +162,29 @@ export function AddProductsModal({
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-4xl w-full max-h-[80vh] h-full flex flex-col">
-                <DialogHeader>
+                <DialogHeader className="flex sm:flex-row flex-col items-start justify-between gap-4 space-y-0 mt-4">
                     <DialogTitle className="text-2xl font-bold">Add Items</DialogTitle>
+                    <div className="flex flex-col gap-2 w-full sm:w-auto items-start">
+                        <label className="text-sm font-medium whitespace-nowrap">Filter by Category:</label>
+                        <select
+                            className="w-48 sm:w-64 h-9 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            value={selectedCategory}
+                            onChange={(e) => {
+                                setSelectedCategory(e.target.value);
+                                setPage(1);
+                            }}
+                        >
+                            <option value="all">All Categories</option>
+                            {categories.map((cat) => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-auto pt-4">
+                <div className="flex-1 overflow-auto pt-2">
                     <DataTable
                         columns={columns}
                         data={products}
