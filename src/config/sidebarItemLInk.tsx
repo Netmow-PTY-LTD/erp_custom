@@ -226,23 +226,24 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+
+      {
+        title: "Products for Staff",
+        url: "/dashboard/products-by-staff",
+        element: <ProductsByStaff />,
+        icon: List, // product list
+        allowedPermissions: [
+          ProductPermission.LIST_BY_STAFF,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
       {
         title: "",
         url: "/dashboard/products/:productId",
         element: <ProductDetailsPage />,
         allowedPermissions: [
           ProductPermission.DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-
-      {
-        title: "Products By Staff",
-        url: "/dashboard/products-by-staff",
-        element: <ProductsByStaff />,
-        icon: List, // product list
-        allowedPermissions: [
-          ProductPermission.LIST_BY_STAFF,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
