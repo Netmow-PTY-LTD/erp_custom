@@ -194,6 +194,8 @@ import ProductsByStaff from "@/pages/products/ProductsByStaff";
 import DatabaseTables from "@/pages/data_management/DatabaseTables";
 import ReturnedPurchaseOrders from "@/pages/suppliers/purchaseOrder/ReturnedPurchaseOrders";
 import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
+import EInvoiceList from "@/pages/salesOrders/invoices/EInvoiceList";
+import EInvoiceSettings from "@/pages/Settings/pages/EInvoiceSettings";
 import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 
 export const sidebarItemLink = [
@@ -1099,6 +1101,16 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "E-Invoices",
+        url: "/dashboard/sales/einvoices",
+        element: <EInvoiceList />,
+        icon: FileText,
+        allowedPermissions: [
+          SalesPermission.INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "",
         url: "/dashboard/sales/invoices/:invoiceId",
         element: <InvoiceDetailsPage />,
@@ -1658,6 +1670,15 @@ export const sidebarItemLink = [
         element: <LayoutSettings />,
         allowedPermissions: [
           SettingsPermission.LAYOUT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/settings/einvoice",
+        element: <EInvoiceSettings />,
+        allowedPermissions: [
+          SettingsPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },

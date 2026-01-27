@@ -63,6 +63,21 @@ export const settingsApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Settings"],
     }),
+    getEInvoiceSettings: builder.query<any, void>({
+      query: () => ({
+        url: `/settings/einvoice`,
+        method: "GET",
+      }),
+      providesTags: ["Settings"],
+    }),
+    updateEInvoiceSettings: builder.mutation<any, any>({
+      query: (body) => ({
+        url: `/settings/einvoice`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Settings"],
+    }),
   }),
 });
 
@@ -70,5 +85,7 @@ export const {
   useGetSettingsInfoQuery,
   useUpdateSettingsInfoMutation,
   useGetLayoutSettingsQuery,
-  useUpdateLayoutSettingsMutation
+  useUpdateLayoutSettingsMutation,
+  useGetEInvoiceSettingsQuery,
+  useUpdateEInvoiceSettingsMutation
 } = settingsApiService;
