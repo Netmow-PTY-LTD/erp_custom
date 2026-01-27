@@ -7,6 +7,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useFieldArray } from "react-hook-form";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
@@ -32,7 +33,9 @@ import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField"
 import { BackButton } from "@/components/BackButton";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
-import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon } from "lucide-react";
+import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon, Plus, Trash2, Edit2, Mail, BadgeCheck } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -41,7 +44,10 @@ const customerSchema = z.object({
   company: z.string().optional(),
   customer_type: z.enum(["individual", "business", "retail"]).default("individual"),
   tax_id: z.string().optional(),
-  email: z.string().email("Invalid email").min(1, "Required"),
+  email: z.string()
+    .email("Invalid email")
+    .optional()
+    .or(z.literal('')),
   phone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -56,11 +62,20 @@ const customerSchema = z.object({
   thumb_url: z.string().optional(),
   gallery_items: z.array(z.string()).max(10, "Maximum 10 images").optional(),
   salesRouteId: z.string().min(1, "Required"),
+  contacts: z.array(z.object({
+    name: z.string().min(1, "Name is required"),
+    phone: z.string().optional().or(z.literal('')),
+    role: z.string().optional().or(z.literal('')),
+    email: z.string().email("Invalid email").optional().or(z.literal('')),
+    is_primary: z.boolean().default(false)
+  })).default([]),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
 
 /* ------------------ PAGE ------------------ */
+import { useState } from "react";
+
 export default function AddCustomerPage() {
   const navigate = useNavigate();
 
@@ -96,16 +111,29 @@ export default function AddCustomerPage() {
     },
   });
 
-  const { control, handleSubmit, setValue } = form;
+  const { control, handleSubmit, setValue, register, watch } = form;
+  const { fields: contactFields, append: appendContact, remove: removeContact, update: updateContact } = useFieldArray({
+    control,
+    name: "contacts",
+  });
+
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [editingContactIndex, setEditingContactIndex] = useState<number | null>(null);
+  const [contactFormValues, setContactFormValues] = useState({
+    name: "",
+    phone: "",
+    role: "",
+    email: "",
+    is_primary: false,
+  });
 
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
-
     try {
       const payload = {
         ...values,
         sales_route_id: Number(values.salesRouteId),
       };
-      // @ts-ignore - thumb_url and gallery_items are already in values
+      // @ts-ignore
       delete payload.salesRouteId;
 
       const res = await createCustomer(payload).unwrap();
@@ -300,8 +328,8 @@ export default function AddCustomerPage() {
                 name="email"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Email *</FieldLabel>
-                    <Input type="email" placeholder="Enter email" {...field} />
+                    <FieldLabel>Email</FieldLabel>
+                    <Input type="email" placeholder="Enter email (optional)" {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -321,6 +349,197 @@ export default function AddCustomerPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Multiple Contacts Section */}
+        <div className="mt-8 pt-8 border-t-2 border-dashed border-blue-100">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <User className="w-5 h-5 text-blue-500" />
+                Additional Contacts
+              </h3>
+              <p className="text-sm text-gray-500">Manage multiple contact persons for this customer</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 font-bold transition-all"
+              onClick={() => {
+                setEditingContactIndex(null);
+                setContactFormValues({ name: "", phone: "", role: "", email: "", is_primary: false });
+                setIsContactModalOpen(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add New Contact
+            </Button>
+          </div>
+
+          {contactFields.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
+              <div className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm mb-3">
+                <User className="w-8 h-8 text-gray-300" />
+              </div>
+              <p className="text-gray-500 font-medium">No contacts added yet</p>
+              <p className="text-xs text-gray-400 mt-1">Click the button above to add a contact person</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {contactFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="group relative bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl p-4 transition-all hover:border-blue-200 hover:shadow-md"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-gray-800 dark:text-gray-100">{field.name}</h4>
+                      {field.is_primary && (
+                        <span className="flex items-center gap-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                          <BadgeCheck className="w-3 h-3" />
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        onClick={() => {
+                          setEditingContactIndex(index);
+                          setContactFormValues({ ...field });
+                          setIsContactModalOpen(true);
+                        }}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        onClick={() => removeContact(index)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    {field.role && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Briefcase className="w-3.5 h-3.5" />
+                        {field.role}
+                      </div>
+                    )}
+                    {field.phone && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Phone className="w-3.5 h-3.5" />
+                        {field.phone}
+                      </div>
+                    )}
+                    {field.email && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Mail className="w-3.5 h-3.5" />
+                        {field.email}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
+          <DialogContent className="sm:max-w-[425px] rounded-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent italic">
+                {editingContactIndex !== null ? "Edit Contact" : "Add New Contact"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <FieldLabel>Contact Name *</FieldLabel>
+                <Input
+                  value={contactFormValues.name}
+                  onChange={(e) => setContactFormValues({ ...contactFormValues, name: e.target.value })}
+                  placeholder="Full name"
+                  className="rounded-xl border-gray-200 focus:border-blue-400"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <FieldLabel>Role / Position</FieldLabel>
+                  <Input
+                    value={contactFormValues.role}
+                    onChange={(e) => setContactFormValues({ ...contactFormValues, role: e.target.value })}
+                    placeholder="e.g. Manager"
+                    className="rounded-xl border-gray-200"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <FieldLabel>Phone Number</FieldLabel>
+                  <Input
+                    value={contactFormValues.phone}
+                    onChange={(e) => setContactFormValues({ ...contactFormValues, phone: e.target.value })}
+                    placeholder="Phone"
+                    className="rounded-xl border-gray-200"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <FieldLabel>Email Address</FieldLabel>
+                <Input
+                  value={contactFormValues.email}
+                  onChange={(e) => setContactFormValues({ ...contactFormValues, email: e.target.value })}
+                  placeholder="email@example.com"
+                  className="rounded-xl border-gray-200"
+                />
+              </div>
+              <div className="flex items-center space-x-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="is_primary"
+                  checked={contactFormValues.is_primary}
+                  onChange={(e) => setContactFormValues({ ...contactFormValues, is_primary: e.target.checked })}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+                <label
+                  htmlFor="is_primary"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
+                >
+                  Set as Primary Contact
+                </label>
+              </div>
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                type="button"
+                className="rounded-xl"
+                onClick={() => setIsContactModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="rounded-xl bg-blue-600 hover:bg-blue-700 font-bold"
+                onClick={() => {
+                  if (!contactFormValues.name) {
+                    toast.error("Contact name is required");
+                    return;
+                  }
+                  if (editingContactIndex !== null) {
+                    updateContact(editingContactIndex, contactFormValues);
+                  } else {
+                    appendContact(contactFormValues);
+                  }
+                  setIsContactModalOpen(false);
+                }}
+              >
+                {editingContactIndex !== null ? "Update Contact" : "Add Contact"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* ADDRESS DETAILS */}
         <Card className="border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">

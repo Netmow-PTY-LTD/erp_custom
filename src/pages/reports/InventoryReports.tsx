@@ -17,12 +17,15 @@ export type LowStockRow = {
   product: string;
   stock: number;
   minLevel: number;
+  total_purchase_amt: number;
+  total_sales_amt: number;
 };
 
 export default function InventoryReports() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 10;
+  const currency = useAppSelector((state) => state.currency.value);
 
   const { data: inventoryValuation } = useGetInventoryValuationQuery();
 
@@ -39,16 +42,39 @@ export default function InventoryReports() {
       limit,
       search,
     });
-  //console.log("Low Stock Items:", lowStockItems);
 
   const columns: ColumnDef<LowStockRow>[] = [
     { accessorKey: "sku", header: "SKU" },
     { accessorKey: "product", header: "Product" },
-    { accessorKey: "stock", header: "Stock" },
+    {
+      accessorKey: "stock",
+      header: "Stock",
+      cell: ({ row }) => (
+        <span className={row.original.stock <= 0 ? "text-rose-600 font-bold" : "text-amber-600 font-medium"}>
+          {row.original.stock}
+        </span>
+      )
+    },
     { accessorKey: "minLevel", header: "Min Level" },
+    {
+      accessorKey: "total_purchase_amt",
+      header: () => <div className="text-right">Total Purchase ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right font-medium text-blue-600">
+          {Number(row.original.total_purchase_amt || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+      )
+    },
+    {
+      accessorKey: "total_sales_amt",
+      header: () => <div className="text-right">Total Sales ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right font-bold text-emerald-600">
+          {Number(row.original.total_sales_amt || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+      )
+    },
   ];
-
-  const currency = useAppSelector((state) => state.currency.value);
 
   return (
     <div className="space-y-6">

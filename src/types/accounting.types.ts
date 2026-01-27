@@ -119,8 +119,11 @@ export type Transaction = {
   date: string;
   type: string;
   amount: number;
-  mode: string;
+  payment_mode: string;
   description: string;
+  person?: string;
+  supplier?: string;
+  category?: string;
 };
 
 export type CreateTransactionInput = {
@@ -179,4 +182,32 @@ export type LedgerReportResponse = {
     closing_balance: number;
     transactions: LedgerTransaction[];
   };
+};
+
+// -------------------- TAX SUBMISSIONS --------------------
+export type TaxSubmission = {
+  id: number;
+  tax_type: string;
+  period_start: string;
+  period_end: string;
+  amount: number;
+  submission_date: string;
+  reference_number?: string;
+  attachment_url?: string;
+  status: 'PENDING' | 'SUBMITTED' | 'PAID';
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type CreateTaxSubmissionInput = {
+  tax_type: string;
+  period_start: string;
+  period_end: string;
+  amount: number;
+  submission_date: string;
+  reference_number?: string;
+  attachment_url?: string;
+  status?: 'PENDING' | 'SUBMITTED' | 'PAID';
+  notes?: string;
 };

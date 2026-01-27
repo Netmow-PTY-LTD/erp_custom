@@ -212,6 +212,33 @@ export interface ProfitLossResponse {
   };
 }
 
+// -------------------- TAX SUBMISSIONS --------------------
+
+export interface TaxSubmission {
+  id: number;
+  tax_type: string;
+  period_start: string;
+  period_end: string;
+  amount: number;
+  submission_date: string;
+  reference_number: string | null;
+  attachment_url: string | null;
+  status: 'PENDING' | 'SUBMITTED' | 'PAID';
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaxSubmissionStats {
+  total_tax: number;
+  total_paid: number;
+  total_due: number;
+}
+
+export type TaxSubmissionResponse = ListResponse<TaxSubmission> & {
+  stats: TaxSubmissionStats;
+};
+
 
 
 
@@ -581,6 +608,32 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET TAX SUBMISSIONS
+    getTaxSubmissions: builder.query<TaxSubmissionResponse, { page?: number; limit?: number; tax_type?: string; status?: string }>({
+      query: (params) => ({
+        url: "/accounting/tax-submissions",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // ADD TAX SUBMISSION
+    addTaxSubmission: builder.mutation<TaxSubmission, Partial<TaxSubmission>>({
+      query: (body) => ({
+        url: "/accounting/tax-submissions",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+    // SEED ACCOUNTING ACCOUNTS
+    seedAccountingAccounts: builder.mutation<{ status: boolean; message: string; data: any }, void>({
+      query: () => ({ url: "/accounting/accounts/seed", method: "POST" }),
+      invalidatesTags: ["AccountingAccounts"],
+    }),
+
 
 
 
@@ -633,4 +686,7 @@ export const {
   useAddExpenseHeadwiseMutation,
   useGetLedgerReportQuery,
   useGetIncomeExpenseTrendQuery,
+  useGetTaxSubmissionsQuery,
+  useAddTaxSubmissionMutation,
+  useSeedAccountingAccountsMutation,
 } = accountingApiService;
