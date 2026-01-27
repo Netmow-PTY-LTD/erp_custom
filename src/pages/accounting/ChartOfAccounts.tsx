@@ -226,7 +226,37 @@ export default function ChartOfAccounts() {
             ),
 
         },
-        { accessorKey: "type", header: "Type", cell: ({ row }) => <Badge variant="outline">{row.original.type}</Badge> },
+        {
+            accessorKey: "type",
+            header: "Type",
+            cell: ({ row }) => {
+                const originalType = row.original.type || "";
+                const type = originalType.toUpperCase();
+                let colorClass = "";
+
+                switch (type) {
+                    case "ASSET":
+                        colorClass = "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200 shadow-xs shadow-blue-100";
+                        break;
+                    case "LIABILITY":
+                        colorClass = "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200 shadow-xs shadow-orange-100";
+                        break;
+                    case "EQUITY":
+                        colorClass = "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200 shadow-xs shadow-purple-100";
+                        break;
+                    case "INCOME":
+                        colorClass = "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200 shadow-xs shadow-emerald-100";
+                        break;
+                    case "EXPENSE":
+                        colorClass = "bg-rose-100 text-rose-800 border-rose-200 hover:bg-rose-200 shadow-xs shadow-rose-100";
+                        break;
+                    default:
+                        colorClass = "bg-gray-100 text-gray-800 border-gray-200";
+                }
+
+                return <Badge className={cn("border px-2.5 py-0.5 rounded-full font-semibold transition-colors", colorClass)} variant="secondary">{originalType}</Badge>;
+            }
+        },
         {
             accessorKey: "debit",
             header: () => <div className="text-right">Debit (RM)</div>,
