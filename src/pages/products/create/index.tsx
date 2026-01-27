@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 //import { ImageUploader } from "@/components/form/ImageUploader";
 import { useNavigate } from "react-router";
-import { Check, ChevronDown, Package, Image as ImageIcon, Tag, DollarSign, Truck, CheckCircle2, Layers, Plus, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, Package, Image as ImageIcon, DollarSign, Truck, CheckCircle2, Layers, Plus, Trash2, X } from "lucide-react";
 import {
   useAddProductMutation,
   useGetAllCategoriesQuery,
@@ -193,10 +193,30 @@ export default function AddProductPage() {
           </h1>
           <p className="text-muted-foreground mt-2">Create a new product with details</p>
         </div>
-        <BackButton />
+        <div className="flex items-center gap-3">
+          <BackButton />
+          <button
+            type="submit"
+            form="add-product-form"
+            disabled={isLoading}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-2.5 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                <span>Add Product</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form id="add-product-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* BASIC INFO */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
             <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
@@ -241,24 +261,175 @@ export default function AddProductPage() {
                     )}
                   />
 
-                  {/* DESCRIPTION */}
+                  {/* CATEGORY */}
+                  <Controller
+                    control={control}
+                    name="category"
+                    render={({ field, fieldState }) => {
+                      const selected = fetchedCategories?.data?.find(
+                        (cat) => cat.id === field.value
+                      );
+
+                      return (
+                        <Field>
+                          <FieldLabel>Category</FieldLabel>
+
+                          <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={open}
+                                className="w-full justify-between"
+                              >
+                                {selected ? selected.name : "Select category..."}
+                                <ChevronDown className="opacity-50 h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                {/* Search input */}
+                                <CommandInput
+                                  placeholder="Search category..."
+                                  className="h-9"
+                                  value={search}
+                                  onValueChange={setSearch}
+                                />
+
+                                <CommandList>
+                                  <CommandEmpty>No category found.</CommandEmpty>
+
+                                  <CommandGroup>
+                                    {fetchedCategories?.data?.map((cat) => (
+                                      <CommandItem
+                                        key={cat.id}
+                                        value={`${cat.name}-${cat.id}`} // unique, string
+                                        onSelect={() => {
+                                          field.onChange(cat.id); // convert back to number
+                                          setOpen(false);
+                                        }}
+                                      >
+                                        {cat.name}
+                                        <Check
+                                          className={cn(
+                                            "ml-auto h-4 w-4",
+                                            field.value === cat.id
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
+                          {fieldState.error && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {fieldState.error.message}
+                            </p>
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
+
+                  {/* UNIT */}
+                  <Controller
+                    control={control}
+                    name="unit"
+                    render={({ field, fieldState }) => {
+                      const selectedUnit = fetchedUnits?.data?.find(
+                        (u) => u.id === field.value
+                      );
+
+                      const selectedLabel = selectedUnit?.name ?? "Select a unit";
+
+                      return (
+                        <Field>
+                          <FieldLabel>Unit</FieldLabel>
+
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className="w-full justify-between"
+                              >
+                                {selectedLabel}
+                                <ChevronDown className="opacity-50 h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+
+                            <PopoverContent className="w-full p-0">
+                              <Command>
+                                {/* 🔍 Search input inside the popover */}
+                                <CommandInput
+                                  placeholder="Search units..."
+                                  value={unitSearch}
+                                  onValueChange={setUnitSearch}
+                                />
+
+                                <CommandList>
+                                  <CommandEmpty>No units found.</CommandEmpty>
+
+                                  <CommandGroup>
+                                    {fetchedUnits?.data?.map((unit) => {
+                                      if (!unit.is_active) return
+                                      return (
+                                        <CommandItem
+                                          key={unit.id}
+                                          value={unit.name} // for built-in filtering
+                                          onSelect={() => {
+                                            field.onChange(unit.id);
+                                            setOpen(false);
+                                          }}
+                                        >
+                                          <span>{unit.name}</span>
+
+                                          {field.value === unit.id && (
+                                            <Check className="ml-auto h-4 w-4" />
+                                          )}
+                                        </CommandItem>
+                                      )
+                                    })}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+
+                          {fieldState.error && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {fieldState.error.message}
+                            </p>
+                          )}
+                        </Field>
+                      );
+                    }}
+                  />
+
+                  {/* SPECIFICATION */}
                   <div className="md:col-span-2">
                     <Controller
                       control={control}
-                      name="description"
+                      name="specification"
                       render={({ field, fieldState }) => (
                         <Field>
-                          <FieldLabel>Description</FieldLabel>
-                          <Textarea
-                            rows={4}
-                            placeholder="Write description..."
+                          <FieldLabel>Product Specification</FieldLabel>
+                          <Input
+                            placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
                             {...field}
                           />
-                          <FieldError>{fieldState?.error?.message}</FieldError>
+                          <FieldError>{fieldState.error?.message}</FieldError>
                         </Field>
                       )}
                     />
                   </div>
+
                 </div>
 
                 {/* Right side: Image */}
@@ -284,245 +455,6 @@ export default function AddProductPage() {
             </CardContent>
           </Card>
 
-
-          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
-                  <ImageIcon className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Product Gallery</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload multiple product images</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pb-3">
-              <Controller
-                control={control}
-                name="gallery_items"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Product Gallery</FieldLabel>
-                    <ImageUploaderPro
-                      value={field.value || []}
-                      onChange={field.onChange}
-                      multiple
-                    />
-                    <FieldError>{fieldState?.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          {/* CLASSIFICATION */}
-          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
-                  <Tag className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Classification</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Category, unit, and status</p>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="grid gap-4 md:grid-cols-3 pb-6">
-              {/* CATEGORY */}
-              <Controller
-                control={control}
-                name="category"
-                render={({ field, fieldState }) => {
-                  const selected = fetchedCategories?.data?.find(
-                    (cat) => cat.id === field.value
-                  );
-
-                  return (
-                    <Field>
-                      <FieldLabel>Category</FieldLabel>
-
-                      <Popover open={open} onOpenChange={setOpen}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={open}
-                            className="w-full justify-between"
-                          >
-                            {selected ? selected.name : "Select category..."}
-                            <ChevronDown className="opacity-50 h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-
-                        <PopoverContent className="w-full p-0">
-                          <Command>
-                            {/* Search input */}
-                            <CommandInput
-                              placeholder="Search category..."
-                              className="h-9"
-                              value={search}
-                              onValueChange={setSearch}
-                            />
-
-                            <CommandList>
-                              <CommandEmpty>No category found.</CommandEmpty>
-
-                              <CommandGroup>
-                                {fetchedCategories?.data?.map((cat) => (
-                                  <CommandItem
-                                    key={cat.id}
-                                    value={`${cat.name}-${cat.id}`} // unique, string
-                                    onSelect={() => {
-                                      field.onChange(cat.id); // convert back to number
-                                      setOpen(false);
-                                    }}
-                                  >
-                                    {cat.name}
-                                    <Check
-                                      className={cn(
-                                        "ml-auto h-4 w-4",
-                                        field.value === cat.id
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                  </CommandItem>
-                                ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-
-                      {fieldState.error && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {fieldState.error.message}
-                        </p>
-                      )}
-                    </Field>
-                  );
-                }}
-              />
-
-              {/* SPECIFICATION */}
-              <Controller
-                control={control}
-                name="specification"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Product Specification</FieldLabel>
-                    <Input
-                      placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
-                      {...field}
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              {/* UNIT */}
-              <Controller
-                control={control}
-                name="unit"
-                render={({ field, fieldState }) => {
-                  const selectedUnit = fetchedUnits?.data?.find(
-                    (u) => u.id === field.value
-                  );
-
-                  const selectedLabel = selectedUnit?.name ?? "Select a unit";
-
-                  return (
-                    <Field>
-                      <FieldLabel>Unit</FieldLabel>
-
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between"
-                          >
-                            {selectedLabel}
-                            <ChevronDown className="opacity-50 h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-
-                        <PopoverContent className="w-full p-0">
-                          <Command>
-                            {/* 🔍 Search input inside the popover */}
-                            <CommandInput
-                              placeholder="Search units..."
-                              value={unitSearch}
-                              onValueChange={setUnitSearch}
-                            />
-
-                            <CommandList>
-                              <CommandEmpty>No units found.</CommandEmpty>
-
-                              <CommandGroup>
-                                {fetchedUnits?.data?.map((unit) => {
-                                  if (!unit.is_active) return
-                                  return (
-                                    <CommandItem
-                                      key={unit.id}
-                                      value={unit.name} // for built-in filtering
-                                      onSelect={() => {
-                                        field.onChange(unit.id);
-                                        setOpen(false);
-                                      }}
-                                    >
-                                      <span>{unit.name}</span>
-
-                                      {field.value === unit.id && (
-                                        <Check className="ml-auto h-4 w-4" />
-                                      )}
-                                    </CommandItem>
-                                  )
-                                })}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-
-                      {fieldState.error && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {fieldState.error.message}
-                        </p>
-                      )}
-                    </Field>
-                  );
-                }}
-              />
-
-              {/* STATUS */}
-              <Controller
-                control={control}
-                name="is_active"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Status</FieldLabel>
-                    <Select
-                      value={String(field.value)}
-                      onValueChange={(v) => field.onChange(v === "true")}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Active</SelectItem>
-                        <SelectItem value="false">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            </CardContent>
-          </Card>
 
           {/* PRICING & STOCK */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
@@ -767,6 +699,64 @@ export default function AddProductPage() {
             </CardContent>
           </Card>
 
+          {/* DESCRIPTION & STATUS */}
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <CheckCircle2 className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Description & Status</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Product description and availability status</p>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="pb-6 space-y-6">
+              {/* DESCRIPTION */}
+              <Controller
+                control={control}
+                name="description"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Description</FieldLabel>
+                    <Textarea
+                      rows={4}
+                      placeholder="Write description..."
+                      {...field}
+                    />
+                    <FieldError>{fieldState?.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              {/* STATUS */}
+              <Controller
+                control={control}
+                name="is_active"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Status</FieldLabel>
+                    <Select
+                      value={field.value ? "true" : "false"}
+                      onValueChange={(v) => field.onChange(v === "true")}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Active</SelectItem>
+                        <SelectItem value="false">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </CardContent>
+          </Card>
+
           {/* ATTRIBUTES */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
             <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-2 border-blue-100 dark:border-blue-900 py-3 gap-0">
@@ -880,6 +870,37 @@ export default function AddProductPage() {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                  <ImageIcon className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Product Gallery</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload multiple product images</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="pb-3">
+              <Controller
+                control={control}
+                name="gallery_items"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Product Gallery</FieldLabel>
+                    <ImageUploaderPro
+                      value={field.value || []}
+                      onChange={field.onChange}
+                      multiple
+                    />
+                    <FieldError>{fieldState?.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
             </CardContent>
           </Card>
 

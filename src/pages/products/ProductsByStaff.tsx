@@ -172,7 +172,7 @@ export default function ProductsByStaff() {
         <img
           src={row.original.thumb_url}
           alt={row.original.name}
-          className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() =>
             setPreviewData({
               images: [row.original.thumb_url].filter(Boolean),
@@ -183,55 +183,15 @@ export default function ProductsByStaff() {
       ),
     },
     {
-      accessorKey: "gallery_items",
-      header: "Gallery",
-      cell: ({ row }) => {
-        const gallery = row.original.gallery_items || [];
-        return (
-          <div className="flex items-center gap-1">
-            {gallery.length > 0 ? (
-              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
-                {gallery.slice(0, 3).map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`Gallery ${i}`}
-                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: i,
-                      })
-                    }
-                  />
-                ))}
-                {gallery.length > 3 && (
-                  <div
-                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: 3,
-                      })
-                    }
-                  >
-                    +{gallery.length - 3}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-xs text-muted-foreground">-</span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
       accessorKey: "category",
       header: "Category",
       cell: ({ row }) => row?.original?.category?.name
     },
-
+    {
+      accessorKey: "specifications",
+      header: "Specifications",
+      cell: ({ row }) => row?.original?.specification
+    },
     {
       accessorKey: "price",
       header: () => (
