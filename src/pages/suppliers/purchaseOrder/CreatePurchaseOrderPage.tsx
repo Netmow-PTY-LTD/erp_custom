@@ -534,20 +534,20 @@ export default function CreatePurchaseOrderPage() {
 
               <div className="space-y-4 overflow-x-auto min-w-full">
                 {/* Header for Desktop */}
-                <div className="hidden xl:flex gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
-                  <div className="w-20">SKU</div>
-                  <div className="flex-1 min-w-[150px]">Product</div>
-                  <div className="w-28">Spec.</div>
-                  <div className="w-16">Unit</div>
-                  <div className="w-16 text-center">Stock</div>
-                  <div className="w-24">Price</div>
-                  <div className="w-16">Qty</div>
-                  <div className="w-20 text-center">Total Qty</div>
-                  <div className="w-20">Discount</div>
-                  <div className="w-24">Pretax</div>
-                  <div className="w-16 text-center">Tax %</div>
-                  <div className="w-24 text-right">Tax Amt</div>
-                  <div className="w-28 text-right pr-4">Total ({currency})</div>
+                <div className="hidden xl:flex min-w-max gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
+                  <div className="w-32 sticky left-0 bg-gray-100 dark:bg-gray-800 z-20">SKU</div>
+                  <div className="flex-1 min-w-[250px] sticky left-[144px] bg-gray-100 dark:bg-gray-800 z-20">Product</div>
+                  <div className="w-32">Spec.</div>
+                  <div className="w-24">Unit</div>
+                  <div className="w-24 text-right">Stock</div>
+                  <div className="w-32 text-right">Price</div>
+                  <div className="w-24 text-right">Qty</div>
+                  <div className="w-24 text-right">Total Qty</div>
+                  <div className="w-24 text-right">Discount</div>
+                  <div className="w-32 text-right">Pretax</div>
+                  <div className="w-24 text-right">Tax %</div>
+                  <div className="w-32 text-right">Tax Amt</div>
+                  <div className="w-36 text-right pr-4">Total ({currency})</div>
                   <div className="w-10"></div>
                 </div>
 
@@ -555,14 +555,14 @@ export default function CreatePurchaseOrderPage() {
                   {fields.map((item, index) => (
                     <div
                       key={item.id}
-                      className="flex flex-wrap xl:flex-nowrap gap-4 items-start xl:items-center bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
+                      className="flex flex-wrap xl:flex-nowrap min-w-max gap-4 items-start xl:items-center bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
                     >
                       {/* SKU */}
                       <FormField
                         name={`items.${index}.sku`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-28 xl:w-20">
+                          <FormItem className="w-full sm:w-28 xl:w-32 sticky left-0 bg-inherit xl:z-10">
                             <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">SKU</FormLabel>
                             <FormControl>
                               <Input
@@ -578,7 +578,7 @@ export default function CreatePurchaseOrderPage() {
                       />
 
                       {/* Product */}
-                      <div className="flex-1 min-w-[250px] xl:min-w-[150px]">
+                      <div className="flex-1 min-w-[250px] xl:min-w-[250px] sticky left-[144px] bg-inherit xl:z-10">
                         <FormField
                           name={`items.${index}.productId`}
                           control={control}
@@ -604,7 +604,7 @@ export default function CreatePurchaseOrderPage() {
                         name={`items.${index}.specification`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-32 xl:w-28">
+                          <FormItem className="w-full sm:w-32 xl:w-32">
                             <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Spec.</FormLabel>
                             <FormControl>
                               <Input
@@ -624,7 +624,7 @@ export default function CreatePurchaseOrderPage() {
                         name={`items.${index}.unit`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-20 xl:w-16">
+                          <FormItem className="w-20 xl:w-24">
                             <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Unit</FormLabel>
                             <FormControl>
                               <Input
@@ -640,7 +640,7 @@ export default function CreatePurchaseOrderPage() {
                       />
 
                       {/* Stock */}
-                      <div className="w-20 xl:w-16">
+                      <div className="w-20 xl:w-24">
                         <label className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold block mb-1">Stock</label>
                         <Input
                           type="number"
@@ -656,7 +656,7 @@ export default function CreatePurchaseOrderPage() {
                         control={control}
                         rules={{ required: "Price required" }}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-28 xl:w-24">
+                          <FormItem className="w-full sm:w-28 xl:w-32">
                             <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Price</FormLabel>
                             <FormControl>
                               <Input
@@ -680,7 +680,7 @@ export default function CreatePurchaseOrderPage() {
                         control={control}
                         rules={{ required: "Quantity required" }}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-20 xl:w-16">
+                          <FormItem className="w-full sm:w-20 xl:w-24">
                             <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Qty</FormLabel>
                             <FormControl>
                               <Input
@@ -698,7 +698,7 @@ export default function CreatePurchaseOrderPage() {
                       />
 
                       {/* Total Quantity (Stock + Qty) */}
-                      <div className="w-full sm:w-24 xl:w-20">
+                      <div className="w-full sm:w-24 xl:w-24">
                         <label className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold block mb-1">Total Qty</label>
                         <Input
                           type="number"
@@ -714,7 +714,7 @@ export default function CreatePurchaseOrderPage() {
                         control={control}
                         rules={{ required: "Discount required" }}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-20">
+                          <FormItem className="w-full sm:w-20 xl:w-24">
                             <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Discount</FormLabel>
                             <FormControl>
                               <Input
@@ -732,7 +732,7 @@ export default function CreatePurchaseOrderPage() {
                       />
 
                       {/* Pretax Amount (Calculated) */}
-                      <div className="w-full sm:w-24">
+                      <div className="w-full sm:w-24 xl:w-32">
                         <label className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold block text-left mb-1">Pretax</label>
                         <Input
                           type="number"
@@ -747,7 +747,7 @@ export default function CreatePurchaseOrderPage() {
                         name={`items.${index}.purchase_tax`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-16">
+                          <FormItem className="w-full sm:w-16 xl:w-24">
                             <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Tax %</FormLabel>
                             <FormControl>
                               <Input
@@ -765,7 +765,7 @@ export default function CreatePurchaseOrderPage() {
                       />
 
                       {/* Tax Amount (Calculated) */}
-                      <div className="w-full sm:w-24 text-right">
+                      <div className="w-full sm:w-24 xl:w-32 text-right">
                         <label className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold block text-left mb-1">Tax Amt</label>
                         <Input
                           type="number"
@@ -781,7 +781,7 @@ export default function CreatePurchaseOrderPage() {
                       </div>
 
                       {/* Line Total */}
-                      <div className="w-full sm:w-28 text-right pr-4">
+                      <div className="w-full sm:w-28 xl:w-36 text-right pr-4">
                         <label className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold block text-left mb-1">Total</label>
                         <div className="font-semibold h-9 flex items-center justify-end">
                           {currency}{" "}

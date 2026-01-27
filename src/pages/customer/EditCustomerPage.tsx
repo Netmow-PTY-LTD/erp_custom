@@ -168,7 +168,11 @@ export default function EditCustomerPage() {
       reset({
         name: customer.name,
         company: customer.company || "",
-        customer_type: customer.customer_type,
+        customer_type: (function () {
+          const raw = customer.customer_type;
+          const normalized = raw && typeof raw === 'string' ? raw.trim().toLowerCase() : "individual";
+          return (["individual", "business", "retail"].includes(normalized) ? normalized : "individual") as "individual" | "business" | "retail";
+        })(),
         tax_id: customer.tax_id || "",
         email: customer.email || "",
         phone: customer.phone || "",
