@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useGetAllProductsQuery, useGetAllCategoriesQuery } from "@/store/features/admin/productsApiService";
 import type { Product } from "@/types/types";
 import { DataTable } from "@/components/dashboard/components/DataTable";
@@ -102,7 +109,7 @@ export function AddProductsModal({
         {
             accessorKey: "thumb_url",
             header: "Image",
-            meta: { className: "min-w-[90px]" } as any,
+            meta: { className: "min-w-[100px]" } as any,
             cell: ({ row }) => (
                 <img
                     src={row.original.thumb_url || "/placeholder.png"}
@@ -163,25 +170,29 @@ export function AddProductsModal({
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-4xl w-full max-h-[80vh] h-full flex flex-col">
-                <DialogHeader className="flex sm:flex-row flex-col items-start justify-between gap-4 space-y-0 mt-4">
+                <DialogHeader className="flex sm:flex-row flex-col items-start justify-between gap-4 space-y-0 sm:mt-4">
                     <DialogTitle className="text-2xl font-bold">Add Items</DialogTitle>
-                    <div className="flex flex-col gap-2 w-full sm:w-auto items-start">
+                    <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
                         <label className="text-sm font-medium whitespace-nowrap">Filter by Category:</label>
-                        <select
-                            className="w-48 sm:w-64 h-9 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        <Select
                             value={selectedCategory}
-                            onChange={(e) => {
-                                setSelectedCategory(e.target.value);
+                            onValueChange={(value) => {
+                                setSelectedCategory(value);
                                 setPage(1);
                             }}
                         >
-                            <option value="all">All Categories</option>
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger className="w-full sm:w-64 h-9">
+                                <SelectValue placeholder="All Categories" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Categories</SelectItem>
+                                {categories.map((cat) => (
+                                    <SelectItem key={cat.id} value={cat.id.toString()}>
+                                        {cat.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </DialogHeader>
 
