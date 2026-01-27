@@ -34,7 +34,7 @@ import { BackButton } from "@/components/BackButton";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon, Plus, Trash2, Edit2, Mail, BadgeCheck } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 
@@ -111,7 +111,7 @@ export default function AddCustomerPage() {
     },
   });
 
-  const { control, handleSubmit, setValue, register, watch } = form;
+  const { control, handleSubmit, setValue } = form;
   const { fields: contactFields, append: appendContact, remove: removeContact, update: updateContact } = useFieldArray({
     control,
     name: "contacts",
@@ -407,7 +407,13 @@ export default function AddCustomerPage() {
                         className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         onClick={() => {
                           setEditingContactIndex(index);
-                          setContactFormValues({ ...field });
+                          setContactFormValues({
+                            name: field.name,
+                            phone: field.phone || "",
+                            role: field.role || "",
+                            email: field.email || "",
+                            is_primary: field.is_primary,
+                          });
                           setIsContactModalOpen(true);
                         }}
                       >

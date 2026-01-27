@@ -104,7 +104,7 @@ export default function EditCustomerPage() {
   const customer = data?.data;
 
   const form = useForm<CustomerFormValues>({
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(customerSchema) as Resolver<CustomerFormValues>,
     defaultValues: {
       name: "",
       company: "",
@@ -488,7 +488,13 @@ export default function EditCustomerPage() {
                         className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         onClick={() => {
                           setEditingContactIndex(index);
-                          setContactFormValues({ ...field });
+                          setContactFormValues({
+                            name: field.name,
+                            phone: field.phone || "",
+                            role: field.role || "",
+                            email: field.email || "",
+                            is_primary: field.is_primary,
+                          });
                           setIsContactModalOpen(true);
                         }}
                       >
