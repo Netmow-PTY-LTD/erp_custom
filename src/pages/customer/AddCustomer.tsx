@@ -34,7 +34,7 @@ import { BackButton } from "@/components/BackButton";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon, Plus, Trash2, Edit2, Mail, BadgeCheck } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 
@@ -111,7 +111,7 @@ export default function AddCustomerPage() {
     },
   });
 
-  const { control, handleSubmit, setValue, register, watch } = form;
+  const { control, handleSubmit, setValue } = form;
   const { fields: contactFields, append: appendContact, remove: removeContact, update: updateContact } = useFieldArray({
     control,
     name: "contacts",
@@ -265,47 +265,6 @@ export default function AddCustomerPage() {
 
         </Card>
 
-        {/* CUSTOMER GALLERY */}
-        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
-                <ImageIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Customer Gallery</CardTitle>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload additional customer images</p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pb-6">
-            <Controller
-              control={control}
-              name="gallery_items"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Gallery (max 10)</FieldLabel>
-                  <ImageUploaderPro
-                    multiple
-                    value={field.value || []}
-                    onChange={(v) => {
-                      const arr = Array.isArray(v) ? v : v ? [v] : [];
-                      if (arr.length > 10) {
-                        toast.error("You can upload up to 10 images only");
-                        arr.splice(10);
-                      }
-                      field.onChange(arr);
-                    }}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Optional. Upload up to 10 additional images for the customer.
-                  </p>
-                  <FieldError>{fieldState?.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </CardContent>
-        </Card>
 
 
         {/* CONTACT DETAILS */}
@@ -407,7 +366,13 @@ export default function AddCustomerPage() {
                         className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         onClick={() => {
                           setEditingContactIndex(index);
-                          setContactFormValues({ ...field });
+                          setContactFormValues({
+                            name: field.name,
+                            phone: field.phone || "",
+                            role: field.role || "",
+                            email: field.email || "",
+                            is_primary: field.is_primary,
+                          });
                           setIsContactModalOpen(true);
                         }}
                       >
@@ -755,6 +720,48 @@ export default function AddCustomerPage() {
                 )}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* CUSTOMER GALLERY */}
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <ImageIcon className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Customer Gallery</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload additional customer images</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pb-6">
+            <Controller
+              control={control}
+              name="gallery_items"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Gallery (max 10)</FieldLabel>
+                  <ImageUploaderPro
+                    multiple
+                    value={field.value || []}
+                    onChange={(v) => {
+                      const arr = Array.isArray(v) ? v : v ? [v] : [];
+                      if (arr.length > 10) {
+                        toast.error("You can upload up to 10 images only");
+                        arr.splice(10);
+                      }
+                      field.onChange(arr);
+                    }}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Optional. Upload up to 10 additional images for the customer.
+                  </p>
+                  <FieldError>{fieldState?.error?.message}</FieldError>
+                </Field>
+              )}
+            />
           </CardContent>
         </Card>
 

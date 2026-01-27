@@ -45,8 +45,7 @@ import {
     useGetAccountingAccountsQuery,
     useLazyGetAccountingAccountsQuery,
     useAddAccountingAccountMutation,
-    useUpdateAccountingAccountMutation,
-    useSeedAccountingAccountsMutation
+    useUpdateAccountingAccountMutation
 } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
@@ -78,17 +77,7 @@ export default function ChartOfAccounts() {
 
     const [addAccountingAccount, { isLoading }] = useAddAccountingAccountMutation();
     const [updateAccountingAccount] = useUpdateAccountingAccountMutation();
-    const [seedAccounts, { isLoading: isSeeding }] = useSeedAccountingAccountsMutation();
 
-    const handleSeed = async () => {
-        try {
-            await seedAccounts().unwrap();
-            toast.success("Accounts seeded successfully");
-            refetch();
-        } catch (error: any) {
-            toast.error(error?.data?.message || "Seeding failed");
-        }
-    };
 
     const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<CreateAccountFormValues>({
         defaultValues: { name: "", code: "", type: undefined, parent_id: undefined },

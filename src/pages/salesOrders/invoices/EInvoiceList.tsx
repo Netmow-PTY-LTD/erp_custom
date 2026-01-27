@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Link } from "react-router";
 import { useGetSalesInvoicesQuery, useGenerateEInvoiceMutation, useSubmitEInvoiceMutation } from "@/store/features/salesOrder/salesOrder";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,11 @@ export default function EInvoiceList() {
         {
             accessorKey: "invoice_number",
             header: "Invoice #",
-            cell: ({ row }) => <span className="font-medium text-blue-600">{row.original.invoice_number}</span>
+            cell: ({ row }) => (
+                <Link to={`/dashboard/sales/invoices/${row.original.id}`} className="font-medium text-blue-600 hover:underline">
+                    {row.original.invoice_number}
+                </Link>
+            )
         },
         {
             accessorKey: "invoice_date",
@@ -149,7 +154,7 @@ export default function EInvoiceList() {
     return (
         <div className="space-y-6">
             <h2 className="text-3xl font-bold tracking-tight">E-Invoices</h2>
-            <Card>
+            <Card className="pt-6 pb-2">
                 <CardHeader>
                     <CardTitle>Invoice List</CardTitle>
                 </CardHeader>

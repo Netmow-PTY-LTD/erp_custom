@@ -225,7 +225,7 @@ export default function TaxSubmission() {
 
             {/* Statistics Cards */}
             <div className="grid gap-6 md:grid-cols-3">
-                <Card className="border-l-4 border-l-indigo-600 shadow-sm bg-gradient-to-br from-white to-indigo-50/30">
+                <Card className="border-l-4 border-l-indigo-600 shadow-sm bg-gradient-to-br from-white to-indigo-50/30 py-4">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Tax Liability</CardTitle>
                         <Scale className="h-5 w-5 text-indigo-500" />
@@ -237,7 +237,7 @@ export default function TaxSubmission() {
                         <p className="text-xs text-muted-foreground mt-1">Sum of all recorded tax filings</p>
                     </CardContent>
                 </Card>
-                <Card className="border-l-4 border-l-emerald-600 shadow-sm bg-gradient-to-br from-white to-emerald-50/30">
+                <Card className="border-l-4 border-l-emerald-600 shadow-sm bg-gradient-to-br from-white to-emerald-50/30 py-4">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Tax Paid</CardTitle>
                         <CheckCircle className="h-5 w-5 text-emerald-500" />
@@ -249,7 +249,7 @@ export default function TaxSubmission() {
                         <p className="text-xs text-muted-foreground mt-1">Successfully processed tax payments</p>
                     </CardContent>
                 </Card>
-                <Card className="border-l-4 border-l-orange-600 shadow-sm bg-gradient-to-br from-white to-orange-50/30">
+                <Card className="border-l-4 border-l-orange-600 shadow-sm bg-gradient-to-br from-white to-orange-50/30 py-4">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Tax Due</CardTitle>
                         <AlertCircle className="h-5 w-5 text-orange-500" />

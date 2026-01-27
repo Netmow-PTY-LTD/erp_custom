@@ -171,13 +171,14 @@ export default function SuppliersList() {
     {
       accessorKey: "thumb_url",
       header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => {
         const thumbUrl = row.original.thumb_url;
         return thumbUrl ? (
           <img
             src={thumbUrl}
             alt={row.original.name}
-            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            className="w-20 h-20 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity shrink-0"
             onClick={() =>
               setPreviewData({
                 images: [thumbUrl].filter(Boolean) as string[],
@@ -186,7 +187,7 @@ export default function SuppliersList() {
             }
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
             <User className="w-5 h-5 text-gray-500" />
           </div>
         );

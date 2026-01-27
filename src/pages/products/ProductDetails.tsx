@@ -13,6 +13,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { MoveLeft, MoveRight } from "lucide-react";
 
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import type { DateRange } from "react-day-picker";
@@ -21,6 +26,10 @@ import { format } from "date-fns";
 export default function ProductDetailsPage() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [previewData, setPreviewData] = useState<{
+    images: string[];
+    index: number;
+  } | null>(null);
   const limit = 10;
   const productId = useParams().productId;
 
@@ -219,6 +228,41 @@ export default function ProductDetailsPage() {
 
             </CardContent>
           </Card>
+
+          {/* Product Gallery */}
+          <Card className="py-6">
+            <CardHeader>
+              <CardTitle>Product Gallery</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-2">
+                {product?.gallery_items && product.gallery_items.length > 0 ? (
+                  product.gallery_items.map((url, i) => (
+                    <div
+                      key={url}
+                      className="aspect-square rounded-lg overflow-hidden border bg-muted cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() =>
+                        setPreviewData({
+                          images: product.gallery_items || [],
+                          index: i,
+                        })
+                      }
+                    >
+                      <img
+                        src={url}
+                        alt={`Gallery ${i}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="col-span-3 text-sm text-muted-foreground text-center py-4">
+                    No gallery images available
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* RIGHT COLUMN */}
@@ -310,6 +354,77 @@ export default function ProductDetailsPage() {
           </Card>
         </div>
       </div>
+
+      {/* Lightbox Modal */}
+      <Dialog
+        open={!!previewData}
+        onOpenChange={(open) => !open && setPreviewData(null)}
+      >
+        <DialogContent className="max-w-3xl p-5 overflow-hidden bg-white border-none shadow-2xl">
+          <div className="relative flex items-center justify-center min-h-[50vh]">
+            {previewData && (
+              <>
+                <img
+                  src={previewData.images[previewData.index]}
+                  alt="Product Preview"
+                  className="max-w-full max-h-[70vh] rounded-lg object-contain shadow-sm"
+                />
+
+                {/* Left Arrow (Previous) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === 0
+                                ? prev.images.length - 1
+                                : prev.index - 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all hover:scale-110 active:scale-95"
+                  >
+                    <MoveLeft className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* Right Arrow (Next) */}
+                {previewData.images.length > 1 && (
+                  <button
+                    onClick={() =>
+                      setPreviewData((prev) =>
+                        prev
+                          ? {
+                            ...prev,
+                            index:
+                              prev.index === prev.images.length - 1
+                                ? 0
+                                : prev.index + 1,
+                          }
+                          : null
+                      )
+                    }
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all hover:scale-110 active:scale-95"
+                  >
+                    <MoveRight className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* Counter */}
+                {previewData.images.length > 1 && (
+                  <div className="absolute bottom-2 bg-black/50 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full font-medium">
+                    {previewData.index + 1} / {previewData.images.length}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

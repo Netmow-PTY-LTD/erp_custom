@@ -77,6 +77,7 @@ export type RecentActivityResponse = {
 export interface ExpenseBreakdownData {
   name: string;
   value: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 

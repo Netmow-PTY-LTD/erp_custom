@@ -542,6 +542,7 @@ export default function CreatePurchaseOrderPage() {
                   <div className="w-16 text-center">Stock</div>
                   <div className="w-24">Price</div>
                   <div className="w-16">Qty</div>
+                  <div className="w-20 text-center">Total Qty</div>
                   <div className="w-20">Discount</div>
                   <div className="w-24">Pretax</div>
                   <div className="w-16 text-center">Tax %</div>
@@ -645,7 +646,7 @@ export default function CreatePurchaseOrderPage() {
                           type="number"
                           value={items[index].stock_quantity || 0}
                           readOnly
-                          className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-center"
+                          className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                         />
                       </div>
 
@@ -665,7 +666,7 @@ export default function CreatePurchaseOrderPage() {
                                 onChange={(e) =>
                                   field.onChange(Number(e.target.value))
                                 }
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
@@ -688,13 +689,24 @@ export default function CreatePurchaseOrderPage() {
                                 onChange={(e) =>
                                   field.onChange(Number(e.target.value))
                                 }
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+
+                      {/* Total Quantity (Stock + Qty) */}
+                      <div className="w-full sm:w-24 xl:w-20">
+                        <label className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold block mb-1">Total Qty</label>
+                        <Input
+                          type="number"
+                          value={(Number(items[index].stock_quantity || 0) + Number(items[index].quantity || 0))}
+                          readOnly
+                          className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right font-bold text-blue-600 dark:text-blue-400"
+                        />
+                      </div>
 
                       {/* discount */}
                       <FormField
@@ -711,7 +723,7 @@ export default function CreatePurchaseOrderPage() {
                                 onChange={(e) =>
                                   field.onChange(Number(e.target.value))
                                 }
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
@@ -745,7 +757,7 @@ export default function CreatePurchaseOrderPage() {
                                 onChange={(e) =>
                                   field.onChange(Number(e.target.value))
                                 }
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-center"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
                               />
                             </FormControl>
                           </FormItem>
@@ -853,41 +865,31 @@ export default function CreatePurchaseOrderPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         initialSelectedIds={items.map((i) => i.productId).filter((id) => id !== 0)}
-        onApply={(addedProducts, removedIds) => {
-          // 1. Remove deselected items
-          removedIds.forEach((id) => {
-            const currentItems = form.getValues("items");
-            const index = currentItems.findIndex((i) => i.productId === id);
-            if (index !== -1) remove(index);
+        onApply={(addedProducts, deselectedIds) => {
+          // Remove deselected items
+          const currentItems = form.getValues("items");
+          const newItems = currentItems.filter(item => !deselectedIds.includes(item.productId));
+
+          // Add new items
+          addedProducts.forEach(product => {
+            if (!newItems.some(item => item.productId === product.id)) {
+              newItems.push({
+                productId: product.id,
+                sku: product.sku || "",
+                specification: product.specification || "",
+                unit: product.unit?.name || "",
+                quantity: 1,
+                unit_cost: Number(product.cost) || 0,
+                discount: 0,
+                purchase_tax: product.purchase_tax || 0,
+                stock_quantity: product.stock_quantity || 0,
+              });
+            }
           });
 
-          // 2. Handle the "single empty row" case
-          const currentItemsAfterRemoval = form.getValues("items");
-          if (
-            currentItemsAfterRemoval.length === 1 &&
-            currentItemsAfterRemoval[0].productId === 0 &&
-            addedProducts.length > 0
-          ) {
-            remove(0);
-          }
-
-          // 3. Add new items
-          addedProducts.forEach((product) => {
-            append({
-              productId: Number(product.id),
-              sku: product.sku ?? "",
-              specification: product.specification ?? "",
-              unit: product.unit?.name ?? "",
-              quantity: product.stock_quantity > 0 ? 1 : 1, // Default to 1 for PO even if 0 stock (buying stock)
-              unit_cost: Number(product.cost) || 0,
-              discount: 0,
-              purchase_tax: product.purchase_tax ?? 0,
-              stock_quantity: product.stock_quantity ?? 0,
-            });
-          });
-
-          setIsModalOpen(false);
+          form.setValue("items", newItems);
         }}
+        orderType="purchase"
       />
     </div>
   );
