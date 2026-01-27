@@ -106,6 +106,8 @@ import LedgerReport from "@/pages/accounting/LedgerReport";
 import TrialBalance from "@/pages/accounting/TrialBalance";
 import ProfitAndLoss from "@/pages/accounting/ProfitAndLoss";
 import TaxSubmission from "@/pages/accounting/TaxSubmission";
+import IncomePage from "@/pages/accounting/Income";
+import ExpensesPage from "@/pages/accounting/Expenses";
 import {
   DashboardPermission,
   ProductPermission,
@@ -1228,6 +1230,26 @@ export const sidebarItemLink = [
         icon: List,
         allowedPermissions: [
           AccountingPermission.CHART_OF_ACCOUNTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Income List",
+        url: "/dashboard/accounting/income",
+        element: <IncomePage />,
+        icon: List,
+        allowedPermissions: [
+          AccountingPermission.TRANSACTIONS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Expense List",
+        url: "/dashboard/accounting/expenses",
+        element: <ExpensesPage />,
+        icon: List,
+        allowedPermissions: [
+          AccountingPermission.TRANSACTIONS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
