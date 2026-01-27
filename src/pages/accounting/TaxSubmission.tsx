@@ -128,7 +128,7 @@ export default function TaxSubmission() {
                                             rules={{ required: "Tax type is required" }}
                                             render={({ field }) => (
                                                 <Select onValueChange={field.onChange} value={field.value}>
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className="w-full">
                                                         <SelectValue placeholder="Select tax type" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -194,7 +194,7 @@ export default function TaxSubmission() {
                                             control={control}
                                             render={({ field }) => (
                                                 <Select onValueChange={field.onChange} value={field.value}>
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className="w-full">
                                                         <SelectValue placeholder="Select payment mode" />
                                                     </SelectTrigger>
                                                     <SelectContent>
