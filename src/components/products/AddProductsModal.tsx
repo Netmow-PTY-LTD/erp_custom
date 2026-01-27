@@ -102,11 +102,12 @@ export function AddProductsModal({
         {
             accessorKey: "thumb_url",
             header: "Image",
+            meta: { className: "min-w-[90px]" } as any,
             cell: ({ row }) => (
                 <img
                     src={row.original.thumb_url || "/placeholder.png"}
                     alt={row.original.name}
-                    className="w-16 h-16 rounded-full object-cover border"
+                    className="w-16 h-16 rounded-full object-cover border shrink-0"
                 />
             ),
         },
