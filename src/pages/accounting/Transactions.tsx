@@ -385,7 +385,7 @@ export default function Transactions() {
                             <TableHead>Type</TableHead>
                             <TableHead>Description</TableHead>
                             <TableHead>Mode</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead className="text-right">Amount (RM)</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -409,7 +409,7 @@ export default function Transactions() {
                             transactions.map((tx) => (
                                 <TableRow key={tx.id}>
                                     <TableCell>{tx.date}</TableCell>
-                                  
+
                                     <TableCell>
                                         <Badge
                                             variant={typeBadgeConfig[tx.type]?.variant ?? "outline"}

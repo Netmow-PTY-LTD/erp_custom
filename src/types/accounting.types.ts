@@ -196,6 +196,7 @@ export type TaxSubmission = {
   attachment_url?: string;
   status: 'PENDING' | 'SUBMITTED' | 'PAID';
   notes?: string;
+  payment_mode: 'BANK' | 'CASH';
   created_at?: string;
   updated_at?: string;
 };
@@ -210,4 +211,5 @@ export type CreateTaxSubmissionInput = {
   attachment_url?: string;
   status?: 'PENDING' | 'SUBMITTED' | 'PAID';
   notes?: string;
+  payment_mode?: 'BANK' | 'CASH';
 };
