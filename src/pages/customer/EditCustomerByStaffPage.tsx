@@ -6,6 +6,7 @@ import {
   useForm,
   type SubmitHandler,
   useFieldArray,
+  type Resolver,
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +29,7 @@ import {
 import { useNavigate, useParams } from "react-router";
 import { useGetCustomerByIdQuery, useUpdateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
-import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon, Plus, Trash2, Edit2, Mail, BadgeCheck } from "lucide-react";
+import { User, CheckCircle2, Phone, MapPin, Briefcase, Plus, Trash2, Edit2, Mail, BadgeCheck } from "lucide-react";
 
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
@@ -96,7 +97,7 @@ export default function EditCustomerByStaffPage() {
   const customer = data?.data;
 
   const form = useForm<CustomerFormValues>({
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(customerSchema) as Resolver<CustomerFormValues>,
     defaultValues: {
       name: "",
       company: "",
@@ -446,7 +447,13 @@ export default function EditCustomerByStaffPage() {
                         className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         onClick={() => {
                           setEditingContactIndex(index);
-                          setContactFormValues({ ...field });
+                          setContactFormValues({
+                            name: field.name,
+                            phone: field.phone || "",
+                            role: field.role || "",
+                            email: field.email || "",
+                            is_primary: field.is_primary,
+                          });
                           setIsContactModalOpen(true);
                         }}
                       >
