@@ -265,9 +265,9 @@ export default function LedgerReport() {
                             <TableRow>
                                 <TableHead>Date</TableHead>
                                 <TableHead>Particulars</TableHead>
-                                <TableHead className="text-right text-emerald-600">Debit</TableHead>
-                                <TableHead className="text-right text-red-600">Credit</TableHead>
-                                <TableHead className="text-right font-bold">Balance</TableHead>
+                                <TableHead className="text-right text-emerald-600">Debit (RM)</TableHead>
+                                <TableHead className="text-right text-red-600">Credit (RM)</TableHead>
+                                <TableHead className="text-right font-bold">Balance (RM)</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

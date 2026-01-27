@@ -59,7 +59,7 @@ export default function TaxSubmission() {
     const stats = taxData?.stats || { total_tax: 0, total_paid: 0, total_due: 0 };
     const [addTaxSubmission, { isLoading: isAdding }] = useAddTaxSubmissionMutation();
 
-    const { control, handleSubmit, reset } = useForm<CreateTaxSubmissionInput>({
+    const { control, handleSubmit, reset, watch } = useForm<CreateTaxSubmissionInput>({
         defaultValues: {
             tax_type: "VAT",
             amount: 0,
@@ -68,8 +68,16 @@ export default function TaxSubmission() {
             period_end: format(new Date(), "yyyy-MM-dd"),
             status: "SUBMITTED",
             notes: "",
+            payment_mode: "BANK",
         },
     });
+
+    const watchedAmount = watch("amount") || 0;
+    const watchedPaymentMode = watch("payment_mode");
+    const watchedTaxType = watch("tax_type");
+    const watchedPeriodStart = watch("period_start");
+    const watchedPeriodEnd = watch("period_end") || format(new Date(), "yyyy-MM-dd");
+    const watchedRef = watch("reference_number") || "N/A";
 
     const onSubmit = async (data: CreateTaxSubmissionInput) => {
         try {
@@ -102,120 +110,191 @@ export default function TaxSubmission() {
                             <Plus className="mr-2 h-4 w-4" /> New Submission
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[600px]">
+                    <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Record Tax Submission</DialogTitle>
                             <DialogDescription>
                                 Fill in the details of your tax filing. This will auto-post to accounting.
                             </DialogDescription>
                         </DialogHeader>
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Tax Type <span className="text-red-500">*</span></Label>
-                                    <Controller
-                                        name="tax_type"
-                                        control={control}
-                                        rules={{ required: "Tax type is required" }}
-                                        render={({ field }) => (
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select tax type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="VAT">VAT</SelectItem>
-                                                    <SelectItem value="GST">GST</SelectItem>
-                                                    <SelectItem value="Income Tax">Income Tax</SelectItem>
-                                                    <SelectItem value="Corporation Tax">Corporation Tax</SelectItem>
-                                                    <SelectItem value="Other">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Amount <span className="text-red-500">*</span></Label>
-                                    <Controller
-                                        name="amount"
-                                        control={control}
-                                        rules={{ required: "Amount is required", min: 0 }}
-                                        render={({ field }) => (
-                                            <Input
-                                                {...field}
-                                                type="number"
-                                                step="0.01"
-                                                placeholder="0.00"
-                                                onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Tax Type <span className="text-red-500">*</span></Label>
+                                        <Controller
+                                            name="tax_type"
+                                            control={control}
+                                            rules={{ required: "Tax type is required" }}
+                                            render={({ field }) => (
+                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select tax type" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="VAT">VAT</SelectItem>
+                                                        <SelectItem value="GST">GST</SelectItem>
+                                                        <SelectItem value="Income Tax">Income Tax</SelectItem>
+                                                        <SelectItem value="Corporation Tax">Corporation Tax</SelectItem>
+                                                        <SelectItem value="Other">Other</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Tax Period <span className="text-red-500">*</span></Label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Controller
+                                                name="period_start"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                render={({ field }) => (
+                                                    <Input {...field} type="date" />
+                                                )}
                                             />
-                                        )}
-                                    />
+                                            <Controller
+                                                name="period_end"
+                                                control={control}
+                                                rules={{ required: true }}
+                                                render={({ field }) => (
+                                                    <Input {...field} type="date" />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Tax Amount <span className="text-red-500">*</span></Label>
+                                        <Controller
+                                            name="amount"
+                                            control={control}
+                                            rules={{ required: "Amount is required", min: 0 }}
+                                            render={({ field }) => (
+                                                <div className="relative">
+                                                    <span className="absolute left-3 top-2.5 text-muted-foreground text-sm">RM</span>
+                                                    <Input
+                                                        {...field}
+                                                        type="number"
+                                                        step="0.01"
+                                                        className="pl-10 font-mono"
+                                                        placeholder="0.00"
+                                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                                    />
+                                                </div>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Payment Mode <span className="text-red-500">*</span></Label>
+                                        <Controller
+                                            name="payment_mode"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select payment mode" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="BANK">Bank Transfer (Always recommended)</SelectItem>
+                                                        <SelectItem value="CASH">Cash Payment</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Submission Date <span className="text-red-500">*</span></Label>
+                                        <Controller
+                                            name="submission_date"
+                                            control={control}
+                                            rules={{ required: true }}
+                                            render={({ field }) => (
+                                                <Input {...field} type="date" />
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Reference Number</Label>
+                                        <Controller
+                                            name="reference_number"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Input {...field} placeholder="e.g. VAT/2026/01" />
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <Label className="text-indigo-600 font-bold uppercase text-xs tracking-wider">Accounting Preview</Label>
+                                    <Card className="bg-slate-50 border-dashed border-2 shadow-none overflow-hidden">
+                                        <CardHeader className="py-3 px-4 bg-white border-b">
+                                            <div className="text-[10px] text-muted-foreground uppercase font-bold">Transaction Preview</div>
+                                            <div className="text-xs font-medium">Tax Submission: {watchedTaxType} for period {watchedPeriodStart} to {watchedPeriodEnd}. Ref: {watchedRef}</div>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow className="bg-slate-100/50 hover:bg-slate-100/50 h-8">
+                                                        <TableHead className="text-[10px] font-bold py-0 h-8">Account Name</TableHead>
+                                                        <TableHead className="text-[10px] font-bold py-0 h-8 text-right">Debit (RM)</TableHead>
+                                                        <TableHead className="text-[10px] font-bold py-0 h-8 text-right">Credit (RM)</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    <TableRow className="h-10 hover:bg-transparent">
+                                                        <TableCell className="py-2">
+                                                            <div className="text-xs font-semibold">Tax Payable</div>
+                                                            <div className="text-[9px] text-muted-foreground">Code: 2100</div>
+                                                        </TableCell>
+                                                        <TableCell className="py-2 text-right text-xs font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "-"}</TableCell>
+                                                        <TableCell className="py-2 text-right text-xs font-mono">-</TableCell>
+                                                    </TableRow>
+                                                    <TableRow className="h-10 hover:bg-transparent">
+                                                        <TableCell className="py-2">
+                                                            <div className="text-xs font-semibold">{watchedPaymentMode === "BANK" ? "Bank" : "Cash"}</div>
+                                                            <div className="text-[9px] text-muted-foreground">Code: {watchedPaymentMode === "BANK" ? "1100" : "1000"}</div>
+                                                        </TableCell>
+                                                        <TableCell className="py-2 text-right text-xs font-mono">-</TableCell>
+                                                        <TableCell className="py-2 text-right text-xs font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "-"}</TableCell>
+                                                    </TableRow>
+                                                    <TableRow className="bg-white hover:bg-white h-8 border-t-2 font-bold">
+                                                        <TableCell className="py-1 text-[10px] uppercase">Total</TableCell>
+                                                        <TableCell className="py-1 text-right text-[10px] font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "0.00"}</TableCell>
+                                                        <TableCell className="py-1 text-right text-[10px] font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "0.00"}</TableCell>
+                                                    </TableRow>
+                                                </TableBody>
+                                            </Table>
+                                            <div className="p-3 bg-indigo-50/50 border-t">
+                                                <p className="text-[10px] text-indigo-700 leading-relaxed italic">
+                                                    * This entry will automatically reduce your Tax Payable liability and credit your {watchedPaymentMode === "BANK" ? "Bank" : "Cash"} account.
+                                                </p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <div className="space-y-2 pt-2">
+                                        <Label>Memo / Notes</Label>
+                                        <Controller
+                                            name="notes"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Textarea {...field} className="min-h-[100px]" placeholder="Any additional information..." />
+                                            )}
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Period Start <span className="text-red-500">*</span></Label>
-                                    <Controller
-                                        name="period_start"
-                                        control={control}
-                                        rules={{ required: true }}
-                                        render={({ field }) => (
-                                            <Input {...field} type="date" />
-                                        )}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Period End <span className="text-red-500">*</span></Label>
-                                    <Controller
-                                        name="period_end"
-                                        control={control}
-                                        rules={{ required: true }}
-                                        render={({ field }) => (
-                                            <Input {...field} type="date" />
-                                        )}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Submission Date <span className="text-red-500">*</span></Label>
-                                    <Controller
-                                        name="submission_date"
-                                        control={control}
-                                        rules={{ required: true }}
-                                        render={({ field }) => (
-                                            <Input {...field} type="date" />
-                                        )}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Reference Number</Label>
-                                    <Controller
-                                        name="reference_number"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input {...field} placeholder="e.g. VAT/2026/01" />
-                                        )}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Notes</Label>
-                                <Controller
-                                    name="notes"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Textarea {...field} placeholder="Any additional information..." />
-                                    )}
-                                />
-                            </div>
-
-                            <DialogFooter>
-                                <Button variant="outline" onClick={() => setIsOpen(false)} type="button">Cancel</Button>
-                                <Button type="submit" className="bg-indigo-600 shadow-md" disabled={isAdding}>
-                                    {isAdding ? "Recording..." : "Record Submission"}
+                            <DialogFooter className="border-t pt-6">
+                                <Button variant="outline" onClick={() => setIsOpen(false)} type="button" className="px-6">Cancel</Button>
+                                <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 shadow-lg px-8" disabled={isAdding}>
+                                    {isAdding ? "Processing..." : "Submit Tax Filing"}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -232,7 +311,7 @@ export default function TaxSubmission() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">
-                            ${stats.total_tax.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            RM {stats.total_tax.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">Sum of all recorded tax filings</p>
                     </CardContent>
@@ -244,7 +323,7 @@ export default function TaxSubmission() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">
-                            ${stats.total_paid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            RM {stats.total_paid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">Successfully processed tax payments</p>
                     </CardContent>
@@ -256,7 +335,7 @@ export default function TaxSubmission() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">
-                            ${stats.total_due.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            RM {stats.total_due.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">Pending or unpaid tax filings</p>
                     </CardContent>
@@ -341,7 +420,7 @@ function TableBase({ submissions, isLoading }: { submissions: any[], isLoading: 
                     <TableHead className="font-semibold">Period</TableHead>
                     <TableHead className="font-semibold">Reference</TableHead>
                     <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="text-right font-semibold">Amount</TableHead>
+                    <TableHead className="text-right font-semibold">Amount (RM)</TableHead>
                     <TableHead className="text-center font-semibold">Actions</TableHead>
                 </TableRow>
             </TableHeader>
@@ -382,7 +461,7 @@ function TableBase({ submissions, isLoading }: { submissions: any[], isLoading: 
                                 </Badge>
                             </TableCell>
                             <TableCell className="text-right font-bold text-indigo-600">
-                                ${Number(sub.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                {Number(sub.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </TableCell>
                             <TableCell className="text-center">
                                 <Button variant="ghost" size="icon" title="Download Receipt" className="opacity-0 group-hover:opacity-100 transition-opacity">
