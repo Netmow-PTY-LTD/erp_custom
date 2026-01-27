@@ -882,7 +882,7 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "Add New Order",
+        title: "Add New Purchase Order",
         url: "/dashboard/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
         icon: PlusCircle,
