@@ -18,7 +18,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown, CornerDownRight } from "lucide-react";
+import { Check, ChevronDown, CornerDownRight, ArrowUpRight, ArrowDownLeft, Calendar as CalendarIcon } from "lucide-react";
 import {
     Command,
     CommandEmpty,
@@ -189,39 +189,70 @@ export default function LedgerReport() {
             </Card>
 
             {/* Summary Header */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="py-6">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Opening Balance</CardDescription>
-                        <CardTitle className="text-2xl">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : Number(reportData?.opening_balance || 0).toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card className="py-6">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Total Debit</CardDescription>
-                        <CardTitle className="text-2xl text-emerald-600">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : totalDebit.toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card className="py-6">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Total Credit</CardDescription>
-                        <CardTitle className="text-2xl text-red-600">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : totalCredit.toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card className="py-6 bg-primary/5 border-primary/20">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Closing Balance</CardDescription>
-                        <CardTitle className="text-2xl text-primary">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : Number(reportData?.closing_balance || 0).toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Opening Balance */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-400 p-6 shadow-lg shadow-blue-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Opening Balance</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${Number(reportData?.opening_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <CalendarIcon className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Total Debit */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-400 p-6 shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Total Debit</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <ArrowUpRight className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Total Credit */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 to-rose-400 p-6 shadow-lg shadow-rose-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Total Credit</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <ArrowDownLeft className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Closing Balance */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 to-violet-400 p-6 shadow-lg shadow-violet-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Closing Balance</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${Number(reportData?.closing_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <CornerDownRight className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Card className="py-6">

@@ -22,7 +22,15 @@ import {
   Pencil,
   Tags,
   Trash,
+  Filter,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
 import type { Product } from "@/types/types";
@@ -31,6 +39,7 @@ import {
   useDeleteProductMutation,
   useGetAllProductsQuery,
   useGetProductStatsQuery,
+  useGetAllCategoriesQuery,
 } from "@/store/features/admin/productsApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
@@ -50,6 +59,7 @@ export default function Products() {
     images: string[];
     index: number;
   } | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const limit = 10;
 
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
@@ -114,7 +124,15 @@ export default function Products() {
     data: fetchedProducts,
     isFetching,
     refetch: refetchProducts,
-  } = useGetAllProductsQuery({ page, limit, search });
+  } = useGetAllProductsQuery({
+    page,
+    limit,
+    search,
+    category_id: selectedCategory !== "all" ? selectedCategory : undefined,
+  });
+
+  const { data: categoriesData } = useGetAllCategoriesQuery();
+  const categories = categoriesData?.data || [];
 
   const products: Product[] = fetchedProducts?.data || [];
   //console.log("Fetched Products: ", fetchedProducts);
@@ -175,11 +193,12 @@ export default function Products() {
     {
       accessorKey: "thumb_url",
       header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => (
         <img
           src={row.original.thumb_url}
           alt={row.original.name}
-          className="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity shrink-0"
           onClick={() =>
             setPreviewData({
               images: [row.original.thumb_url].filter(Boolean),
@@ -190,53 +209,14 @@ export default function Products() {
       ),
     },
     {
-      accessorKey: "gallery_items",
-      header: "Gallery",
-      cell: ({ row }) => {
-        const gallery = row.original.gallery_items || [];
-        return (
-          <div className="flex items-center gap-1">
-            {gallery.length > 0 ? (
-              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
-                {gallery.slice(0, 3).map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`Gallery ${i}`}
-                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: i,
-                      })
-                    }
-                  />
-                ))}
-                {gallery.length > 3 && (
-                  <div
-                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: 3, // Start viewing from the 4th item (index 3)
-                      })
-                    }
-                  >
-                    +{gallery.length - 3}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-xs text-muted-foreground">-</span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
       accessorKey: "category",
       header: "Category",
       cell: ({ row }) => row?.original?.category?.name
+    },
+    {
+      accessorKey: "specifications",
+      header: "Specifications",
+      cell: ({ row }) => row?.original?.specification
     },
     {
       accessorKey: "cost",
@@ -379,6 +359,29 @@ export default function Products() {
         <h2 className="text-3xl font-semibold">Product Management</h2>
 
         <div className="flex flex-wrap items-center gap-4">
+          <div className="w-[200px]">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                <SelectValue placeholder="Filter by Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={String(category.id)}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">
             <AlertCircle size={18} />
             Stock Alerts

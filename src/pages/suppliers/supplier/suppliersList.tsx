@@ -22,7 +22,14 @@ import {
   useGetAllSuppliersQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart, User } from "lucide-react";
+import { Edit, PlusCircle, Trash2, CheckCircle, Truck, XCircle, Users as UsersIcon, ShoppingCart, User, Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import type { Supplier } from "@/types/supplier.types";
@@ -65,6 +72,7 @@ function ConfirmModal({
 export default function SuppliersList() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [sort, setSort] = useState<string>("newest");
   const limit = 10;
 
   const currency = useAppSelector((state) => state.currency.value);
@@ -75,7 +83,12 @@ export default function SuppliersList() {
 
   const canDeleteSupplier = userPermissions.includes(SupplierPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
-  const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({ search, page, limit });
+  const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({
+    search,
+    page,
+    limit,
+    sort: sort !== 'newest' ? sort : undefined
+  });
   const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
 
   // Fetch all for stats (simplified frontend calculation)
@@ -158,13 +171,14 @@ export default function SuppliersList() {
     {
       accessorKey: "thumb_url",
       header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => {
         const thumbUrl = row.original.thumb_url;
         return thumbUrl ? (
           <img
             src={thumbUrl}
             alt={row.original.name}
-            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            className="w-20 h-20 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity shrink-0"
             onClick={() =>
               setPreviewData({
                 images: [thumbUrl].filter(Boolean) as string[],
@@ -173,7 +187,7 @@ export default function SuppliersList() {
             }
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
             <User className="w-5 h-5 text-gray-500" />
           </div>
         );
@@ -278,12 +292,33 @@ export default function SuppliersList() {
     <div className="w-full">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
-        <Link to="/dashboard/suppliers/create">
-          <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-            <PlusCircle size={18} />
-            Add Supplier
-          </button>
-        </Link>
+        <div className="flex items-center gap-4">
+          <div className="w-[180px]">
+            <Select
+              value={sort}
+              onValueChange={(value) => {
+                setSort(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="top_purchase">Top Purchase</SelectItem>
+                <SelectItem value="low_purchase">Low Purchase</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Link to="/dashboard/suppliers/create">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+              <PlusCircle size={18} />
+              Add Supplier
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}

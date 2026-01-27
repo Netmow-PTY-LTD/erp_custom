@@ -11,7 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { useGetAllProductsQuery, useGetAllCategoriesQuery } from "@/store/features/admin/productsApiService";
 import type { Product } from "@/types/types";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -34,12 +41,17 @@ export function AddProductsModal({
     const [limit] = useState(10);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [deselectedIds, setDeselectedIds] = useState<number[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
     const { data, isFetching } = useGetAllProductsQuery({
         page,
         limit,
         search: search || undefined,
+        category_id: selectedCategory === "all" ? undefined : selectedCategory,
     });
+
+    const { data: categoriesData } = useGetAllCategoriesQuery();
+    const categories = categoriesData?.data || [];
 
     const products = Array.isArray(data?.data) ? data.data : [];
     const totalCount = data?.pagination?.total || 0;
@@ -97,11 +109,12 @@ export function AddProductsModal({
         {
             accessorKey: "thumb_url",
             header: "Image",
+            meta: { className: "min-w-[100px]" } as any,
             cell: ({ row }) => (
                 <img
                     src={row.original.thumb_url || "/placeholder.png"}
                     alt={row.original.name}
-                    className="w-10 h-10 rounded-full object-cover border"
+                    className="w-16 h-16 rounded-full object-cover border shrink-0"
                 />
             ),
         },
@@ -144,6 +157,11 @@ export function AddProductsModal({
             },
         },
         {
+            accessorKey: "category.name",
+            header: "Category",
+            cell: ({ row }) => row.original.category?.name || "N/A",
+        },
+        {
             accessorKey: "unit.name",
             header: "Unit",
         },
@@ -152,11 +170,33 @@ export function AddProductsModal({
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-4xl w-full max-h-[80vh] h-full flex flex-col">
-                <DialogHeader>
+                <DialogHeader className="flex sm:flex-row flex-col items-start justify-between gap-4 space-y-0 sm:mt-4">
                     <DialogTitle className="text-2xl font-bold">Add Items</DialogTitle>
+                    <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
+                        <label className="text-sm font-medium whitespace-nowrap">Filter by Category:</label>
+                        <Select
+                            value={selectedCategory}
+                            onValueChange={(value) => {
+                                setSelectedCategory(value);
+                                setPage(1);
+                            }}
+                        >
+                            <SelectTrigger className="w-full sm:w-64 h-9">
+                                <SelectValue placeholder="All Categories" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Categories</SelectItem>
+                                {categories.map((cat) => (
+                                    <SelectItem key={cat.id} value={cat.id.toString()}>
+                                        {cat.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-auto pt-4">
+                <div className="flex-1 overflow-auto pt-2">
                     <DataTable
                         columns={columns}
                         data={products}

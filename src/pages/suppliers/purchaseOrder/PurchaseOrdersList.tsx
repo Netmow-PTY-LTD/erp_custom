@@ -12,6 +12,13 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
@@ -59,8 +66,14 @@ function ConfirmModal({
 export default function PurchaseOrdersList() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [status, setStatus] = useState<string>("all");
   const limit = 10;
-  const { data, isFetching } = useGetAllPurchasesQuery({ page, limit, search });
+  const { data, isFetching } = useGetAllPurchasesQuery({
+    page,
+    limit,
+    search,
+    status: status === "all" ? undefined : status,
+  });
   const purchaseOrdersData: PurchaseOrder[] = Array.isArray(data?.data)
     ? data.data
     : [];
@@ -376,9 +389,26 @@ export default function PurchaseOrdersList() {
       </div>
 
       <Card className="py-6">
-        <CardHeader>
-          <CardTitle>All Purchase Orders</CardTitle>
-          <CardDescription>Manage all your purchase orders</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>All Purchase Orders</CardTitle>
+            <CardDescription>Manage all your purchase orders</CardDescription>
+          </div>
+          <div className="flex items-center gap-4">
+            <Select value={status} onValueChange={(val) => { setStatus(val); setPage(1); }}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                {poStatusOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
 
         <CardContent>

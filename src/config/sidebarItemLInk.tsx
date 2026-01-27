@@ -105,6 +105,7 @@ import JournalReport from "@/pages/accounting/JournalReport";
 import LedgerReport from "@/pages/accounting/LedgerReport";
 import TrialBalance from "@/pages/accounting/TrialBalance";
 import ProfitAndLoss from "@/pages/accounting/ProfitAndLoss";
+import TaxSubmission from "@/pages/accounting/TaxSubmission";
 import {
   DashboardPermission,
   ProductPermission,
@@ -226,23 +227,24 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+
+      {
+        title: "Products for Staff",
+        url: "/dashboard/products-by-staff",
+        element: <ProductsByStaff />,
+        icon: List, // product list
+        allowedPermissions: [
+          ProductPermission.LIST_BY_STAFF,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
       {
         title: "",
         url: "/dashboard/products/:productId",
         element: <ProductDetailsPage />,
         allowedPermissions: [
           ProductPermission.DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-
-      {
-        title: "Products By Staff",
-        url: "/dashboard/products-by-staff",
-        element: <ProductsByStaff />,
-        icon: List, // product list
-        allowedPermissions: [
-          ProductPermission.LIST_BY_STAFF,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1278,6 +1280,16 @@ export const sidebarItemLink = [
         //   AccountingPermission.PROFIT_BY_ITEM,
         //   SuperAdminPermission.ACCESS_ALL,
         // ],
+      },
+      {
+        title: "Tax Submissions",
+        url: "/dashboard/accounting/tax-submissions",
+        element: <TaxSubmission />,
+        icon: Scale,
+        allowedPermissions: [
+          AccountingPermission.TAX_SUBMISSION,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       // {
       //   title: "Daily Profit Status",

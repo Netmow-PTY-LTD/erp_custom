@@ -17,7 +17,15 @@ import {
   Edit,
   Eye,
   ShoppingCart,
+  Filter,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,6 +67,7 @@ export default function Customers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [mapLocation, setMapLocation] = useState<string | null>(null);
+  const [sort, setSort] = useState<string>("newest");
   const [previewData, setPreviewData] = useState<{
     images: string[];
     index: number;
@@ -81,6 +90,7 @@ export default function Customers() {
     page: currentPage,
     limit: pageSize,
     search: searchTerm || undefined,
+    sort: sort !== 'newest' ? sort : undefined
   });
 
   const [deleteCustomer, { isLoading: isDeleting }] =
@@ -165,7 +175,9 @@ export default function Customers() {
       meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
     },
     {
-      accessorKey: "thumb_url", header: "Image",
+      accessorKey: "thumb_url",
+      header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => {
         const thumbUrl = row.getValue("thumb_url") as string;
         // const galleryItems = row.original.gallery_items || [];
@@ -173,7 +185,7 @@ export default function Customers() {
           <img
             src={thumbUrl}
             alt="Customer"
-            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            className="w-20 h-20 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity shrink-0"
             onClick={() =>
               setPreviewData({
                 images: [thumbUrl].filter(Boolean),
@@ -182,58 +194,58 @@ export default function Customers() {
             }
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
             <User className="w-5 h-5 text-gray-500" />
           </div>
         );
       },
     },
-    {
-      accessorKey: "gallery_items",
-      header: "Gallery",
-      cell: ({ row }) => {
-        const gallery = row.original.gallery_items || [];
-        // const thumbUrl = row.original.thumb_url;
+    // {
+    //   accessorKey: "gallery_items",
+    //   header: "Gallery",
+    //   cell: ({ row }) => {
+    //     const gallery = row.original.gallery_items || [];
+    //     // const thumbUrl = row.original.thumb_url;
 
-        return (
-          <div className="flex items-center gap-1">
-            {gallery.length > 0 ? (
-              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
-                {gallery.slice(0, 3).map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`Gallery ${i}`}
-                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: i,
-                      })
-                    }
-                  />
-                ))}
-                {gallery.length > 3 && (
-                  <div
-                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: 3,
-                      })
-                    }
-                  >
-                    +{gallery.length - 3}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-xs text-muted-foreground">-</span>
-            )}
-          </div>
-        );
-      },
-    },
+    //     return (
+    //       <div className="flex items-center gap-1">
+    //         {gallery.length > 0 ? (
+    //           <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
+    //             {gallery.slice(0, 3).map((url, i) => (
+    //               <img
+    //                 key={i}
+    //                 src={url}
+    //                 alt={`Gallery ${i}`}
+    //                 className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
+    //                 onClick={() =>
+    //                   setPreviewData({
+    //                     images: gallery,
+    //                     index: i,
+    //                   })
+    //                 }
+    //               />
+    //             ))}
+    //             {gallery.length > 3 && (
+    //               <div
+    //                 className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
+    //                 onClick={() =>
+    //                   setPreviewData({
+    //                     images: gallery,
+    //                     index: 3,
+    //                   })
+    //                 }
+    //               >
+    //                 +{gallery.length - 3}
+    //               </div>
+    //             )}
+    //           </div>
+    //         ) : (
+    //           <span className="text-xs text-muted-foreground">-</span>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       accessorKey: "customer_type",
       header: "Type",
@@ -432,11 +444,31 @@ export default function Customers() {
               Customer Map
             </button>
           </Link>
+
+          <div className="w-[180px]">
+            <Select
+              value={sort}
+              onValueChange={(value) => {
+                setSort(value);
+                setPageIndex(0);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="top_sold">Top Sold Order</SelectItem>
+                <SelectItem value="low_sold">Low Sold Order</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
+      </div >
 
       {/* Stats Cards */}
-      <div className="flex flex-wrap gap-6 mb-6">
+      < div className="flex flex-wrap gap-6 mb-6" >
         {stats?.map((item, idx) => (
           <div
             key={idx}
@@ -463,8 +495,9 @@ export default function Customers() {
               <div className="h-full w-2/3 rounded-full bg-white/40" />
             </div>
           </div>
-        ))}
-      </div>
+        ))
+        }
+      </div >
 
       <Card className="pt-6 pb-2">
         <CardHeader>
@@ -617,6 +650,6 @@ export default function Customers() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }
