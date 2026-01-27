@@ -1,5 +1,6 @@
 
 import { useParams, Link } from "react-router";
+import { useState } from "react";
 import {
     Card,
     CardContent,
@@ -10,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+    Dialog,
+    DialogContent,
+} from "@/components/ui/dialog";
 import {
     ShoppingCart,
     Pencil,
@@ -22,7 +27,9 @@ import {
     FileText,
     Calendar,
     Star,
-    Hash
+    Hash,
+    MoveLeft,
+    MoveRight
 } from "lucide-react";
 import { useGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import { useAppSelector } from "@/store/store";
@@ -32,6 +39,10 @@ import { MapEmbed } from "@/components/MapEmbed";
 export default function CustomerViewPage() {
     const { customerId } = useParams();
     const currency = useAppSelector((state) => state.currency.value);
+    const [previewData, setPreviewData] = useState<{
+        images: string[];
+        index: number;
+    } | null>(null);
 
     const { data, isLoading, error } = useGetCustomerByIdQuery(Number(customerId));
     const customer = data?.data;
@@ -299,8 +310,117 @@ export default function CustomerViewPage() {
                         </Card>
                     )}
 
+                    {/* CUSTOMER GALLERY */}
+                    <Card className="shadow-sm border-border/60 overflow-hidden">
+                        <CardHeader className="border-b-1 bg-muted/20 py-4 gap-0">
+                            <div className="flex items-center gap-2">
+                                <Star className="w-5 h-5 text-muted-foreground" />
+                                <CardTitle className="text-lg">Customer Gallery</CardTitle>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                {customer.gallery_items && customer.gallery_items.length > 0 ? (
+                                    customer.gallery_items.map((url: string, i: number) => (
+                                        <div
+                                            key={url}
+                                            className="aspect-square rounded-xl overflow-hidden border bg-muted cursor-pointer hover:opacity-80 transition-all hover:scale-[1.02] active:scale-95 shadow-sm"
+                                            onClick={() =>
+                                                setPreviewData({
+                                                    images: customer.gallery_items || [],
+                                                    index: i,
+                                                })
+                                            }
+                                        >
+                                            <img
+                                                src={url}
+                                                alt={`Gallery ${i}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="col-span-full text-sm text-muted-foreground text-center py-8 bg-muted/10 rounded-xl border border-dashed">
+                                        No gallery images available
+                                    </p>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
                 </div>
             </div>
+
+            {/* Lightbox Modal */}
+            <Dialog
+                open={!!previewData}
+                onOpenChange={(open) => !open && setPreviewData(null)}
+            >
+                <DialogContent className="max-w-3xl p-5 overflow-hidden bg-white border-none shadow-2xl">
+                    <div className="relative flex items-center justify-center min-h-[50vh]">
+                        {previewData && (
+                            <>
+                                <img
+                                    src={previewData.images[previewData.index]}
+                                    alt="Customer Preview"
+                                    className="max-w-full max-h-[70vh] rounded-lg object-contain shadow-sm"
+                                />
+
+                                {/* Left Arrow (Previous) */}
+                                {previewData.images.length > 1 && (
+                                    <button
+                                        onClick={() =>
+                                            setPreviewData((prev) =>
+                                                prev
+                                                    ? {
+                                                        ...prev,
+                                                        index:
+                                                            prev.index === 0
+                                                                ? prev.images.length - 1
+                                                                : prev.index - 1,
+                                                    }
+                                                    : null
+                                            )
+                                        }
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all hover:scale-110 active:scale-95"
+                                    >
+                                        <MoveLeft className="w-5 h-5" />
+                                    </button>
+                                )}
+
+                                {/* Right Arrow (Next) */}
+                                {previewData.images.length > 1 && (
+                                    <button
+                                        onClick={() =>
+                                            setPreviewData((prev) =>
+                                                prev
+                                                    ? {
+                                                        ...prev,
+                                                        index:
+                                                            prev.index === prev.images.length - 1
+                                                                ? 0
+                                                                : prev.index + 1,
+                                                    }
+                                                    : null
+                                            )
+                                        }
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all hover:scale-110 active:scale-95"
+                                    >
+                                        <MoveRight className="w-5 h-5" />
+                                    </button>
+                                )}
+
+                                {/* Counter */}
+                                {previewData.images.length > 1 && (
+                                    <div className="absolute bottom-2 bg-black/50 backdrop-blur-md text-white text-xs px-3 py-1 rounded-full font-medium">
+                                        {previewData.index + 1} / {previewData.images.length}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

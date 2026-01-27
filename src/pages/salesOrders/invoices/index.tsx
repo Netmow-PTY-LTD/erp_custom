@@ -156,13 +156,38 @@ export default function Invoices() {
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        const color =
-          status === "paid"
-            ? "bg-green-500"
-            : status === "draft"
-              ? "bg-yellow-500"
-              : "bg-gray-500";
-        return <Badge className={color}>{status}</Badge>;
+
+        let color = "bg-gray-500";
+        let label = status;
+
+        switch (status) {
+          case "paid":
+            color = "bg-emerald-500 hover:bg-emerald-600";
+            label = "Paid";
+            break;
+          case "partial":
+            color = "bg-amber-500 hover:bg-amber-600";
+            label = "Partial Paid";
+            break;
+          case "pending":
+          case "overdue":
+            color = "bg-red-500 hover:bg-red-600";
+            label = "Unpaid";
+            break;
+          default:
+            // Handle draft or unknown as Unpaid or keep original status if needed
+            // For now mapping default/draft to Unpaid/Red as well if it falls through, or gray if unknown
+            if (status === 'draft') {
+              color = "bg-gray-500 hover:bg-gray-600";
+              label = "Draft";
+            } else {
+              color = "bg-red-500 hover:bg-red-600";
+              label = "Unpaid";
+            }
+            break;
+        }
+
+        return <Badge className={color}>{label}</Badge>;
       },
     },
     {

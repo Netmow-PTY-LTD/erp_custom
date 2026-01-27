@@ -165,7 +165,9 @@ export default function Customers() {
       meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
     },
     {
-      accessorKey: "thumb_url", header: "Image",
+      accessorKey: "thumb_url",
+      header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => {
         const thumbUrl = row.getValue("thumb_url") as string;
         // const galleryItems = row.original.gallery_items || [];
@@ -173,7 +175,7 @@ export default function Customers() {
           <img
             src={thumbUrl}
             alt="Customer"
-            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            className="w-20 h-20 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity shrink-0"
             onClick={() =>
               setPreviewData({
                 images: [thumbUrl].filter(Boolean),
@@ -182,58 +184,58 @@ export default function Customers() {
             }
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
             <User className="w-5 h-5 text-gray-500" />
           </div>
         );
       },
     },
-    {
-      accessorKey: "gallery_items",
-      header: "Gallery",
-      cell: ({ row }) => {
-        const gallery = row.original.gallery_items || [];
-        // const thumbUrl = row.original.thumb_url;
+    // {
+    //   accessorKey: "gallery_items",
+    //   header: "Gallery",
+    //   cell: ({ row }) => {
+    //     const gallery = row.original.gallery_items || [];
+    //     // const thumbUrl = row.original.thumb_url;
 
-        return (
-          <div className="flex items-center gap-1">
-            {gallery.length > 0 ? (
-              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
-                {gallery.slice(0, 3).map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`Gallery ${i}`}
-                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: i,
-                      })
-                    }
-                  />
-                ))}
-                {gallery.length > 3 && (
-                  <div
-                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: 3,
-                      })
-                    }
-                  >
-                    +{gallery.length - 3}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-xs text-muted-foreground">-</span>
-            )}
-          </div>
-        );
-      },
-    },
+    //     return (
+    //       <div className="flex items-center gap-1">
+    //         {gallery.length > 0 ? (
+    //           <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
+    //             {gallery.slice(0, 3).map((url, i) => (
+    //               <img
+    //                 key={i}
+    //                 src={url}
+    //                 alt={`Gallery ${i}`}
+    //                 className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
+    //                 onClick={() =>
+    //                   setPreviewData({
+    //                     images: gallery,
+    //                     index: i,
+    //                   })
+    //                 }
+    //               />
+    //             ))}
+    //             {gallery.length > 3 && (
+    //               <div
+    //                 className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
+    //                 onClick={() =>
+    //                   setPreviewData({
+    //                     images: gallery,
+    //                     index: 3,
+    //                   })
+    //                 }
+    //               >
+    //                 +{gallery.length - 3}
+    //               </div>
+    //             )}
+    //           </div>
+    //         ) : (
+    //           <span className="text-xs text-muted-foreground">-</span>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       accessorKey: "customer_type",
       header: "Type",

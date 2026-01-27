@@ -103,6 +103,79 @@ export default function Transactions() {
 
     const hasActiveFilters = dateRange || searchQuery || (filterType && filterType !== "ALL");
 
+
+
+
+
+
+    //   badge config for transaction types
+
+    const typeBadgeConfig: Record<
+        string,
+        { variant: "default" | "secondary" | "destructive" | "outline"; className: string }
+    > = {
+        SALES: {
+            variant: "default",
+            className: "bg-emerald-600 hover:bg-emerald-700 text-white",
+        },
+
+        INCOME: {
+            variant: "secondary",
+            className: "bg-blue-600 hover:bg-blue-700 text-white border-0",
+        },
+
+        PURCHASE: {
+            variant: "outline",
+            className: "bg-indigo-600 hover:bg-indigo-700 text-white border-0",
+        },
+
+        EXPENSE: {
+            variant: "destructive",
+            className: "bg-orange-600 hover:bg-orange-700 text-white",
+        },
+
+        PAYMENT_IN: {
+            variant: "outline",
+            className: "bg-purple-600 hover:bg-purple-700 text-white border-0",
+        },
+
+        PAYMENT_OUT: {
+            variant: "destructive",
+            className: "bg-rose-600 hover:bg-rose-700 text-white",
+        },
+
+        PAYROLL: {
+            variant: "destructive",
+            className: "bg-red-600 hover:bg-red-700 text-white",
+        },
+    };
+
+
+
+
+    const paymentModeBadgeConfig: Record<
+        string,
+        { variant: "default" | "secondary" | "destructive" | "outline"; className: string }
+    > = {
+        CASH: {
+            variant: "secondary",
+            className: "bg-green-600 hover:bg-green-700 text-white border-0",
+        },
+
+        BANK: {
+            variant: "outline",
+            className: "bg-blue-600 hover:bg-blue-700 text-white border-0",
+        },
+
+        DUE: {
+            variant: "destructive",
+            className: "bg-yellow-600 hover:bg-yellow-700 text-white",
+        },
+    };
+
+
+
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -291,7 +364,7 @@ export default function Transactions() {
                         dateRange={dateRange}
                         onDateRangeChange={setDateRange}
                         placeholder="Pick a date range"
-                        className="w-[240px]"
+                        className="w-60"
                         numberOfMonths={2}
                     />
 
@@ -336,23 +409,26 @@ export default function Transactions() {
                             transactions.map((tx) => (
                                 <TableRow key={tx.id}>
                                     <TableCell>{tx.date}</TableCell>
+                                  
                                     <TableCell>
                                         <Badge
-                                            variant={
-                                                tx.type === "Sales" ? "default" :
-                                                    tx.type === "Purchase" ? "secondary" :
-                                                        tx.type === "Expense" ? "destructive" : "outline"
-                                            }
-                                            className={
-                                                tx.type === "Sales" ? "bg-emerald-600 hover:bg-emerald-700" :
-                                                    tx.type === "Income" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : ""
-                                            }
+                                            variant={typeBadgeConfig[tx.type]?.variant ?? "outline"}
+                                            className={typeBadgeConfig[tx.type]?.className}
                                         >
-                                            {tx.type}
+                                            {tx.type.replace("_", " ")}
                                         </Badge>
                                     </TableCell>
+
                                     <TableCell>{tx.description}</TableCell>
-                                    <TableCell>{tx.mode}</TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={paymentModeBadgeConfig[tx.payment_mode]?.variant ?? "outline"}
+                                            className={paymentModeBadgeConfig[tx.payment_mode]?.className}
+                                        >
+                                            {tx.payment_mode}
+                                        </Badge>
+                                    </TableCell>
+
                                     <TableCell className="text-right font-medium">
                                         {Number(tx.amount).toFixed(2)}
                                     </TableCell>

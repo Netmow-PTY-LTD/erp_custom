@@ -241,6 +241,8 @@ interface UpdateDeliveryStatusModalProps {
     selectedOrder: any;
     statusOptions: readonly { value: DeliveryFormValues["status"]; label: string }[];
     defaultStatus?: DeliveryFormValues["status"];
+    title?: string;
+    dateLabel?: string;
 }
 
 /* ---------------- SCHEMA ---------------- */
@@ -291,6 +293,8 @@ export default function UpdateDeliveryStatusModal({
     selectedOrder,
     statusOptions,
     defaultStatus,
+    title = "Update Status",
+    dateLabel = "Delivery Date",
 }: UpdateDeliveryStatusModalProps) {
     const form = useForm<DeliveryFormValues>({
         resolver: zodResolver(deliverySchema),
@@ -303,13 +307,17 @@ export default function UpdateDeliveryStatusModal({
 
     useEffect(() => {
         if (selectedOrder) {
+            const today = new Date().toISOString().split("T")[0];
+            // const existingDate = selectedOrder.delivery?.delivery_date
+            //     ? new Date(selectedOrder.delivery.delivery_date)
+            //         .toISOString()
+            //         .split("T")[0]
+            //     : today;
+            const existingDate = today;
+
             form.reset({
                 status: defaultStatus || selectedOrder.delivery_status || "pending",
-                delivery_date: selectedOrder.delivery?.delivery_date
-                    ? new Date(selectedOrder.delivery.delivery_date)
-                        .toISOString()
-                        .split("T")[0]
-                    : "",
+                delivery_date: existingDate,
                 notes: selectedOrder.delivery?.notes || "",
             });
         }
@@ -344,7 +352,7 @@ export default function UpdateDeliveryStatusModal({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Update Delivery Status</DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={form.handleSubmit(handleUpdate)}>
@@ -377,7 +385,7 @@ export default function UpdateDeliveryStatusModal({
                         {/* Delivery Date */}
                         <div>
                             <label className="block font-semibold mb-1">
-                                Delivery Date
+                                {dateLabel}
                                 {["in_transit", "delivered", "confirmed"].includes(
                                     form.watch("status")
                                 ) && <span className="text-red-500 ml-1">*</span>}

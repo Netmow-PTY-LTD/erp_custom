@@ -119,7 +119,7 @@ export type Transaction = {
   date: string;
   type: string;
   amount: number;
-  mode: string;
+  payment_mode: string;
   description: string;
 };
 
