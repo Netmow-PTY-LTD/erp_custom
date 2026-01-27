@@ -132,8 +132,8 @@ export default function StaffAdvanceDetail() {
 
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-gradient-to-br from-orange-500 to-orange-600 border-none shadow-lg">
-                    <CardContent className="pt-6">
+                <Card className="bg-gradient-to-br from-orange-500 to-orange-600 border-none shadow-lg py-6">
+                    <CardContent>
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-orange-100 text-xs font-semibold uppercase tracking-wider">Total Issued</p>
@@ -146,8 +146,8 @@ export default function StaffAdvanceDetail() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-green-500 to-green-600 border-none shadow-lg">
-                    <CardContent className="pt-6">
+                <Card className="bg-gradient-to-br from-green-500 to-green-600 border-none shadow-lg py-6">
+                    <CardContent>
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-green-100 text-xs font-semibold uppercase tracking-wider">Total Returned</p>
@@ -160,8 +160,8 @@ export default function StaffAdvanceDetail() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-none shadow-lg">
-                    <CardContent className="pt-6">
+                <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-none shadow-lg py-6">
+                    <CardContent>
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-blue-100 text-xs font-semibold uppercase tracking-wider">Pending Balance</p>
@@ -174,8 +174,8 @@ export default function StaffAdvanceDetail() {
                     </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-amber-500 to-amber-600 border-none shadow-lg">
-                    <CardContent className="pt-6">
+                <Card className="bg-gradient-to-br from-amber-500 to-amber-600 border-none shadow-lg py-6">
+                    <CardContent>
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-amber-100 text-xs font-semibold uppercase tracking-wider">Active Advances</p>
@@ -193,13 +193,13 @@ export default function StaffAdvanceDetail() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* LEFT: ADVANCE ISSUANCE */}
                 <div className="space-y-6">
-                    <Card className="border-orange-100 shadow-sm overflow-hidden">
-                        <CardHeader className="bg-orange-50 border-b border-orange-100">
+                    <Card className="border-orange-100 shadow-sm overflow-hidden pb-6">
+                        <CardHeader className="bg-orange-50 border-b-1 border-orange-100 py-3 gap-0">
                             <CardTitle className="text-orange-800 flex items-center gap-2">
                                 <PlusCircle className="w-5 h-5 text-orange-600" /> Issue New Advance
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-6 space-y-4">
+                        <CardContent className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <Label className="text-xs uppercase tracking-wider text-orange-600 font-bold">Amount (RM)</Label>
@@ -214,7 +214,7 @@ export default function StaffAdvanceDetail() {
                                     <Label className="text-xs uppercase tracking-wider text-orange-600 font-bold">Date</Label>
                                     <Input
                                         type="date"
-                                        className="border-orange-200 focus:ring-orange-500"
+                                        className="border-orange-200 focus:ring-orange-500 block"
                                         value={advanceForm.advance_date}
                                         onChange={(e) => setAdvanceForm({ ...advanceForm, advance_date: e.target.value })}
                                     />
@@ -240,7 +240,7 @@ export default function StaffAdvanceDetail() {
                     </Card>
 
                     <Card className="shadow-sm">
-                        <CardHeader className="border-b">
+                        <CardHeader className="border-b-1 border-gray-200 py-3 gap-0">
                             <CardTitle className="text-gray-800 flex items-center gap-2">
                                 <Clock className="w-5 h-5 text-orange-500" /> Advance History
                             </CardTitle>
@@ -286,13 +286,13 @@ export default function StaffAdvanceDetail() {
 
                 {/* RIGHT: RETURN MANAGEMENT */}
                 <div className="space-y-6">
-                    <Card className="border-green-100 shadow-sm overflow-hidden">
-                        <CardHeader className="bg-green-50 border-b border-green-100">
+                    <Card className="border-green-100 shadow-sm overflow-hidden pb-6">
+                        <CardHeader className="bg-green-50 border-b-1 border-green-100 py-3 gap-0">
                             <CardTitle className="text-green-800 flex items-center gap-2">
                                 <ArrowDownCircle className="w-5 h-5 text-green-600" /> Process Return
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-6 space-y-4">
+                        <CardContent className="space-y-4">
                             <div className="space-y-1.5">
                                 <Label className="text-xs uppercase tracking-wider text-green-600 font-bold">Select Active Advance</Label>
                                 <select
@@ -348,7 +348,7 @@ export default function StaffAdvanceDetail() {
                     </Card>
 
                     <Card className="shadow-sm">
-                        <CardHeader className="border-b">
+                        <CardHeader className="border-b-1 border-gray-200 py-3 gap-0">
                             <CardTitle className="text-gray-800 flex items-center gap-2">
                                 <CalendarCheck className="w-5 h-5 text-green-500" /> Return History
                             </CardTitle>

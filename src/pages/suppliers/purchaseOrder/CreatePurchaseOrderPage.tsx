@@ -382,7 +382,7 @@ export default function CreatePurchaseOrderPage() {
 
       toast.success("Purchase Order Created Successfully");
 
-      navigate("/dashboard/suppliers/purchase-orders");
+      navigate("/dashboard/purchase-orders");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to create purchase order");

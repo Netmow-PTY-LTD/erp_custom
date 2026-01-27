@@ -237,7 +237,7 @@ export default function StaffPayrollRun() {
 
                     {/* Payroll Activity Logs Table */}
                     <Card className="border-slate-200 overflow-hidden mb-6">
-                        <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+                        <CardHeader className="bg-slate-50/50 border-b-1 border-slate-100 py-3 gap-0">
                             <CardTitle className="text-lg flex items-center gap-2">
                                 <Wallet className="w-5 h-5 text-emerald-500" />
                                 Payroll History
@@ -314,8 +314,8 @@ export default function StaffPayrollRun() {
                     </Card>
 
                     {/* Attendance Logs Table */}
-                    <Card className="border-slate-200 overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+                    <Card className="border-slate-200 overflow-hidden gap-4">
+                        <CardHeader className="bg-slate-50/50 border-b-1 border-slate-100 py-3 gap-0">
                             <CardTitle className="text-lg flex items-center gap-2">
                                 <Clock className="w-5 h-5 text-indigo-500" />
                                 Attendance Logs
@@ -376,8 +376,8 @@ export default function StaffPayrollRun() {
                 {/* Right Column: Payroll Context */}
                 <div className="space-y-6">
                     {/* Salary Structure Reference */}
-                    <Card className="bg-white border-slate-200 shadow-sm overflow-hidden">
-                        <CardHeader className="py-4 px-5 border-b border-slate-100 bg-slate-50/50">
+                    <Card className="bg-white border-slate-200 shadow-sm overflow-hidden gap-2">
+                        <CardHeader className="py-4 px-5 border-b-1 border-slate-100 bg-slate-50/50 gap-0">
                             <CardTitle className="font-semibold text-slate-700 flex items-center gap-2 text-sm">
                                 <Building2 className="w-4 h-4 text-indigo-500" />
                                 Salary Configuration
