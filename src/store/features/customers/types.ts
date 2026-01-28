@@ -27,6 +27,9 @@ export interface Customer {
     credit_limit?: number;
     outstanding_balance?: number;
     total_sales?: number;
+    purchase_amount?: number;
+    paid_amount?: number;
+    due_amount?: number;
     customer_type: "individual" | "business" | "retail";
     sales_route_id?: number;
     notes?: string;

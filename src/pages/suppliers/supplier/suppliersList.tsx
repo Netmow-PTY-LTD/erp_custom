@@ -292,7 +292,7 @@ export default function SuppliersList() {
     <div className="w-full">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="w-[180px]">
             <Select
               value={sort}

@@ -165,7 +165,7 @@ export default function PurchasePayments() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Purchase Payments</h1>
 
         <Link to="/dashboard/purchase-payments/create">

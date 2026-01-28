@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { PlusCircle, FileText, CheckCircle, Clock, AlertTriangle } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 import { useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
@@ -18,6 +19,8 @@ import { useAppSelector } from "@/store/store";
 export default function Invoices() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [rowSelection, setRowSelection] = useState({});
+  const navigate = useNavigate();
   const limit = 10;
 
   // Fetch invoices with pagination & search
@@ -82,6 +85,29 @@ export default function Invoices() {
   ];
 
   const invoiceColumns: ColumnDef<SalesInvoice>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "invoice_number",
       header: "Invoice #",
@@ -206,17 +232,39 @@ export default function Invoices() {
     },
   ];
 
+  const selectedInvoicesCount = Object.keys(rowSelection).length;
+  const selectedInvoiceIds = Object.keys(rowSelection).map(idx => invoices[parseInt(idx)]?.id).filter(id => id !== undefined);
+
+  const handleViewSummaryDetails = () => {
+    if (selectedInvoiceIds.length > 0) {
+      navigate(`/dashboard/sales/invoices/summary-details?ids=${selectedInvoiceIds.join(",")}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-4">
         <h1 className="text-2xl font-bold">Sales Invoices</h1>
-        <Link to="/dashboard/sales/orders/create">
-          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-            <PlusCircle size={18} />
-            Create Order
-          </button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          {selectedInvoicesCount > 0 && (
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                onClick={handleViewSummaryDetails}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-amber-500/40 active:translate-y-0 active:shadow-none"
+              >
+                <FileText size={18} />
+                View Summary Details ({selectedInvoicesCount})
+              </button>
+            </div>
+          )}
+          <Link to="/dashboard/sales/orders/create">
+            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+              <PlusCircle size={18} />
+              Create Order
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -263,6 +311,8 @@ export default function Invoices() {
           setPage(1);
         }}
         isFetching={isFetching}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
       />
     </div>
   );
