@@ -221,6 +221,7 @@ export default function CreateSalesOrderPage() {
         notes: values.notes,
         items: values.items.map((i) => ({
           product_id: i.product_id,
+          specification: i.specification,
           quantity: Number(i.quantity),
           unit_price: Number(i.unit_price),
           discount: Number(i.discount),
@@ -228,6 +229,8 @@ export default function CreateSalesOrderPage() {
           remark: i.remark,
         })),
       };
+
+      console.log('create order payload', payload);
 
       // ➤ STEP 1: Create Sales Order
       const orderRes = await addSalesOrder(payload).unwrap();
@@ -396,9 +399,7 @@ export default function CreateSalesOrderPage() {
                 </Avatar>
               )}
               <span className="truncate text-left min-w-0 flex-1">
-                {selected
-                  ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit?.name || 'N/A'})`
-                  : "Select product..."}
+                {selected ? selected.name : "Select product..."}
               </span>
             </div>
           </Button>
@@ -741,9 +742,8 @@ export default function CreateSalesOrderPage() {
                             <FormControl>
                               <Input
                                 {...field}
-                                readOnly
                                 placeholder="Spec."
-                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
                               />
                             </FormControl>
                             <FormMessage />
