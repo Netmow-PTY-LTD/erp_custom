@@ -15,6 +15,9 @@ export interface SalesOrderItem {
   line_total: number;     // decimal
   discount: number;
   sales_tax: number;
+  sales_tax_percent?: number;
+  tax_amount?: number | string;
+  specification?: string;
   created_at: string;      // ISO date
   updated_at: string;      // ISO date
 }

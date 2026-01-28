@@ -23,15 +23,50 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
     }, { amount: 0, paid: 0, balance: 0 });
 
     const allItems = invoices.flatMap(inv => inv.order?.items || []).reduce((acc: any[], item) => {
-        const existing = acc.find(i => i.product_id === item.product_id && i.unit_price === item.unit_price);
+        const qty = Number(item.quantity || 0);
+        const unitPrice = Number(item.unit_price || 0);
+        const discount = Number(item.discount || 0);
+        const taxRate = Number(item.sales_tax_percent || item.sales_tax || 0);
+
+        const subtotal = unitPrice * qty;
+        const taxableAmount = subtotal - discount;
+        const taxAmount = Number(item.tax_amount) || (taxableAmount * (taxRate / 100));
+        const lineTotal = taxableAmount + taxAmount;
+
+        const existing = acc.find(i =>
+            i.product_id === item.product_id &&
+            i.unit_price === item.unit_price &&
+            (i.sales_tax_percent || i.sales_tax || 0) === taxRate
+        );
         if (existing) {
-            existing.quantity = Number(existing.quantity) + Number(item.quantity);
-            existing.line_total = Number(existing.line_total) + Number(item.line_total);
+            existing.quantity = Number(existing.quantity) + qty;
+            existing.total_price_sum = (existing.total_price_sum || 0) + subtotal;
+            existing.discount_sum = (existing.discount_sum || 0) + discount;
+            existing.tax_amount = (existing.tax_amount || 0) + taxAmount;
+            existing.payable_amount = (existing.payable_amount || 0) + lineTotal;
+            existing.line_total = Number(existing.line_total) + lineTotal;
         } else {
-            acc.push({ ...item });
+            acc.push({
+                ...item,
+                total_price_sum: subtotal,
+                discount_sum: discount,
+                tax_amount: taxAmount,
+                payable_amount: lineTotal,
+                line_total: lineTotal,
+                sales_tax_percent: taxRate // ensure we store it for the next consolidate check
+            });
         }
         return acc;
     }, []);
+
+    const tableTotals = allItems.reduce((acc, item) => {
+        acc.qty += Number(item.quantity);
+        acc.total_price += Number(item.total_price_sum);
+        acc.discount += Number(item.discount_sum);
+        acc.tax += Number(item.tax_amount);
+        acc.payable += Number(item.payable_amount);
+        return acc;
+    }, { qty: 0, total_price: 0, discount: 0, tax: 0, payable: 0 });
 
     const handlePrint = () => {
         window.print();
@@ -101,15 +136,20 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
 
                 {/* Items Table Consolidated */}
                 <div className="space-y-4 overflow-x-auto print:overflow-x-visible">
-                    <table className="w-full text-[11px] border-collapse mb-4 shadow-sm min-w-[600px] print:min-w-0">
+                    <table className="w-full text-[11px] border-collapse mb-4 shadow-sm min-w-[700px] print:min-w-0">
                         <thead className="bg-gray-50 font-bold text-gray-700 uppercase tracking-tighter">
                             <tr>
                                 <th className="border border-gray-200 p-2 text-center w-8">Seq</th>
                                 <th className="border border-gray-200 p-2 text-left w-20">SKU</th>
                                 <th className="border border-gray-200 p-2 text-left">Product Name</th>
+                                <th className="border border-gray-200 p-2 text-left">Specification</th>
                                 <th className="border border-gray-200 p-2 text-center w-12">Qty</th>
                                 <th className="border border-gray-200 p-2 text-right w-20">Price</th>
-                                <th className="border border-gray-200 p-2 text-right w-24">Line Total</th>
+                                <th className="border border-gray-200 p-2 text-right w-20">Total Price</th>
+                                <th className="border border-gray-200 p-2 text-right w-20">Discount</th>
+                                <th className="border border-gray-200 p-2 text-right w-24">Pretax Amt</th>
+                                <th className="border border-gray-200 p-2 text-right w-20 text-blue-600">Tax</th>
+                                <th className="border border-gray-200 p-2 text-right w-24 text-emerald-600">Payable</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,19 +160,33 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
                                     <td className="border border-gray-200 p-2 font-medium text-left">
                                         <div className="flex flex-col">
                                             <span className="font-bold text-gray-900 uppercase">{item.product?.name}</span>
-                                            {item.product?.specification && (
-                                                <span className="text-[9px] text-gray-400 italic font-normal mt-0.5">
-                                                    {item.product.specification}
-                                                </span>
-                                            )}
                                         </div>
+                                    </td>
+                                    <td className="border border-gray-200 p-2 text-left italic text-gray-500">
+                                        {item.specification || item.product?.specification || "-"}
                                     </td>
                                     <td className="border border-gray-200 p-2 text-center font-bold text-blue-600">{Number(item.quantity).toFixed(0)}</td>
                                     <td className="border border-gray-200 p-2 text-right">{currency} {Number(item.unit_price).toFixed(2)}</td>
-                                    <td className="border border-gray-200 p-2 text-right font-black text-gray-900">{currency} {Number(item.line_total).toFixed(2)}</td>
+                                    <td className="border border-gray-200 p-2 text-right">{currency} {Number(item.total_price_sum).toFixed(2)}</td>
+                                    <td className="border border-gray-200 p-2 text-right text-rose-500 font-medium">{currency} {Number(item.discount_sum).toFixed(2)}</td>
+                                    <td className="border border-gray-200 p-2 text-right font-bold text-gray-700">{currency} {(Number(item.total_price_sum) - Number(item.discount_sum)).toFixed(2)}</td>
+                                    <td className="border border-gray-200 p-2 text-right font-medium text-blue-600">{currency} {Number(item.tax_amount).toFixed(2)}</td>
+                                    <td className="border border-gray-200 p-2 text-right font-black text-emerald-700 bg-emerald-50/30">{currency} {Number(item.payable_amount).toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>
+                        <tfoot className="bg-gray-50 font-bold text-gray-900 border-t-2 border-gray-300">
+                            <tr>
+                                <td colSpan={4} className="border border-gray-200 p-3 text-right uppercase tracking-widest text-xs">Grand Total</td>
+                                <td className="border border-gray-200 p-3 text-center text-blue-600 font-black">{tableTotals.qty.toFixed(0)}</td>
+                                <td className="border border-gray-200 p-3"></td>
+                                <td className="border border-gray-200 p-3 text-right font-mono">{currency} {tableTotals.total_price.toFixed(2)}</td>
+                                <td className="border border-gray-200 p-3 text-right text-rose-600 font-mono">{currency} {tableTotals.discount.toFixed(2)}</td>
+                                <td className="border border-gray-200 p-3 text-right text-gray-800 font-mono">{currency} {(tableTotals.total_price - tableTotals.discount).toFixed(2)}</td>
+                                <td className="border border-gray-200 p-3 text-right text-blue-600 font-mono">{currency} {tableTotals.tax.toFixed(2)}</td>
+                                <td className="border border-gray-200 p-3 text-right text-emerald-700 text-sm font-black underline decoration-double underline-offset-4">{currency} {tableTotals.payable.toFixed(2)}</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
 

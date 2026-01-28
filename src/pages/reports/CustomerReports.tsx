@@ -231,7 +231,7 @@ export default function CustomerReports() {
       </div>
 
       {/* ---------------- CARDS GRID ---------------- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales by Customer */}
         <Card className="pt-6">
           <CardHeader className="flex justify-between">
