@@ -170,5 +170,6 @@ export const {
   useDeleteCustomerMutation,
   useGetCustomerMapsQuery,
   useGetInactiveCustomersQuery,
-  useGetActiveCustomersQuery
+  useGetActiveCustomersQuery,
+  useLazyGetCustomerByIdQuery
 } = customersApi;

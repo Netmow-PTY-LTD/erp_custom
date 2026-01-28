@@ -328,12 +328,12 @@ export default function ChartOfAccounts() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Chart of Accounts</h2>
                     <p className="text-muted-foreground">Manage your financial head hierarchy.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
 
                     <CreateIncomeHeadForm />
                     <CreateExpenseHeadForm />

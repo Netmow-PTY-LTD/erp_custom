@@ -29,11 +29,17 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
       <style>{`
         @media print {
           @page {
-            margin: 10mm;
+            margin: 5mm;
             size: A4;
           }
           body {
             -webkit-print-color-adjust: exact;
+          }
+          .invoice-box {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
         }
         .invoice-box {

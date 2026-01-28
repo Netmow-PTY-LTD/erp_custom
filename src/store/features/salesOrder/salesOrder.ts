@@ -299,6 +299,15 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesInvoices", "SalesInvoice"],
     }),
 
+    getOrdersItems: builder.query<SalesResponse<any[]>, string>({
+      query: (orderIds) => ({
+        url: `/sales/orders-items`,
+        method: "GET",
+        params: { orders: orderIds },
+      }),
+      providesTags: ["SalesOrders"],
+    }),
+
 
   }),
 });
@@ -326,4 +335,6 @@ export const {
   useAssignStaffToOrderMutation,
   useGenerateEInvoiceMutation,
   useSubmitEInvoiceMutation,
+  useGetOrdersItemsQuery,
+  useLazyGetOrdersItemsQuery,
 } = salesApiService;

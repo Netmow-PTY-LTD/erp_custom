@@ -198,6 +198,9 @@ import EInvoiceList from "@/pages/salesOrders/invoices/EInvoiceList";
 import EInvoiceSettings from "@/pages/Settings/pages/EInvoiceSettings";
 import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import StaffWiseSalesReport from "@/pages/reports/StaffWiseSalesReport";
+import InvoicesSummaryPreview from "@/pages/salesOrders/invoices/InvoicesSummaryPreview";
+import InvoiceItemsSummaryPreview from "@/pages/salesOrders/invoices/InvoiceItemsSummaryPreview";
+import InvoiceSummaryDetails from "@/pages/salesOrders/invoices/InvoiceSummaryDetails";
 
 
 export const sidebarItemLink = [
@@ -1125,6 +1128,33 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/sales/invoices/:invoiceId/preview",
         element: <InvoicePrintPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/summary",
+        element: <InvoicesSummaryPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/items-summary",
+        element: <InvoiceItemsSummaryPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/summary-details",
+        element: <InvoiceSummaryDetails />,
         allowedPermissions: [
           SalesPermission.INVOICE_PREVIEW,
           SuperAdminPermission.ACCESS_ALL,

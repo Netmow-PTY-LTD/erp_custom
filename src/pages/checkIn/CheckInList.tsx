@@ -88,8 +88,8 @@ export default function CheckInList(): JSX.Element {
   /* ================= UI ================= */
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Check In List</h1>
         <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>

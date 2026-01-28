@@ -247,13 +247,13 @@ export default function JournalReport() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Journal Report</h2>
                     <p className="text-muted-foreground">Chronological record of all financial transactions.</p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     {/* Add New Entry Button */}
                     <Dialog open={isNewEntryOpen} onOpenChange={setIsNewEntryOpen}>
                         <DialogTrigger asChild>
@@ -439,7 +439,7 @@ export default function JournalReport() {
                     </Dialog>
 
                     {/* Date Filter */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
@@ -500,7 +500,7 @@ export default function JournalReport() {
                         {reportData?.data?.map((entry) => (
                             <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg gap-4">
                                 <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b-1 border-emerald-100 dark:border-emerald-900 py-2 px-6 gap-0">
-                                    <div className="flex justify-between items-center">
+                                    <div className="flex flex-wrap justify-between items-center gap-3">
                                         <div className="flex flex-col gap-1">
                                             <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{entry.date}</span>
                                             <span className="text-lg font-bold text-gray-800 dark:text-gray-100">{entry.narration || "No Narration"}</span>

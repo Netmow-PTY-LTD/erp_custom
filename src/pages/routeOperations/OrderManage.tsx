@@ -221,18 +221,18 @@ const OrderManage = () => {
 
 
     return (
-        <div className="space-y-6 h-full flex flex-col">
+        <div className="space-y-6 flex flex-col">
             <div className="flex flex-wrap justify-between items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Order Management</h1>
-                    <p className="text-muted-foreground mt-1">Manage orders, view details, and assign staff.</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Order Management</h1>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Manage orders, view details, and assign staff.</p>
                 </div>
-                <div className="flex flex-wrap items-center gap-4">
-                    <div className="relative w-64">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-64">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search orders..."
-                            className="pl-8"
+                            className="pl-8 w-full"
                             value={search}
                             onChange={(e) => {
                                 setSearch(e.target.value);
@@ -240,135 +240,136 @@ const OrderManage = () => {
                             }}
                         />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full sm:w-auto">
                         {selectedOrders.length > 0 && (
                             <Button
                                 variant="secondary"
                                 onClick={() => openAssignDialog(selectedOrders)}
-                                className="animate-in fade-in slide-in-from-right-5"
+                                className="flex-1 sm:flex-none animate-in fade-in slide-in-from-right-5 text-xs sm:text-sm"
                             >
                                 <Users className="mr-2 h-4 w-4" />
-                                Assign to {selectedOrders.length} Orders
+                                <span className="truncate">Assign to {selectedOrders.length} Orders</span>
                             </Button>
                         )}
-                        {/* <Button>Create New Order</Button> */}
                     </div>
                 </div>
             </div>
 
-            <div className="border rounded-md bg-card shadow-sm flex-1">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[50px]">
-                                <Checkbox
-                                    checked={selectedOrders.length === orders.length && orders.length > 0}
-                                    onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
-                                />
-                            </TableHead>
-                            <TableHead>Order ID</TableHead>
-                            <TableHead>Customer</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Assigned Staff</TableHead>
-                            <TableHead className="text-right">Total ({currency})</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {isLoading || isFetching ? (
+            <div className="border rounded-md bg-card shadow-sm flex-1 overflow-hidden flex flex-col">
+                <div className="overflow-x-auto">
+                    <Table className="min-w-[800px]">
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={8} className="h-64 text-center">
-                                    <div className="flex flex-col items-center justify-center space-y-2">
-                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                        <p className="text-sm text-muted-foreground">Loading orders...</p>
-                                    </div>
-                                </TableCell>
+                                <TableHead className="w-[50px]">
+                                    <Checkbox
+                                        checked={selectedOrders.length === orders.length && orders.length > 0}
+                                        onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
+                                    />
+                                </TableHead>
+                                <TableHead>Order ID</TableHead>
+                                <TableHead>Customer</TableHead>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Assigned Staff</TableHead>
+                                <TableHead className="text-right">Total ({currency})</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
-                        ) : orders.length > 0 ? (
-                            orders.map((order) => (
-                                <TableRow key={order.id} className={selectedOrders.includes(order.id) ? "bg-muted/50" : ""}>
-                                    <TableCell>
-                                        <Checkbox
-                                            checked={selectedOrders.includes(order.id)}
-                                            onCheckedChange={(checked) => handleSelectRow(order.id, checked as boolean)}
-                                        />
-                                    </TableCell>
-                                    <TableCell className="font-medium">{order.order_number}</TableCell>
-                                    <TableCell>{order.customer}</TableCell>
-                                    <TableCell>{order.date}</TableCell>
-                                    <TableCell>
-                                        <Badge
-                                            variant={
-                                                order.status === "delivered" ? "default" :
-                                                    order.status === "pending" ? "secondary" :
-                                                        order.status === "cancelled" ? "destructive" : "outline"
-                                            }
-                                            className={
-                                                order.status === "shipped" ? "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200" : ""
-                                            }
-                                        >
-                                            {order.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        {order.assignedTo.length > 0 ? (
-                                            <div className="flex items-center -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300">
-                                                {order.assignedTo.map((staffId) => {
-                                                    const staff = getStaffDetails(staffId);
-                                                    if (!staff) return null;
-                                                    return (
-                                                        <Avatar key={staffId} className="h-8 w-8 border-2 border-background ring-1 ring-muted" title={staff.name}>
-                                                            <AvatarImage src={staff?.thumb_url ? staff.thumb_url : `https://api.dicebear.com/7.x/initials/svg?seed=${staff.name}`} />
-                                                            <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                                                                {staff.name.substring(0, 2).toUpperCase()}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                    );
-                                                })}
-                                            </div>
-                                        ) : (
-                                            <span className="text-sm text-muted-foreground italic">Unassigned</span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-right font-semibold">{(order.total_amount || 0).toFixed(2)}</TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                title="View Details"
-                                                onClick={() => handleViewOrder(order)}
-                                            >
-                                                <Eye className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                title="Assign Staff"
-                                                onClick={() => openAssignDialog([order.id])}
-                                            >
-                                                <UserPlus className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                                            </Button>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading || isFetching ? (
+                                <TableRow>
+                                    <TableCell colSpan={8} className="h-64 text-center">
+                                        <div className="flex flex-col items-center justify-center space-y-2">
+                                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                            <p className="text-sm text-muted-foreground">Loading orders...</p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={8} className="h-64 text-center">
-                                    <div className="flex flex-col items-center justify-center space-y-2">
-                                        <Package className="h-8 w-8 text-muted-foreground opacity-50" />
-                                        <p className="text-sm text-muted-foreground">No orders found.</p>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : orders.length > 0 ? (
+                                orders.map((order) => (
+                                    <TableRow key={order.id} className={selectedOrders.includes(order.id) ? "bg-muted/50" : ""}>
+                                        <TableCell>
+                                            <Checkbox
+                                                checked={selectedOrders.includes(order.id)}
+                                                onCheckedChange={(checked) => handleSelectRow(order.id, checked as boolean)}
+                                            />
+                                        </TableCell>
+                                        <TableCell className="font-medium">{order.order_number}</TableCell>
+                                        <TableCell>{order.customer}</TableCell>
+                                        <TableCell>{order.date}</TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                variant={
+                                                    order.status === "delivered" ? "default" :
+                                                        order.status === "pending" ? "secondary" :
+                                                            order.status === "cancelled" ? "destructive" : "outline"
+                                                }
+                                                className={
+                                                    order.status === "shipped" ? "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200" : ""
+                                                }
+                                            >
+                                                {order.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            {order.assignedTo.length > 0 ? (
+                                                <div className="flex items-center -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300">
+                                                    {order.assignedTo.map((staffId) => {
+                                                        const staff = getStaffDetails(staffId);
+                                                        if (!staff) return null;
+                                                        return (
+                                                            <Avatar key={staffId} className="h-8 w-8 border-2 border-background ring-1 ring-muted" title={staff.name}>
+                                                                <AvatarImage src={staff?.thumb_url ? staff.thumb_url : `https://api.dicebear.com/7.x/initials/svg?seed=${staff.name}`} />
+                                                                <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                                                                    {staff.name.substring(0, 2).toUpperCase()}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground italic">Unassigned</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right font-semibold">{(order.total_amount || 0).toFixed(2)}</TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    title="View Details"
+                                                    onClick={() => handleViewOrder(order)}
+                                                >
+                                                    <Eye className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    title="Assign Staff"
+                                                    onClick={() => openAssignDialog([order.id])}
+                                                >
+                                                    <UserPlus className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={8} className="h-64 text-center">
+                                        <div className="flex flex-col items-center justify-center space-y-2">
+                                            <Package className="h-8 w-8 text-muted-foreground opacity-50" />
+                                            <p className="text-sm text-muted-foreground">No orders found.</p>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
                 {/* Pagination Controls */}
                 {pagination && pagination.totalPage > 1 && (
-                    <div className="flex flex-wrap items-center justify-between px-4 py-3 border-t bg-muted/20 gap-3">
+                    <div className="flex flex-wrap items-center justify-between px-4 py-4 border-t bg-muted/20 gap-3">
                         <div className="text-sm text-muted-foreground">
                             Showing {(page - 1) * limit + 1} to {Math.min(page * limit, pagination.total)} of {pagination.total} orders
                         </div>
@@ -420,17 +421,17 @@ const OrderManage = () => {
                         </div>
                     ) : detailedOrderData?.data ? (
                         <>
-                            <SheetHeader>
+                            <SheetHeader className="text-left px-4">
                                 <div className="flex items-center justify-between">
-                                    <SheetTitle className="text-2xl font-bold flex items-center gap-2">
+                                    <SheetTitle className="text-xl sm:text-2xl font-bold flex flex-wrap items-center gap-2">
                                         {detailedOrderData.data.order_number}
-                                        <Badge variant={detailedOrderData.data.status === "delivered" ? "default" : "secondary"} className="ml-2 text-sm font-normal">
+                                        <Badge variant={detailedOrderData.data.status === "delivered" ? "default" : "secondary"} className="text-xs sm:text-sm font-normal">
                                             {detailedOrderData.data.status}
                                         </Badge>
                                     </SheetTitle>
                                 </div>
-                                <SheetDescription>
-                                    Order placed on {new Date(detailedOrderData.data.order_date).toLocaleDateString()}
+                                <SheetDescription className="text-xs sm:text-sm">
+                                    Order placed on {detailedOrderData.data.order_date ? new Date(detailedOrderData.data.order_date).toLocaleDateString() : "N/A"}
                                 </SheetDescription>
                             </SheetHeader>
 
@@ -441,21 +442,21 @@ const OrderManage = () => {
                                         <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
                                             <Users className="h-4 w-4" /> Customer Details
                                         </h3>
-                                        <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                                            <div className="flex justify-between">
-                                                <span className="text-sm font-medium">Name:</span>
-                                                <span className="text-sm">{detailedOrderData.data.customer?.name}</span>
+                                        <div className="bg-muted/30 p-4 rounded-lg space-y-3">
+                                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                                                <span className="text-xs font-bold sm:font-medium sm:text-sm text-muted-foreground sm:text-foreground">Name:</span>
+                                                <span className="text-sm font-medium sm:font-normal">{detailedOrderData.data?.customer?.name}</span>
                                             </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-sm font-medium">Contact:</span>
-                                                <div className="flex items-center gap-1 text-sm">
-                                                    <Phone className="h-3 w-3" /> {detailedOrderData.data.customer?.phone || "N/A"}
+                                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                                                <span className="text-xs font-bold sm:font-medium sm:text-sm text-muted-foreground sm:text-foreground">Contact:</span>
+                                                <div className="flex items-center gap-1 text-sm font-medium sm:font-normal">
+                                                    <Phone className="h-3 w-3" /> {detailedOrderData.data?.customer?.phone || "N/A"}
                                                 </div>
                                             </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-sm font-medium">Address:</span>
-                                                <div className="flex items-center gap-1 text-sm text-right">
-                                                    <MapPin className="h-3 w-3" /> {detailedOrderData.data.shipping_address || "N/A"}
+                                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                                                <span className="text-xs font-bold sm:font-medium sm:text-sm text-muted-foreground sm:text-foreground">Address:</span>
+                                                <div className="flex items-center gap-1 text-sm font-medium sm:font-normal sm:text-right">
+                                                    <MapPin className="h-3.5 w-3.5 shrink-0" /> <span className="line-clamp-2">{detailedOrderData.data?.shipping_address || "N/A"}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -467,11 +468,11 @@ const OrderManage = () => {
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-center">
                                             <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
-                                                <UserPlus className="h-4 w-4" /> Assigned Staff ({(detailedOrderData.data.assignedStaff || []).length})
+                                                <UserPlus className="h-4 w-4" /> Assigned Staff ({(detailedOrderData.data?.assignedStaff || []).length})
                                             </h3>
                                         </div>
 
-                                        {(detailedOrderData.data.assignedStaff || []).length > 0 ? (
+                                        {(detailedOrderData.data?.assignedStaff || []).length > 0 ? (
                                             <div className="bg-muted/30 rounded-lg overflow-hidden flex flex-col">
                                                 <ScrollArea className="h-[250px]">
                                                     <div className="p-4 space-y-3">
@@ -519,28 +520,28 @@ const OrderManage = () => {
                                         <h3 className="font-semibold text-sm text-muted-foreground uppercase flex items-center gap-2">
                                             <Package className="h-4 w-4" /> Order Items
                                         </h3>
-                                        <div className="border rounded-lg overflow-hidden">
-                                            <Table>
+                                        <div className="border rounded-lg overflow-x-auto">
+                                            <Table className="min-w-[400px]">
                                                 <TableHeader className="bg-muted/50">
                                                     <TableRow className="hover:bg-transparent">
                                                         <TableHead className="h-9">Item</TableHead>
-                                                        <TableHead className="h-9 text-right">Qty</TableHead>
-                                                        <TableHead className="h-9 text-right">Price</TableHead>
-                                                        <TableHead className="h-9 text-right">Total</TableHead>
+                                                        <TableHead className="h-9 text-right w-12 sm:w-16">Qty</TableHead>
+                                                        <TableHead className="h-9 text-right w-20 sm:w-24">Price</TableHead>
+                                                        <TableHead className="h-9 text-right w-24 sm:w-32">Total</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
-                                                    {(detailedOrderData.data.items || []).map((item, index) => (
+                                                    {(detailedOrderData.data?.items || []).map((item, index) => (
                                                         <TableRow key={index} className="hover:bg-transparent">
-                                                            <TableCell className="py-2">{item.product?.name || "Unknown"}</TableCell>
-                                                            <TableCell className="text-right py-2">{item.quantity}</TableCell>
-                                                            <TableCell className="text-right py-2">${Number(item.unit_price).toLocaleString()}</TableCell>
-                                                            <TableCell className="text-right py-2 font-medium">${Number(item.total_price).toLocaleString()}</TableCell>
+                                                            <TableCell className="py-2 text-sm line-clamp-1">{item.product?.name || "Unknown"}</TableCell>
+                                                            <TableCell className="text-right py-2 text-sm">{item.quantity}</TableCell>
+                                                            <TableCell className="text-right py-2 text-sm">{currency} {Number(item.unit_price).toLocaleString()}</TableCell>
+                                                            <TableCell className="text-right py-2 text-sm font-medium">{currency} {Number(item.total_price).toLocaleString()}</TableCell>
                                                         </TableRow>
                                                     ))}
                                                     <TableRow className="bg-muted/50 font-medium">
-                                                        <TableCell colSpan={3} className="text-right">Grand Total</TableCell>
-                                                        <TableCell className="text-right text-primary">${(Number(detailedOrderData.data.total_amount) || 0).toLocaleString()}</TableCell>
+                                                        <TableCell colSpan={3} className="text-right text-sm">Grand Total</TableCell>
+                                                        <TableCell className="text-right text-primary text-sm font-bold">{currency} {(Number(detailedOrderData.data?.total_amount) || 0).toLocaleString()}</TableCell>
                                                     </TableRow>
                                                 </TableBody>
                                             </Table>
@@ -557,12 +558,12 @@ const OrderManage = () => {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="bg-muted/30 p-3 rounded-md">
                                                 <span className="text-xs text-muted-foreground block text-left">Payment Status</span>
-                                                <span className="text-sm font-medium uppercase">{detailedOrderData.data.payment_status}</span>
+                                                <span className="text-sm font-medium uppercase font-bold">{detailedOrderData.data?.payment_status}</span>
                                             </div>
                                             <div className="bg-muted/30 p-3 rounded-md">
                                                 <span className="text-xs text-muted-foreground block text-left">Delivery Status</span>
-                                                <span className="text-sm font-medium flex items-center gap-2 uppercase">
-                                                    <Clock className="h-3 w-3" /> {detailedOrderData.data.status}
+                                                <span className="text-sm font-medium flex items-center gap-2 uppercase font-bold text-primary">
+                                                    <Clock className="h-3 w-3" /> {detailedOrderData.data?.status}
                                                 </span>
                                             </div>
                                         </div>
@@ -584,26 +585,28 @@ const OrderManage = () => {
                 <DialogContent>
 
                     {
-                        !canAssignStaff ? <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-                            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
-                                <ShieldAlert className="w-10 h-10 text-destructive" />
+                        !canAssignStaff ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+                                <div className="flex items-center justify-center w-20 h-20 rounded-full bg-destructive/10">
+                                    <ShieldAlert className="w-10 h-10 text-destructive" />
+                                </div>
+                                <h2 className="text-lg font-semibold text-foreground">
+                                    Access Denied
+                                </h2>
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                    You do not have permission to Assign Staff in Order. <br />
+                                    Please contact your administrator if you believe this is an
+                                    error.
+                                </p>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsAssignDialogOpen(false)}
+                                    className="mt-4"
+                                >
+                                    Close
+                                </Button>
                             </div>
-                            <h2 className="text-lg font-semibold text-foreground">
-                                Access Denied
-                            </h2>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                                You do not have permission to Assign Staff in Order. <br />
-                                Please contact your administrator if you believe this is an
-                                error.
-                            </p>
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsAssignDialogOpen(false)}
-                                className="mt-4"
-                            >
-                                Close
-                            </Button>
-                        </div> : (
+                        ) : (
                             <>
                                 <DialogHeader>
                                     <DialogTitle>Assign Staff</DialogTitle>
@@ -684,9 +687,7 @@ const OrderManage = () => {
                                     </Button>
                                 </DialogFooter>
                             </>
-                        )
-                    }
-
+                        )}
                 </DialogContent>
             </Dialog>
         </div>

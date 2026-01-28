@@ -225,7 +225,7 @@ export default function CustomerViewPage() {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground mb-1">Outstanding Balance</p>
                                     <h3 className="text-2xl font-bold text-foreground">
-                                        {currency} {Number(customer.outstanding_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        {currency} {Number(customer.due_amount ?? customer.outstanding_balance ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </h3>
                                 </div>
                                 <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
