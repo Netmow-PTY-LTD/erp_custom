@@ -177,30 +177,49 @@ export default function InvoiceSummaryDetails() {
                                             <th className="px-6 py-4 text-center w-40">Inv #</th>
                                             <th className="px-6 py-4 text-left w-24">SKU</th>
                                             <th className="px-6 py-4 text-left">Product</th>
+                                            <th className="px-6 py-4 text-left">Specification</th>
                                             <th className="px-6 py-4 text-center w-20">Qty</th>
                                             <th className="px-6 py-4 text-right w-24">Price</th>
+                                            <th className="px-6 py-4 text-right w-24">Total Price</th>
+                                            <th className="px-6 py-4 text-right w-24">Discount</th>
+                                            <th className="px-6 py-4 text-right w-24">Pretax Amt</th>
                                             <th className="px-6 py-4 text-right w-24 text-blue-600">Tax</th>
-                                            <th className="px-6 py-4 text-right w-24 text-emerald-600">Payable</th>
-                                            <th className="px-6 py-4 text-right w-24">Total</th>
+                                            <th className="px-6 py-4 text-right w-28 text-emerald-600">Payable</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
-                                        {inv.order?.items?.map((item, itemIdx) => (
-                                            <tr key={item.id} className="hover:bg-gray-50/30 transition-colors">
-                                                <td className="px-6 py-4 text-center text-gray-400 font-mono">{itemIdx + 1}</td>
-                                                <td className="px-6 py-4 text-center font-bold text-gray-700 whitespace-nowrap">{inv.invoice_number}</td>
-                                                <td className="px-6 py-4 font-mono text-gray-600 whitespace-nowrap">{item.product?.sku}</td>
-                                                <td className="px-6 py-4 font-bold text-gray-900 uppercase whitespace-nowrap">
-                                                    {item.product?.name}
-                                                    {item.product?.specification && <span className="block text-[10px] text-gray-400 font-normal italic lowercase mt-0.5">{item.product.specification}</span>}
-                                                </td>
-                                                <td className="px-6 py-4 text-center font-bold text-blue-600 whitespace-nowrap">{Number(item.quantity).toFixed(0)}</td>
-                                                <td className="px-6 py-4 text-right font-medium text-gray-600 whitespace-nowrap">{currency} {Number(item.unit_price).toFixed(2)}</td>
-                                                <td className="px-6 py-4 text-right font-medium text-blue-600 whitespace-nowrap">{currency} {parseFloat(inv.order?.tax_amount || "0").toFixed(2)}</td>
-                                                <td className="px-6 py-4 text-right font-bold text-emerald-600 whitespace-nowrap">{currency} {parseFloat(inv.total_payable).toFixed(2)}</td>
-                                                <td className="px-6 py-4 text-right font-black text-gray-900 whitespace-nowrap">{currency} {Number(item.line_total).toFixed(2)}</td>
-                                            </tr>
-                                        ))}
+                                        {inv.order?.items?.map((item, itemIdx) => {
+                                            const qty = Number(item.quantity || 0);
+                                            const unitPrice = Number(item.unit_price || 0);
+                                            const discount = Number(item.discount || 0);
+                                            const taxRate = Number(item.sales_tax_percent || item.sales_tax || 0);
+
+                                            const totalPrice = unitPrice * qty;
+                                            const pretaxAmount = totalPrice - discount;
+                                            const taxAmount = Number(item.tax_amount) || (pretaxAmount * (taxRate / 100));
+                                            const rowTotal = pretaxAmount + taxAmount;
+
+                                            return (
+                                                <tr key={item.id} className="hover:bg-gray-50/30 transition-colors">
+                                                    <td className="px-6 py-4 text-center text-gray-400 font-mono">{itemIdx + 1}</td>
+                                                    <td className="px-6 py-4 text-center font-bold text-gray-700 whitespace-nowrap">{inv.invoice_number}</td>
+                                                    <td className="px-6 py-4 font-mono text-gray-600 whitespace-nowrap">{item.product?.sku}</td>
+                                                    <td className="px-6 py-4 font-bold text-gray-900 uppercase whitespace-nowrap">
+                                                        {item.product?.name}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-gray-500 italic text-[11px] whitespace-nowrap">
+                                                        {item.specification || item.product?.specification || "-"}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center font-bold text-blue-600 whitespace-nowrap">{qty.toFixed(0)}</td>
+                                                    <td className="px-6 py-4 text-right font-medium text-gray-600 whitespace-nowrap">{currency} {unitPrice.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-right font-medium text-gray-600 whitespace-nowrap">{currency} {totalPrice.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-right font-medium text-rose-500 whitespace-nowrap">{currency} {discount.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-right font-bold text-gray-800 whitespace-nowrap">{currency} {pretaxAmount.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-right font-medium text-blue-600 whitespace-nowrap">{currency} {taxAmount.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-right font-black text-emerald-700 bg-emerald-50/30 whitespace-nowrap">{currency} {rowTotal.toFixed(2)}</td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>

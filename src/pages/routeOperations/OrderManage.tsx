@@ -525,6 +525,7 @@ const OrderManage = () => {
                                                 <TableHeader className="bg-muted/50">
                                                     <TableRow className="hover:bg-transparent">
                                                         <TableHead className="h-9">Item</TableHead>
+                                                        <TableHead className="h-9">Spec.</TableHead>
                                                         <TableHead className="h-9 text-right w-12 sm:w-16">Qty</TableHead>
                                                         <TableHead className="h-9 text-right w-20 sm:w-24">Price</TableHead>
                                                         <TableHead className="h-9 text-right w-24 sm:w-32">Total</TableHead>
@@ -533,7 +534,10 @@ const OrderManage = () => {
                                                 <TableBody>
                                                     {(detailedOrderData.data?.items || []).map((item, index) => (
                                                         <TableRow key={index} className="hover:bg-transparent">
-                                                            <TableCell className="py-2 text-sm line-clamp-1">{item.product?.name || "Unknown"}</TableCell>
+                                                            <TableCell className="py-2 text-sm font-medium">{item.product?.name || "Unknown"}</TableCell>
+                                                            <TableCell className="py-2 text-xs italic text-muted-foreground">
+                                                                {item.specification || item.product?.specification || "-"}
+                                                            </TableCell>
                                                             <TableCell className="text-right py-2 text-sm">{item.quantity}</TableCell>
                                                             <TableCell className="text-right py-2 text-sm">{currency} {Number(item.unit_price).toLocaleString()}</TableCell>
                                                             <TableCell className="text-right py-2 text-sm font-medium">{currency} {Number(item.total_price).toLocaleString()}</TableCell>
