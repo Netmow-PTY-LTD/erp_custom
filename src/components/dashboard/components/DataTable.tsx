@@ -60,6 +60,8 @@ interface DataTableProps<TData> {
   globalFilterValue?: string;
   onGlobalFilterChange?: (value: string) => void;
   onRowClick?: (row: TData) => void;
+  rowSelection?: any;
+  onRowSelectionChange?: any;
 }
 
 /* ---------------------------
@@ -77,6 +79,8 @@ export function DataTable<TData>({
   // onGlobalFilterChange = () => {},
   globalFilterValue = "",
   onRowClick,
+  rowSelection = {},
+  onRowSelectionChange,
 }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = useState(globalFilterValue || "");
 
@@ -92,7 +96,8 @@ export function DataTable<TData>({
   const table = useReactTable({
     data,
     columns,
-    state: { globalFilter, pagination: { pageIndex, pageSize } },
+    state: { globalFilter, pagination: { pageIndex, pageSize }, rowSelection },
+    onRowSelectionChange: onRowSelectionChange || (() => { }),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -156,8 +161,14 @@ export function DataTable<TData>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => onRowClick?.(row.original)}
-                  className={onRowClick ? "cursor-pointer hover:bg-muted/30 transition-colors" : ""}
+                  onClick={() => {
+                    if (onRowClick) {
+                      onRowClick(row.original);
+                    } else if (onRowSelectionChange && table.getColumn("select")) {
+                      row.toggleSelected();
+                    }
+                  }}
+                  className={`${(onRowClick || (onRowSelectionChange && table.getColumn("select"))) ? "cursor-pointer" : ""} hover:bg-muted/30 transition-colors`}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

@@ -284,7 +284,7 @@ export default function Customers() {
         <div className="text-right">Purchase Amount ({currency})</div>
       ),
       cell: ({ row }) => {
-        const amount = row.getValue("total_sales") as number;
+        const amount = (row.original.purchase_amount ?? row.original.total_sales ?? 0) as number;
         return (
           <div className="text-right">
             {amount ? Number(amount).toFixed(2) : "0.00"}
@@ -298,9 +298,9 @@ export default function Customers() {
         <div className="text-right">Paid Amount ({currency})</div>
       ),
       cell: ({ row }) => {
-        const total = (row.original.total_sales || 0) as number;
-        const balance = (row.original.outstanding_balance || 0) as number;
-        const paid = total - balance;
+        const total = (row.original.purchase_amount ?? row.original.total_sales ?? 0) as number;
+        const balance = (row.original.due_amount ?? row.original.outstanding_balance ?? 0) as number;
+        const paid = row.original.paid_amount ?? (total - balance);
         return (
           <div className="text-right text-green-600 font-medium">
             {paid ? Number(paid).toFixed(2) : "0.00"}
@@ -312,7 +312,7 @@ export default function Customers() {
       accessorKey: "outstanding_balance",
       header: () => <div className="text-right">Balance ({currency})</div>,
       cell: ({ row }) => {
-        const balance = row.getValue("outstanding_balance") as number;
+        const balance = (row.original.due_amount ?? row.original.outstanding_balance ?? 0) as number;
         return (
           <div className="text-right">
             {balance ? Number(balance).toFixed(2) : "0.00"}

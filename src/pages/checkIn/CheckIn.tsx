@@ -215,8 +215,8 @@ const customerColumns: ColumnDef<Customer>[] = [
 
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
         <h1 className="text-2xl font-semibold">Check In</h1>
         <ClenderButton disableOpen={true} selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>
