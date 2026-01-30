@@ -22,7 +22,7 @@ export default function Invoices() {
   const [search, setSearch] = useState<string>("");
   const [rowSelection, setRowSelection] = useState({});
 
-  const limit = 10;
+  const [limit, setLimit] = useState<number>(10);
 
   // Fetch invoices with pagination & search
   const { data: fetchedInvoices, isFetching } = useGetSalesInvoicesQuery({
@@ -358,6 +358,10 @@ export default function Invoices() {
         onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
         onSearch={(value) => {
           setSearch(value);
+          setPage(1);
+        }}
+        onPageSizeChange={(newLimit) => {
+          setLimit(newLimit);
           setPage(1);
         }}
         isFetching={isFetching}

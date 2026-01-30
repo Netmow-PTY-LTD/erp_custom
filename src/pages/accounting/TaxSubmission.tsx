@@ -314,40 +314,46 @@ export default function TaxSubmission() {
 
             {/* Statistics Cards */}
             <div className="grid gap-6 md:grid-cols-3">
-                <Card className="border-l-4 border-l-indigo-600 shadow-sm bg-gradient-to-br from-white to-indigo-50/30 py-4">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Tax Liability</CardTitle>
-                        <Scale className="h-5 w-5 text-indigo-500 print:hidden" />
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-600 to-indigo-400 text-white shadow-lg">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-white/90">Total Tax Liability</CardTitle>
+                        <Scale className="h-5 w-5 text-white/80 print:hidden" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                         <div className="text-3xl font-bold">
                             RM {stats.total_tax.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Sum of all recorded tax filings</p>
+                        <p className="text-xs text-white/70 mt-1">Sum of all recorded tax filings</p>
                     </CardContent>
                 </Card>
-                <Card className="border-l-4 border-l-emerald-600 shadow-sm bg-gradient-to-br from-white to-emerald-50/30 py-4">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Tax Paid</CardTitle>
-                        <CheckCircle className="h-5 w-5 text-emerald-500 print:hidden" />
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-emerald-600 to-emerald-400 text-white shadow-lg">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-white/90">Total Tax Paid</CardTitle>
+                        <CheckCircle className="h-5 w-5 text-white/80 print:hidden" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                         <div className="text-3xl font-bold">
                             RM {stats.total_paid.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Successfully processed tax payments</p>
+                        <p className="text-xs text-white/70 mt-1">Successfully processed tax payments</p>
                     </CardContent>
                 </Card>
-                <Card className="border-l-4 border-l-orange-600 shadow-sm bg-gradient-to-br from-white to-orange-50/30 py-4">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Tax Due</CardTitle>
-                        <AlertCircle className="h-5 w-5 text-orange-500 print:hidden" />
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-orange-600 to-orange-400 text-white shadow-lg">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+                        <CardTitle className="text-sm font-medium text-white/90">Total Tax Due</CardTitle>
+                        <AlertCircle className="h-5 w-5 text-white/80 print:hidden" />
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="relative z-10">
                         <div className="text-3xl font-bold">
                             RM {stats.total_due.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">Pending or unpaid tax filings</p>
+                        <p className="text-xs text-white/70 mt-1">Pending or unpaid tax filings</p>
                     </CardContent>
                 </Card>
             </div>

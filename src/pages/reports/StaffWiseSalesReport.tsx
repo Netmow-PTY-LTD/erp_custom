@@ -40,7 +40,7 @@ export default function StaffWiseSalesReport() {
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
-    const [limit] = useState(10);
+    const [limit, setLimit] = useState(10);
     const [staffId, setStaffId] = useState<string>("all");
 
     const currency = useAppSelector((state) => state.currency.value);
@@ -252,6 +252,10 @@ export default function StaffWiseSalesReport() {
                         pageSize={limit}
                         totalCount={staffSalesData?.pagination?.total || 0}
                         onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+                        onPageSizeChange={(newLimit) => {
+                            setLimit(newLimit);
+                            setPage(1);
+                        }}
                         onSearch={(value) => {
                             setSearch(value);
                             setPage(1);
