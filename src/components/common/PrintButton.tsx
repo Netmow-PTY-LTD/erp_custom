@@ -1,4 +1,3 @@
-import { useRef, ReactNode } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
@@ -14,7 +13,7 @@ export const PrintButton = ({ contentRef, title = "Print", hideText = false }: P
         // content: () => contentRef.current,
         contentRef: contentRef,
         documentTitle: title,
-        removeAfterPrint: true,
+        onAfterPrint: () => console.log("Printed"),
     });
 
     return (

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import PrintablePurchaseOrder from "./PrintablePurchaseOrder";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
-import { useAppSelector } from "@/store/store";
+
 
 export default function PurchaseOrderPrint() {
     const { purchaseId } = useParams();
