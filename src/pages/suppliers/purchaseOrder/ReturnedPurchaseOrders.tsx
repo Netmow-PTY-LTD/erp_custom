@@ -23,6 +23,15 @@ import { Link } from "react-router";
 import UpdatePOStatusModal from "./UpdatePOStatusModal";
 import { formatDateStandard } from "@/utils/dateUtils";
 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
+
 
 // Simple confirmation modal
 
@@ -33,12 +42,14 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
     const [search, setSearch] = useState<string>("");
     const limit = 10;
 
+    const [filterStatus, setFilterStatus] = useState<string>(status || "all");
+
     // Fetch Purchase Returns
     const { data, isFetching } = useGetAllPurchaseReturnsQuery({
         page,
         limit,
         search,
-        status, // pass status filter
+        status: filterStatus === "all" ? undefined : filterStatus,
     });
 
     const purchaseOrdersData: PurchaseOrder[] = Array.isArray(data?.data)
@@ -113,12 +124,8 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
     const poStatusOptions = [
         { value: "pending", label: "Pending" },
         { value: "approved", label: "Approved" },
-        { value: "ordered", label: "Ordered" },
-        { value: "received", label: "Received" },
-        { value: "partial", label: "Partial" },
-        { value: "cancelled", label: "Cancelled" },
-        { value: "returned", label: "Returned" },
-    ] as const;
+        { value: "rejected", label: "Rejected" },
+    ];
 
 
 
@@ -254,13 +261,15 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                             </Button>
                         </Link>
 
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleOpenUpdateStatusModal(po)}
-                        >
-                            Change Status
-                        </Button>
+                        {status && status !== "approved" && (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleOpenUpdateStatusModal(po)}
+                            >
+                                Change Status
+                            </Button>
+                        )}
 
 
                     </div>
@@ -275,12 +284,33 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                 <h1 className="text-2xl font-bold tracking-tight">
                     Returned Purchase Orders
                 </h1>
-                <Link to="/dashboard/purchase-orders/return/create">
-                    <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-                        <PlusCircle size={18} />
-                        Create Purchase Return
-                    </button>
-                </Link>
+                <div className="flex gap-2">
+                    {!status && (
+                        <Select
+                            value={filterStatus}
+                            onValueChange={(val) => {
+                                setFilterStatus(val);
+                                setPage(1);
+                            }}
+                        >
+                            <SelectTrigger className="w-[180px] !h-auto py-2.5 rounded-lg">
+                                <SelectValue placeholder="Filter by Status" />
+                            </SelectTrigger>
+                            <SelectContent className="py-3">
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    )}
+                    <Link to="/dashboard/purchase-orders/return/create">
+                        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                            <PlusCircle size={18} />
+                            Create Purchase Return
+                        </button>
+                    </Link>
+                </div>
             </div>
 
             {/* Stats Cards */}

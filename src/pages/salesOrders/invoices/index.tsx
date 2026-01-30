@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { format } from "date-fns";
 import { PlusCircle, FileText, CheckCircle, Clock, AlertTriangle, Printer } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -21,8 +21,8 @@ export default function Invoices() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [rowSelection, setRowSelection] = useState({});
-  const navigate = useNavigate();
-  const limit = 10;
+
+  const [limit, setLimit] = useState<number>(10);
 
   // Fetch invoices with pagination & search
   const { data: fetchedInvoices, isFetching } = useGetSalesInvoicesQuery({
@@ -285,14 +285,7 @@ export default function Invoices() {
     },
   ];
 
-  const selectedInvoicesCount = Object.keys(rowSelection).length;
-  const selectedInvoiceIds = Object.keys(rowSelection).map(idx => invoices[parseInt(idx)]?.id).filter(id => id !== undefined);
 
-  const handleViewSummaryDetails = () => {
-    if (selectedInvoiceIds.length > 0) {
-      navigate(`/dashboard/sales/invoices/summary-details?ids=${selectedInvoiceIds.join(",")}`);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -365,6 +358,10 @@ export default function Invoices() {
         onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
         onSearch={(value) => {
           setSearch(value);
+          setPage(1);
+        }}
+        onPageSizeChange={(newLimit) => {
+          setLimit(newLimit);
           setPage(1);
         }}
         isFetching={isFetching}
