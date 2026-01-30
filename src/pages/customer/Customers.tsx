@@ -295,7 +295,7 @@ export default function Customers() {
       cell: ({ row }) => {
         const customer = row.original;
         return (
-          <div className="max-w-[200px] whitespace-normal break-words">
+          <div className="w-[350px] whitespace-normal break-words">
             {customer.address || "-"}
           </div>
         );
@@ -528,11 +528,11 @@ export default function Customers() {
       </div >
 
       {/* Stats Cards */}
-      < div className="flex flex-wrap gap-6 mb-6 print:hidden" >
-        {stats?.map((item, idx) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 print:hidden">
+        {stats.slice(0, 4).map((item, idx) => (
           <div
             key={idx}
-            className={`relative flex-1 min-w-60 overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
+            className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
           >
             {/* Background Pattern */}
             <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -555,9 +555,38 @@ export default function Customers() {
               <div className="h-full w-2/3 rounded-full bg-white/40" />
             </div>
           </div>
-        ))
-        }
-      </ div >
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 print:hidden">
+        {stats.slice(4).map((item, idx) => (
+          <div
+            key={idx + 4}
+            className={`relative overflow-hidden rounded-2xl bg-linear-to-br ${item.gradient} p-6 shadow-lg ${item.shadow} transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5`}
+          >
+            {/* Background Pattern */}
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+
+            <div className="relative flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/90">{item.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-white">
+                  {item.value}
+                </h3>
+              </div>
+              <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                {item.icon}
+              </div>
+            </div>
+
+            {/* Progress/Indicator line (optional visual flair) */}
+            <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+              <div className="h-full w-2/3 rounded-full bg-white/40" />
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="print:w-full print:m-0 print:p-0">
         {/* Print Only Header */}
@@ -588,11 +617,11 @@ export default function Customers() {
           </div>
         </div>
 
-        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden">
+        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0 px-0">
+          <CardHeader className="print:hidden px-0">
             <CardTitle>All Customers</CardTitle>
           </CardHeader>
-          <CardContent className="overflow-auto w-full print:p-0">
+          <CardContent className="overflow-auto w-full print:p-0 px-0">
             {isLoading ? (
               <div className="text-center py-8">Loading customers...</div>
             ) : (
