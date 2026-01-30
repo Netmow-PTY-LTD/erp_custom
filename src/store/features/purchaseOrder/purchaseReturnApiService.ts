@@ -14,7 +14,7 @@ export const purchaseReturnApiService = baseApi.injectEndpoints({
         // GET ALL PURCHASE RETURNS
         getAllPurchaseReturns: builder.query<
             PurchaseResponse<PurchaseOrder>,
-            { page?: number; limit?: number; search?: string }
+            { page?: number; limit?: number; search?: string; status?: string }
         >({
             query: (params) => ({
                 url: "/purchase/returns",

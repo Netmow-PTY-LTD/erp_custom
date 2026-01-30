@@ -11,7 +11,7 @@ export const salesReturnApiService = baseApi.injectEndpoints({
         // GET ALL SALES RETURNS
         getAllSalesReturns: builder.query<
             PurchaseResponse<any>,
-            { page?: number; limit?: number; search?: string }
+            { page?: number; limit?: number; search?: string; status?: string }
         >({
             query: (params) => ({
                 url: "/sales/returns",

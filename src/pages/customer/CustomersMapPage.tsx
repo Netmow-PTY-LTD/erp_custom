@@ -71,7 +71,7 @@ const CustomersMapPage: React.FC = () => {
 
 
 
- 
+
 
 
     return (
@@ -83,7 +83,7 @@ const CustomersMapPage: React.FC = () => {
                 zoom={6}
                 scrollWheelZoom={true}
                 className="w-full h-[clamp(320px,60vh,720px)] rounded-lg shadow z-0"
-              
+
             >
                 <ResizeMap />
                 <TileLayer
@@ -105,6 +105,16 @@ const CustomersMapPage: React.FC = () => {
                                     {customer.city && <><br />{customer.city}</>}
                                     {customer.phone && <><br />📱 {customer.phone}</>}
                                     {customer.email && <><br />✉️ {customer.email}</>}
+                                    <div className="mt-3">
+                                        <a
+                                            href={`https://www.waze.com/ul?ll=${customer.coordinates.lat},${customer.coordinates.lng}&navigate=yes`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block text-center px-3 py-1.5 bg-[#33CCFF] text-white rounded font-bold text-xs hover:bg-[#2EB8E6] transition-colors"
+                                        >
+                                            Navigate with Waze
+                                        </a>
+                                    </div>
                                 </div>
                             </Popup>
                         </Marker>

@@ -29,7 +29,8 @@ import {
     Star,
     Hash,
     MoveLeft,
-    MoveRight
+    MoveRight,
+    Car
 } from "lucide-react";
 import { useGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import { useAppSelector } from "@/store/store";
@@ -194,10 +195,18 @@ export default function CustomerViewPage() {
                     {/* LOCATION / MAP */}
                     {(customer.latitude && customer.longitude || fullAddress) && (
                         <Card className="shadow-sm border-border/60 overflow-hidden ">
-                            <CardHeader>
-                                <CardTitle className="text-base flex items-center gap-2 mt-4">
+                            <CardHeader className="flex flex-row items-center justify-between p-4 bg-muted/20">
+                                <CardTitle className="text-base flex items-center gap-2">
                                     <MapPin size={16} className="text-blue-500" /> Location / Map
                                 </CardTitle>
+                                <a
+                                    href={`https://www.waze.com/ul?ll=${customer.latitude},${customer.longitude}&navigate=yes`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1 bg-[#33CCFF] text-white rounded-md text-xs font-bold hover:bg-[#2EB8E6] transition-colors flex items-center gap-1"
+                                >
+                                    <Car size={14} /> Waze
+                                </a>
                             </CardHeader>
                             <CardContent className="p-0 border-t">
                                 <div className="w-full h-[300px]">

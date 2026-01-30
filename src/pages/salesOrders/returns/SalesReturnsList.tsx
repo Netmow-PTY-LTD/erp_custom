@@ -19,7 +19,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { formatDateStandard } from "@/utils/dateUtils";
 
-export default function SalesReturnsList() {
+export default function SalesReturnsList({ status }: { status?: string }) {
     const [page, setPage] = useState<number>(1);
     const [search, setSearch] = useState<string>("");
     const limit = 10;
@@ -28,6 +28,7 @@ export default function SalesReturnsList() {
         page,
         limit,
         search,
+        status, // pass status
     });
 
     const salesReturns = Array.isArray(data?.data) ? data.data : [];
@@ -122,8 +123,23 @@ export default function SalesReturnsList() {
         },
         {
             id: "total_payable",
-            header: () => <div className="text-right">Payable ({currency})</div>,
-            cell: ({ row }) => <div className="text-right font-medium">{(Number(row.original.total_payable_amount || row.original.grand_total || 0)).toFixed(2)}</div>,
+            header: () => <div className="text-right">Refundable ({currency})</div>,
+            cell: ({ row }) => <div className="text-right font-medium">{(Number(row.original.grand_total || row.original.total_payable_amount || 0)).toFixed(2)}</div>,
+        },
+        {
+            id: "total_refunded",
+            header: () => <div className="text-right">Refunded ({currency})</div>,
+            cell: ({ row }) => <div className="text-right text-green-600 font-medium">{(Number(row.original.total_refunded_amount || 0)).toFixed(2)}</div>,
+        },
+        {
+            id: "balance",
+            header: () => <div className="text-right">Balance ({currency})</div>,
+            cell: ({ row }) => {
+                const total = Number(row.original.grand_total || row.original.total_payable_amount || 0);
+                const refunded = Number(row.original.total_refunded_amount || 0);
+                const balance = total - refunded;
+                return <div className={`text-right font-bold ${balance > 0.01 ? 'text-red-500' : 'text-green-600'}`}>{balance.toFixed(2)}</div>;
+            },
         },
         {
             id: "actions",
