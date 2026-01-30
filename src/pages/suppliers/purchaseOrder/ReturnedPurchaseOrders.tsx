@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useGetAllPurchaseReturnsQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
 import { useAppSelector } from "@/store/store";
-import type { PurchaseOrder } from "@/types/purchaseOrder.types";
+import type { PurchaseReturn } from "@/types/purchaseOrder.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle, Printer } from "lucide-react";
@@ -50,7 +50,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
         status: filterStatus === "all" ? undefined : filterStatus,
     });
 
-    const purchaseOrdersData: PurchaseOrder[] = Array.isArray(data?.data)
+    const purchaseOrdersData: PurchaseReturn[] = Array.isArray(data?.data)
         ? data.data
         : [];
 
@@ -131,7 +131,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
 
 
     /* COLUMNS */
-    const poColumns: ColumnDef<PurchaseOrder>[] = [
+    const poColumns: ColumnDef<PurchaseReturn>[] = [
         {
             accessorFn: (row) => row.return_number || row.po_number || `RET-${row.id}`,
             header: "Return Number",
@@ -159,10 +159,10 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
         },
         {
             id: "return_date",
-            accessorFn: (row: any) => row.return_date || row.order_date,
+            accessorFn: (row: any) => row.return_date,
             header: "Return Date",
             cell: ({ row }) => {
-                const dateC = (row.original as any).return_date || row.original.order_date;
+                const dateC = row.original.return_date;
                 return formatDateStandard(dateC);
             },
         },
@@ -179,9 +179,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                             ? "bg-blue-600"
                             : status === "rejected"
                                 ? "bg-red-600"
-                                : status === "returned"
-                                    ? "bg-orange-600"
-                                    : "bg-green-600";
+                                : "bg-green-600";
 
                 return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
             },
