@@ -55,7 +55,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
 
     // GET ALL PURCHASE ORDERS
     getAllPurchases: builder.query<
-      PurchaseResponse<PurchaseOrder>,
+      PurchaseResponse<PurchaseOrder[]>,
       { page?: number; limit?: number; search?: string; status?: string; supplier_id?: number | string }
     >({
       query: (params) => ({
@@ -67,7 +67,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     }),
 
     getAllApprovedPurchaseOrders: builder.query<
-      PurchaseResponse<PurchaseOrder>,
+      PurchaseResponse<PurchaseOrder[]>,
       { page?: number; limit?: number; search?: string }
     >({
       query: (params) => ({
