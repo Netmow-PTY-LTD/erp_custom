@@ -31,7 +31,7 @@ const GoogleMapContent = ({ center, zoom, startLocation, endLocation, customerMa
     const routePath = useMemo(() => {
         return [
             { lat: startLocation.lat, lng: startLocation.lng },
-            ...customerMarkers.map(c => ({ lat: c.lat, lng: c.lng })),
+            ...(customerMarkers || []).map(c => ({ lat: c.lat, lng: c.lng })),
             { lat: endLocation.lat, lng: endLocation.lng }
         ];
     }, [startLocation, endLocation, customerMarkers]);
@@ -65,7 +65,7 @@ const GoogleMapContent = ({ center, zoom, startLocation, endLocation, customerMa
                 label="START"
                 icon="http://maps.google.com/mapfiles/ms/icons/green-dot.png"
             />
-            {customerMarkers.map((customer, index) => (
+            {(customerMarkers || []).map((customer, index) => (
                 <MarkerF
                     key={index}
                     position={{ lat: customer.lat, lng: customer.lng }}

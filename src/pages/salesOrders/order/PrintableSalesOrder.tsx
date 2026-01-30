@@ -1,6 +1,6 @@
 import { useAppSelector } from "@/store/store";
 import { format } from "date-fns";
-import type { Customer } from "@/types/customer.types";
+import type { Customer } from "@/store/features/customers/types";
 import type { SalesOrder } from "@/types/salesOrder.types";
 import type { Settings } from "@/types/types";
 
@@ -12,12 +12,15 @@ interface Props {
 
 export default function PrintableSalesOrder({ order, to, from }: Props) {
     const currency = useAppSelector((state) => state.currency.value) || "RM";
-    const formatDate = (dateStr: string) => {
+    const formatDate = (dateStr: string | Date) => {
         if (!dateStr) return "-";
         try {
             return format(new Date(dateStr), "dd/MM/yyyy");
         } catch (e) {
-            return dateStr?.split("T")[0] || "-";
+            if (typeof dateStr === "string") {
+                return dateStr.split("T")[0] || "-";
+            }
+            return "-";
         }
     };
 
