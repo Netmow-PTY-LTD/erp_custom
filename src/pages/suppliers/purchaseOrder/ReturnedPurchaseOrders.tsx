@@ -7,9 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
     CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchaseReturnsQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
@@ -30,13 +27,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+
 
 
 
@@ -50,7 +41,6 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
     const [filterStatus, setFilterStatus] = useState<string>(status || "all");
     const limit = 10;
 
-    const [filterStatus, setFilterStatus] = useState<string>(status || "all");
 
     // Fetch Purchase Returns
     const { data, isFetching } = useGetAllPurchaseReturnsQuery({
@@ -351,10 +341,10 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                 ))}
             </div>
 
-            <Card className="py-6">
+            <Card className="py-6 border-none shadow-none">
 
 
-                <CardContent>
+                <CardContent className="px-0">
                     <DataTable
                         columns={poColumns}
                         data={purchaseOrdersData}

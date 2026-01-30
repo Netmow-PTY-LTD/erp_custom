@@ -3,7 +3,7 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   useDeleteStaffMutation,
@@ -328,10 +328,10 @@ export default function Staffs() {
         ))}
       </div>
 
-      <Card className="pt-6 pb-2">
+      <Card className="pt-6 pb-2 border-none shadow-none">
 
 
-        <CardContent>
+        <CardContent className="px-0">
           {isLoading ? (
             <p>Loading...</p>
           ) : (

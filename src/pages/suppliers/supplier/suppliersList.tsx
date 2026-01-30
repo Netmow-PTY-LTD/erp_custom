@@ -8,10 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -23,7 +20,7 @@ import {
   useGetSupplierStatsQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, Users as UsersIcon, ShoppingCart, User, Filter, AlertCircle, UserCheck, DollarSign, Printer } from "lucide-react";
+import { Edit, PlusCircle, Trash2, Users as UsersIcon, ShoppingCart, User, AlertCircle, UserCheck, DollarSign, Printer } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -393,7 +390,7 @@ export default function SuppliersList() {
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
 
-          <CardContent className="print:p-0">
+          <CardContent className="print:p-0 px-0">
             {isLoading ? (
               <p>Loading...</p>
             ) : (

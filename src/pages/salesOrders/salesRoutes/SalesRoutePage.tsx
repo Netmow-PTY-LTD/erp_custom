@@ -119,13 +119,21 @@ export default function SalesRoutesPage() {
     {
       accessorKey: "start_location",
       header: "Start Location",
-      cell: ({ row }) => row.original.start_location || "-",
+      cell: ({ row }) => (
+        <div className="max-w-[350px] w-full whitespace-normal break-words">
+          {row.original.start_location || "-"}
+        </div>
+      ),
     },
 
     {
       accessorKey: "end_location",
       header: "End Location",
-      cell: ({ row }) => row.original.end_location || "-",
+      cell: ({ row }) => (
+        <div className="max-w-[350px] w-full whitespace-normal break-words">
+          {row.original.end_location || "-"}
+        </div>
+      ),
     },
 
     {
@@ -249,8 +257,8 @@ export default function SalesRoutesPage() {
           </div>
         ))}
       </div>
-      <Card className="shadow-sm py-6">
-        <CardContent>
+      <Card className="border-none shadow-none py-6">
+        <CardContent className="px-0">
 
 
           <DataTable

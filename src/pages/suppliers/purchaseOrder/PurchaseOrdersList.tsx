@@ -7,9 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
@@ -311,10 +308,10 @@ export default function PurchaseOrdersList({ initialStatus = "all" }: { initialS
         ))}
       </div>
 
-      <Card className="py-6">
+      <Card className="py-6 border-none shadow-none">
 
 
-        <CardContent>
+        <CardContent className="px-0">
           <DataTable
             columns={poColumns}
             data={purchaseOrdersData}

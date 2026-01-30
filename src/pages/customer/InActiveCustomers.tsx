@@ -473,11 +473,11 @@ export default function InActiveCustomersList() {
         ))}
       </div>
 
-      <Card className="pt-6 pb-2">
-        <CardHeader>
+      <Card className="pt-6 pb-2 border-none shadow-none">
+        <CardHeader className="px-0">
           <CardTitle>Inactive Customers</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-auto w-full">
+        <CardContent className="overflow-auto w-full px-0">
           {isLoading ? (
             <div className="text-center py-8">Loading customers...</div>
           ) : (

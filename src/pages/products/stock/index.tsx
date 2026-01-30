@@ -295,9 +295,9 @@ export default function StockManagement() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0">
+          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0 px-0">
             <CardTitle>All Products Stock</CardTitle>
-            <div className="w-[140px]">
+            <div className="w-[180px]">
               <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
                 <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
                   <SelectValue placeholder="Stock Status" />
@@ -311,7 +311,7 @@ export default function StockManagement() {
               </Select>
             </div>
           </CardHeader>
-          <CardContent className="print:p-0">
+          <CardContent className="print:p-0 px-0">
             <DataTable
               columns={productColumns}
               data={products}

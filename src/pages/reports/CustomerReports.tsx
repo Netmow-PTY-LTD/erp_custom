@@ -230,11 +230,11 @@ export default function CustomerReports() {
       {/* ---------------- CARDS GRID ---------------- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales by Customer */}
-        <Card className="pt-6">
-          <CardHeader className="flex justify-between">
+        <Card className="pt-6 border-none shadow-none">
+          <CardHeader className="flex justify-between px-0">
             <CardTitle>Sales by Customer</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0">
             <DataTable
               columns={salesColumns}
               data={salesByCustomerData?.data || []}
@@ -252,12 +252,12 @@ export default function CustomerReports() {
         </Card>
 
         {/* Accounts Receivable */}
-        <Card className="pt-6">
-          <CardHeader className="flex justify-between">
+        <Card className="pt-6 border-none shadow-none">
+          <CardHeader className="flex justify-between px-0">
             <CardTitle>Accounts Receivable</CardTitle>
             {/* <span className="text-sm text-muted-foreground">Open invoices</span> */}
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0">
             <DataTable
               columns={arColumns}
               data={accountsReceivableData?.data || []}

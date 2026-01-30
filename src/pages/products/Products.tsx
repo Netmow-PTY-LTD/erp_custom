@@ -462,7 +462,7 @@ export default function Products() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0">
+          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0 px-0">
             <CardTitle>All Products</CardTitle>
             <div className="w-[180px]">
               <Select
@@ -487,7 +487,7 @@ export default function Products() {
               </Select>
             </div>
           </CardHeader>
-          <CardContent className="print:p-0">
+          <CardContent className="print:p-0 px-0">
             <DataTable
               columns={productColumns}
               data={products}

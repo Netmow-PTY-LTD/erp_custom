@@ -380,7 +380,7 @@ export default function CreateSalesOrderPage() {
   const StaffSelectField = ({
     field,
   }: {
-    field: { value: number; onChange: (v: number) => void };
+    field: { value: number | undefined; onChange: (v: number) => void };
   }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -408,12 +408,12 @@ export default function CreateSalesOrderPage() {
               {selected ? (
                 <>
                   <Avatar className="h-6 w-6 shrink-0">
-                    <AvatarImage src={selected.thumb_url} alt={selected.name} />
+                    <AvatarImage src={selected.thumb_url} alt={`${selected.first_name} ${selected.last_name}`} />
                     <AvatarFallback>
                       <User className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
-                  <span className="truncate text-left font-medium min-w-0 flex-1">{selected.name}</span>
+                  <span className="truncate text-left font-medium min-w-0 flex-1">{selected.first_name} {selected.last_name}</span>
                 </>
               ) : (
                 <span className="text-muted-foreground">Select staff...</span>
@@ -447,13 +447,13 @@ export default function CreateSalesOrderPage() {
                       className="flex items-center gap-2"
                     >
                       <Avatar className="h-8 w-8 shrink-0">
-                        <AvatarImage src={staff.thumb_url} alt={staff.name} />
+                        <AvatarImage src={staff.thumb_url} alt={`${staff.first_name} ${staff.last_name}`} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col overflow-hidden flex-1">
-                        <span className="truncate font-medium text-sm">{staff.name}</span>
+                        <span className="truncate font-medium text-sm">{staff.first_name} {staff.last_name}</span>
                         {staff.email && (
                           <span className="truncate text-xs text-muted-foreground">{staff.email}</span>
                         )}

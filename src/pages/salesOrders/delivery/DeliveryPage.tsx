@@ -310,13 +310,13 @@ export default function DeliveryPage() {
         ))}
       </div>
 
-      <Card className="py-6">
-        <CardHeader>
+      <Card className="py-6 border-none shadow-none">
+        <CardHeader className="px-0">
           <CardTitle className="text-xl font-bold">
             Delivery - Ready to Dispatch
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0">
           <DataTable
             columns={OrderColumns}
             data={orders}

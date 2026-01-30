@@ -223,8 +223,8 @@ export default function PurchaseInvoicesList() {
         ))}
       </div>
 
-      <Card className="py-6">
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="py-6 border-none shadow-none">
+        <CardHeader className="flex flex-row items-center justify-between px-0">
           <div>
             <CardTitle>All Purchase Invoices</CardTitle>
             <CardDescription>Manage all your purchase invoices</CardDescription>
@@ -252,7 +252,7 @@ export default function PurchaseInvoicesList() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0">
           <DataTable
             columns={invoiceColumns}
             data={invoicesData}
