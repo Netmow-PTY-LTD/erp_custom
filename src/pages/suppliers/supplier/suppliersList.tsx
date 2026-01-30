@@ -36,6 +36,8 @@ import { toast } from "sonner";
 import type { Supplier } from "@/types/supplier.types";
 import { useAppSelector } from "@/store/store";
 import { SuperAdminPermission, SupplierPermission } from "@/config/permissions";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { format } from "date-fns";
 
 
 
@@ -75,6 +77,9 @@ export default function SuppliersList() {
   const [search, setSearch] = useState<string>("");
   const [sort, setSort] = useState<string>("newest");
   const limit = 10;
+
+  const { data: settingsData } = useGetSettingsInfoQuery();
+  const from = settingsData?.data;
 
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -341,11 +346,6 @@ export default function SuppliersList() {
         </div>
       </div>
 
-      {/* Print Only Header */}
-      <div className="hidden print:block text-center mb-1">
-        <h1 className="text-4xl font-extrabold uppercase tracking-tight">SUPPLIER LIST</h1>
-      </div>
-
       {/* Stats Cards */}
       <div className="flex flex-wrap gap-6 mb-6 print:hidden">
         {stats.map((item, idx) => (
@@ -377,33 +377,63 @@ export default function SuppliersList() {
         ))}
       </div>
 
-      <Card className="pt-6 pb-2 border-none shadow-none">
-        <CardHeader className="print:hidden">
-          <CardTitle>All Suppliers</CardTitle>
-          <CardDescription>Manage your supplier list</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : (
-            // Data Table
-            <div className="max-w-full overflow-hidden text-black">
-              <DataTable
-                columns={supplierColumns}
-                data={suppliersData?.data || []}
-                totalCount={suppliersData?.pagination?.total || 0}
-                pageIndex={page - 1}
-                pageSize={limit}
-                onPageChange={(idx) => setPage(idx + 1)}
-                onSearch={(val) => {
-                  setSearch(val);
-                  setPage(1);
-                }}
-              />
+      <div className="print:w-full print:m-0 print:p-0">
+        {/* Print Only Header */}
+        <div id="invoice" className="hidden print:block mb-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col gap-2 mt-2 details-text text-left">
+              <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+              <p className="leading-tight max-w-[400px]">
+                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+              </p>
+              <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <div className="text-right flex flex-col items-end">
+              <div className="mb-1">
+                {from?.logo_url ? (
+                  <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                    F&Z
+                  </div>
+                )}
+              </div>
+              <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Supplier List</h2>
+              <div className="details-text space-y-1">
+                <p><strong>Date:</strong> {format(new Date(), "dd/MM/yyyy")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
+          <CardHeader className="print:hidden">
+            <CardTitle>All Suppliers</CardTitle>
+            <CardDescription>Manage your supplier list</CardDescription>
+          </CardHeader>
+          <CardContent className="print:p-0">
+            {isLoading ? (
+              <p>Loading...</p>
+            ) : (
+              // Data Table
+              <div className="max-w-full overflow-hidden text-black">
+                <DataTable
+                  columns={supplierColumns}
+                  data={suppliersData?.data || []}
+                  totalCount={suppliersData?.pagination?.total || 0}
+                  pageIndex={page - 1}
+                  pageSize={limit}
+                  onPageChange={(idx) => setPage(idx + 1)}
+                  onSearch={(val) => {
+                    setSearch(val);
+                    setPage(1);
+                  }}
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Delete confirmation modal */}
       <ConfirmModal
@@ -433,118 +463,83 @@ export default function SuppliersList() {
       </Dialog>
 
       {/* Print Styles */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-                @media print {
-                    .no-print, 
-                    header, 
-                    nav, 
-                    aside, 
-                    button, 
-                    .print\\:hidden,
-                    .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
-                        display: none !important;
-                    }
-                    input, .max-w-sm { /* Hide search input specifically */
-                        display: none !important;
-                    }
-                    html, body {
-                        background: white !important;
-                        overflow: visible !important;
-                        height: auto !important;
-                        color: black !important;
-                        font-size: 10pt !important;
-                    }
-                    * {
-                        color: black !important;
-                        background: transparent !important;
-                        box-shadow: none !important;
-                        text-shadow: none !important;
-                    }
-                    .text-4xl {
-                        font-size: 14pt !important;
-                        font-weight: bold !important;
-                        margin-bottom: 10px !important;
-                    }
-                    .text-sm {
-                        font-size: 10pt !important;
-                    }
-                    .border, .Card, .CardContent, .pt-6 {
-                        border: none !important;
-                        padding-top: 0 !important;
-                        padding-bottom: 0 !important;
-                        margin-top: 0 !important;
-                    }
-                    .bg-card {
-                        background: none !important;
-                        padding: 0 !important;
-                    }
-                    .p-6, .CardContent {
-                        padding: 0 !important;
-                    }
-                    table {
-                        width: 100% !important;
-                        border-collapse: collapse !important;
-                        color: black !important;
-                    }
-                    th, td {
-                        border: 1px solid #000 !important;
-                        padding: 3px !important;
-                        font-size: 7pt !important;
-                        color: black !important;
-                        text-align: left !important;
-                    }
-                    .text-right {
-                        text-align: right !important;
-                    }
-                    th {
-                        background-color: #f2f2f2 !important;
-                        -webkit-print-color-adjust: exact;
-                        font-weight: bold !important;
-                    }
+      <style>{`
+        @media print {
+          @page {
+            margin: 5mm;
+            size: A4 landscape;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            font-size: 11px !important;
+            background: white !important;
+            color: black !important;
+          }
+          .no-print, 
+          header, 
+          nav, 
+          aside, 
+          button, 
+          input,
+          .max-w-sm,
+          .print\\:hidden,
+          .grid.grid-cols-1,
+          .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
+            display: none !important;
+          }
+          #invoice {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          h1 { font-size: 11px !important; }
+          h2 { font-size: 11px !important; }
+          table { 
+            font-size: 11px !important; 
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: auto !important;
+          }
+          th, td { 
+            border: 1px solid #ddd !important;
+            padding: 4px !important; 
+            font-size: 11px !important;
+          }
+          .details-text, .table-text { 
+            font-size: 11px !important; 
+            line-height: 1.2 !important; 
+          }
+          .company-name {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .text-sm, .text-xs, .text-base, .text-lg, .text-xl, .font-bold, .font-semibold, span, p, div { 
+            font-size: 11px !important; 
+          }
+          .mb-6 { margin-bottom: 8px !important; }
+          .mb-4 { margin-bottom: 4px !important; }
+          
+          /* Hide non-essential columns for supplier list print */
+          th:nth-child(3), td:nth-child(3), /* Image */
+          th:nth-child(10), td:nth-child(10), /* Status */
+          th:last-child, td:last-child { /* Actions */
+            display: none !important;
+          }
 
-                    /* Force Name and Contact Person to same size */
-                    td .flex.flex-col span {
-                        font-size: 7pt !important;
-                        font-weight: normal !important;
-                        color: black !important;
-                    }
-
-                    /* Hide specific columns in print */
-                    th:nth-child(3), td:nth-child(3) { /* Image column */
-                        display: none !important;
-                    }
-                    th:nth-child(10), td:nth-child(10) { /* Status column */
-                        display: none !important;
-                    }
-                    th:last-child, td:last-child { /* Actions column */
-                        display: none !important;
-                    }
-
-                    .mb-8, .mb-6, .pb-2, .pb-4 {
-                        margin-bottom: 0 !important;
-                        padding-bottom: 0 !important;
-                    }
-                    .mt-2, .mt-1 {
-                        margin-top: 0 !important;
-                    }
-                    .hidden.print\\:block.mb-1 {
-                        margin-bottom: 5px !important;
-                        display: block !important;
-                    }
-                    .rounded-md.border {
-                        border: none !important;
-                        box-shadow: none !important;
-                    }
-                    
-                    /* Sticky columns fix for print */
-                    .md\\:sticky {
-                        position: static !important;
-                        background: none !important;
-                        shadow: none !important;
-                    }
-                }
-            `}} />
+          /* Ensure table container matches header width */
+          .Card, .CardContent, .rounded-xl, .border {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+        }
+        /* Standardizing screen sizes */
+        .company-name { font-size: 18px !important; line-height: 1.2; }
+        .details-text { font-size: 12px !important; line-height: 1.4; }
+        .table-text { font-size: 12px !important; }
+      `}</style>
     </div>
   );
 }

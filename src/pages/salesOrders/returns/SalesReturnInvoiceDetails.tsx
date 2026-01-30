@@ -26,10 +26,13 @@ import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiServi
 import { useAppSelector } from "@/store/store";
 import { formatDateStandard } from "@/utils/dateUtils";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
+import { useState } from "react";
+import RecordSalesReturnRefundModal from "./RecordSalesReturnRefundModal";
 
 export default function SalesReturnInvoiceDetails() {
     const { id } = useParams();
     const currency = useAppSelector((state) => state.currency.value);
+    const [showRefundModal, setShowRefundModal] = useState(false);
     const { data, isLoading } = useGetSalesReturnInvoiceByIdQuery(id as string);
 
     const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
@@ -78,15 +81,23 @@ export default function SalesReturnInvoiceDetails() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     {balance > 0 && (
-                        <Link to={`/dashboard/sales/returns/payments/create?rn=${salesReturn?.return_number}`}>
-                            <Button className="gap-2 shadow-sm bg-blue-600 hover:bg-blue-700"><CreditCard className="w-4 h-4" /> Record Refund</Button>
-                        </Link>
+                        <Button className="gap-2 shadow-sm bg-blue-600 hover:bg-blue-700" onClick={() => setShowRefundModal(true)}>
+                            <CreditCard className="w-4 h-4" /> Record Refund
+                        </Button>
                     )}
-                    <Link to={`/dashboard/sales-return-invoices/${invoice?.id}/preview`}>
-                        <Button variant="outline" className="gap-2 shadow-sm text-blue-700 border-blue-200"><Printer className="w-4 h-4" /> Print / Preview</Button>
+                    <Link to={`/dashboard/sales-return-invoices/${id}/preview`}>
+                        <Button variant="outline" className="gap-2 shadow-sm text-blue-700 border-blue-200">
+                            <Printer className="w-4 h-4" /> Print / Preview
+                        </Button>
                     </Link>
                 </div>
             </div>
+
+            <RecordSalesReturnRefundModal
+                open={showRefundModal}
+                onOpenChange={setShowRefundModal}
+                defaultReturnId={salesReturn?.id}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-8 space-y-6">
@@ -161,6 +172,34 @@ export default function SalesReturnInvoiceDetails() {
                             </table>
                         </div>
                     </Card>
+
+                    {payments.length > 0 && (
+                        <Card className="shadow-sm border-border/60 overflow-hidden">
+                            <CardHeader className="bg-muted/30 py-4 border-b-1 text-left"><CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2"><CreditCard className="w-4 h-4" /> Refunded Records</CardTitle></CardHeader>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-gray-50 border-b">
+                                        <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
+                                            <th className="px-6 py-4 font-medium">Payment Date</th>
+                                            <th className="px-6 py-4 font-medium">Reference</th>
+                                            <th className="px-6 py-4 font-medium">Method</th>
+                                            <th className="px-6 py-4 font-medium text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-border">
+                                        {payments.map((payment: any, idx: number) => (
+                                            <tr key={payment.id || idx} className="hover:bg-muted/20 transition-colors">
+                                                <td className="px-6 py-4 text-left font-medium text-gray-900">{formatDateStandard(payment.payment_date)}</td>
+                                                <td className="px-6 py-4 text-left text-muted-foreground">{payment.reference || '-'}</td>
+                                                <td className="px-6 py-4 text-left"><Badge variant="outline" className="capitalize">{payment.payment_method?.replace('_', ' ') || '-'}</Badge></td>
+                                                <td className="px-6 py-4 text-right font-bold text-green-600">{currency} {Number(payment.amount || 0).toFixed(2)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    )}
                 </div>
 
                 <div className="lg:col-span-4 space-y-6">
