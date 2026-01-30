@@ -105,3 +105,31 @@ export interface PurchaseOrderLocation {
 }
 
 
+
+export interface PurchaseReturn {
+  id: number;
+  return_number: string;
+  po_number?: string;
+  supplier_id: number;
+  return_date: string;
+
+  status: "pending" | "approved" | "rejected" | "completed";
+  notes: string;
+
+  total_amount: number;
+  tax_amount: number;
+  discount_amount: number;
+  net_amount: number;
+  grand_total?: number;
+  total_payable_amount: number;
+
+  total_refunded_amount?: number;
+  due_refund_amount?: number;
+
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+
+  supplier: Supplier;
+  items: POItem[];
+}

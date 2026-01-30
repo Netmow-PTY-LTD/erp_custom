@@ -4,6 +4,7 @@ import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiServi
 import type { Settings } from "@/types/types";
 import { useGetPurchaseReturnByIdQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
 import PrintablePurchaseReturnInvoice from "../purchaseReturnInvoices/PrintablePurchaseReturnInvoice";
+import type { PurchaseReturn } from "@/types/purchaseOrder.types";
 import type { Supplier } from "@/types/supplier.types";
 import { Button } from "@/components/ui/button";
 
@@ -16,7 +17,7 @@ export default function PurchaseReturnPrint() {
 
     const { data: fetchedSettingsInfo, isLoading: isSettingsLoading } = useGetSettingsInfoQuery();
     const to: Settings | undefined = fetchedSettingsInfo?.data;
-    const purchaseReturn = purchaseReturnData?.data;
+    const purchaseReturn: PurchaseReturn | undefined = purchaseReturnData?.data;
     const from: Supplier | undefined = purchaseReturn?.supplier;
 
     if (isReturnLoading || isSettingsLoading) {
