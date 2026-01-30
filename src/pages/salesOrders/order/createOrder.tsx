@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,7 +36,7 @@ import {
   useAddSalesInvoiceMutation,
   useAddSalesOrderMutation,
 } from "@/store/features/salesOrder/salesOrder";
-import { useGetActiveCustomersQuery } from "@/store/features/customers/customersApi";
+import { useGetActiveCustomersQuery, useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useAppSelector } from "@/store/store";
@@ -45,6 +46,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Product } from "@/types/types";
 import { AddProductsModal } from "@/components/products/AddProductsModal";
 import type { Customer } from "@/store/features/customers/types";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 const orderSchema = z
   .object({
@@ -111,9 +114,9 @@ export default function CreateSalesOrderPage() {
     defaultValues: {
       customer_id: 0,
       shipping_address: "",
-      order_date: "",
-      due_date: "",
-      delivery_date: "",
+      order_date: new Date().toISOString().split("T")[0],
+      due_date: new Date().toISOString().split("T")[0],
+      delivery_date: new Date().toISOString().split("T")[0],
       notes: "",
       items: [{ product_id: 0, sku: "", specification: "", unit: "", quantity: 1, unit_price: 0, discount: 0, sales_tax: 0, stock_quantity: 0, remark: "" }],
     },
@@ -146,6 +149,16 @@ export default function CreateSalesOrderPage() {
   // const grandTotal = total + taxedAmount;
 
   const items = watch("items") ?? [];
+  const selectedCustomerId = watch("customer_id");
+  const [triggerGetCustomer, { data: customerDetails }] = useLazyGetCustomerByIdQuery();
+
+  useEffect(() => {
+    if (selectedCustomerId > 0) {
+      triggerGetCustomer(selectedCustomerId);
+    }
+  }, [selectedCustomerId, triggerGetCustomer]);
+
+  const customerStats = customerDetails?.data;
 
   const calculatedItems = items.map((it) => {
     const unitPrice = Number(it.unit_price || 0);
@@ -211,6 +224,7 @@ export default function CreateSalesOrderPage() {
         notes: values.notes,
         items: values.items.map((i) => ({
           product_id: i.product_id,
+          specification: i.specification,
           quantity: Number(i.quantity),
           unit_price: Number(i.unit_price),
           discount: Number(i.discount),
@@ -218,6 +232,8 @@ export default function CreateSalesOrderPage() {
           remark: i.remark,
         })),
       };
+
+      console.log('create order payload', payload);
 
       // ➤ STEP 1: Create Sales Order
       const orderRes = await addSalesOrder(payload).unwrap();
@@ -330,16 +346,19 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={customer.thumb_url} alt={customer.name} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{customer.name}</span>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{customer.name}</span>
                         {customer.company && (
-                          <span className="text-xs text-muted-foreground">{customer.company}</span>
+                          <span className="truncate text-xs text-muted-foreground">{customer.company}</span>
+                        )}
+                        {customer.address && (
+                          <span className="truncate text-xs text-muted-foreground/80">{customer.address}</span>
                         )}
                       </div>
                     </CommandItem>
@@ -386,9 +405,7 @@ export default function CreateSalesOrderPage() {
                 </Avatar>
               )}
               <span className="truncate text-left min-w-0 flex-1">
-                {selected
-                  ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit?.name || 'N/A'})`
-                  : "Select product..."}
+                {selected ? selected.name : "Select product..."}
               </span>
             </div>
           </Button>
@@ -421,7 +438,7 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={product.thumb_url} alt={product.name} />
                         <AvatarFallback>
                           <Package className="h-4 w-4" />
@@ -430,7 +447,7 @@ export default function CreateSalesOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
-                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'}
+                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'} | Stock: {product.stock_quantity || 0}
                         </span>
                       </div>
                     </CommandItem>
@@ -440,6 +457,56 @@ export default function CreateSalesOrderPage() {
           </Command>
         </PopoverContent>
       </Popover>
+    );
+  };
+
+  const DatePickerField = ({
+    field,
+    label,
+  }: {
+    field: any;
+    label: string;
+  }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <FormItem className="flex flex-col">
+        <FormLabel>{label}</FormLabel>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <FormControl>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full pl-3 text-left font-normal border-gray-200 dark:border-gray-800",
+                  !field.value && "text-muted-foreground"
+                )}
+              >
+                {field.value ? (
+                  format(new Date(field.value), "dd/MM/yyyy")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </FormControl>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={field.value ? new Date(field.value) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  field.onChange(format(date, "yyyy-MM-dd"));
+                  setOpen(false);
+                }
+              }}
+              disabled={(date) => date < new Date("1900-01-01")}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        <FormMessage />
+      </FormItem>
     );
   };
 
@@ -501,23 +568,39 @@ export default function CreateSalesOrderPage() {
                   name="order_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Order Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Order Date" />
                   )}
                 />
+
+                {/* Customer Financial Summary Row */}
+                {selectedCustomerId > 0 && customerStats && (
+                  <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 px-4 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900 my-2 shadow-sm">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">Total Purchase</span>
+                      <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {currency} {(Number(customerStats.purchase_amount ?? customerStats.total_sales ?? 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 xl:border-l border-blue-100 dark:border-blue-800 xl:pl-4">
+                      <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">Total Paid</span>
+                      <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                        {currency} {(Number(customerStats.paid_amount ?? (customerStats.total_sales || 0) - (customerStats.outstanding_balance || 0))).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 xl:border-l border-blue-100 dark:border-blue-800 xl:pl-4">
+                      <span className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400 tracking-wider">Due Amount</span>
+                      <span className="text-lg font-bold text-rose-600 dark:text-rose-400">
+                        {currency} {(Number(customerStats.due_amount ?? customerStats.outstanding_balance ?? 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 <FormField
                   name="due_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Due Date" />
                   )}
                 />
 
@@ -525,11 +608,7 @@ export default function CreateSalesOrderPage() {
                   name="delivery_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Delivery Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Delivery Date" />
                   )}
                 />
 
@@ -613,37 +692,37 @@ export default function CreateSalesOrderPage() {
             <CardContent className="pb-6">
 
               <div className="space-y-4 overflow-x-auto min-w-full">
-                {/* Header for Desktop */}
-                <div className="hidden xl:flex gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
-                  <div className="w-20">SKU</div>
-                  <div className="flex-1 min-w-[150px]">Product</div>
-                  <div className="w-28">Spec.</div>
-                  <div className="w-16">Unit</div>
-                  <div className="w-16 text-center">Stock</div>
-                  <div className="w-24">Price</div>
-                  <div className="w-16">Qty</div>
-                  <div className="w-20">Discount</div>
-                  <div className="w-24">Pretax</div>
-                  <div className="w-16 text-center">Tax %</div>
-                  <div className="w-24 text-right">Tax Amt </div>
-                  <div className="w-24 text-right pr-4">Total ({currency})</div>
-                  <div className="flex-1 min-w-[120px]">Remark</div>
-                  <div className="w-10"></div>
+                {/* Header for Desktop and Mobile (Horizontal Scroll) */}
+                <div className="flex min-w-max gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
+                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">SKU</div>
+                  <div className="w-[350px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">Product</div>
+                  <div className="w-36 text-left">Spec.</div>
+                  <div className="w-24 text-left">Unit</div>
+                  <div className="w-24 text-left">Stock</div>
+                  <div className="w-32 text-left">Price</div>
+                  <div className="w-24 text-left">Qty</div>
+                  <div className="w-24 text-left">Discount</div>
+                  <div className="w-32 text-left">Pretax</div>
+                  <div className="w-24 text-left">Tax %</div>
+                  <div className="w-32 text-left">Tax Amt </div>
+                  <div className="w-36 text-left pr-4">Total ({currency})</div>
+                  <div className="flex-1 min-w-[200px]">Remark</div>
+                  <div className="w-12"></div>
                 </div>
 
                 <div className="space-y-4">
                   {fields.map((item, index) => (
                     <div
                       key={item.id}
-                      className="flex flex-wrap xl:flex-nowrap gap-4 items-start xl:items-center bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
+                      className="flex flex-nowrap min-w-max gap-4 items-center bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
                     >
                       {/* SKU */}
                       <FormField
                         name={`items.${index}.sku`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-28 xl:w-20">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">SKU</FormLabel>
+                          <FormItem className="w-32 xl:sticky xl:left-0 bg-inherit xl:z-10">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">SKU</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
@@ -658,13 +737,13 @@ export default function CreateSalesOrderPage() {
                       />
 
                       {/* Product */}
-                      <div className="flex-1 min-w-[250px] xl:min-w-[150px]">
+                      <div className="w-[350px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
                         <FormField
                           name={`items.${index}.product_id`}
                           control={control}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Product</FormLabel>
+                              <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Product</FormLabel>
                               <FormControl>
                                 <ProductSelectField
                                   field={field}
@@ -702,14 +781,13 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.specification`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-full sm:w-32 xl:w-28">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Spec.</FormLabel>
+                          <FormItem className="w-36">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Spec.</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                readOnly
                                 placeholder="Spec."
-                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
                               />
                             </FormControl>
                             <FormMessage />
@@ -722,8 +800,8 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.unit`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-20 xl:w-16">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Unit</FormLabel>
+                          <FormItem className="w-24">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Unit</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
@@ -742,14 +820,14 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.stock_quantity`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-20 xl:w-16">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Stock</FormLabel>
+                          <FormItem className="w-24">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Stock</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 {...field}
                                 readOnly
-                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-center"
+                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
@@ -762,15 +840,15 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.unit_price`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-28 xl:w-24">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Price</FormLabel>
+                          <FormItem className="w-32">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Price</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 min={0}
                                 {...field}
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                readOnly
+                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
@@ -783,8 +861,8 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.quantity`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-20 xl:w-16">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Qty</FormLabel>
+                          <FormItem className="w-24">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Qty</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -799,7 +877,7 @@ export default function CreateSalesOrderPage() {
                                     field.onChange(val);
                                   }
                                 }}
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
                                 disabled={(watch(`items.${index}.stock_quantity`) ?? 0) === 0}
                               />
                             </FormControl>
@@ -813,15 +891,15 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.discount`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-28 xl:w-20">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Discount</FormLabel>
+                          <FormItem className="w-24">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Discount</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 min={0}
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
@@ -830,13 +908,13 @@ export default function CreateSalesOrderPage() {
                       />
 
                       {/* Pretax Amt */}
-                      <div className="w-32 xl:w-24">
-                        <label className="xl:hidden block text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">Pretax Amt</label>
+                      <div className="w-32">
+                        <label className="hidden block text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">Pretax Amt</label>
                         <Input
                           type="number"
                           value={calculatedItems[index]?.pretaxAmount.toFixed(2) ?? "0.00"}
                           readOnly
-                          className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9"
+                          className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                         />
                       </div>
 
@@ -845,15 +923,15 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.sales_tax`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="w-20 xl:w-16">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Tax %</FormLabel>
+                          <FormItem className="w-24">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Tax %</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
                                 min={0}
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 text-center h-9"
+                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 text-right h-9"
                               />
                             </FormControl>
                             <FormMessage />
@@ -862,8 +940,8 @@ export default function CreateSalesOrderPage() {
                       />
 
                       {/* Total Tax */}
-                      <div className="w-24 xl:w-24">
-                        <label className="xl:hidden block text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">Tax Amt</label>
+                      <div className="w-32">
+                        <label className="hidden block text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">Tax Amt</label>
                         <Input
                           type="number"
                           value={calculatedItems[index]?.taxAmount.toFixed(2) ?? "0.00"}
@@ -873,8 +951,8 @@ export default function CreateSalesOrderPage() {
                       </div>
 
                       {/* Line Total */}
-                      <div className="w-28 xl:w-20 text-right">
-                        <label className="xl:hidden block text-xs uppercase tracking-wider text-blue-600 font-bold mb-2">Total</label>
+                      <div className="w-36 text-right">
+                        <label className="hidden block text-xs uppercase tracking-wider text-blue-600 font-bold mb-2">Total</label>
                         <div className="h-9 flex items-center justify-end px-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-md font-bold text-blue-700 dark:text-blue-400 text-xs text-right">
                           {calculatedItems[index]?.total.toFixed(2)}
                         </div>
@@ -885,8 +963,8 @@ export default function CreateSalesOrderPage() {
                         name={`items.${index}.remark`}
                         control={control}
                         render={({ field }) => (
-                          <FormItem className="flex-1 min-w-[100px] xl:min-w-[80px]">
-                            <FormLabel className="xl:hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Remark</FormLabel>
+                          <FormItem className="flex-1 min-w-[200px]">
+                            <FormLabel className="hidden text-xs uppercase tracking-wider text-gray-500 font-bold">Remark</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
@@ -1000,19 +1078,22 @@ export default function CreateSalesOrderPage() {
           // 3. Add new items
           addedProducts.forEach((product) => {
             append({
-              product_id: product.id,
+              product_id: Number(product.id),
               sku: product.sku ?? "",
               specification: product.specification ?? "",
               unit: product.unit?.name ?? "",
-              quantity: product.stock_quantity > 0 ? 1 : 0,
-              unit_price: Number(product.price),
+              quantity: 1,
+              unit_price: Number(product.price) || 0,
               discount: 0,
               sales_tax: product.sales_tax ?? 0,
               stock_quantity: product.stock_quantity ?? 0,
               remark: "",
             });
           });
+
+          setIsModalOpen(false);
         }}
+        orderType="sales"
       />
     </div>
   );

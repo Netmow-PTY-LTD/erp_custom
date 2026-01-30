@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +15,7 @@ import {
   FileText,
   Mail,
   CreditCard,
+  History,
 } from "lucide-react";
 import { useGetSalesOrderByIdQuery } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
@@ -33,9 +35,13 @@ export default function OrderDetails() {
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'confirmed': return 'bg-blue-600';
+      case 'delivered':
       case 'completed': return 'bg-green-600';
       case 'pending': return 'bg-yellow-500 text-black';
-      case 'cancelled': return 'bg-red-500';
+      case 'in_transit': return 'bg-indigo-600';
+      case 'returned': return 'bg-orange-600';
+      case 'cancelled':
+      case 'failed': return 'bg-red-600';
       default: return 'bg-gray-500';
     }
   };
@@ -92,7 +98,7 @@ export default function OrderDetails() {
               <CardContent className="p-4 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground uppercase font-medium">Order Date</span>
                 <span className="text-sm font-semibold flex items-center gap-2">
-                  <Calendar className="w-4 h-4 opacity-50" /> {new Date(order.order_date).toLocaleDateString()}
+                  <Calendar className="w-4 h-4 opacity-50" /> {format(new Date(order.order_date), "dd/MM/yyyy")}
                 </span>
               </CardContent>
             </Card>
@@ -129,6 +135,7 @@ export default function OrderDetails() {
                 <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b">
                   <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
                     <th className="px-6 py-4 font-medium">Product</th>
+                    <th className="px-6 py-4 font-medium">Specification</th>
                     <th className="px-6 py-4 font-medium text-right">Unit Price</th>
                     <th className="px-6 py-4 font-medium text-center">Qty</th>
                     <th className="px-6 py-4 font-medium text-right">Discount</th>
@@ -141,6 +148,9 @@ export default function OrderDetails() {
                       <td className="px-6 py-4">
                         <p className="font-semibold text-gray-900 dark:text-gray-100">{item.product.name}</p>
                         <p className="text-xs text-muted-foreground">SKU: {item.product.sku}</p>
+                      </td>
+                      <td className="px-6 py-4 text-xs italic text-muted-foreground">
+                        {item.specification || item.product?.specification || "-"}
                       </td>
                       <td className="px-6 py-4 text-right font-medium">
                         {Number(item.unit_price).toFixed(2)}
@@ -159,6 +169,54 @@ export default function OrderDetails() {
                 </tbody>
               </table>
             </div>
+          </Card>
+
+          {/* Status History */}
+          <Card className="shadow-sm border-border/60 mt-6">
+            <CardHeader className="py-4 border-b">
+              <CardTitle className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
+                <History className="w-4 h-4 text-blue-500" />
+                Status Tracking History
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {order.status_history && order.status_history.length > 0 ? (
+                <div className="relative p-6 pl-10">
+                  <div className="absolute left-8 top-8 bottom-8 w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+                  <div className="space-y-8">
+                    {[...order.status_history].reverse().map((history, idx) => (
+                      <div key={idx} className="relative">
+                        <div className="absolute -left-[1.35rem] top-1.5 h-4 w-4 rounded-full border-2 border-white dark:border-slate-900 bg-blue-500 z-10 shadow-sm"></div>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-mono font-semibold uppercase text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                              {history.status.replace(/_/g, ' ')}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {format(new Date(history.created_at), "dd/MM/yyyy HH:mm")}
+                            </span>
+                          </div>
+                          {history.notes && (
+                            <p className="text-sm text-gray-600 dark:text-gray-300 italic mb-1">"{history.notes}"</p>
+                          )}
+                          {history.delivery_date && (
+                            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                              <Calendar className="w-3 h-3" />
+                              Tracking Date: {format(new Date(history.delivery_date), "dd/MM/yyyy")}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-12 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
+                  <History className="w-8 h-8 opacity-20" />
+                  No tracking history recorded yet.
+                </div>
+              )}
+            </CardContent>
           </Card>
         </div>
 
@@ -224,10 +282,28 @@ export default function OrderDetails() {
                   <span>Grand Total</span>
                   <span>{currency} {Number(order?.total_payable_amount).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm font-medium text-green-600 pt-2">
-                  <span>Total Paid</span>
-                  <span>{currency} {Number(order?.total_paid_amount).toFixed(2)}</span>
-                </div>
+                {Number(order?.refunded_amount) > 0 ? (
+                  <div className="flex flex-col items-end">
+                    <span className="text-green-600 font-medium flex justify-between w-full">
+                      <span>Paid</span>
+                      <span>{currency} {Number(order?.gross_paid_amount || 0).toFixed(2)}</span>
+                    </span>
+                    <span className="text-red-500 font-medium flex justify-between w-full text-xs mt-1">
+                      <span>Refunded</span>
+                      <span>- {currency} {Number(order?.refunded_amount || 0).toFixed(2)}</span>
+                    </span>
+                    <Separator className="my-1" />
+                    <span className="text-green-700 font-bold flex justify-between w-full">
+                      <span>Net Paid</span>
+                      <span>{currency} {Number(order?.total_paid_amount || 0).toFixed(2)}</span>
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center text-sm font-medium text-green-600 pt-2">
+                    <span>Total Paid</span>
+                    <span>{currency} {Number(order?.total_paid_amount).toFixed(2)}</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

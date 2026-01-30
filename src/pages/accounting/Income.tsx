@@ -7,16 +7,19 @@ import { useGetIncomesQuery } from "@/store/features/accounting/accoutntingApiSe
 import { useAppSelector } from "@/store/store";
 import type { Income } from "@/types/accounting.types";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Plus, DollarSign, TrendingUp, CreditCard } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, CreditCard, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router";
-import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import type { DateRange } from "react-day-picker";
 
 export default function IncomePage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [date, setDate] = useState("");
-  const limit = 10;
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [limit, setLimit] = useState(10);
 
   const {
     data: fetchedIncomes,
@@ -26,14 +29,19 @@ export default function IncomePage() {
     page,
     limit,
     search,
-    date,
+    from: dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : undefined,
+    to: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
   });
 
   const incomes: Income[] = fetchedIncomes?.data || [];
   const currency = useAppSelector((state) => state.currency.value);
 
   // Stats Data
-  const { data: allIncomesData } = useGetIncomesQuery({ limit: 1000 });
+  const { data: allIncomesData } = useGetIncomesQuery({
+    limit: 1000,
+    from: dateRange?.from ? format(dateRange.from, 'yyyy-MM-dd') : undefined,
+    to: dateRange?.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
+  });
   const allIncomes = allIncomesData?.data || [];
 
   const totalIncome = allIncomes.reduce((sum: number, item: Income) => sum + Number(item.amount), 0);
@@ -71,12 +79,6 @@ export default function IncomePage() {
       meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[60px]" } as any
     },
     {
-      accessorKey: "title",
-      header: "Title",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
-    },
-    { accessorKey: "description", header: "Description" },
-    {
       accessorKey: "creditHead",
       header: "Credit Head",
       cell: ({ row }: { row: any }) => {
@@ -84,38 +86,48 @@ export default function IncomePage() {
         return <span className="font-medium">{creditHead}</span>;
       },
     },
+    { accessorKey: "income_date", header: "Date" },
+    { accessorKey: "payment_method", header: "Payment Method" },
+    { accessorKey: "reference_number", header: "Reference" },
+    {
+      accessorKey: "title",
+      header: "Title",
+    },
+    { accessorKey: "description", header: "Description" },
     {
       accessorKey: "amount",
       header: () => (
         <div className="text-right">Amount ({currency})</div>
       ),
       cell: ({ row }: { row: any }) => (
-        <div className="text-right">{Number(row.getValue("amount")).toFixed(2)}</div>
+        <div className="text-right font-bold">{Number(row.getValue("amount")).toFixed(2)}</div>
       ),
     },
-    { accessorKey: "income_date", header: "Date" },
-
-    { accessorKey: "payment_method", header: "Payment Method" },
-    { accessorKey: "reference_number", header: "Reference" },
   ];
 
   if (isError) return <p>Error loading incomes</p>;
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 print:hidden">
         <h2 className="text-2xl font-bold">All Income</h2>
 
         <div className="flex gap-2 items-center">
-          <Input
-            type="date"
-            className="w-auto"
-            value={date}
-            onChange={(e) => {
-              setDate(e.target.value);
+          <DateRangePicker
+            dateRange={dateRange}
+            onDateRangeChange={(range: DateRange | undefined) => {
+              setDateRange(range);
               setPage(1);
             }}
           />
+          <Button
+            variant="outline"
+            onClick={() => window.print()}
+            className="flex items-center gap-2"
+          >
+            <Printer className="h-4 w-4" />
+            Print
+          </Button>
           <Link to={"/dashboard/accounting/add-income"}>
             <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
               <Plus size={18} /> Add Income
@@ -124,8 +136,23 @@ export default function IncomePage() {
         </div>
       </div>
 
+      {/* Print Only Header */}
+      <div className="hidden print:block text-center mb-[15px] pb-1">
+        <h1 className="text-4xl font-extrabold uppercase tracking-tight">INCOMELIST</h1>
+        <div className="mt-1 text-sm text-gray-700 font-semibold">
+          {dateRange?.from ? (
+            <>
+              <span>From: {format(dateRange.from, 'd MMMM yyyy')}</span>
+              {dateRange.to && <span> - To: {format(dateRange.to, 'd MMMM yyyy')}</span>}
+            </>
+          ) : (
+            <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+          )}
+        </div>
+      </div>
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 print:hidden">
         {stats.map((item, idx) => (
           <div
             key={idx}
@@ -161,12 +188,89 @@ export default function IncomePage() {
         pageSize={limit}
         totalCount={fetchedIncomes?.pagination?.total || 0}
         onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setLimit(size);
+          setPage(1);
+        }}
         onSearch={(val) => {
           setSearch(val);
           setPage(1);
         }}
         isFetching={isFetching}
       />
+
+      {/* Print Styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 3px 6px !important;
+                        font-size: 9px !important;
+                    }
+                    th {
+                        line-height: 1.2 !important;
+                        padding: 4px 6px !important;
+                        text-transform: uppercase !important;
+                    }
+                    /* Hide Title and Description columns when printing */
+                    th:nth-child(6), td:nth-child(6),
+                    th:nth-child(7), td:nth-child(7) {
+                        display: none !important;
+                    }
+                    /* Aggressively remove unnecessary gaps but keep requested heading margin */
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                    /* Hide search input in DataTable when printing */
+                    [placeholder="Search..."], 
+                    .flex.items-center.justify-between.py-4,
+                    .py-6, .mb-6 {
+                        display: none !important;
+                    }
+                    /* Ensure table container has no top padding */
+                    div:has(> table), .rounded-md.border {
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        border: none !important;
+                    }
+                }
+            `}} />
     </div>
   );
 }

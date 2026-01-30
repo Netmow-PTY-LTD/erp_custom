@@ -130,7 +130,7 @@ export const productsApiService = baseApi.injectEndpoints({
     }),
     getAllProducts: builder.query<
       ProductResponse,
-      { page: number; limit: number; search?: string }
+      { page: number; limit: number; search?: string; stock_status?: string; category_id?: string }
     >({
       query: (params) => ({
         url: "/products",

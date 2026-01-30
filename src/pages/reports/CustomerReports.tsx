@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { Badge } from "@/components/ui/badge";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,9 +107,9 @@ export default function CustomerReports() {
     { accessorKey: "orders", header: "Orders" },
     {
       accessorKey: "sales",
-      header: () => <div className="text-right">Sales ({currency})</div>,
+      header: () => <div className="text-right">Total Sales Amount ({currency})</div>,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="text-right font-medium">
           {Number(row.getValue("sales") || 0).toFixed(2)}
         </div>
       ),
@@ -130,32 +129,30 @@ export default function CustomerReports() {
     { accessorKey: "due", header: "Due" },
     {
       accessorKey: "total",
-      header: () => <div className="text-right">Total ({currency})</div>,
+      header: () => <div className="text-right">Total Amount ({currency})</div>,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="text-right font-medium">
           {Number(row.getValue("total") || 0).toFixed(2)}
         </div>
       ),
     },
     {
       accessorKey: "paid",
-      header: () => <div className="text-right">Paid ({currency})</div>,
+      header: () => <div className="text-right">Total Paid ({currency})</div>,
       cell: ({ row }) => (
-        <div className="text-right">
+        <div className="text-right text-emerald-600 font-medium">
           {Number(row.getValue("paid") || 0).toFixed(2)}
         </div>
       ),
     },
     {
       accessorKey: "balance",
-      header: () => <div className="text-right">Balance ({currency})</div>,
+      header: () => <div className="text-right">Total Due ({currency})</div>,
       cell: ({ row }) => {
         const val = Number(row.getValue("balance") || 0);
         return (
-          <div className="text-right">
-            <Badge className={val > 0 ? "bg-red-500" : "bg-green-500"}>
-              {val.toFixed(2)}
-            </Badge>
+          <div className="text-right text-rose-600 font-bold">
+            {val ? val.toFixed(2) : "0.00"}
           </div>
         );
       },
@@ -231,7 +228,7 @@ export default function CustomerReports() {
       </div>
 
       {/* ---------------- CARDS GRID ---------------- */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sales by Customer */}
         <Card className="pt-6">
           <CardHeader className="flex justify-between">

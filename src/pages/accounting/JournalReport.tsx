@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter, Plus, ShieldAlert, Trash2, } from "lucide-react";
+import { Calendar as CalendarIcon, Filter, Plus, ShieldAlert, Trash2, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -47,12 +47,24 @@ import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { AccountingPermission, SuperAdminPermission } from "@/config/permissions";
 
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
+
 export default function JournalReport() {
     const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
         from: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // First day of current month
         to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0), // Last day of current month
     });
     const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(20);
 
     // Permissions
     const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
@@ -62,7 +74,8 @@ export default function JournalReport() {
     // API Hooks
     const { data: accountsData } = useGetAccountingAccountsQuery({ limit: 1000 });
     const { data: reportData, isLoading: isReportLoading } = useGetJournalReportQuery({
-        limit: 100,
+        limit,
+        page,
         from: dateRange.from ? format(dateRange.from, 'yyyy-MM-dd') : undefined,
         to: dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : undefined,
     });
@@ -178,15 +191,77 @@ export default function JournalReport() {
     const totalCredit = rows.reduce((sum, row) => sum + Number(row.credit), 0);
     const isBalanced = totalDebit === totalCredit && totalDebit > 0;
 
+    const totalPages = reportData?.pagination?.totalPage || 1;
+
+    const renderPaginationItems = () => {
+        const items = [];
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+            items.push(
+                <PaginationItem key="1">
+                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setPage(1); }}>1</PaginationLink>
+                </PaginationItem>
+            );
+            if (startPage > 2) {
+                items.push(<PaginationItem key="ellipsis-start"><PaginationEllipsis /></PaginationItem>);
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            items.push(
+                <PaginationItem key={i}>
+                    <PaginationLink
+                        href="#"
+                        isActive={page === i}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setPage(i);
+                        }}
+                    >
+                        {i}
+                    </PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                items.push(<PaginationItem key="ellipsis-end"><PaginationEllipsis /></PaginationItem>);
+            }
+            items.push(
+                <PaginationItem key={totalPages}>
+                    <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setPage(totalPages); }}>{totalPages}</PaginationLink>
+                </PaginationItem>
+            );
+        }
+
+        return items;
+    };
+
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Journal Report</h2>
                     <p className="text-muted-foreground">Chronological record of all financial transactions.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2"
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print
+                    </Button>
                     {/* Add New Entry Button */}
                     <Dialog open={isNewEntryOpen} onOpenChange={setIsNewEntryOpen}>
                         <DialogTrigger asChild>
@@ -263,8 +338,8 @@ export default function JournalReport() {
                                             <div className="border rounded-md p-4 bg-muted/20 space-y-4">
                                                 <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground mb-2">
                                                     <div className="col-span-5">Account</div>
-                                                    <div className="col-span-3 text-right">Debit</div>
-                                                    <div className="col-span-3 text-right">Credit</div>
+                                                    <div className="col-span-3 text-right">Debit (RM)</div>
+                                                    <div className="col-span-3 text-right">Credit (RM)</div>
                                                     <div className="col-span-1"></div>
                                                 </div>
 
@@ -372,7 +447,7 @@ export default function JournalReport() {
                     </Dialog>
 
                     {/* Date Filter */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
@@ -425,74 +500,212 @@ export default function JournalReport() {
                 </div>
             </div>
 
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">JOURNAL REPORT</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold">
+                    {dateRange.from ? (
+                        <>
+                            <span>From: {format(dateRange.from, 'd MMMM yyyy')}</span>
+                            {dateRange.to && <span> - To: {format(dateRange.to, 'd MMMM yyyy')}</span>}
+                        </>
+                    ) : (
+                        <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+                    )}
+                </div>
+            </div>
+
             <div className="space-y-6">
                 {isReportLoading ? (
                     <div className="text-center py-10">Loading journal entries...</div>
                 ) : (
-                    reportData?.data?.map((entry) => (
-                        <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg gap-4">
-                            <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b-1 border-emerald-100 dark:border-emerald-900 py-2 px-6 gap-0">
-                                <div className="flex justify-between items-center">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{entry.date}</span>
-                                        <span className="text-lg font-bold text-gray-800 dark:text-gray-100">{entry.narration || "No Narration"}</span>
+                    <>
+                        {reportData?.data?.map((entry) => (
+                            <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg gap-4">
+                                <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b-1 border-emerald-100 dark:border-emerald-900 py-2 px-6 gap-0">
+                                    <div className="flex flex-wrap justify-between items-center gap-3">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">{entry.date}</span>
+                                            <span className="text-lg font-bold text-gray-800 dark:text-gray-100">{entry.narration || "No Narration"}</span>
+                                        </div>
+                                        <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300 font-semibold px-3 py-1">
+                                            {entry.reference_type} #{entry.id}
+                                        </Badge>
                                     </div>
-                                    <Badge variant="outline" className="border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300 font-semibold px-3 py-1">
-                                        {entry.reference_type} #{entry.id}
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-muted/30 hover:bg-muted/30">
-                                            <TableHead className="w-[50%] py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Account Name</TableHead>
-                                            <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Debit</TableHead>
-                                            <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Credit</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {entry.entries.map((row) => (
-                                            <TableRow key={row.id} className="hover:bg-muted/20 transition-colors">
-                                                <TableCell className="font-medium py-1.5 px-6">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-gray-900 dark:text-gray-100">{row.account?.name}</span>
-                                                        <span className="text-xs text-muted-foreground mt-0.5">Code: {row.account?.code}</span>
-                                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow className="bg-muted/30 hover:bg-muted/30">
+                                                <TableHead className="w-[50%] py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Account Name</TableHead>
+                                                <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Debit (RM)</TableHead>
+                                                <TableHead className="text-right py-1.5 px-6 font-semibold text-gray-700 dark:text-gray-300">Credit (RM)</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {entry.entries.map((row) => (
+                                                <TableRow key={row.id} className="hover:bg-muted/20 transition-colors">
+                                                    <TableCell className="font-medium py-1.5 px-6">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-gray-900 dark:text-gray-100">{row.account?.name}</span>
+                                                            <span className="text-xs text-muted-foreground mt-0.5">Code: {row.account?.code}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right py-1.5 px-6 font-mono text-gray-800 dark:text-gray-200">
+                                                        {Number(row.debit) > 0 ? (
+                                                            <span className="text-blue-600 dark:text-blue-400 font-semibold">{Number(row.debit).toFixed(2)}</span>
+                                                        ) : (
+                                                            <span className="text-gray-400">-</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right py-1.5 px-6 font-mono text-gray-800 dark:text-gray-200">
+                                                        {Number(row.credit) > 0 ? (
+                                                            <span className="text-green-600 dark:text-green-400 font-semibold">{Number(row.credit).toFixed(2)}</span>
+                                                        ) : (
+                                                            <span className="text-gray-400">-</span>
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                            {/* Footer for Check */}
+                                            <TableRow className="bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 border-t-2 border-emerald-200 dark:border-emerald-800 font-bold">
+                                                <TableCell className="py-1.5 px-6 text-gray-800 dark:text-gray-100">Total</TableCell>
+                                                <TableCell className="text-right py-1.5 px-6 font-mono text-blue-700 dark:text-blue-300 text-base">
+                                                    {entry.entries.reduce((sum, item) => sum + Number(item.debit), 0).toFixed(2)}
                                                 </TableCell>
-                                                <TableCell className="text-right py-1.5 px-6 font-mono text-gray-800 dark:text-gray-200">
-                                                    {Number(row.debit) > 0 ? (
-                                                        <span className="text-blue-600 dark:text-blue-400 font-semibold">{Number(row.debit).toFixed(2)}</span>
-                                                    ) : (
-                                                        <span className="text-gray-400">-</span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="text-right py-1.5 px-6 font-mono text-gray-800 dark:text-gray-200">
-                                                    {Number(row.credit) > 0 ? (
-                                                        <span className="text-green-600 dark:text-green-400 font-semibold">{Number(row.credit).toFixed(2)}</span>
-                                                    ) : (
-                                                        <span className="text-gray-400">-</span>
-                                                    )}
+                                                <TableCell className="text-right py-1.5 px-6 font-mono text-green-700 dark:text-green-300 text-base">
+                                                    {entry.entries.reduce((sum, item) => sum + Number(item.credit), 0).toFixed(2)}
                                                 </TableCell>
                                             </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                            </Card>
+                        ))}
+                        {reportData?.data && reportData.data.length > 0 && (
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 print:hidden">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-500">Per page:</span>
+                                    <select
+                                        value={limit}
+                                        onChange={(e) => {
+                                            setLimit(Number(e.target.value));
+                                            setPage(1);
+                                        }}
+                                        className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none bg-background text-foreground"
+                                    >
+                                        {[5, 10, 20, 50, 100].map((size) => (
+                                            <option key={size} value={size}>
+                                                {size}
+                                            </option>
                                         ))}
-                                        {/* Footer for Check */}
-                                        <TableRow className="bg-linear-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 border-t-2 border-emerald-200 dark:border-emerald-800 font-bold">
-                                            <TableCell className="py-1.5 px-6 text-gray-800 dark:text-gray-100">Total</TableCell>
-                                            <TableCell className="text-right py-1.5 px-6 font-mono text-blue-700 dark:text-blue-300 text-base">
-                                                {entry.entries.reduce((sum, item) => sum + Number(item.debit), 0).toFixed(2)}
-                                            </TableCell>
-                                            <TableCell className="text-right py-1.5 px-6 font-mono text-green-700 dark:text-green-300 text-base">
-                                                {entry.entries.reduce((sum, item) => sum + Number(item.credit), 0).toFixed(2)}
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </CardContent>
-                        </Card>
-                    ))
+                                    </select>
+                                    <span className="text-sm text-gray-500 ml-2">
+                                        Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, reportData?.pagination?.total || 0)} of {reportData?.pagination?.total || 0} entries
+                                    </span>
+                                </div>
+                                <Pagination className="m-0 w-auto">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); if (page > 1) setPage(page - 1); }}
+                                                className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                                            />
+                                        </PaginationItem>
+                                        {renderPaginationItems()}
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); if (page < totalPages) setPage(page + 1); }}
+                                                className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    html, body {
+                        background: white !important;
+                        overflow: visible !important;
+                        height: auto !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .border-2 {
+                        border: 1px solid #eee !important;
+                        margin-bottom: 10px !important;
+                        break-inside: avoid !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 2px 6px !important;
+                        font-size: 8px !important;
+                    }
+                    th {
+                        line-height: 1 !important;
+                        text-transform: uppercase !important;
+                    }
+                    .px-6 {
+                        padding-left: 8px !important;
+                        padding-right: 8px !important;
+                    }
+                    .py-2, .py-1.5 {
+                        padding-top: 2px !important;
+                        padding-bottom: 2px !important;
+                    }
+                    .text-lg {
+                        font-size: 12px !important;
+                    }
+                    .text-xs {
+                        font-size: 7px !important;
+                    }
+                    .tracking-wide {
+                        letter-spacing: normal !important;
+                    }
+                    /* Aggressively remove unnecessary gaps */
+                    .mb-8, .mb-6 {
+                        margin-bottom: 0 !important;
+                    }
+                    .mt-8 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

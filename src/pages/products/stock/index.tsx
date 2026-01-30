@@ -1,41 +1,44 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Package, AlertTriangle, XCircle, DollarSign } from "lucide-react";
+import { Eye, Trash2, Printer } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
-// import AddStockForm from "@/components/products/AddStockForm";
+import DamageWastageForm from "@/components/products/DamageWastageForm";
 import type { Product } from "@/types/types";
-import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import { useGetAllProductsQuery, useGetProductStatsQuery } from "@/store/features/admin/productsApiService";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
-// import { ProductPermission } from "@/config/permissions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
+import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function StockManagement() {
-  // const [openAddStockForm, setOpenAddStockForm] = useState<boolean>(false);
-  //const [productId, setProductId] = useState<number>(0);
+  const [openDamageForm, setOpenDamageForm] = useState<boolean>(false);
+  const [selectedProductId, setSelectedProductId] = useState<number | undefined>(undefined);
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [stockStatus, setStockStatus] = useState<string>("all");
   const limit = 10;
-  //   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  // const canDeleteStock = userPermissions.includes(ProductPermission.DELETE_STOCK)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-
-
+  const { data: settingsData } = useGetSettingsInfoQuery();
+  const from = settingsData?.data;
 
   const {
     data: fetchedProducts,
     isFetching,
-    // refetch: refetchProducts,
-  } = useGetAllProductsQuery({ page, limit, search });
+  } = useGetAllProductsQuery({
+    page,
+    limit,
+    search,
+    stock_status: stockStatus === "all" ? undefined : stockStatus
+  });
 
   const products: Product[] = fetchedProducts?.data || [];
 
@@ -45,11 +48,6 @@ export default function StockManagement() {
     limit: 10,
     totalPage: 1,
   };
-
-  // const handleDeleteStock = (sku: string) => {
-  //   // Handle stock deletion logic here
-  //   console.log(`Deleting stock with SKU: ${sku}`);
-  // };
 
   const currency = useAppSelector((state) => state.currency.value);
 
@@ -98,18 +96,58 @@ export default function StockManagement() {
         <div className="text-right">{Number(row.original.price).toFixed(2)}</div>
       ),
     },
-    // {
-    //   accessorKey: "unit",
-    //   header: "Unit",
-    //   cell: ({ row }) =>
-    //     `${row.original.unit.name} (${row.original.unit.symbol})`,
-    // },
     {
       accessorKey: "stock_quantity",
       header: () => <div className="text-right">Stock</div>,
       cell: ({ row }) => (
-        <div className="text-right">{row.original.stock_quantity}</div>
+        <div className="text-right font-medium">{row.original.stock_quantity}</div>
       ),
+    },
+    {
+      id: "stock_status",
+      header: "Stock wise status",
+      cell: ({ row }) => {
+        const stock = row.original.stock_quantity || 0;
+        const isAvailable = stock > 0;
+        return (
+          <span
+            className={`py-1 px-3 rounded-full text-xs font-bold uppercase tracking-wider ${isAvailable
+              ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+              : "bg-rose-100 text-rose-700 border border-rose-200"
+              }`}
+          >
+            {isAvailable ? "Available" : "Out of Stock"}
+          </span>
+        );
+      },
+    },
+    {
+      id: "total_cost",
+      header: () => <div className="text-right">Total Cost Price ({currency})</div>,
+      cell: ({ row }) => {
+        const totalCost = (row.original.stock_quantity || 0) * (row.original.cost || 0);
+        return <div className="text-right text-blue-600">{totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>;
+      },
+    },
+    {
+      id: "total_sell",
+      header: () => <div className="text-right">Total Sell Price ({currency})</div>,
+      cell: ({ row }) => {
+        const totalSell = (row.original.stock_quantity || 0) * (row.original.price || 0);
+        return <div className="text-right text-emerald-600">{totalSell.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>;
+      },
+    },
+    {
+      id: "profit",
+      header: () => <div className="text-right">Total Profitable ({currency})</div>,
+      cell: ({ row }) => {
+        const profit = ((row.original.price || 0) - (row.original.cost || 0)) * (row.original.stock_quantity || 0);
+        return (
+          <div className={`text-right font-bold ${profit >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+            {profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "is_active",
@@ -133,162 +171,240 @@ export default function StockManagement() {
         const product = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link
-                  to={`/dashboard/products/${product.id}`}
-                  className="w-full"
-                >
-                  View Stock
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/dashboard/products/${product.id}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              View
+            </Link>
+            <button
+              onClick={() => {
+                setSelectedProductId(product.id);
+                setOpenDamageForm(true);
+              }}
+              disabled={Number(product.stock_quantity) <= 0}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${Number(product.stock_quantity) <= 0
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-rose-50 text-rose-600 hover:bg-rose-100"
+                }`}
+            >
+              <Trash2 className="w-4 h-4" />
+              Damage
+            </button>
+          </div>
         );
       },
     },
   ];
 
-  // Calculate statistics
-  const totalProducts = products.length;
-  const lowStockProducts = products.filter(p => p.stock_quantity <= p.min_stock_level && p.stock_quantity > 0).length;
-  const outOfStockProducts = products.filter(p => p.stock_quantity === 0).length;
-  const totalStockValue = products.reduce((sum, p) => sum + (p.stock_quantity * p.cost), 0);
+  // Fetch stats from API
+  const { data: statsData } = useGetProductStatsQuery(undefined);
+  const stats = statsData?.data || [];
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-wrap justify-between items-start gap-4">
+      <div className="flex flex-wrap justify-between items-start gap-4 print:hidden">
         <div>
           <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
             Stock Management
           </h1>
           <p className="text-muted-foreground mt-2">Monitor and manage product inventory</p>
         </div>
-        {/* <AddStockForm open={openAddStockForm} setOpen={setOpenAddStockForm} products={products} search={search} setSearch={setSearch} refetchProducts={refetchProducts} /> */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
+            <Printer size={18} />
+            Print
+          </button>
+          <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
+            <SelectTrigger className="w-[200px] bg-white shadow-sm border-gray-200 rounded-xl font-medium print:hidden">
+              <SelectValue placeholder="Stock Status" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl border-gray-100 shadow-xl">
+              <SelectItem value="all">All Stock Status</SelectItem>
+              <SelectItem value="available" className="text-emerald-600 font-medium focus:text-emerald-700">Available</SelectItem>
+              <SelectItem value="low_stock" className="text-orange-600 font-medium focus:text-orange-700">Low Stock</SelectItem>
+              <SelectItem value="out_of_stock" className="text-rose-600 font-medium focus:text-rose-700">Out of Stock</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Total Products */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-blue-600 to-blue-400 p-6 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 print:hidden">
+        {stats.map((item: any, idx: number) => {
+          // Dynamic colors based on label or index if color not provided
+          const baseColor = item.color || (
+            item.label.includes('Purchase') ? 'bg-blue-600' :
+              item.label.includes('Salable') ? 'bg-emerald-600' :
+                item.label.includes('Profit') ? 'bg-indigo-600' : 'bg-slate-600'
+          );
 
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Total Products</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {totalProducts}
-              </h3>
+          return (
+            <div
+              key={idx}
+              className={`relative overflow-hidden rounded-2xl ${baseColor} p-5 shadow-lg shadow-black/10 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1`}
+            >
+              <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10 blur-xl" />
+
+              <div className="relative space-y-2">
+                <p className="text-xs font-semibold text-white/80 uppercase tracking-wider">{item.label}</p>
+                <h3 className="text-2xl font-extrabold text-white truncate">
+                  {item.isCurrency ? `${currency} ` : ''}
+                  {item.isCurrency ? Number(item.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : item.value}
+                </h3>
+              </div>
+
+              <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+                <div className="h-full w-1/3 rounded-full bg-white/30" />
+              </div>
             </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
-
-        {/* Low Stock */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-orange-600 to-orange-400 p-6 shadow-lg shadow-orange-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
-
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Low Stock</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {lowStockProducts}
-              </h3>
-            </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <AlertTriangle className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
-
-        {/* Out of Stock */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-red-600 to-red-400 p-6 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
-
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Out of Stock</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {outOfStockProducts}
-              </h3>
-            </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <XCircle className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
-
-        {/* Total Stock Value */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-green-600 to-green-400 p-6 shadow-lg shadow-green-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
-
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Total Stock Value</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {currency} {totalStockValue.toFixed(2)}
-              </h3>
-            </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <DollarSign className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
+          );
+        })}
       </div>
 
-      <DataTable
-        columns={productColumns}
-        data={products}
-        pageIndex={page - 1}
-        pageSize={limit}
-        totalCount={pagination.total}
-        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-        onSearch={(value) => {
-          setSearch(value);
-          setPage(1);
-        }}
-        isFetching={isFetching}
+      <div className="print:w-full print:m-0 print:p-0">
+        {/* Print Only Header */}
+        <div id="invoice" className="hidden print:block mb-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col gap-2 mt-2 details-text text-left">
+              <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+              <p className="leading-tight max-w-[400px]">
+                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+              </p>
+              <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
+            </div>
+            <div className="text-right flex flex-col items-end">
+              <div className="mb-1">
+                {from?.logo_url ? (
+                  <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                    F&Z
+                  </div>
+                )}
+              </div>
+              <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Stock Report</h2>
+              <div className="details-text space-y-1">
+                <p><strong>Date:</strong> {format(new Date(), "dd/MM/yyyy")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
+          <CardHeader className="print:hidden">
+            <CardTitle>All Products Stock</CardTitle>
+          </CardHeader>
+          <CardContent className="print:p-0">
+            <DataTable
+              columns={productColumns}
+              data={products}
+              pageIndex={page - 1}
+              pageSize={limit}
+              totalCount={pagination.total}
+              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onSearch={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+              isFetching={isFetching}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
+      <DamageWastageForm
+        open={openDamageForm}
+        setOpen={setOpenDamageForm}
+        products={products}
+        initialProductId={selectedProductId}
+        refetchProducts={async () => { }}
       />
+
+      {/* Print Styles */}
+      <style>{`
+        @media print {
+          @page {
+            margin: 5mm;
+            size: A4 landscape;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            font-size: 11px !important;
+            background: white !important;
+            color: black !important;
+          }
+          .no-print, 
+          header, 
+          nav, 
+          aside, 
+          button, 
+          input,
+          .max-w-sm,
+          .print\\:hidden,
+          .grid.grid-cols-1,
+          .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
+            display: none !important;
+          }
+          #invoice {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          h1 { font-size: 11px !important; }
+          h2 { font-size: 11px !important; }
+          table { 
+            font-size: 11px !important; 
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: auto !important;
+          }
+          th, td { 
+            border: 1px solid #ddd !important;
+            padding: 4px !important; 
+            font-size: 11px !important;
+          }
+          .details-text, .table-text { 
+            font-size: 11px !important; 
+            line-height: 1.2 !important; 
+          }
+          .company-name {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .text-sm, .text-xs, .text-base, .text-lg, .text-xl, .font-bold, .font-semibold, span, p, div { 
+            font-size: 11px !important; 
+          }
+          .mb-6 { margin-bottom: 8px !important; }
+          .mb-4 { margin-bottom: 4px !important; }
+          
+          /* Hide non-essential columns for stock list print */
+          th:nth-child(3), td:nth-child(3), /* Image */
+          th:nth-child(8), td:nth-child(8), /* Stock Status Label */
+          th:nth-child(12), td:nth-child(12), /* Status */
+          th:last-child, td:last-child { /* Actions */
+            display: none !important;
+          }
+
+          /* Ensure table container matches header width */
+          .Card, .CardContent, .rounded-xl, .border {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+        }
+        /* Standardizing screen sizes */
+        .company-name { font-size: 18px !important; line-height: 1.2; }
+        .details-text { font-size: 12px !important; line-height: 1.4; }
+        .table-text { font-size: 12px !important; }
+      `}</style>
     </div>
   );
 }

@@ -84,6 +84,15 @@ export const SupplierPermission = {
   VIEW_PURCHASE_PAYMENTS: "suppliers.payments.view" as const,
   VIEW_PURCHASE_PAYMENT_DETAILS: "suppliers.payments.details.view" as const,
   VIEW_PURCHASE_ORDERS_MAP: "suppliers.purchase_orders.map.view" as const,
+  VIEW_PURCHASE_RETURNS: "suppliers.purchase_returns.view" as const,
+  VIEW_PURCHASE_RETURN_DETAILS: "suppliers.purchase_returns.details.view" as const,
+  CREATE_PURCHASE_RETURN: "suppliers.purchase_returns.create" as const,
+  VIEW_PURCHASE_RETURN_INVOICES: "suppliers.purchase_return_invoices.view" as const,
+  VIEW_PURCHASE_RETURN_INVOICE_DETAILS: "suppliers.purchase_return_invoices.details.view" as const,
+  PREVIEW_PURCHASE_RETURN_INVOICE: "suppliers.purchase_return_invoices.preview" as const,
+  CREATE_PURCHASE_RETURN_PAYMENT: "suppliers.purchase_return_payments.create" as const,
+  VIEW_PURCHASE_RETURN_PAYMENTS: "suppliers.purchase_return_payments.view" as const,
+  VIEW_PURCHASE_RETURN_PAYMENT_DETAILS: "suppliers.purchase_return_payments.details.view" as const,
 };
 
 // --- Staffs ---
@@ -135,6 +144,17 @@ export const SalesPermission = {
   MARK_AS_PAID: "sales.invoices.mark_as_paid" as const,
   POS_ORDER: "sales.pos_order.view" as const,
   ASSIGN_STAFF_IN_ORDER: "sales.assign_staff.in_order" as const,
+
+  // Sales Returns
+  VIEW_SALES_RETURNS: "sales.sales_returns.view" as const,
+  VIEW_SALES_RETURN_DETAILS: "sales.sales_returns.details.view" as const,
+  CREATE_SALES_RETURN: "sales.sales_returns.create" as const,
+  VIEW_SALES_RETURN_INVOICES: "sales.sales_return_invoices.view" as const,
+  VIEW_SALES_RETURN_INVOICE_DETAILS: "sales.sales_return_invoices.details.view" as const,
+  PREVIEW_SALES_RETURN_INVOICE: "sales.sales_return_invoices.preview" as const,
+  CREATE_SALES_RETURN_PAYMENT: "sales.sales_return_payments.create" as const,
+  VIEW_SALES_RETURN_PAYMENTS: "sales.sales_return_payments.view" as const,
+  VIEW_SALES_RETURN_PAYMENT_DETAILS: "sales.sales_return_payments.details.view" as const,
 };
 
 // --- Accounting ---
@@ -170,6 +190,8 @@ export const AccountingPermission = {
   LEDGER_REPORT: "accounting.reports.ledger.view" as const,
   TRIAL_BALANCE: "accounting.reports.trial_balance.view" as const,
   PROFIT_AND_LOSS: "accounting.reports.profit_and_loss.view" as const,
+  BALANCE_SHEET: "accounting.reports.balance_sheet.view" as const,
+  TAX_SUBMISSION: "accounting.tax_submission.view" as const,
 };
 
 // --- Users ---

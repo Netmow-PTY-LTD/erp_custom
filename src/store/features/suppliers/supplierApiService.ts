@@ -33,7 +33,7 @@ export const supplierApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
 
     // GET ALL SUPPLIERS
-    getAllSuppliers: builder.query<SupplierListResponse, { page?: number; limit?: number; search?: string }>({
+    getAllSuppliers: builder.query<SupplierListResponse, { page?: number; limit?: number; search?: string; sort?: string }>({
       query: (params) => ({
         url: "/suppliers",
         method: "GET",
@@ -83,6 +83,15 @@ export const supplierApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Suppliers"],
     }),
 
+    // GET SUPPLIER STATS
+    getSupplierStats: builder.query<{ status: boolean; data: any[] }, void>({
+      query: () => ({
+        url: "/suppliers/stats",
+        method: "GET",
+      }),
+      providesTags: ["Suppliers"],
+    }),
+
   }),
 });
 
@@ -92,4 +101,5 @@ export const {
   useGetSupplierByIdQuery,
   useUpdateSupplierMutation,
   useDeleteSupplierMutation,
+  useGetSupplierStatsQuery,
 } = supplierApiService;

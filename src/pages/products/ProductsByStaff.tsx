@@ -22,7 +22,15 @@ import {
   Pencil,
   Tags,
   Trash,
+  Filter,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
 import type { Product } from "@/types/types";
@@ -31,6 +39,7 @@ import {
   useDeleteProductMutation,
   useGetAllProductsQuery,
   useGetProductStatsQuery,
+  useGetAllCategoriesQuery,
 } from "@/store/features/admin/productsApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
@@ -50,6 +59,7 @@ export default function ProductsByStaff() {
     images: string[];
     index: number;
   } | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const limit = 10;
 
 
@@ -110,7 +120,15 @@ export default function ProductsByStaff() {
     data: fetchedProducts,
     isFetching,
     refetch: refetchProducts,
-  } = useGetAllProductsQuery({ page, limit, search });
+  } = useGetAllProductsQuery({
+    page,
+    limit,
+    search,
+    category_id: selectedCategory !== "all" ? selectedCategory : undefined,
+  });
+
+  const { data: categoriesData } = useGetAllCategoriesQuery();
+  const categories = categoriesData?.data || [];
 
   const products: Product[] = fetchedProducts?.data || [];
   const pagination = fetchedProducts?.pagination ?? {
@@ -163,16 +181,27 @@ export default function ProductsByStaff() {
     {
       accessorKey: "name",
       header: "Product Name",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {row.original.name}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {row.original.specification || "—"}
+          </span>
+        </div>
+      )
     },
     {
       accessorKey: "thumb_url",
       header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => (
         <img
           src={row.original.thumb_url}
           alt={row.original.name}
-          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity shrink-0"
           onClick={() =>
             setPreviewData({
               images: [row.original.thumb_url].filter(Boolean),
@@ -188,11 +217,6 @@ export default function ProductsByStaff() {
       cell: ({ row }) => row?.original?.category?.name
     },
     {
-      accessorKey: "specifications",
-      header: "Specifications",
-      cell: ({ row }) => row?.original?.specification
-    },
-    {
       accessorKey: "price",
       header: () => (
         <div className="text-right">
@@ -202,19 +226,6 @@ export default function ProductsByStaff() {
       cell: ({ row }) => (
         <div className="text-right">
           {parseFloat(row.getValue("price")).toFixed(2)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "purchase_tax",
-      header: () => (
-        <div className="text-right">
-          Purchase Tax {currency ? `(${currency})` : ""}
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="text-right">
-          {parseFloat(row.getValue("purchase_tax")).toFixed(2)}
         </div>
       ),
     },
@@ -315,6 +326,29 @@ export default function ProductsByStaff() {
         <h2 className="text-3xl font-semibold">Product Management</h2>
 
         <div className="flex flex-wrap items-center gap-4">
+          <div className="w-[200px]">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                <SelectValue placeholder="Filter by Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={String(category.id)}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">
             <AlertCircle size={18} />
             Stock Alerts

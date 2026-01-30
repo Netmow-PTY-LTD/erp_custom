@@ -5,9 +5,12 @@ import {
   Controller,
   useForm,
   type SubmitHandler,
+  type Resolver,
+  useFieldArray,
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
@@ -26,12 +29,14 @@ import {
 import { useNavigate, useParams } from "react-router";
 import { useGetCustomerByIdQuery, useUpdateCustomerMutation } from "@/store/features/customers/customersApi";
 import { toast } from "sonner";
-import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon } from "lucide-react";
+import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon, Plus, Trash2, Edit2, Mail, BadgeCheck } from "lucide-react";
 
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
 import { SalesRouteSelectField } from "@/components/salesRoute/RouteSelectField";
 import { BackButton } from "@/components/BackButton";
 import { useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/store/store";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
@@ -58,7 +63,14 @@ const customerSchema = z.object({
   is_active: z.boolean(),
   thumb_url: z.string().optional(),
   gallery_items: z.array(z.string()).optional(),
-  salesRouteId: z.string().optional() // <-- string now
+  salesRouteId: z.string().optional(), // <-- string now
+  contacts: z.array(z.object({
+    name: z.string().min(1, "Name is required"),
+    phone: z.string().optional().or(z.literal('')),
+    role: z.string().optional().or(z.literal('')),
+    email: z.string().email("Invalid email").optional().or(z.literal('')),
+    is_primary: z.boolean().default(false)
+  })).default([]),
 });
 
 
@@ -92,7 +104,7 @@ export default function EditCustomerPage() {
   const customer = data?.data;
 
   const form = useForm<CustomerFormValues>({
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(customerSchema) as Resolver<CustomerFormValues>,
     defaultValues: {
       name: "",
       company: "",
@@ -111,10 +123,25 @@ export default function EditCustomerPage() {
       notes: "",
       is_active: true,
       salesRouteId: '',
+      contacts: [],
     },
   });
 
   const { control, handleSubmit, reset, setValue } = form;
+  const { fields: contactFields, append: appendContact, remove: removeContact, update: updateContact } = useFieldArray({
+    control,
+    name: "contacts",
+  });
+
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [editingContactIndex, setEditingContactIndex] = useState<number | null>(null);
+  const [contactFormValues, setContactFormValues] = useState({
+    name: "",
+    phone: "",
+    role: "",
+    email: "",
+    is_primary: false,
+  });
 
   /* ------------------ LOAD CUSTOMER DATA ------------------ */
   useEffect(() => {
@@ -141,7 +168,11 @@ export default function EditCustomerPage() {
       reset({
         name: customer.name,
         company: customer.company || "",
-        customer_type: customer.customer_type,
+        customer_type: (function () {
+          const raw = customer.customer_type;
+          const normalized = raw && typeof raw === 'string' ? raw.trim().toLowerCase() : "individual";
+          return (["individual", "business", "retail"].includes(normalized) ? normalized : "individual") as "individual" | "business" | "retail";
+        })(),
         tax_id: customer.tax_id || "",
         email: customer.email || "",
         phone: customer.phone || "",
@@ -157,7 +188,8 @@ export default function EditCustomerPage() {
         is_active: customer.is_active,
         thumb_url: thumbVal,
         gallery_items: galleryVal || [],
-        salesRouteId: String(customer.sales_route_id)
+        salesRouteId: String(customer.sales_route_id),
+        contacts: customer.contacts || []
       });
     }
   }, [customer, reset]);
@@ -318,47 +350,6 @@ export default function EditCustomerPage() {
           </CardContent>
         </Card>
 
-        {/* CUSTOMER GALLERY */}
-        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
-                <ImageIcon className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Customer Gallery</CardTitle>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload additional customer images</p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pb-6">
-            <Controller
-              control={control}
-              name="gallery_items"
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Gallery (max 10)</FieldLabel>
-                  <ImageUploaderPro
-                    multiple
-                    value={field.value || []}
-                    onChange={(v) => {
-                      const arr = Array.isArray(v) ? v : v ? [v] : [];
-                      if (arr.length > 10) {
-                        toast.error("You can upload up to 10 images only");
-                        arr.splice(10);
-                      }
-                      field.onChange(arr);
-                    }}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Optional. Upload up to 10 additional images for the customer.
-                  </p>
-                  <FieldError>{fieldState?.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </CardContent>
-        </Card>
 
 
         {/* CONTACT DETAILS */}
@@ -402,6 +393,203 @@ export default function EditCustomerPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Multiple Contacts Section */}
+        <div className="mt-8 pt-8 border-t-2 border-dashed border-blue-100">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <User className="w-5 h-5 text-blue-500" />
+                Additional Contacts
+              </h3>
+              <p className="text-sm text-gray-500">Manage multiple contact persons for this customer</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-xl border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 font-bold transition-all"
+              onClick={() => {
+                setEditingContactIndex(null);
+                setContactFormValues({ name: "", phone: "", role: "", email: "", is_primary: false });
+                setIsContactModalOpen(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add New Contact
+            </Button>
+          </div>
+
+          {contactFields.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
+              <div className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-sm mb-3">
+                <User className="w-8 h-8 text-gray-300" />
+              </div>
+              <p className="text-gray-500 font-medium">No contacts added yet</p>
+              <p className="text-xs text-gray-400 mt-1">Click the button above to add a contact person</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {contactFields.map((field: any, index: number) => (
+                <div
+                  key={field.id}
+                  className="group relative bg-white dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-2xl p-4 transition-all hover:border-blue-200 hover:shadow-md"
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-gray-800 dark:text-gray-100">{field.name}</h4>
+                      {field.is_primary && (
+                        <span className="flex items-center gap-1 text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                          <BadgeCheck className="w-3 h-3" />
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        onClick={() => {
+                          setEditingContactIndex(index);
+                          setContactFormValues({
+                            name: field.name,
+                            phone: field.phone || "",
+                            role: field.role || "",
+                            email: field.email || "",
+                            is_primary: field.is_primary,
+                          });
+                          setIsContactModalOpen(true);
+                        }}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        onClick={() => removeContact(index)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    {field.role && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Briefcase className="w-3.5 h-3.5" />
+                        {field.role}
+                      </div>
+                    )}
+                    {field.phone && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Phone className="w-3.5 h-3.5" />
+                        {field.phone}
+                      </div>
+                    )}
+                    {field.email && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Mail className="w-3.5 h-3.5" />
+                        {field.email}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Dialog open={isContactModalOpen} onOpenChange={setIsContactModalOpen}>
+          <DialogContent className="sm:max-w-[425px] rounded-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent italic">
+                {editingContactIndex !== null ? "Edit Contact" : "Add New Contact"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <FieldLabel>Contact Name *</FieldLabel>
+                <Input
+                  value={contactFormValues.name}
+                  onChange={(e) => setContactFormValues({ ...contactFormValues, name: e.target.value })}
+                  placeholder="Full name"
+                  className="rounded-xl border-gray-200 focus:border-blue-400"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <FieldLabel>Role / Position</FieldLabel>
+                  <Input
+                    value={contactFormValues.role}
+                    onChange={(e) => setContactFormValues({ ...contactFormValues, role: e.target.value })}
+                    placeholder="e.g. Manager"
+                    className="rounded-xl border-gray-200"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <FieldLabel>Phone Number</FieldLabel>
+                  <Input
+                    value={contactFormValues.phone}
+                    onChange={(e) => setContactFormValues({ ...contactFormValues, phone: e.target.value })}
+                    placeholder="Phone"
+                    className="rounded-xl border-gray-200"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <FieldLabel>Email Address</FieldLabel>
+                <Input
+                  value={contactFormValues.email}
+                  onChange={(e) => setContactFormValues({ ...contactFormValues, email: e.target.value })}
+                  placeholder="email@example.com"
+                  className="rounded-xl border-gray-200"
+                />
+              </div>
+              <div className="flex items-center space-x-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="is_primary"
+                  checked={contactFormValues.is_primary}
+                  onChange={(e) => setContactFormValues({ ...contactFormValues, is_primary: e.target.checked })}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+                <label
+                  htmlFor="is_primary"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
+                >
+                  Set as Primary Contact
+                </label>
+              </div>
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                type="button"
+                className="rounded-xl"
+                onClick={() => setIsContactModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="rounded-xl bg-blue-600 hover:bg-blue-700 font-bold"
+                onClick={() => {
+                  if (!contactFormValues.name) {
+                    toast.error("Contact name is required");
+                    return;
+                  }
+                  if (editingContactIndex !== null) {
+                    updateContact(editingContactIndex, contactFormValues);
+                  } else {
+                    appendContact(contactFormValues);
+                  }
+                  setIsContactModalOpen(false);
+                }}
+              >
+                {editingContactIndex !== null ? "Update Contact" : "Add Contact"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* ADDRESS DETAILS */}
         <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
@@ -619,6 +807,48 @@ export default function EditCustomerPage() {
                 )}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* CUSTOMER GALLERY */}
+        <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
+                <ImageIcon className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Customer Gallery</CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Upload additional customer images</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pb-6">
+            <Controller
+              control={control}
+              name="gallery_items"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Gallery (max 10)</FieldLabel>
+                  <ImageUploaderPro
+                    multiple
+                    value={field.value || []}
+                    onChange={(v) => {
+                      const arr = Array.isArray(v) ? v : v ? [v] : [];
+                      if (arr.length > 10) {
+                        toast.error("You can upload up to 10 images only");
+                        arr.splice(10);
+                      }
+                      field.onChange(arr);
+                    }}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Optional. Upload up to 10 additional images for the customer.
+                  </p>
+                  <FieldError>{fieldState?.error?.message}</FieldError>
+                </Field>
+              )}
+            />
           </CardContent>
         </Card>
 

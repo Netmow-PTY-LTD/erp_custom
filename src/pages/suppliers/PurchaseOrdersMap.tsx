@@ -28,7 +28,7 @@ const defaultMapData = {
 };
 
 const PurchaseOrdersMapPage: React.FC = () => {
-    const { data } =   useGetPurchaseMapsQuery();
+    const { data } = useGetPurchaseMapsQuery();
 
     const mapData = data?.data ?? defaultMapData;
     const locations = mapData.locations;
@@ -49,7 +49,7 @@ const PurchaseOrdersMapPage: React.FC = () => {
                 center={center}
                 zoom={6}
                 scrollWheelZoom={true}
-                 className="w-full h-[clamp(320px,60vh,720px)] rounded-lg shadow z-0"
+                className="w-full h-[clamp(320px,60vh,720px)] rounded-lg shadow z-0"
             >
                 <ResizeMap />
                 <TileLayer
@@ -61,37 +61,47 @@ const PurchaseOrdersMapPage: React.FC = () => {
                     {locations
                         .filter(loc => loc.coordinates.lat && loc.coordinates.lng) // filter only valid coordinates
                         .map(loc => (
-                        <Marker
-                            key={loc.id}
-                            position={[loc.coordinates.lat!, loc.coordinates.lng!]}
-                        >
-                            <Popup  maxWidth={260} minWidth={200}>
-                                <div className="text-sm">
-                                    <strong>{loc.po_number}</strong>
-                                    <br />
-                                    Status: {loc.status}
-                                    <br />
-                                    Total: RM {loc.total_amount.toFixed(2)}
-                                    <br />
-                                    Order Date: {new Date(loc.order_date).toLocaleDateString()}
-                                    <br />
-                                    Expected Delivery: {new Date(loc.expected_delivery_date).toLocaleDateString()}
-                                    <hr className="my-1" />
-                                    <strong>Supplier:</strong> {loc.supplier.name}
-                                    <br />
-                                    Contact: {loc.supplier.contact_person || "-"}
-                                    <br />
-                                    Phone: {loc.supplier.phone || "-"}
-                                    <br />
-                                    Email: {loc.supplier.email || "-"}
-                                    <br />
-                                    Address: {loc.supplier.address || "-"}
-                                    <br />
-                                    City: {loc.supplier.city || "-"}
-                                </div>
-                            </Popup>
-                        </Marker>
-                    ))}
+                            <Marker
+                                key={loc.id}
+                                position={[loc.coordinates.lat!, loc.coordinates.lng!]}
+                            >
+                                <Popup maxWidth={260} minWidth={200}>
+                                    <div className="text-sm">
+                                        <strong>{loc.po_number}</strong>
+                                        <br />
+                                        Status: {loc.status}
+                                        <br />
+                                        Total: RM {loc.total_amount.toFixed(2)}
+                                        <br />
+                                        Order Date: {new Date(loc.order_date).toLocaleDateString()}
+                                        <br />
+                                        Expected Delivery: {new Date(loc.expected_delivery_date).toLocaleDateString()}
+                                        <hr className="my-1" />
+                                        <strong>Supplier:</strong> {loc.supplier.name}
+                                        <br />
+                                        Contact: {loc.supplier.contact_person || "-"}
+                                        <br />
+                                        Phone: {loc.supplier.phone || "-"}
+                                        <br />
+                                        Email: {loc.supplier.email || "-"}
+                                        <br />
+                                        Address: {loc.supplier.address || "-"}
+                                        <br />
+                                        City: {loc.supplier.city || "-"}
+                                        <div className="mt-3">
+                                            <a
+                                                href={`https://www.waze.com/ul?ll=${loc.coordinates.lat},${loc.coordinates.lng}&navigate=yes`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block text-center px-3 py-1.5 bg-[#33CCFF] text-white rounded font-bold text-xs hover:bg-[#2EB8E6] transition-colors"
+                                            >
+                                                Navigate with Waze
+                                            </a>
+                                        </div>
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        ))}
                 </MarkerClusterGroup>
             </MapContainer>
 

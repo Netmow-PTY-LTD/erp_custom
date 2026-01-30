@@ -40,7 +40,7 @@ export const salesApiService = baseApi.injectEndpoints({
     // GET ALL SALES ORDERS
     getAllSalesOrders: builder.query<
       SalesResponse<SalesOrder[]>,
-      { page?: number; limit?: number; search?: string; status?: string }
+      { page?: number; limit?: number; search?: string; status?: string; customer_id?: number | string }
     >({
       query: (params) => ({
         url: "/sales/orders",
@@ -282,6 +282,32 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesOrdersByRoute", "SalesOrders"],
     }),
 
+    // E-INVOICE
+    generateEInvoice: builder.mutation<SalesResponse<any>, number | string>({
+      query: (id) => ({
+        url: `/sales/orders/invoices/${id}/einvoice/generate`,
+        method: "POST",
+      }),
+      invalidatesTags: ["SalesInvoices", "SalesInvoice"],
+    }),
+
+    submitEInvoice: builder.mutation<SalesResponse<any>, number | string>({
+      query: (id) => ({
+        url: `/sales/orders/invoices/${id}/einvoice/submit`,
+        method: "POST",
+      }),
+      invalidatesTags: ["SalesInvoices", "SalesInvoice"],
+    }),
+
+    getOrdersItems: builder.query<SalesResponse<any[]>, string>({
+      query: (orderIds) => ({
+        url: `/sales/orders-items`,
+        method: "GET",
+        params: { orders: orderIds },
+      }),
+      providesTags: ["SalesOrders"],
+    }),
+
 
   }),
 });
@@ -307,4 +333,8 @@ export const {
   useUpdateSalesOrderStatusMutation,
   useGetSalesOrdersByRouteQuery,
   useAssignStaffToOrderMutation,
+  useGenerateEInvoiceMutation,
+  useSubmitEInvoiceMutation,
+  useGetOrdersItemsQuery,
+  useLazyGetOrdersItemsQuery,
 } = salesApiService;

@@ -63,6 +63,51 @@ export const settingsApiService = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Settings"],
     }),
+    getEInvoiceSettings: builder.query<any, void>({
+      query: () => ({
+        url: `/settings/einvoice`,
+        method: "GET",
+      }),
+      providesTags: ["Settings"],
+    }),
+    updateEInvoiceSettings: builder.mutation<any, any>({
+      query: (body) => ({
+        url: `/settings/einvoice`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Settings"],
+    }),
+    getGoogleMapsSettings: builder.query<any, void>({
+      query: () => ({
+        url: `/settings/google-maps`,
+        method: "GET",
+      }),
+      providesTags: ["Settings"],
+    }),
+    updateGoogleMapsSettings: builder.mutation<any, any>({
+      query: (body) => ({
+        url: `/settings/google-maps`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Settings"],
+    }),
+    getNumberingSequences: builder.query<any, void>({
+      query: () => ({
+        url: `/settings/numbering-sequences`,
+        method: "GET",
+      }),
+      providesTags: ["Settings"],
+    }),
+    updateNumberingSequences: builder.mutation<any, any>({
+      query: (body) => ({
+        url: `/settings/numbering-sequences`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Settings"],
+    }),
   }),
 });
 
@@ -70,5 +115,11 @@ export const {
   useGetSettingsInfoQuery,
   useUpdateSettingsInfoMutation,
   useGetLayoutSettingsQuery,
-  useUpdateLayoutSettingsMutation
+  useUpdateLayoutSettingsMutation,
+  useGetEInvoiceSettingsQuery,
+  useUpdateEInvoiceSettingsMutation,
+  useGetGoogleMapsSettingsQuery,
+  useUpdateGoogleMapsSettingsMutation,
+  useGetNumberingSequencesQuery,
+  useUpdateNumberingSequencesMutation
 } = settingsApiService;

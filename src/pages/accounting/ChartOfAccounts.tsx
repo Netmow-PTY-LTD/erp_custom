@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, ChevronsUpDown, Check, ShieldAlert, FileText } from "lucide-react";
+import { Plus, Edit, ChevronsUpDown, Check, ShieldAlert, FileText, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +38,7 @@ import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router";
+import { format } from "date-fns";
 
 
 import {
@@ -45,8 +46,7 @@ import {
     useGetAccountingAccountsQuery,
     useLazyGetAccountingAccountsQuery,
     useAddAccountingAccountMutation,
-    useUpdateAccountingAccountMutation,
-    // useDeleteAccountingAccountMutation
+    useUpdateAccountingAccountMutation
 } from "@/store/features/accounting/accoutntingApiService";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
@@ -78,7 +78,7 @@ export default function ChartOfAccounts() {
 
     const [addAccountingAccount, { isLoading }] = useAddAccountingAccountMutation();
     const [updateAccountingAccount] = useUpdateAccountingAccountMutation();
-    // const [deleteAccountingAccount] = useDeleteAccountingAccountMutation();
+
 
     const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<CreateAccountFormValues>({
         defaultValues: { name: "", code: "", type: undefined, parent_id: undefined },
@@ -216,16 +216,76 @@ export default function ChartOfAccounts() {
             ),
 
         },
-        { accessorKey: "type", header: "Type", cell: ({ row }) => <Badge variant="outline">{row.original.type}</Badge> },
+        {
+            accessorKey: "type",
+            header: "Type",
+            cell: ({ row }) => {
+                const originalType = row.original.type || "";
+                const type = originalType.toUpperCase();
+                let colorClass = "";
+
+                switch (type) {
+                    case "ASSET":
+                        colorClass = "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200 shadow-xs shadow-blue-100";
+                        break;
+                    case "LIABILITY":
+                        colorClass = "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-200 shadow-xs shadow-orange-100";
+                        break;
+                    case "EQUITY":
+                        colorClass = "bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200 shadow-xs shadow-purple-100";
+                        break;
+                    case "INCOME":
+                        colorClass = "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200 shadow-xs shadow-emerald-100";
+                        break;
+                    case "EXPENSE":
+                        colorClass = "bg-rose-100 text-rose-800 border-rose-200 hover:bg-rose-200 shadow-xs shadow-rose-100";
+                        break;
+                    default:
+                        colorClass = "bg-gray-100 text-gray-800 border-gray-200";
+                }
+
+                return <Badge className={cn("border px-2.5 py-0.5 rounded-full font-semibold transition-colors", colorClass)} variant="secondary">{originalType}</Badge>;
+            }
+        },
         {
             accessorKey: "debit",
-            header: "Debit",
-            cell: ({ row }) => <span className="font-medium text-emerald-600">RM {Number(row.original.debit || 0).toLocaleString()}</span>
+            header: () => <div className="text-right">Debit (RM)</div>,
+            cell: ({ row }) => (
+                <div className="text-right font-medium text-emerald-600">
+                    {Number(row.original.debit || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+            )
         },
         {
             accessorKey: "credit",
-            header: "Credit",
-            cell: ({ row }) => <span className="font-medium text-rose-600">RM {Number(row.original.credit || 0).toLocaleString()}</span>
+            header: () => <div className="text-right">Credit (RM)</div>,
+            cell: ({ row }) => (
+                <div className="text-right font-medium text-rose-600">
+                    {Number(row.original.credit || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+            )
+        },
+        {
+            id: "balance",
+            header: () => <div className="text-right">Balance (RM)</div>,
+            cell: ({ row }) => {
+                const debit = Number(row.original.debit || 0);
+                const credit = Number(row.original.credit || 0);
+                const type = row.original.type.toLowerCase();
+
+                let balance = 0;
+                if (["asset", "expense"].includes(type)) {
+                    balance = debit - credit;
+                } else {
+                    balance = credit - debit;
+                }
+
+                return (
+                    <div className={cn("text-right font-bold", balance >= 0 ? "text-slate-900" : "text-amber-600")}>
+                        {balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                );
+            }
         },
         {
             id: "actions",
@@ -269,12 +329,21 @@ export default function ChartOfAccounts() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Chart of Accounts</h2>
                     <p className="text-muted-foreground">Manage your financial head hierarchy.</p>
                 </div>
                 <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2"
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print
+                    </Button>
+
                     <CreateIncomeHeadForm />
                     <CreateExpenseHeadForm />
 
@@ -361,8 +430,15 @@ export default function ChartOfAccounts() {
                 </div>
             </div>
 
-            <Card className="py-6">
-                <CardHeader><CardTitle>Accounts List</CardTitle></CardHeader>
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">CHART OF ACCOUNTS</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold italic">
+                    Report Generated On: {format(new Date(), 'd MMMM yyyy')}
+                </div>
+            </div>
+
+            <Card className="py-6 border-none shadow-none print:shadow-none print:border-none">
+                <CardHeader className="print:hidden"><CardTitle>Accounts List</CardTitle></CardHeader>
                 <CardContent>
                     <DataTable
                         columns={accountColumns}
@@ -376,6 +452,73 @@ export default function ChartOfAccounts() {
                     />
                 </CardContent>
             </Card>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 10px !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 3px 6px !important;
+                        font-size: 9px !important;
+                    }
+                    th {
+                        line-height: 2 !important;
+                        padding: 8px 6px !important;
+                        text-transform: uppercase !important;
+                    }
+                    /* Aggressively remove unnecessary gaps but keep requested heading margin */
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                    /* Ensure table container has no top padding */
+                    div:has(> table), .rounded-md.border {
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        border: none !important;
+                    }
+                    /* Hide Actions column when printing */
+                    th:last-child, 
+                    td:last-child {
+                        display: none !important;
+                    }
+                    /* Hide search input in DataTable when printing */
+                    [placeholder="Search..."], 
+                    .flex.items-center.justify-between.py-4 {
+                        display: none !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

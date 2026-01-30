@@ -22,7 +22,16 @@ import {
   Pencil,
   Tags,
   Trash,
+  Filter,
+  Printer
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
 import type { Product } from "@/types/types";
@@ -31,9 +40,12 @@ import {
   useDeleteProductMutation,
   useGetAllProductsQuery,
   useGetProductStatsQuery,
+  useGetAllCategoriesQuery,
 } from "@/store/features/admin/productsApiService";
-import { toast } from "sonner";
+import { format } from "date-fns";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { useAppSelector } from "@/store/store";
+import { toast } from "sonner";
 import { selectCurrency } from "@/store/currencySlice";
 // import { ProductPermission } from "@/config/permissions";
 
@@ -44,13 +56,17 @@ import {
 import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function Products() {
+  const { data: settingsData } = useGetSettingsInfoQuery();
+  const from = settingsData?.data;
+
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [previewData, setPreviewData] = useState<{
     images: string[];
     index: number;
   } | null>(null);
-  const limit = 10;
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [limit, setLimit] = useState<number>(10);
 
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
@@ -114,7 +130,15 @@ export default function Products() {
     data: fetchedProducts,
     isFetching,
     refetch: refetchProducts,
-  } = useGetAllProductsQuery({ page, limit, search });
+  } = useGetAllProductsQuery({
+    page,
+    limit,
+    search,
+    category_id: selectedCategory !== "all" ? selectedCategory : undefined,
+  });
+
+  const { data: categoriesData } = useGetAllCategoriesQuery();
+  const categories = categoriesData?.data || [];
 
   const products: Product[] = fetchedProducts?.data || [];
   //console.log("Fetched Products: ", fetchedProducts);
@@ -170,16 +194,27 @@ export default function Products() {
     {
       accessorKey: "name",
       header: "Product Name",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {row.original.name}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {row.original.specification || "—"}
+          </span>
+        </div>
+      )
     },
     {
       accessorKey: "thumb_url",
       header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => (
         <img
           src={row.original.thumb_url}
           alt={row.original.name}
-          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+          className="w-20 h-20 rounded-full cursor-pointer hover:opacity-80 transition-opacity shrink-0"
           onClick={() =>
             setPreviewData({
               images: [row.original.thumb_url].filter(Boolean),
@@ -193,11 +228,6 @@ export default function Products() {
       accessorKey: "category",
       header: "Category",
       cell: ({ row }) => row?.original?.category?.name
-    },
-    {
-      accessorKey: "specifications",
-      header: "Specifications",
-      cell: ({ row }) => row?.original?.specification
     },
     {
       accessorKey: "cost",
@@ -336,35 +366,63 @@ export default function Products() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6 print:hidden">
         <h2 className="text-3xl font-semibold">Product Management</h2>
 
         <div className="flex flex-wrap items-center gap-4">
+          <div className="w-[200px]">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                setSelectedCategory(value);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                <SelectValue placeholder="Filter by Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={String(category.id)}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">
             <AlertCircle size={18} />
             Stock Alerts
           </button> */}
 
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
+            <Printer size={18} />
+            Print
+          </button>
+
           <Link to="/dashboard/products/categories">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none print:hidden">
               <Tags size={18} />
               Categories
             </button>
           </Link>
 
           <Link to="/dashboard/products/create">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none print:hidden">
               <PackagePlus size={18} />
               Add Product
             </button>
           </Link>
-
-
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="flex flex-wrap gap-6 mb-6">
+      <div className="flex flex-wrap gap-6 mb-6 print:hidden">
         {stats.map((item, idx) => (
           <div
             key={idx}
@@ -393,26 +451,61 @@ export default function Products() {
           </div>
         ))}
       </div>
-      <Card className="pt-6 pb-2">
-        <CardHeader>
-          <CardTitle>All Products</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={productColumns}
-            data={products}
-            pageIndex={page - 1}
-            pageSize={limit}
-            totalCount={pagination.total}
-            onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-            onSearch={(value) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            isFetching={isFetching}
-          />
-        </CardContent>
-      </Card>
+
+      <div className="print:w-full print:m-0 print:p-0">
+        {/* Print Only Header */}
+        <div id="invoice" className="hidden print:block mb-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col gap-2 mt-2 details-text text-left">
+              <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+              <p className="leading-tight max-w-[400px]">
+                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+              </p>
+              <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
+            </div>
+            <div className="text-right flex flex-col items-end">
+              <div className="mb-1">
+                {from?.logo_url ? (
+                  <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                    F&Z
+                  </div>
+                )}
+              </div>
+              <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Product List</h2>
+              <div className="details-text space-y-1">
+                <p><strong>Date:</strong> {format(new Date(), "dd/MM/yyyy")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
+          <CardHeader className="print:hidden">
+            <CardTitle>All Products</CardTitle>
+          </CardHeader>
+          <CardContent className="print:p-0">
+            <DataTable
+              columns={productColumns}
+              data={products}
+              pageIndex={page - 1}
+              pageSize={limit}
+              totalCount={pagination.total}
+              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onSearch={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+              onPageSizeChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1); // Reset to first page when limit changes
+              }}
+              isFetching={isFetching}
+            />
+          </CardContent>
+        </Card>
+      </div>
       <Dialog
         open={!!previewData}
         onOpenChange={(open) => !open && setPreviewData(null)}
@@ -506,6 +599,88 @@ export default function Products() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Print Styles */}
+      <style>{`
+        @media print {
+          @page {
+            margin: 5mm;
+            size: A4 landscape;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            font-size: 11px !important;
+            background: white !important;
+            color: black !important;
+          }
+          .no-print, 
+          header, 
+          nav, 
+          aside, 
+          button, 
+          input,
+          .max-w-sm,
+          .print\\:hidden,
+          .flex.flex-wrap.gap-6.mb-6,
+          .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
+            display: none !important;
+          }
+          #invoice {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          h1 { font-size: 11px !important; }
+          h2 { font-size: 11px !important; }
+          table { 
+            font-size: 11px !important; 
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: auto !important;
+          }
+          th, td { 
+            border: 1px solid #ddd !important;
+            padding: 4px !important; 
+            font-size: 11px !important;
+          }
+          .details-text, .table-text { 
+            font-size: 11px !important; 
+            line-height: 1.2 !important; 
+          }
+          .company-name {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .text-sm, .text-xs, .text-base, .text-lg, .text-xl, .font-bold, .font-semibold, span, p, div { 
+            font-size: 11px !important; 
+          }
+          .mb-6 { margin-bottom: 8px !important; }
+          .mb-4 { margin-bottom: 4px !important; }
+          
+          /* Hide non-essential columns for product list print */
+          th:nth-child(3), td:nth-child(3), /* Image */
+          th:nth-child(10), td:nth-child(10), /* Status */
+          th:last-child, td:last-child { /* Actions */
+            display: none !important;
+          }
+
+          /* Ensure table container matches header width */
+          .Card, .CardContent, .rounded-xl, .border {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+          .flex.flex-wrap.gap-6.mb-6 {
+            display: none !important;
+          }
+        }
+        /* Standardizing screen sizes */
+        .company-name { font-size: 18px !important; line-height: 1.2; }
+        .details-text { font-size: 12px !important; line-height: 1.4; }
+        .table-text { font-size: 12px !important; }
+      `}</style>
     </div>
   );
 }

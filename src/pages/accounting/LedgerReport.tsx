@@ -18,7 +18,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown, CornerDownRight } from "lucide-react";
+import { Check, ChevronDown, CornerDownRight, ArrowUpRight, ArrowDownLeft, Calendar as CalendarIcon, Printer } from "lucide-react";
 import {
     Command,
     CommandEmpty,
@@ -36,7 +36,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // Dummy Data removed
 
 export default function LedgerReport() {
@@ -96,14 +96,38 @@ export default function LedgerReport() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Ledger Report</h2>
                     <p className="text-muted-foreground">View detailed transaction history for a specific account.</p>
                 </div>
+                <Button
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="flex items-center gap-2"
+                >
+                    <Printer className="h-4 w-4" />
+                    Print
+                </Button>
             </div>
 
-            <Card>
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">LEDGER REPORT</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold">
+                    <div className="text-lg mb-1">{selectedAccount ? `ACCOUNT: ${selectedAccount.name} (${selectedAccount.code})` : "ACCOUNT: ALL"}</div>
+                    {dateRange?.from ? (
+                        <>
+                            <span>From: {format(dateRange.from, 'd MMMM yyyy')}</span>
+                            {dateRange.to && <span> - To: {format(dateRange.to, 'd MMMM yyyy')}</span>}
+                        </>
+                    ) : (
+                        <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+                    )}
+                </div>
+            </div>
+
+            <Card className="print:hidden">
                 <CardContent className="p-6">
                     <div className="grid md:grid-cols-3 gap-4 items-end">
                         <div className="space-y-2">
@@ -189,39 +213,70 @@ export default function LedgerReport() {
             </Card>
 
             {/* Summary Header */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="py-6">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Opening Balance</CardDescription>
-                        <CardTitle className="text-2xl">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : Number(reportData?.opening_balance || 0).toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card className="py-6">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Total Debit</CardDescription>
-                        <CardTitle className="text-2xl text-emerald-600">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : totalDebit.toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card className="py-6">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Total Credit</CardDescription>
-                        <CardTitle className="text-2xl text-red-600">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : totalCredit.toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
-                <Card className="py-6 bg-primary/5 border-primary/20">
-                    <CardHeader className="pb-2">
-                        <CardDescription>Closing Balance</CardDescription>
-                        <CardTitle className="text-2xl text-primary">
-                            {isReportLoading ? <Skeleton className="h-8 w-24" /> : Number(reportData?.closing_balance || 0).toFixed(2)}
-                        </CardTitle>
-                    </CardHeader>
-                </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:hidden">
+                {/* Opening Balance */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-400 p-6 shadow-lg shadow-blue-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Opening Balance</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${Number(reportData?.opening_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <CalendarIcon className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Total Debit */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-400 p-6 shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Total Debit</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <ArrowUpRight className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Total Credit */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-600 to-rose-400 p-6 shadow-lg shadow-rose-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Total Credit</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <ArrowDownLeft className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Closing Balance */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 to-violet-400 p-6 shadow-lg shadow-violet-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
+                    <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+                    <div className="relative flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-white/90 uppercase tracking-widest">Closing Balance</p>
+                            <h3 className="mt-2 text-2xl font-bold text-white">
+                                {isReportLoading ? <Skeleton className="h-8 w-24 bg-white/20" /> : `RM ${Number(reportData?.closing_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                            </h3>
+                        </div>
+                        <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
+                            <CornerDownRight className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Card className="py-6">
@@ -234,9 +289,9 @@ export default function LedgerReport() {
                             <TableRow>
                                 <TableHead>Date</TableHead>
                                 <TableHead>Particulars</TableHead>
-                                <TableHead className="text-right text-emerald-600">Debit</TableHead>
-                                <TableHead className="text-right text-red-600">Credit</TableHead>
-                                <TableHead className="text-right font-bold">Balance</TableHead>
+                                <TableHead className="text-right text-emerald-600">Debit (RM)</TableHead>
+                                <TableHead className="text-right text-red-600">Credit (RM)</TableHead>
+                                <TableHead className="text-right font-bold">Balance (RM)</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -273,6 +328,71 @@ export default function LedgerReport() {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .text-lg {
+                        font-size: 14px !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 3px 6px !important;
+                        font-size: 9px !important;
+                    }
+                    th {
+                        line-height: 1.2 !important;
+                        padding: 4px 6px !important;
+                        text-transform: uppercase !important;
+                    }
+                    /* Aggressively remove unnecessary gaps but keep requested heading margin */
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                    /* Ensure table container has no top padding */
+                    div:has(> table), .rounded-md.border {
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        border: none !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

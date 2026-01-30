@@ -24,7 +24,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, MapPin, Package, ArrowRight, Loader2 } from "lucide-react";
+import { Search, MapPin, Package, ArrowRight, Loader2, ChevronLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetSalesOrdersByRouteQuery } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
@@ -59,6 +59,7 @@ const RouteWiseOrder = () => {
     const [page, setPage] = useState(1);
     const [allRoutes, setAllRoutes] = useState<Route[]>([]);
     const [hasMore, setHasMore] = useState(true);
+    const [showDetails, setShowDetails] = useState(false);
 
     const { data: routeData, isFetching } = useGetSalesOrdersByRouteQuery({
         search: routeSearch,
@@ -148,9 +149,9 @@ const RouteWiseOrder = () => {
 
 
     return (
-        <div className="flex h-[calc(100vh-6rem)] gap-6 p-6 overflow-hidden bg-background">
+        <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-6rem)] gap-4 lg:gap-6 lg:p-6 overflow-hidden bg-background">
             {/* Left Sidebar: Route List */}
-            <Card className="w-1/3 flex flex-col h-full border-r shadow-sm p-2">
+            <Card className={`${showDetails ? "hidden lg:flex" : "flex"} w-full lg:w-1/3 flex-col h-full border-r shadow-sm p-2`}>
                 <CardHeader className="pb-4 border-b bg-card">
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-primary" />
@@ -174,7 +175,10 @@ const RouteWiseOrder = () => {
                                     <button
                                         ref={lastRouteElementRef}
                                         key={route.id}
-                                        onClick={() => setSelectedRouteId(route.id)}
+                                        onClick={() => {
+                                            setSelectedRouteId(route.id);
+                                            setShowDetails(true);
+                                        }}
                                         className={`w-full text-left p-3 rounded-lg transition-all border hover:bg-accent group
                                             ${selectedRouteId === route.id
                                                 ? "bg-primary/5 border-primary shadow-sm"
@@ -201,7 +205,10 @@ const RouteWiseOrder = () => {
                                 return (
                                     <button
                                         key={route.id}
-                                        onClick={() => setSelectedRouteId(route.id)}
+                                        onClick={() => {
+                                            setSelectedRouteId(route.id);
+                                            setShowDetails(true);
+                                        }}
                                         className={`w-full text-left p-3 rounded-lg transition-all border hover:bg-accent group
                                             ${selectedRouteId === route.id
                                                 ? "bg-primary/5 border-primary shadow-sm"
@@ -246,26 +253,33 @@ const RouteWiseOrder = () => {
             </Card>
 
             {/* Right Panel: Order Details */}
-            <Card className="flex-1 flex flex-col h-full shadow-sm overflow-hidden p-2">
+            <Card className={`${showDetails ? "flex" : "hidden lg:flex"} flex-1 flex flex-col h-full shadow-sm overflow-hidden p-2`}>
                 {selectedRoute ? (
                     <>
                         {/* Header Section */}
-                        <CardHeader className="pb-5 border-b bg-card/50 backdrop-blur-sm">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                                        {selectedRoute.name}
-                                    </CardTitle>
-                                    <CardDescription className="flex items-center gap-2 mt-2">
-                                        <MapPin className="h-3.5 w-3.5" />
-                                        {selectedRoute.region}
-                                    </CardDescription>
+                        <CardHeader className="p-4 md:p-6 pb-5 border-b bg-card/50 backdrop-blur-sm">
+                            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setShowDetails(false)}
+                                        className="lg:hidden p-2 -ml-2 hover:bg-accent rounded-full transition-colors"
+                                    >
+                                        <ChevronLeft className="h-5 w-5" />
+                                    </button>
+                                    <div>
+                                        <CardTitle className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                                            {selectedRoute.name}
+                                        </CardTitle>
+                                        <CardDescription className="flex items-center gap-2 mt-1 md:mt-2">
+                                            <MapPin className="h-3.5 w-3.5" />
+                                            {selectedRoute.region}
+                                        </CardDescription>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-2">
-                                    <div className="text-sm text-muted-foreground font-medium">Total Volume</div>
-                                    <div className="text-2xl font-bold text-primary flex items-center gap-1">
+                                <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2 bg-primary/5 sm:bg-transparent p-3 sm:p-0 rounded-xl border border-primary/10 sm:border-none">
+                                    <div className="text-xs md:text-sm text-muted-foreground font-medium">Total Volume</div>
+                                    <div className="text-xl md:text-2xl font-bold text-primary flex items-center gap-1">
                                         {currency} {totalAmount.toLocaleString()}
-
                                     </div>
                                 </div>
                             </div>
@@ -291,7 +305,7 @@ const RouteWiseOrder = () => {
                                         type="date"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        className="h-8 w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
+                                        className="h-8 w-full sm:w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
                                     />
 
                                     {/* Separator */}
@@ -302,7 +316,7 @@ const RouteWiseOrder = () => {
                                         type="date"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        className="h-8 w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
+                                        className="h-8 w-full sm:w-[140px] text-sm font-normal cursor-pointer border-none shadow-none focus-visible:ring-0 px-1"
                                     />
 
                                     {/* Clear button */}

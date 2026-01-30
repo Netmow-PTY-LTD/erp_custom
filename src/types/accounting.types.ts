@@ -121,6 +121,9 @@ export type Transaction = {
   amount: number;
   payment_mode: string;
   description: string;
+  person?: string;
+  supplier?: string;
+  category?: string;
 };
 
 export type CreateTransactionInput = {
@@ -149,6 +152,7 @@ export type ProductProfitLoss = {
   product_id: number;
   product_name: string;
   sku: string;
+  specification?: string;
   quantity_sold: number;
   revenue: number;
   cost: number;
@@ -179,4 +183,56 @@ export type LedgerReportResponse = {
     closing_balance: number;
     transactions: LedgerTransaction[];
   };
+};
+
+// -------------------- TAX SUBMISSIONS --------------------
+export type TaxSubmission = {
+  id: number;
+  tax_type: string;
+  period_start: string;
+  period_end: string;
+  amount: number;
+  submission_date: string;
+  reference_number?: string;
+  attachment_url?: string;
+  status: 'PENDING' | 'SUBMITTED' | 'PAID';
+  notes?: string;
+  payment_mode: 'BANK' | 'CASH';
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type CreateTaxSubmissionInput = {
+  tax_type: string;
+  period_start: string;
+  period_end: string;
+  amount: number;
+  submission_date: string;
+  reference_number?: string;
+  attachment_url?: string;
+  status?: 'PENDING' | 'SUBMITTED' | 'PAID';
+  notes?: string;
+  payment_mode?: 'BANK' | 'CASH';
+};
+// -------------------- BALANCE SHEET --------------------
+export type BalanceSheetItem = {
+  name: string;
+  code: string;
+  balance: number;
+};
+
+export type BalanceSheetData = {
+  assets: BalanceSheetItem[];
+  liabilities: BalanceSheetItem[];
+  equity: BalanceSheetItem[];
+  total_assets: number;
+  total_liabilities: number;
+  total_equity: number;
+  as_of_date: string;
+};
+
+export type BalanceSheetResponse = {
+  status: boolean;
+  message: string;
+  data: BalanceSheetData;
 };

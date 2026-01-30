@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import CheckInLocationModal from "./CheckInLocationModal";
 import { useGetAllStaffAttendanceQuery, type StaffAttendance } from "@/store/features/checkIn/checkIn";
 import ClenderButton from "./ClenderButton";
+import { MapPin, Car } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /* ================= COMPONENT ================= */
 
@@ -64,22 +66,45 @@ export default function CheckInList(): JSX.Element {
       {
         id: "location",
         header: "Location",
-        cell: ({ row }) =>
-          row.original.latitude && row.original.longitude
-            ? `${row.original.latitude.toFixed(4)}, ${row.original.longitude.toFixed(4)}`
-            : row.original.customer.address || "—",
-      },
-      {
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }) => (
-          <button
-            className="border px-3 py-1 rounded hover:bg-gray-100 text-sm"
-            onClick={() => setLocationItem(row.original)}
-          >
-            View Location
-          </button>
-        ),
+        cell: ({ row }) => {
+          const { latitude, longitude, customer } = row.original;
+          const hasLocation = (latitude && longitude) || customer?.address;
+
+          const handleWazeClick = () => {
+            let url = "";
+            if (latitude && longitude) {
+              url = `https://www.waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
+            } else if (customer?.address) {
+              url = `https://www.waze.com/ul?q=${encodeURIComponent(customer.address)}`;
+            }
+            if (url) window.open(url, "_blank");
+          };
+
+          if (!hasLocation) return <span className="text-muted-foreground text-xs">—</span>;
+
+          return (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-primary"
+                onClick={() => setLocationItem(row.original)}
+                title="View Map"
+              >
+                <MapPin className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-orange-500"
+                onClick={handleWazeClick}
+                title="Open in Waze"
+              >
+                <Car className="h-4 w-4" />
+              </Button>
+            </div>
+          );
+        },
       },
     ],
     []
@@ -88,8 +113,8 @@ export default function CheckInList(): JSX.Element {
   /* ================= UI ================= */
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Check In List</h1>
         <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
       </div>

@@ -11,6 +11,7 @@ import type {
   CreateTransactionInput,
   LedgerReportResponse,
   ProductProfitLossResponse,
+  BalanceSheetResponse,
 } from "@/types/accounting.types";
 
 
@@ -213,6 +214,33 @@ export interface ProfitLossResponse {
   };
 }
 
+// -------------------- TAX SUBMISSIONS --------------------
+
+export interface TaxSubmission {
+  id: number;
+  tax_type: string;
+  period_start: string;
+  period_end: string;
+  amount: number;
+  submission_date: string;
+  reference_number: string | null;
+  attachment_url: string | null;
+  status: 'PENDING' | 'SUBMITTED' | 'PAID';
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaxSubmissionStats {
+  total_tax: number;
+  total_paid: number;
+  total_due: number;
+}
+
+export type TaxSubmissionResponse = ListResponse<TaxSubmission> & {
+  stats: TaxSubmissionStats;
+};
+
 
 
 
@@ -249,7 +277,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL INCOMES
     getIncomes: builder.query<
       IncomeResponse,
-      { page?: number; limit?: number; search?: string; date?: string }
+      { page?: number; limit?: number; search?: string; date?: string; from?: string; to?: string }
     >({
       query: (params) => ({
         url: "/accounting/incomes",
@@ -268,7 +296,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL EXPENSES
     getExpenses: builder.query<
       ExpenseResponse,
-      { page?: number; limit?: number; search?: string; date?: string }
+      { page?: number; limit?: number; search?: string; date?: string; from?: string; to?: string }
     >({
       query: (params) => ({
         url: "/accounting/expenses",
@@ -505,6 +533,16 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET BALANCE SHEET
+    getBalanceSheet: builder.query<BalanceSheetResponse, { date?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/balance-sheet",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
     // GET PRODUCT PROFIT LOSS
     getProductProfitLoss: builder.query<ProductProfitLossResponse, { from?: string; to?: string }>({
       query: (params) => ({
@@ -582,6 +620,32 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET TAX SUBMISSIONS
+    getTaxSubmissions: builder.query<TaxSubmissionResponse, { page?: number; limit?: number; tax_type?: string; status?: string }>({
+      query: (params) => ({
+        url: "/accounting/tax-submissions",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
+    // ADD TAX SUBMISSION
+    addTaxSubmission: builder.mutation<TaxSubmission, Partial<TaxSubmission>>({
+      query: (body) => ({
+        url: "/accounting/tax-submissions",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Accounting"],
+    }),
+
+    // SEED ACCOUNTING ACCOUNTS
+    seedAccountingAccounts: builder.mutation<{ status: boolean; message: string; data: any }, void>({
+      query: () => ({ url: "/accounting/accounts/seed", method: "POST" }),
+      invalidatesTags: ["AccountingAccounts"],
+    }),
+
 
 
 
@@ -629,9 +693,13 @@ export const {
   useAddTransactionMutation,
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
+  useGetBalanceSheetQuery,
   useGetProductProfitLossQuery,
   useGetExpenseHeadsQuery,
   useAddExpenseHeadwiseMutation,
   useGetLedgerReportQuery,
   useGetIncomeExpenseTrendQuery,
+  useGetTaxSubmissionsQuery,
+  useAddTaxSubmissionMutation,
+  useSeedAccountingAccountsMutation,
 } = accountingApiService;

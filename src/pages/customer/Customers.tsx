@@ -7,6 +7,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   Users,
   UserCheck,
+  UserX,
   DollarSign,
   UserPlus,
   PackagePlus,
@@ -17,7 +18,18 @@ import {
   Edit,
   Eye,
   ShoppingCart,
+  Filter,
+  AlertCircle,
+  Printer,
+  Car
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +47,8 @@ import {
 } from "@/store/features/customers/customersApi";
 import type { Customer } from "@/store/features/customers/types";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,6 +73,9 @@ export default function Customers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [mapLocation, setMapLocation] = useState<string | null>(null);
+  const [sort, setSort] = useState<string>("newest");
+  const { data: settingsData } = useGetSettingsInfoQuery();
+  const from = settingsData?.data;
   const [previewData, setPreviewData] = useState<{
     images: string[];
     index: number;
@@ -81,6 +98,7 @@ export default function Customers() {
     page: currentPage,
     limit: pageSize,
     search: searchTerm || undefined,
+    sort: sort !== 'newest' ? sort : undefined
   });
 
   const [deleteCustomer, { isLoading: isDeleting }] =
@@ -105,21 +123,16 @@ export default function Customers() {
 
   // Calculate stats from customers
 
+  // Calculate stats from customers
   const { data: customerStats } = useGetCustomerStatsQuery(undefined);
 
-  const activeCustomers = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "Active Customers"
-  )?.[0]?.value || 0;
-
-  console.log("activeCustomers", activeCustomers);
-
-  const totalRevenue = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "Total Revenue"
-  )?.[0]?.value || 0;
-
-  const totalNewCustomers = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "New Customers"
-  )?.[0]?.value || 0;
+  const activeCustomers = customerStats?.data?.find((c: any) => c.label === "All Active Customers")?.value || 0;
+  const totalCustomersStat = customerStats?.data?.find((c: any) => c.label === "Total Customers")?.value || 0;
+  const newCustomers = customerStats?.data?.find((c: any) => c.label === "New Customers")?.value || 0;
+  const inactiveCustomers = customerStats?.data?.find((c: any) => c.label === "Inactive Customers")?.value || 0;
+  const totalSales = customerStats?.data?.find((c: any) => c.label === "Total Sales Amount")?.value || 0;
+  const totalPaid = customerStats?.data?.find((c: any) => c.label === "Total Paid")?.value || 0;
+  const totalDue = customerStats?.data?.find((c: any) => c.label === "Total Due")?.value || 0;
 
   const stats = [
     {
@@ -131,27 +144,47 @@ export default function Customers() {
     },
     {
       label: "Total Customers",
-      value: totalCustomers,
+      value: totalCustomersStat,
       gradient: "from-blue-600 to-blue-400",
       shadow: "shadow-blue-500/30",
       icon: <Users className="w-6 h-6 text-white" />,
     },
     {
-      label: "Total Revenue",
-      value: `${currency} ${totalRevenue?.toLocaleString() || 0}`,
-      gradient: "from-amber-600 to-amber-400",
-      shadow: "shadow-amber-500/30",
-      icon: <DollarSign className="w-6 h-6 text-white" />,
-    },
-    {
       label: "New Customers",
-      value: totalNewCustomers,
+      value: newCustomers,
       gradient: "from-violet-600 to-violet-400",
       shadow: "shadow-violet-500/30",
       icon: <UserPlus className="w-6 h-6 text-white" />,
     },
+    {
+      label: "Inactive Customers",
+      value: inactiveCustomers,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <UserX className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Sales Amount",
+      value: `${currency} ${Number(totalSales).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      gradient: "from-indigo-600 to-indigo-400",
+      shadow: "shadow-indigo-500/30",
+      icon: <ShoppingCart className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Paid",
+      value: `${currency} ${Number(totalPaid).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <DollarSign className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Due",
+      value: `${currency} ${Number(totalDue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <AlertCircle className="w-6 h-6 text-white" />,
+    },
   ];
-
 
   const customerColumns: ColumnDef<Customer>[] = [
     {
@@ -162,10 +195,22 @@ export default function Customers() {
     {
       accessorKey: "name",
       header: "Name",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {row.original.company || "—"}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {row.original.name}
+          </span>
+        </div>
+      )
     },
     {
-      accessorKey: "thumb_url", header: "Image",
+      accessorKey: "thumb_url",
+      header: "Image",
+      meta: { className: "min-w-[110px]" } as any,
       cell: ({ row }) => {
         const thumbUrl = row.getValue("thumb_url") as string;
         // const galleryItems = row.original.gallery_items || [];
@@ -173,7 +218,7 @@ export default function Customers() {
           <img
             src={thumbUrl}
             alt="Customer"
-            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+            className="w-20 h-20 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity shrink-0"
             onClick={() =>
               setPreviewData({
                 images: [thumbUrl].filter(Boolean),
@@ -182,58 +227,58 @@ export default function Customers() {
             }
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
             <User className="w-5 h-5 text-gray-500" />
           </div>
         );
       },
     },
-    {
-      accessorKey: "gallery_items",
-      header: "Gallery",
-      cell: ({ row }) => {
-        const gallery = row.original.gallery_items || [];
-        // const thumbUrl = row.original.thumb_url;
+    // {
+    //   accessorKey: "gallery_items",
+    //   header: "Gallery",
+    //   cell: ({ row }) => {
+    //     const gallery = row.original.gallery_items || [];
+    //     // const thumbUrl = row.original.thumb_url;
 
-        return (
-          <div className="flex items-center gap-1">
-            {gallery.length > 0 ? (
-              <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
-                {gallery.slice(0, 3).map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`Gallery ${i}`}
-                    className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: i,
-                      })
-                    }
-                  />
-                ))}
-                {gallery.length > 3 && (
-                  <div
-                    className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
-                    onClick={() =>
-                      setPreviewData({
-                        images: gallery,
-                        index: 3,
-                      })
-                    }
-                  >
-                    +{gallery.length - 3}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <span className="text-xs text-muted-foreground">-</span>
-            )}
-          </div>
-        );
-      },
-    },
+    //     return (
+    //       <div className="flex items-center gap-1">
+    //         {gallery.length > 0 ? (
+    //           <div className="flex -space-x-2 overflow-hidden hover:space-x-1 transition-all duration-300 p-1">
+    //             {gallery.slice(0, 3).map((url, i) => (
+    //               <img
+    //                 key={i}
+    //                 src={url}
+    //                 alt={`Gallery ${i}`}
+    //                 className="w-8 h-8 rounded-full border-2 border-background object-cover cursor-pointer hover:scale-110 transition-transform"
+    //                 onClick={() =>
+    //                   setPreviewData({
+    //                     images: gallery,
+    //                     index: i,
+    //                   })
+    //                 }
+    //               />
+    //             ))}
+    //             {gallery.length > 3 && (
+    //               <div
+    //                 className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-medium cursor-pointer"
+    //                 onClick={() =>
+    //                   setPreviewData({
+    //                     images: gallery,
+    //                     index: 3,
+    //                   })
+    //                 }
+    //               >
+    //                 +{gallery.length - 3}
+    //               </div>
+    //             )}
+    //           </div>
+    //         ) : (
+    //           <span className="text-xs text-muted-foreground">-</span>
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       accessorKey: "customer_type",
       header: "Type",
@@ -249,7 +294,11 @@ export default function Customers() {
       header: "Address",
       cell: ({ row }) => {
         const customer = row.original;
-        return customer.address || "-";
+        return (
+          <div className="max-w-[200px] whitespace-normal break-words">
+            {customer.address || "-"}
+          </div>
+        );
       },
     },
     {
@@ -269,12 +318,12 @@ export default function Customers() {
     {
       accessorKey: "total_sales",
       header: () => (
-        <div className="text-right">Purchase Amount ({currency})</div>
+        <div className="text-right">Total Sales Amount ({currency})</div>
       ),
       cell: ({ row }) => {
-        const amount = row.getValue("total_sales") as number;
+        const amount = (row.original.purchase_amount ?? row.original.total_sales ?? 0) as number;
         return (
-          <div className="text-right">
+          <div className="text-right font-medium">
             {amount ? Number(amount).toFixed(2) : "0.00"}
           </div>
         );
@@ -283,14 +332,14 @@ export default function Customers() {
     {
       id: "paid_amount",
       header: () => (
-        <div className="text-right">Paid Amount ({currency})</div>
+        <div className="text-right">Total Paid ({currency})</div>
       ),
       cell: ({ row }) => {
-        const total = (row.original.total_sales || 0) as number;
-        const balance = (row.original.outstanding_balance || 0) as number;
-        const paid = total - balance;
+        const total = (row.original.purchase_amount ?? row.original.total_sales ?? 0) as number;
+        const balance = (row.original.due_amount ?? row.original.outstanding_balance ?? 0) as number;
+        const paid = row.original.paid_amount ?? (total - balance);
         return (
-          <div className="text-right text-green-600 font-medium">
+          <div className="text-right text-emerald-600 font-medium">
             {paid ? Number(paid).toFixed(2) : "0.00"}
           </div>
         );
@@ -298,11 +347,11 @@ export default function Customers() {
     },
     {
       accessorKey: "outstanding_balance",
-      header: () => <div className="text-right">Balance ({currency})</div>,
+      header: () => <div className="text-right">Total Due ({currency})</div>,
       cell: ({ row }) => {
-        const balance = row.getValue("outstanding_balance") as number;
+        const balance = (row.original.due_amount ?? row.original.outstanding_balance ?? 0) as number;
         return (
-          <div className="text-right">
+          <div className="text-right text-rose-600 font-bold">
             {balance ? Number(balance).toFixed(2) : "0.00"}
           </div>
         );
@@ -338,12 +387,28 @@ export default function Customers() {
           if (query) setMapLocation(query);
         };
 
+        const handleWazeClick = () => {
+          let url = "";
+          if (latitude && longitude) {
+            url = `https://www.waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
+          } else {
+            const query = [address, city, state, country].filter(Boolean).join(", ");
+            url = `https://www.waze.com/ul?q=${encodeURIComponent(query)}`;
+          }
+          window.open(url, "_blank");
+        };
+
         if (!hasLocation) return <span className="text-muted-foreground">-</span>;
 
         return (
-          <Button variant="ghost" size="icon" onClick={handleMapClick}>
-            <MapPin className="h-4 w-4 text-primary" />
-          </Button>
+          <div className="flex items-center gap-1 print:hidden">
+            <Button variant="ghost" size="icon" onClick={handleMapClick} title="View Map">
+              <MapPin className="h-4 w-4 text-primary" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleWazeClick} title="Open in Waze">
+              <Car className="h-4 w-4 text-orange-500" />
+            </Button>
+          </div>
         );
       },
     },
@@ -415,28 +480,55 @@ export default function Customers() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6 print:hidden">
         <h2 className="text-3xl font-semibold">All Active Customers</h2>
 
         <div className="flex flex-wrap items-center gap-4 ">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
+            <Printer size={18} />
+            Print
+          </button>
+
           <Link to="/dashboard/customers/create">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none print:hidden">
               <PackagePlus size={18} />
               Add Customer
             </button>
           </Link>
 
           <Link to="/dashboard/customers/map">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none print:hidden">
               <MapPin size={18} />
               Customer Map
             </button>
           </Link>
+
+          <div className="w-[180px]">
+            <Select
+              value={sort}
+              onValueChange={(value) => {
+                setSort(value);
+                setPageIndex(0);
+              }}
+            >
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="top_sold">Top Sold Order</SelectItem>
+                <SelectItem value="low_sold">Low Sold Order</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
+      </div >
 
       {/* Stats Cards */}
-      <div className="flex flex-wrap gap-6 mb-6">
+      < div className="flex flex-wrap gap-6 mb-6 print:hidden" >
         {stats?.map((item, idx) => (
           <div
             key={idx}
@@ -463,32 +555,63 @@ export default function Customers() {
               <div className="h-full w-2/3 rounded-full bg-white/40" />
             </div>
           </div>
-        ))}
-      </div>
+        ))
+        }
+      </ div >
 
-      <Card className="pt-6 pb-2">
-        <CardHeader>
-          <CardTitle>All Customers</CardTitle>
-        </CardHeader>
-        <CardContent className="overflow-auto w-full">
-          {isLoading ? (
-            <div className="text-center py-8">Loading customers...</div>
-          ) : (
-            <DataTable
-              columns={customerColumns}
-              data={customers}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              totalCount={totalCustomers}
-              onPageChange={setPageIndex}
-              onSearch={(value) => {
-                setSearchTerm(value);
-              }}
-              isFetching={isLoading}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <div className="print:w-full print:m-0 print:p-0">
+        {/* Print Only Header */}
+        <div id="invoice" className="hidden print:block mb-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col gap-2 mt-2 details-text text-left">
+              <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+              <p className="leading-tight max-w-[400px]">
+                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+              </p>
+              <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
+            </div>
+            <div className="text-right flex flex-col items-end">
+              <div className="mb-1">
+                {from?.logo_url ? (
+                  <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                    F&Z
+                  </div>
+                )}
+              </div>
+              <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Customer List</h2>
+              <div className="details-text space-y-1">
+                <p><strong>Date:</strong> {format(new Date(), "dd/MM/yyyy")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
+          <CardHeader className="print:hidden">
+            <CardTitle>All Customers</CardTitle>
+          </CardHeader>
+          <CardContent className="overflow-auto w-full print:p-0">
+            {isLoading ? (
+              <div className="text-center py-8">Loading customers...</div>
+            ) : (
+              <DataTable
+                columns={customerColumns}
+                data={customers}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
+                totalCount={totalCustomers}
+                onPageChange={setPageIndex}
+                onSearch={(value) => {
+                  setSearchTerm(value);
+                }}
+                isFetching={isLoading}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog
@@ -617,6 +740,86 @@ export default function Customers() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+
+      {/* Print Styles */}
+      <style>{`
+        @media print {
+          @page {
+            margin: 5mm;
+            size: A4 landscape;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            font-size: 11px !important;
+            background: white !important;
+            color: black !important;
+          }
+          .no-print, 
+          header, 
+          nav, 
+          aside, 
+          button, 
+          input,
+          .max-w-sm,
+          .print\\:hidden,
+          .grid.grid-cols-1,
+          .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
+            display: none !important;
+          }
+          #invoice {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          h1 { font-size: 11px !important; }
+          h2 { font-size: 11px !important; }
+          table { 
+            font-size: 11px !important; 
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: auto !important;
+          }
+          th, td { 
+            border: 1px solid #ddd !important;
+            padding: 4px !important; 
+            font-size: 11px !important;
+          }
+          .details-text, .table-text { 
+            font-size: 11px !important; 
+            line-height: 1.2 !important; 
+          }
+          .company-name {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .text-sm, .text-xs, .text-base, .text-lg, .text-xl, .font-bold, .font-semibold, span, p, div { 
+            font-size: 11px !important; 
+          }
+          .mb-6 { margin-bottom: 8px !important; }
+          .mb-4 { margin-bottom: 4px !important; }
+          
+          /* Hide non-essential columns for customer list print */
+          th:nth-child(3), td:nth-child(3), /* Image */
+          th:nth-child(12), td:nth-child(12), /* Status */
+          th:nth-child(13), td:nth-child(13), /* Location */
+          th:last-child, td:last-child { /* Actions */
+            display: none !important;
+          }
+
+          /* Ensure table container matches header width */
+          .Card, .CardContent, .rounded-xl, .border {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+        }
+        /* Standardizing screen sizes */
+        .company-name { font-size: 18px !important; line-height: 1.2; }
+        .details-text { font-size: 12px !important; line-height: 1.4; }
+        .table-text { font-size: 12px !important; }
+      `}</style>
+    </div >
   );
 }
