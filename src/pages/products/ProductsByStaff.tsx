@@ -181,7 +181,17 @@ export default function ProductsByStaff() {
     {
       accessorKey: "name",
       header: "Product Name",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {row.original.name}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {row.original.specification || "—"}
+          </span>
+        </div>
+      )
     },
     {
       accessorKey: "thumb_url",
@@ -207,11 +217,6 @@ export default function ProductsByStaff() {
       cell: ({ row }) => row?.original?.category?.name
     },
     {
-      accessorKey: "specifications",
-      header: "Specifications",
-      cell: ({ row }) => row?.original?.specification
-    },
-    {
       accessorKey: "price",
       header: () => (
         <div className="text-right">
@@ -221,19 +226,6 @@ export default function ProductsByStaff() {
       cell: ({ row }) => (
         <div className="text-right">
           {parseFloat(row.getValue("price")).toFixed(2)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "purchase_tax",
-      header: () => (
-        <div className="text-right">
-          Purchase Tax {currency ? `(${currency})` : ""}
-        </div>
-      ),
-      cell: ({ row }) => (
-        <div className="text-right">
-          {parseFloat(row.getValue("purchase_tax")).toFixed(2)}
         </div>
       ),
     },

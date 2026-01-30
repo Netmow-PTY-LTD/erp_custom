@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Product } from "@/types/types";
 import { AddProductsModal } from "@/components/products/AddProductsModal";
 import type { Customer } from "@/store/features/customers/types";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 const orderSchema = z
   .object({
@@ -111,9 +114,9 @@ export default function CreateSalesOrderPage() {
     defaultValues: {
       customer_id: 0,
       shipping_address: "",
-      order_date: "",
-      due_date: "",
-      delivery_date: "",
+      order_date: new Date().toISOString().split("T")[0],
+      due_date: new Date().toISOString().split("T")[0],
+      delivery_date: new Date().toISOString().split("T")[0],
       notes: "",
       items: [{ product_id: 0, sku: "", specification: "", unit: "", quantity: 1, unit_price: 0, discount: 0, sales_tax: 0, stock_quantity: 0, remark: "" }],
     },
@@ -343,16 +346,19 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={customer.thumb_url} alt={customer.name} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{customer.name}</span>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{customer.name}</span>
                         {customer.company && (
-                          <span className="text-xs text-muted-foreground">{customer.company}</span>
+                          <span className="truncate text-xs text-muted-foreground">{customer.company}</span>
+                        )}
+                        {customer.address && (
+                          <span className="truncate text-xs text-muted-foreground/80">{customer.address}</span>
                         )}
                       </div>
                     </CommandItem>
@@ -432,7 +438,7 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={product.thumb_url} alt={product.name} />
                         <AvatarFallback>
                           <Package className="h-4 w-4" />
@@ -441,7 +447,7 @@ export default function CreateSalesOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
-                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'}
+                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'} | Stock: {product.stock_quantity || 0}
                         </span>
                       </div>
                     </CommandItem>
@@ -451,6 +457,56 @@ export default function CreateSalesOrderPage() {
           </Command>
         </PopoverContent>
       </Popover>
+    );
+  };
+
+  const DatePickerField = ({
+    field,
+    label,
+  }: {
+    field: any;
+    label: string;
+  }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <FormItem className="flex flex-col">
+        <FormLabel>{label}</FormLabel>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <FormControl>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full pl-3 text-left font-normal border-gray-200 dark:border-gray-800",
+                  !field.value && "text-muted-foreground"
+                )}
+              >
+                {field.value ? (
+                  format(new Date(field.value), "dd/MM/yyyy")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </FormControl>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={field.value ? new Date(field.value) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  field.onChange(format(date, "yyyy-MM-dd"));
+                  setOpen(false);
+                }
+              }}
+              disabled={(date) => date < new Date("1900-01-01")}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        <FormMessage />
+      </FormItem>
     );
   };
 
@@ -512,11 +568,7 @@ export default function CreateSalesOrderPage() {
                   name="order_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Order Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Order Date" />
                   )}
                 />
 
@@ -548,11 +600,7 @@ export default function CreateSalesOrderPage() {
                   name="due_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Due Date" />
                   )}
                 />
 
@@ -560,11 +608,7 @@ export default function CreateSalesOrderPage() {
                   name="delivery_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Delivery Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Delivery Date" />
                   )}
                 />
 
@@ -650,18 +694,18 @@ export default function CreateSalesOrderPage() {
               <div className="space-y-4 overflow-x-auto min-w-full">
                 {/* Header for Desktop and Mobile (Horizontal Scroll) */}
                 <div className="flex min-w-max gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
-                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20">SKU</div>
-                  <div className="flex-1 min-w-[300px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20">Product</div>
-                  <div className="w-36">Spec.</div>
-                  <div className="w-24">Unit</div>
-                  <div className="w-24 text-right">Stock</div>
-                  <div className="w-32">Price</div>
-                  <div className="w-24">Qty</div>
-                  <div className="w-24">Discount</div>
-                  <div className="w-32">Pretax</div>
-                  <div className="w-24 text-right">Tax %</div>
-                  <div className="w-32 text-right">Tax Amt </div>
-                  <div className="w-36 text-right pr-4">Total ({currency})</div>
+                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">SKU</div>
+                  <div className="w-[350px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">Product</div>
+                  <div className="w-36 text-left">Spec.</div>
+                  <div className="w-24 text-left">Unit</div>
+                  <div className="w-24 text-left">Stock</div>
+                  <div className="w-32 text-left">Price</div>
+                  <div className="w-24 text-left">Qty</div>
+                  <div className="w-24 text-left">Discount</div>
+                  <div className="w-32 text-left">Pretax</div>
+                  <div className="w-24 text-left">Tax %</div>
+                  <div className="w-32 text-left">Tax Amt </div>
+                  <div className="w-36 text-left pr-4">Total ({currency})</div>
                   <div className="flex-1 min-w-[200px]">Remark</div>
                   <div className="w-12"></div>
                 </div>
@@ -693,7 +737,7 @@ export default function CreateSalesOrderPage() {
                       />
 
                       {/* Product */}
-                      <div className="flex-1 min-w-[250px] xl:min-w-[300px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
+                      <div className="w-[350px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
                         <FormField
                           name={`items.${index}.product_id`}
                           control={control}
@@ -803,8 +847,8 @@ export default function CreateSalesOrderPage() {
                                 type="number"
                                 min={0}
                                 {...field}
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                readOnly
+                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />

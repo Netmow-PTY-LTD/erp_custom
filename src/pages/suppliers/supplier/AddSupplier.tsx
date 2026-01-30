@@ -171,7 +171,7 @@ export default function AddSupplierPage() {
                         <FormItem>
                           <FormLabel>Supplier Code</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., SUP001" {...field} />
+                            <Input placeholder="Leave blank for auto-generation" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

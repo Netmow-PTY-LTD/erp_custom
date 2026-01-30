@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { Eye, Package, AlertTriangle, XCircle, DollarSign, Trash2 } from "lucide-react";
+import { Eye, Trash2, Printer } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import DamageWastageForm from "@/components/products/DamageWastageForm";
 import type { Product } from "@/types/types";
-import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import { useGetAllProductsQuery, useGetProductStatsQuery } from "@/store/features/admin/productsApiService";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
 import {
@@ -193,16 +193,14 @@ export default function StockManagement() {
     },
   ];
 
-  // Calculate statistics
-  const totalProducts = products.length;
-  const lowStockProducts = products.filter(p => p.stock_quantity <= p.min_stock_level && p.stock_quantity > 0).length;
-  const outOfStockProducts = products.filter(p => p.stock_quantity === 0).length;
-  const totalStockValue = products.reduce((sum, p) => sum + (p.stock_quantity * p.cost), 0);
+  // Fetch stats from API
+  const { data: statsData } = useGetProductStatsQuery(undefined);
+  const stats = statsData?.data || [];
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-wrap justify-between items-start gap-4">
+      <div className="flex flex-wrap justify-between items-start gap-4 print:hidden">
         <div>
           <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
             Stock Management
@@ -210,8 +208,14 @@ export default function StockManagement() {
           <p className="text-muted-foreground mt-2">Monitor and manage product inventory</p>
         </div>
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
+            <Printer size={18} />
+            Print
+          </button>
           <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
-            <SelectTrigger className="w-[200px] bg-white shadow-sm border-gray-200 rounded-xl font-medium">
+            <SelectTrigger className="w-[200px] bg-white shadow-sm border-gray-200 rounded-xl font-medium print:hidden">
               <SelectValue placeholder="Stock Status" />
             </SelectTrigger>
             <SelectContent className="rounded-xl border-gray-100 shadow-xl">
@@ -224,103 +228,42 @@ export default function StockManagement() {
         </div>
       </div>
 
+      {/* Print Only Header */}
+      <div className="hidden print:block text-center mb-1">
+        <h1 className="text-4xl font-extrabold uppercase tracking-tight">STOCK MANAGEMENT REPORT</h1>
+      </div>
+
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Total Products */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-blue-600 to-blue-400 p-6 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+        {stats.map((item: any, idx: number) => {
+          // Dynamic colors based on label or index if color not provided
+          const baseColor = item.color || (
+            item.label.includes('Purchase') ? 'bg-blue-600' :
+              item.label.includes('Salable') ? 'bg-emerald-600' :
+                item.label.includes('Profit') ? 'bg-indigo-600' : 'bg-slate-600'
+          );
 
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Total Products</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {totalProducts}
-              </h3>
+          return (
+            <div
+              key={idx}
+              className={`relative overflow-hidden rounded-2xl ${baseColor} p-5 shadow-lg shadow-black/10 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1`}
+            >
+              <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-white/10 blur-xl" />
+
+              <div className="relative space-y-2">
+                <p className="text-xs font-semibold text-white/80 uppercase tracking-wider">{item.label}</p>
+                <h3 className="text-2xl font-extrabold text-white truncate">
+                  {item.isCurrency ? `${currency} ` : ''}
+                  {item.isCurrency ? Number(item.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : item.value}
+                </h3>
+              </div>
+
+              <div className="mt-4 h-1 w-full rounded-full bg-black/10">
+                <div className="h-full w-1/3 rounded-full bg-white/30" />
+              </div>
             </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <Package className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
-
-        {/* Low Stock */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-orange-600 to-orange-400 p-6 shadow-lg shadow-orange-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
-
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Low Stock</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {lowStockProducts}
-              </h3>
-            </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <AlertTriangle className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
-
-        {/* Out of Stock */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-red-600 to-red-400 p-6 shadow-lg shadow-red-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
-
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Out of Stock</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {outOfStockProducts}
-              </h3>
-            </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <XCircle className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
-
-        {/* Total Stock Value */}
-        <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-green-600 to-green-400 p-6 shadow-lg shadow-green-500/30 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
-          {/* Background Pattern */}
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
-
-          <div className="relative flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-white/90">Total Stock Value</p>
-              <h3 className="mt-2 text-3xl font-bold text-white">
-                {currency} {totalStockValue.toFixed(2)}
-              </h3>
-            </div>
-            <div className="rounded-xl bg-white/20 p-2.5 backdrop-blur-sm">
-              <DollarSign className="w-6 h-6 text-white" />
-            </div>
-          </div>
-
-          {/* Progress/Indicator line */}
-          <div className="mt-4 h-1 w-full rounded-full bg-black/10">
-            <div className="h-full w-2/3 rounded-full bg-white/40" />
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       <DataTable
@@ -344,6 +287,117 @@ export default function StockManagement() {
         initialProductId={selectedProductId}
         refetchProducts={async () => { }}
       />
+
+      {/* Print Styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button, 
+                    .print\\:hidden,
+                    .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.xl\\:grid-cols-6,
+                    .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
+                        display: none !important;
+                    }
+                    input, .max-w-sm { /* Hide search input specifically */
+                        display: none !important;
+                    }
+                    html, body {
+                        background: white !important;
+                        overflow: visible !important;
+                        height: auto !important;
+                        color: black !important;
+                        font-size: 10pt !important;
+                    }
+                    * {
+                        color: black !important;
+                        background: transparent !important;
+                        box-shadow: none !important;
+                        text-shadow: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 14pt !important;
+                        font-weight: bold !important;
+                        margin-bottom: 5px !important;
+                        background: none !important;
+                        -webkit-text-fill-color: initial !important;
+                        color: black !important;
+                    }
+                    .border, .Card, .CardContent, .pt-6 {
+                        border: none !important;
+                        padding-top: 0 !important;
+                        padding-bottom: 0 !important;
+                        margin-top: 0 !important;
+                    }
+                    .bg-card {
+                        background: none !important;
+                        padding: 0 !important;
+                    }
+                    .p-6, .CardContent {
+                        padding: 0 !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                        color: black !important;
+                    }
+                    th, td {
+                        border: 1px solid #000 !important;
+                        padding: 3px !important;
+                        font-size: 7pt !important;
+                        color: black !important;
+                        text-align: left !important;
+                    }
+                    .text-right {
+                        text-align: right !important;
+                    }
+                    th {
+                        background-color: #f2f2f2 !important;
+                        -webkit-print-color-adjust: exact;
+                        font-weight: bold !important;
+                    }
+
+                    /* Hide specific columns in print */
+                    th:nth-child(3), td:nth-child(3) { /* Image column */
+                        display: none !important;
+                    }
+                    th:nth-child(8), td:nth-child(8) { /* Stock wise status */
+                        display: none !important;
+                    }
+                    th:nth-child(12), td:nth-child(12) { /* Status column */
+                        display: none !important;
+                    }
+                    th:last-child, td:last-child { /* Actions column */
+                        display: none !important;
+                    }
+
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    .hidden.print\\:block.mb-1 {
+                        margin-bottom: 5px !important;
+                        display: block !important;
+                    }
+                    .rounded-md.border {
+                        border: none !important;
+                        box-shadow: none !important;
+                    }
+                    
+                    /* Sticky columns fix for print */
+                    .md\\:sticky {
+                        position: static !important;
+                        background: none !important;
+                        shadow: none !important;
+                    }
+                }
+            `}} />
     </div>
   );
 }

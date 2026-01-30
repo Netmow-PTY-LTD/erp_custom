@@ -6,7 +6,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { PlusCircle, FileText, CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { format } from "date-fns";
+import { PlusCircle, FileText, CheckCircle, Clock, AlertTriangle, Printer } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -126,19 +127,43 @@ export default function Invoices() {
       cell: ({ row }) => row.original?.order?.order_number,
     },
     {
+      id: "order_status",
+      header: "Order Status",
+      cell: ({ row }) => {
+        const orderStatus = row.original?.order?.status;
+        if (!orderStatus) return <span className="text-gray-400">-</span>;
+
+        let color = "bg-gray-500";
+        switch (orderStatus.toLowerCase()) {
+          case 'confirmed': color = "bg-blue-500 hover:bg-blue-600"; break;
+          case 'completed': color = "bg-green-600 hover:bg-green-700"; break;
+          case 'delivered': color = "bg-green-500 hover:bg-green-600"; break;
+          case 'shipped': color = "bg-cyan-500 hover:bg-cyan-600"; break;
+          case 'in_transit': color = "bg-purple-500 hover:bg-purple-600"; break;
+          case 'pending': color = "bg-amber-500 hover:bg-amber-600"; break;
+          case 'cancelled': color = "bg-red-500 hover:bg-red-600"; break;
+          case 'returned': color = "bg-rose-500 hover:bg-rose-600"; break;
+        }
+        return <Badge className={`${color} capitalize shadow-none`}>{orderStatus.replace('_', ' ')}</Badge>;
+      }
+    },
+    {
       accessorKey: "invoice_date",
       header: "Invoice Date",
-      cell: ({ row }) => new Date(row.getValue("invoice_date")).toLocaleDateString(),
+      cell: ({ row }) => format(new Date(row.getValue("invoice_date")), "dd/MM/yyyy"),
     },
     {
       accessorKey: "due_date",
       header: "Due Date",
-      cell: ({ row }) => new Date(row.getValue("due_date")).toLocaleDateString(),
+      cell: ({ row }) => format(new Date(row.getValue("due_date")), "dd/MM/yyyy"),
     },
     {
       accessorKey: "total_amount",
       header: () => (
-        <div className="text-right">Total Amount ({currency})</div>
+        <div className="text-right">
+          <span className="print:hidden">Total Amount ({currency})</span>
+          <span className="hidden print:inline">TOTAL ({currency})</span>
+        </div>
       ),
       cell: ({ row }) => (
         <div className="text-right">
@@ -149,7 +174,10 @@ export default function Invoices() {
     {
       accessorKey: "total_payable",
       header: () => (
-        <div className="text-right">Total Payable ({currency})</div>
+        <div className="text-right">
+          <span className="print:hidden">Total Payable ({currency})</span>
+          <span className="hidden print:inline">PAYABLE ({currency})</span>
+        </div>
       ),
       cell: ({ row }) => (
         <div className="text-right">
@@ -160,17 +188,42 @@ export default function Invoices() {
     {
       accessorKey: "paid_amount",
       header: () => (
-        <div className="text-right">Paid Amount ({currency})</div>
-      ),
-      cell: ({ row }) => (
         <div className="text-right">
-          {parseFloat(row.getValue("paid_amount")).toFixed(2)}
+          <span className="print:hidden">Paid Amount ({currency})</span>
+          <span className="hidden print:inline">PAID ({currency})</span>
         </div>
       ),
+      cell: ({ row }) => {
+        const totalPaid = Number(row.original.paid_amount || 0);
+        const grossPaid = Number((row.original as any).gross_paid_amount ?? totalPaid);
+        const refunded = Number((row.original as any).refunded_amount || 0);
+
+        if (refunded > 0) {
+          return (
+            <div className="text-right flex flex-col items-end">
+              <span className="text-green-600 font-medium">{grossPaid.toFixed(2)}</span>
+              <span className="text-red-500 text-[10px] font-semibold flex items-center">
+                <span className="mr-1">REFUND:</span> -{Math.abs(refunded).toFixed(2)}
+              </span>
+            </div>
+          );
+        }
+
+        return (
+          <div className="text-right text-green-600 font-medium">
+            {totalPaid.toFixed(2)}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "remaining_balance",
-      header: () => <div className="text-right">Due Amount ({currency})</div>,
+      header: () => (
+        <div className="text-right">
+          <span className="print:hidden">Due Amount ({currency})</span>
+          <span className="hidden print:inline">DUE ({currency})</span>
+        </div>
+      ),
       cell: ({ row }) => (
         <div className="text-right">
           {parseFloat(row.getValue("remaining_balance")).toFixed(2)}
@@ -244,20 +297,16 @@ export default function Invoices() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4">
+      <div className="flex justify-between items-center print:hidden">
         <h1 className="text-2xl font-bold">Sales Invoices</h1>
-        <div className="flex flex-wrap items-center gap-3">
-          {selectedInvoicesCount > 0 && (
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                onClick={handleViewSummaryDetails}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-amber-500/40 active:translate-y-0 active:shadow-none"
-              >
-                <FileText size={18} />
-                View Summary Details ({selectedInvoicesCount})
-              </button>
-            </div>
-          )}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none"
+          >
+            <Printer size={18} />
+            Print
+          </button>
           <Link to="/dashboard/sales/orders/create">
             <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
               <PlusCircle size={18} />
@@ -267,8 +316,16 @@ export default function Invoices() {
         </div>
       </div>
 
+      {/* Print Only Header */}
+      <div className="hidden print:block text-center mb-[15px] pb-1">
+        <h1 className="text-4xl font-extrabold uppercase tracking-tight">SALES INVOICES REPORT</h1>
+        <div className="mt-1 text-sm text-gray-700 font-semibold">
+          <span>Report Generated On: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        </div>
+      </div>
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 print:hidden">
         {stats.map((item, idx) => (
           <div
             key={idx}
@@ -314,6 +371,90 @@ export default function Invoices() {
         rowSelection={rowSelection}
         onRowSelectionChange={setRowSelection}
       />
+
+      {/* Print Styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media print {
+            @page {
+              size: landscape;
+              margin: 10mm;
+            }
+            .print\:hidden,
+            header,
+            nav,
+            aside,
+            button,
+            .no-print {
+              display: none !important;
+            }
+            html, body {
+              background: white !important;
+              overflow: visible !important;
+              height: auto !important;
+            }
+            .md\:sticky {
+              position: static !important;
+            }
+            table {
+              width: 100% !important;
+              border-collapse: collapse !important;
+              page-break-inside: auto !important;
+            }
+            thead {
+              display: table-header-group !important;
+            }
+            tr {
+              page-break-inside: avoid !important;
+              page-break-after: auto !important;
+            }
+            th, td {
+              border: 1px solid #ddd !important;
+              padding: 6px 8px !important;
+              font-size: 9px !important;
+              vertical-align: middle !important;
+            }
+            th *, td * {
+              font-size: 9px !important;
+            }
+            th {
+              background-color: #f3f4f6 !important;
+              font-weight: 600 !important;
+              text-align: left !important;
+              line-height: 1.2 !important;
+              text-transform: uppercase !important;
+            }
+            th:nth-child(11), td:nth-child(11) {
+              display: none !important;
+            }
+            .text-4xl {
+              font-size: 18px !important;
+              margin-bottom: 4px !important;
+              line-height: 1 !important;
+            }
+            .text-4xl + div {
+              line-height: 1 !important;
+              margin-top: 2px !important;
+            }
+            .hidden.print\:block.mb-\[15px\] {
+              margin-bottom: 15px !important;
+            }
+            .border {
+              border: none !important;
+            }
+            .shadow-sm, .shadow-md, .shadow-lg {
+              box-shadow: none !important;
+            }
+            [role="navigation"],
+            input,
+            input[type="search"],
+            input[type="text"],
+            .flex.items-center.justify-between {
+              display: none !important;
+            }
+          }
+        `
+      }} />
     </div>
   );
 }

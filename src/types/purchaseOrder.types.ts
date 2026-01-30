@@ -53,6 +53,7 @@ export type PurchasePaymentStatus = "paid" | "unpaid" | "partial";
 export interface PurchaseOrder {
   id: number;
   po_number: string;
+  return_number?: string;
 
   supplier_id: number;
   order_date: string;
@@ -69,6 +70,9 @@ export interface PurchaseOrder {
   total_payable_amount: number;
   total_paid_amount: number;
   total_due_amount: number;
+
+  total_refunded_amount?: number;
+  due_refund_amount?: number;
 
   created_by?: number;
   created_at?: string;

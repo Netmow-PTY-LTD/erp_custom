@@ -53,6 +53,7 @@ interface DataTableProps<TData> {
   totalCount?: number;
 
   onPageChange?: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
   search?: string;
   onSearch?: (value: string) => void;
   isFetching?: boolean | null;
@@ -74,6 +75,7 @@ export function DataTable<TData>({
   pageIndex = 0,
   pageSize = 10,
   onPageChange = () => { },
+  onPageSizeChange = () => { },
   onSearch = () => { },
   isFetching = null,
   // onGlobalFilterChange = () => {},
@@ -200,10 +202,28 @@ export function DataTable<TData>({
       {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between py-4 gap-4">
         {/* Showing X–Y of Z */}
-        <div className="text-sm">
-          Showing {pageIndex * pageSize + 1}–
-          {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
-          results
+        <div className="flex items-center gap-4">
+          <div className="text-sm">
+            Showing {pageIndex * pageSize + 1}–
+            {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
+            results
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Per page:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                onPageSizeChange?.(Number(e.target.value));
+              }}
+              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+            >
+              {[10, 20, 30, 50, 100].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Pagination Controls */}

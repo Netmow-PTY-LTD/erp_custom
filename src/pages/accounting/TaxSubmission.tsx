@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Search, X, Plus, FileText, Download, CheckCircle, AlertCircle, Scale } from "lucide-react";
+import { Search, X, Plus, FileText, Download, CheckCircle, AlertCircle, Scale, Printer } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -104,58 +104,121 @@ export default function TaxSubmission() {
                     <h2 className="text-3xl font-bold tracking-tight">Tax Submissions</h2>
                     <p className="text-muted-foreground">Monitor and record your tax filings and payments.</p>
                 </div>
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                            <Plus className="mr-2 h-4 w-4" /> New Submission
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                            <DialogTitle>Record Tax Submission</DialogTitle>
-                            <DialogDescription>
-                                Fill in the details of your tax filing. This will auto-post to accounting.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label>Tax Type <span className="text-red-500">*</span></Label>
-                                        <Controller
-                                            name="tax_type"
-                                            control={control}
-                                            rules={{ required: "Tax type is required" }}
-                                            render={({ field }) => (
-                                                <Select onValueChange={field.onChange} value={field.value}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Select tax type" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="VAT">VAT</SelectItem>
-                                                        <SelectItem value="GST">GST</SelectItem>
-                                                        <SelectItem value="Income Tax">Income Tax</SelectItem>
-                                                        <SelectItem value="Corporation Tax">Corporation Tax</SelectItem>
-                                                        <SelectItem value="Other">Other</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label>Tax Period <span className="text-red-500">*</span></Label>
-                                        <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2 print:hidden">
+                    <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2"
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print
+                    </Button>
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                <Plus className="mr-2 h-4 w-4" /> New Submission
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                                <DialogTitle>Record Tax Submission</DialogTitle>
+                                <DialogDescription>
+                                    Fill in the details of your tax filing. This will auto-post to accounting.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label>Tax Type <span className="text-red-500">*</span></Label>
                                             <Controller
-                                                name="period_start"
+                                                name="tax_type"
                                                 control={control}
-                                                rules={{ required: true }}
+                                                rules={{ required: "Tax type is required" }}
                                                 render={({ field }) => (
-                                                    <Input {...field} type="date" />
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select tax type" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="VAT">VAT</SelectItem>
+                                                            <SelectItem value="GST">GST</SelectItem>
+                                                            <SelectItem value="Income Tax">Income Tax</SelectItem>
+                                                            <SelectItem value="Corporation Tax">Corporation Tax</SelectItem>
+                                                            <SelectItem value="Other">Other</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
                                                 )}
                                             />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Tax Period <span className="text-red-500">*</span></Label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Controller
+                                                    name="period_start"
+                                                    control={control}
+                                                    rules={{ required: true }}
+                                                    render={({ field }) => (
+                                                        <Input {...field} type="date" />
+                                                    )}
+                                                />
+                                                <Controller
+                                                    name="period_end"
+                                                    control={control}
+                                                    rules={{ required: true }}
+                                                    render={({ field }) => (
+                                                        <Input {...field} type="date" />
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Tax Amount <span className="text-red-500">*</span></Label>
                                             <Controller
-                                                name="period_end"
+                                                name="amount"
+                                                control={control}
+                                                rules={{ required: "Amount is required", min: 0 }}
+                                                render={({ field }) => (
+                                                    <div className="relative">
+                                                        <span className="absolute left-3 top-2.5 text-muted-foreground text-sm">RM</span>
+                                                        <Input
+                                                            {...field}
+                                                            type="number"
+                                                            step="0.01"
+                                                            className="pl-10 font-mono"
+                                                            placeholder="0.00"
+                                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                                        />
+                                                    </div>
+                                                )}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Payment Mode <span className="text-red-500">*</span></Label>
+                                            <Controller
+                                                name="payment_mode"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select payment mode" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="BANK">Bank Transfer (Always recommended)</SelectItem>
+                                                            <SelectItem value="CASH">Cash Payment</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Submission Date <span className="text-red-500">*</span></Label>
+                                            <Controller
+                                                name="submission_date"
                                                 control={control}
                                                 rules={{ required: true }}
                                                 render={({ field }) => (
@@ -163,143 +226,90 @@ export default function TaxSubmission() {
                                                 )}
                                             />
                                         </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Reference Number</Label>
+                                            <Controller
+                                                name="reference_number"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="e.g. VAT/2026/01" />
+                                                )}
+                                            />
+                                        </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label>Tax Amount <span className="text-red-500">*</span></Label>
-                                        <Controller
-                                            name="amount"
-                                            control={control}
-                                            rules={{ required: "Amount is required", min: 0 }}
-                                            render={({ field }) => (
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-muted-foreground text-sm">RM</span>
-                                                    <Input
-                                                        {...field}
-                                                        type="number"
-                                                        step="0.01"
-                                                        className="pl-10 font-mono"
-                                                        placeholder="0.00"
-                                                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                                    />
+                                    <div className="space-y-4">
+                                        <Label className="text-indigo-600 font-bold uppercase text-xs tracking-wider">Accounting Preview</Label>
+                                        <Card className="bg-slate-50 border-dashed border-2 shadow-none overflow-hidden">
+                                            <CardHeader className="py-3 px-4 bg-white border-b">
+                                                <div className="text-[10px] text-muted-foreground uppercase font-bold">Transaction Preview</div>
+                                                <div className="text-xs font-medium">Tax Submission: {watchedTaxType} for period {watchedPeriodStart} to {watchedPeriodEnd}. Ref: {watchedRef}</div>
+                                            </CardHeader>
+                                            <CardContent className="p-0">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="bg-slate-100/50 hover:bg-slate-100/50 h-8">
+                                                            <TableHead className="text-[10px] font-bold py-0 h-8">Account Name</TableHead>
+                                                            <TableHead className="text-[10px] font-bold py-0 h-8 text-right">Debit (RM)</TableHead>
+                                                            <TableHead className="text-[10px] font-bold py-0 h-8 text-right">Credit (RM)</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        <TableRow className="h-10 hover:bg-transparent">
+                                                            <TableCell className="py-2">
+                                                                <div className="text-xs font-semibold">Tax Payable</div>
+                                                                <div className="text-[9px] text-muted-foreground">Code: 2100</div>
+                                                            </TableCell>
+                                                            <TableCell className="py-2 text-right text-xs font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "-"}</TableCell>
+                                                            <TableCell className="py-2 text-right text-xs font-mono">-</TableCell>
+                                                        </TableRow>
+                                                        <TableRow className="h-10 hover:bg-transparent">
+                                                            <TableCell className="py-2">
+                                                                <div className="text-xs font-semibold">{watchedPaymentMode === "BANK" ? "Bank" : "Cash"}</div>
+                                                                <div className="text-[9px] text-muted-foreground">Code: {watchedPaymentMode === "BANK" ? "1100" : "1000"}</div>
+                                                            </TableCell>
+                                                            <TableCell className="py-2 text-right text-xs font-mono">-</TableCell>
+                                                            <TableCell className="py-2 text-right text-xs font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "-"}</TableCell>
+                                                        </TableRow>
+                                                        <TableRow className="bg-white hover:bg-white h-8 border-t-2 font-bold">
+                                                            <TableCell className="py-1 text-[10px] uppercase">Total</TableCell>
+                                                            <TableCell className="py-1 text-right text-[10px] font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "0.00"}</TableCell>
+                                                            <TableCell className="py-1 text-right text-[10px] font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "0.00"}</TableCell>
+                                                        </TableRow>
+                                                    </TableBody>
+                                                </Table>
+                                                <div className="p-3 bg-indigo-50/50 border-t">
+                                                    <p className="text-[10px] text-indigo-700 leading-relaxed italic">
+                                                        * This entry will automatically reduce your Tax Payable liability and credit your {watchedPaymentMode === "BANK" ? "Bank" : "Cash"} account.
+                                                    </p>
                                                 </div>
-                                            )}
-                                        />
-                                    </div>
+                                            </CardContent>
+                                        </Card>
 
-                                    <div className="space-y-2">
-                                        <Label>Payment Mode <span className="text-red-500">*</span></Label>
-                                        <Controller
-                                            name="payment_mode"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Select onValueChange={field.onChange} value={field.value}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Select payment mode" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="BANK">Bank Transfer (Always recommended)</SelectItem>
-                                                        <SelectItem value="CASH">Cash Payment</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label>Submission Date <span className="text-red-500">*</span></Label>
-                                        <Controller
-                                            name="submission_date"
-                                            control={control}
-                                            rules={{ required: true }}
-                                            render={({ field }) => (
-                                                <Input {...field} type="date" />
-                                            )}
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label>Reference Number</Label>
-                                        <Controller
-                                            name="reference_number"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Input {...field} placeholder="e.g. VAT/2026/01" />
-                                            )}
-                                        />
+                                        <div className="space-y-2 pt-2">
+                                            <Label>Memo / Notes</Label>
+                                            <Controller
+                                                name="notes"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Textarea {...field} className="min-h-[100px]" placeholder="Any additional information..." />
+                                                )}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <Label className="text-indigo-600 font-bold uppercase text-xs tracking-wider">Accounting Preview</Label>
-                                    <Card className="bg-slate-50 border-dashed border-2 shadow-none overflow-hidden">
-                                        <CardHeader className="py-3 px-4 bg-white border-b">
-                                            <div className="text-[10px] text-muted-foreground uppercase font-bold">Transaction Preview</div>
-                                            <div className="text-xs font-medium">Tax Submission: {watchedTaxType} for period {watchedPeriodStart} to {watchedPeriodEnd}. Ref: {watchedRef}</div>
-                                        </CardHeader>
-                                        <CardContent className="p-0">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow className="bg-slate-100/50 hover:bg-slate-100/50 h-8">
-                                                        <TableHead className="text-[10px] font-bold py-0 h-8">Account Name</TableHead>
-                                                        <TableHead className="text-[10px] font-bold py-0 h-8 text-right">Debit (RM)</TableHead>
-                                                        <TableHead className="text-[10px] font-bold py-0 h-8 text-right">Credit (RM)</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    <TableRow className="h-10 hover:bg-transparent">
-                                                        <TableCell className="py-2">
-                                                            <div className="text-xs font-semibold">Tax Payable</div>
-                                                            <div className="text-[9px] text-muted-foreground">Code: 2100</div>
-                                                        </TableCell>
-                                                        <TableCell className="py-2 text-right text-xs font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "-"}</TableCell>
-                                                        <TableCell className="py-2 text-right text-xs font-mono">-</TableCell>
-                                                    </TableRow>
-                                                    <TableRow className="h-10 hover:bg-transparent">
-                                                        <TableCell className="py-2">
-                                                            <div className="text-xs font-semibold">{watchedPaymentMode === "BANK" ? "Bank" : "Cash"}</div>
-                                                            <div className="text-[9px] text-muted-foreground">Code: {watchedPaymentMode === "BANK" ? "1100" : "1000"}</div>
-                                                        </TableCell>
-                                                        <TableCell className="py-2 text-right text-xs font-mono">-</TableCell>
-                                                        <TableCell className="py-2 text-right text-xs font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "-"}</TableCell>
-                                                    </TableRow>
-                                                    <TableRow className="bg-white hover:bg-white h-8 border-t-2 font-bold">
-                                                        <TableCell className="py-1 text-[10px] uppercase">Total</TableCell>
-                                                        <TableCell className="py-1 text-right text-[10px] font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "0.00"}</TableCell>
-                                                        <TableCell className="py-1 text-right text-[10px] font-mono">{watchedAmount > 0 ? watchedAmount.toFixed(2) : "0.00"}</TableCell>
-                                                    </TableRow>
-                                                </TableBody>
-                                            </Table>
-                                            <div className="p-3 bg-indigo-50/50 border-t">
-                                                <p className="text-[10px] text-indigo-700 leading-relaxed italic">
-                                                    * This entry will automatically reduce your Tax Payable liability and credit your {watchedPaymentMode === "BANK" ? "Bank" : "Cash"} account.
-                                                </p>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    <div className="space-y-2 pt-2">
-                                        <Label>Memo / Notes</Label>
-                                        <Controller
-                                            name="notes"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Textarea {...field} className="min-h-[100px]" placeholder="Any additional information..." />
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <DialogFooter className="border-t pt-6">
-                                <Button variant="outline" onClick={() => setIsOpen(false)} type="button" className="px-6">Cancel</Button>
-                                <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 shadow-lg px-8" disabled={isAdding}>
-                                    {isAdding ? "Processing..." : "Submit Tax Filing"}
-                                </Button>
-                            </DialogFooter>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                                <DialogFooter className="border-t pt-6">
+                                    <Button variant="outline" onClick={() => setIsOpen(false)} type="button" className="px-6">Cancel</Button>
+                                    <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 shadow-lg px-8" disabled={isAdding}>
+                                        {isAdding ? "Processing..." : "Submit Tax Filing"}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
             {/* Statistics Cards */}
@@ -307,7 +317,7 @@ export default function TaxSubmission() {
                 <Card className="border-l-4 border-l-indigo-600 shadow-sm bg-gradient-to-br from-white to-indigo-50/30 py-4">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Tax Liability</CardTitle>
-                        <Scale className="h-5 w-5 text-indigo-500" />
+                        <Scale className="h-5 w-5 text-indigo-500 print:hidden" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">
@@ -319,7 +329,7 @@ export default function TaxSubmission() {
                 <Card className="border-l-4 border-l-emerald-600 shadow-sm bg-gradient-to-br from-white to-emerald-50/30 py-4">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Tax Paid</CardTitle>
-                        <CheckCircle className="h-5 w-5 text-emerald-500" />
+                        <CheckCircle className="h-5 w-5 text-emerald-500 print:hidden" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">
@@ -331,7 +341,7 @@ export default function TaxSubmission() {
                 <Card className="border-l-4 border-l-orange-600 shadow-sm bg-gradient-to-br from-white to-orange-50/30 py-4">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Tax Due</CardTitle>
-                        <AlertCircle className="h-5 w-5 text-orange-500" />
+                        <AlertCircle className="h-5 w-5 text-orange-500 print:hidden" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">
@@ -397,6 +407,87 @@ export default function TaxSubmission() {
                     </div>
                 </TabsContent>
             </Tabs>
+
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">TAX SUBMISSIONS REPORT</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold italic flex justify-center gap-6">
+                    <span>Total Tax liability: RM {stats.total_tax.toLocaleString()}</span>
+                    <span>Total Paid: RM {stats.total_paid.toLocaleString()}</span>
+                    <span>Total Due: RM {stats.total_due.toLocaleString()}</span>
+                </div>
+                <div className="mt-2 text-[10px] text-gray-500">
+                    Report Generated On: {format(new Date(), 'd MMMM yyyy HH:mm')}
+                </div>
+            </div>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .print\\:hidden, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .no-print,
+                    .flex.flex-col.md\\:flex-row.justify-between.bg-card {
+                        display: none !important;
+                    }
+                    html, body {
+                        background: white !important;
+                        overflow: visible !important;
+                        height: auto !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    .shadow-sm, .shadow-md, .shadow-lg {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 3px 6px !important;
+                        font-size: 9px !important;
+                    }
+                    th {
+                        line-height: 1 !important;
+                        padding: 4px 6px !important;
+                        text-transform: uppercase !important;
+                        background-color: #f8fafc !important;
+                    }
+                    .grid.gap-6.md\\:grid-cols-3 {
+                        display: grid !important;
+                        grid-template-columns: 1fr 1fr 1fr !important;
+                        gap: 10px !important;
+                        margin-bottom: 15px !important;
+                    }
+                    .py-4 {
+                        padding-top: 5px !important;
+                        padding-bottom: 5px !important;
+                    }
+                    .text-3xl {
+                        font-size: 14px !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

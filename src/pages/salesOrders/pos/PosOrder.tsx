@@ -35,6 +35,7 @@ import { useGetAllProductsQuery } from "@/store/features/admin/productsApiServic
 import {
     useAddSalesInvoiceMutation,
     useAddSalesOrderMutation,
+    useAddSalesPaymentMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import { useNavigate } from "react-router";
@@ -43,6 +44,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PosAddCustomer } from "./PosAddCustomer";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // --- Types & Schema (Mirrored from CreateSalesOrderPage) ---
 const orderSchema = z
@@ -93,8 +95,11 @@ export default function PosOrder() {
         limit: 100, // Fetch more for POS
         search: search,
     });
-    const [addSalesOrder, { isLoading }] = useAddSalesOrderMutation();
-    const [createInvoice] = useAddSalesInvoiceMutation();
+    const [addSalesOrder, { isLoading: isOrdering }] = useAddSalesOrderMutation();
+    const [createInvoice, { isLoading: isInvoicing }] = useAddSalesInvoiceMutation();
+    const [addSalesPayment, { isLoading: isPaying }] = useAddSalesPaymentMutation();
+
+    const isLoading = isOrdering || isInvoicing || isPaying;
 
     // Form Setup
     const form = useForm<SalesOrderFormValues>({
@@ -108,7 +113,7 @@ export default function PosOrder() {
         },
     });
 
-    const { control, watch, setValue, handleSubmit } = form;
+    const { control, watch, setValue } = form;
     const { fields, append, remove, update } = useFieldArray({
         control,
         name: "items",
@@ -215,7 +220,7 @@ export default function PosOrder() {
     };
 
     // Submit Handler
-    const onSubmit = async (values: SalesOrderFormValues) => {
+    const onSubmit = async (values: SalesOrderFormValues, mode: 'due' | 'paid' = 'due') => {
         if (values.customer_id === 0) return toast.error("Please select a customer");
         if (values.items.length === 0) return toast.error("Cart is empty");
 
@@ -237,21 +242,41 @@ export default function PosOrder() {
             const orderRes = await addSalesOrder(payload).unwrap();
 
             if (orderRes.status && orderRes?.data?.id) {
-                toast.success("Order Created! generating invoice...");
+                const orderId = orderRes.data.id;
+
+                // 1. Create Invoice
                 const invoiceRes = await createInvoice({
-                    order_id: orderRes.data.id,
+                    order_id: orderId,
                     due_date: values.due_date,
                 }).unwrap();
 
                 if (invoiceRes.status) {
-                    toast.success("Invoice Created!");
+                    const invoiceId = invoiceRes.data.id;
+
+                    // 2. If 'paid', add payment
+                    if (mode === 'paid') {
+                        await addSalesPayment({
+                            order_id: orderId,
+                            invoice_id: invoiceId,
+                            amount: String(grandTotal), // Use grand total for full payment
+                            payment_method: 'cash', // Default to cash for POS
+                            payment_date: new Date().toISOString(),
+                            status: 'completed',
+                            notes: 'POS Full Payment'
+                        }).unwrap();
+
+                        toast.success("Order Created & Paid Successfully!");
+                    } else {
+                        toast.success("Due Invoice Created Successfully!");
+                    }
+
                     navigate("/dashboard/sales/orders");
                 } else {
                     toast.error("Invoice generation failed.");
                 }
             }
         } catch (error: any) {
-            toast.error(error?.data?.message || "Failed to create order");
+            toast.error(error?.data?.message || "Failed to process request");
         }
     };
 
@@ -304,7 +329,7 @@ export default function PosOrder() {
             {/* RIGHT: Cart / Checkout Form - Shows first on mobile */}
             <div className="w-full lg:w-[400px] flex flex-col lg:order-2">
                 <Form {...form}>
-                    <form onSubmit={handleSubmit(onSubmit)} className="h-full flex flex-col">
+                    <div className="h-full flex flex-col">
                         <Card className="flex-1 flex flex-col h-full border-0 shadow-xl rounded-xl lg:rounded-xl overflow-hidden">
                             {/* 1. Header & Customer Info */}
                             <CardHeader className="bg-muted/30 pb-4 px-4 border-b space-y-3 pt-4">
@@ -516,18 +541,41 @@ export default function PosOrder() {
                                         <span>{currency} {totalTax.toFixed(2)}</span>
                                     </div>
                                     <Separator />
-                                    <div className="flex justify-between font-bold text-lg">
+                                    <div className="flex justify-between font-bold text-lg pt-1">
                                         <span>Total</span>
                                         <span>{currency} {grandTotal.toFixed(2)}</span>
                                     </div>
                                 </div>
 
-                                <Button type="submit" className="w-full h-12 text-md" disabled={isLoading} >
-                                    {isLoading ? "Processing..." : "Complete Order"}
-                                </Button>
+                                <div className={cn(
+                                    "grid gap-3",
+                                    posLayout.showDueSale && posLayout.showCashSale ? "grid-cols-2" : "grid-cols-1"
+                                )}>
+                                    {posLayout.showDueSale && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="h-12 text-md border-primary text-primary hover:bg-primary/5"
+                                            disabled={isLoading}
+                                            onClick={form.handleSubmit((v) => onSubmit(v, 'due'))}
+                                        >
+                                            Due Invoice
+                                        </Button>
+                                    )}
+                                    {posLayout.showCashSale && (
+                                        <Button
+                                            type="button"
+                                            className="h-12 text-md"
+                                            disabled={isLoading}
+                                            onClick={form.handleSubmit((v) => onSubmit(v, 'paid'))}
+                                        >
+                                            Complete payment
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         </Card>
-                    </form>
+                    </div>
                 </Form>
             </div>
 
