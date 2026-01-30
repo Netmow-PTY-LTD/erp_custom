@@ -629,8 +629,9 @@ export default function CreatePurchaseReturnPage() {
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <button
+                                    <Button
                                         type="button"
+                                        variant="outline"
                                         onClick={() =>
                                             append({
                                                 productId: 0,
@@ -644,19 +645,19 @@ export default function CreatePurchaseReturnPage() {
                                                 stock_quantity: 0,
                                             })
                                         }
-                                        className="flex items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                                        className="gap-2"
                                     >
                                         <Plus className="w-4 h-4" />
                                         Add Row
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         type="button"
                                         onClick={() => setIsModalOpen(true)}
-                                        className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none"
+                                        className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/20"
                                     >
                                         <ShoppingCart className="w-4 h-4" />
                                         Add Items
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </CardHeader>
@@ -976,21 +977,22 @@ export default function CreatePurchaseReturnPage() {
 
                     {/* Submit */}
                     <div className="flex justify-end gap-4 pt-4 pb-10">
-                        <button
+                        <Button
                             type="button"
+                            variant="outline"
                             onClick={() => navigate('/dashboard/purchase-orders/returned')}
-                            className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+                            className="px-6 min-w-[100px]"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
                             disabled={isLoading}
-                            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+                            className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/40 min-w-[200px]"
                         >
                             {isLoading ? <span className="animate-spin mr-2">⏳</span> : <CheckCircle2 className="w-5 h-5" />}
                             Create Purchase Return
-                        </button>
+                        </Button>
                     </div>
 
 

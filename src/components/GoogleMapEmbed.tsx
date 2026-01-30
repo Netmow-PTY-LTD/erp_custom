@@ -21,16 +21,13 @@ interface MapEmbedProps {
 
 const containerStyle = { width: "100%", height: "100%" };
 
-export const GoogleMapEmbed = ({ center, zoom, startLocation, endLocation, customerMarkers = [] }: MapEmbedProps) => {
-    const { data: mapSettings } = useGetGoogleMapsSettingsQuery();
-    const apiKey = mapSettings?.data?.api_key || import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
-
+// SUB-COMPONENT: This actually calls the loader and renders the map
+const GoogleMapContent = ({ center, zoom, startLocation, endLocation, customerMarkers, apiKey }: MapEmbedProps & { apiKey: string }) => {
     const { isLoaded } = useJsApiLoader({
         id: "google-map-script",
         googleMapsApiKey: apiKey,
     });
 
-    // Create the sequential path: Start -> Customers -> End
     const routePath = useMemo(() => {
         return [
             { lat: startLocation.lat, lng: startLocation.lng },
@@ -43,22 +40,19 @@ export const GoogleMapEmbed = ({ center, zoom, startLocation, endLocation, custo
 
     return (
         <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={zoom}>
-
-            {/* 1. The GPS Tracking Line (The Route) */}
             <PolylineF
                 path={routePath}
                 options={{
-                    strokeColor: "#3b82f6", // Vibrant Blue
+                    strokeColor: "#3b82f6",
                     strokeOpacity: 0.8,
                     strokeWeight: 4,
                     icons: [
                         {
                             icon: { path: "M 0,-1 0,1", strokeOpacity: 1, scale: 3 },
                             offset: "0",
-                            repeat: "20px", // Dotted effect
+                            repeat: "20px",
                         },
                         {
-                            // Directional arrows like GPS
                             icon: { path: "M -2,0 0,2 2,0", strokeColor: "#ffffff", strokeWeight: 2 },
                             offset: "50%",
                             repeat: "50px",
@@ -66,33 +60,43 @@ export const GoogleMapEmbed = ({ center, zoom, startLocation, endLocation, custo
                     ],
                 }}
             />
-
-            {/* 2. Start Marker (Green) */}
             <MarkerF
                 position={startLocation}
                 label="START"
                 icon="http://maps.google.com/mapfiles/ms/icons/green-dot.png"
             />
-
-            {/* 3. Sequential Customer Markers */}
             {customerMarkers.map((customer, index) => (
                 <MarkerF
                     key={index}
                     position={{ lat: customer.lat, lng: customer.lng }}
-                    label={(index + 1).toString()} // Shows visit order
+                    label={(index + 1).toString()}
                     title={customer.name}
                 />
             ))}
-
-            {/* 4. End Marker (Flag/Finish) */}
             <MarkerF
                 position={endLocation}
                 label="END"
                 icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
             />
-
         </GoogleMap>
     );
+};
+
+// MAIN EXPORT: Handles fetching the API key before rendering the map content
+export const GoogleMapEmbed = (props: MapEmbedProps) => {
+    const { data: mapSettings, isLoading } = useGetGoogleMapsSettingsQuery();
+
+    // Determine the API key
+    const apiKey = mapSettings?.data?.api_key || import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+    // Wait until settings are loaded and we have an API key
+    if (isLoading || !apiKey) {
+        return <div className="w-full h-full bg-muted animate-pulse flex items-center justify-center text-xs text-muted-foreground">
+            {!isLoading && !apiKey ? "Google Maps API Key not found" : "Loading Map..."}
+        </div>;
+    }
+
+    return <GoogleMapContent {...props} apiKey={apiKey} />;
 };
 
 

@@ -25,6 +25,7 @@ import {
   Clock,
   CreditCard,
   DollarSign,
+  Eye,
   PlusCircle,
   Printer,
   ShoppingCart,
@@ -271,15 +272,15 @@ export default function PendingOrders() {
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/sales/orders/${item.id}`}>
-              <Button size="sm" variant="outline-info">
-                View
+              <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
-            {/* <Link to={`/dashboard/orders/${item.id}/edit`}>
-              <Button size="sm" variant="outline">
-                Edit
+            <Link to={`/dashboard/sales/orders/${item.id}/print`}>
+              <Button size="sm" variant="outline" className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none" title="Print Order">
+                <Printer className="w-4 h-4" />
               </Button>
-            </Link> */}
+            </Link>
             {canUpdateDelivery && (
               <Button
                 size="sm"

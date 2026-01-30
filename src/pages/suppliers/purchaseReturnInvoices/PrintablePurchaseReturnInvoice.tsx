@@ -228,7 +228,7 @@ export default function PrintablePurchaseReturnInvoice({ invoice, from, to }: Pr
                                         <td className="p-1 px-4 text-right">{currency} {subtotal.toFixed(2)}</td>
                                     </tr>
                                     <tr className="border border-gray-300">
-                                        <td className="p-1 px-4 text-left border-r border-gray-300">GST</td>
+                                        <td className="p-1 px-4 text-left border-r border-gray-300">TAX</td>
                                         <td className="p-1 px-4 text-right">{currency} {taxAmount.toFixed(2)}</td>
                                     </tr>
                                     <tr className="border border-gray-300 bg-orange-50 text-sm text-orange-800">

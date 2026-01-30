@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useGetAllPurchaseReturnPaymentsQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
 import type { PurchasePayment } from "@/types/purchasePayment.types";
 import type { ColumnDef } from "@tanstack/react-table";
-import { PlusCircle, Banknote, CheckCircle, Clock, XCircle } from "lucide-react";
+import { PlusCircle, Banknote, CheckCircle, Clock, XCircle, Eye, Printer } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
@@ -157,8 +157,19 @@ export default function PurchaseReturnPayments() {
                 return (
                     <div className="flex items-center gap-2">
                         <Link to={`/dashboard/purchase-returns/payments/${payment.id}`}>
-                            <Button size="sm" variant="outline">View</Button>
+                            <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                                <Eye className="w-4 h-4 mr-1" /> View
+                            </Button>
                         </Link>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none"
+                            title="Print Receipt"
+                            onClick={() => window.print()}
+                        >
+                            <Printer className="w-4 h-4" />
+                        </Button>
                     </div>
                 );
             },
@@ -168,13 +179,13 @@ export default function PurchaseReturnPayments() {
     return (
         <div className="w-full">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <h1 className="text-2xl font-bold tracking-tight text-orange-700">Purchase Return Refunds</h1>
+                <h1 className="text-2xl font-bold tracking-tight">Purchase Return Refunds</h1>
 
                 <Link to="/dashboard/purchase-returns/payments/create">
-                    <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-orange-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-orange-500/40 active:translate-y-0 active:shadow-none">
-                        <PlusCircle size={18} />
+                    <Button className="gap-2 bg-orange-600 hover:bg-orange-700 text-white">
+                        <PlusCircle className="h-4 w-4" />
                         Record Refund
-                    </button>
+                    </Button>
                 </Link>
             </div>
 

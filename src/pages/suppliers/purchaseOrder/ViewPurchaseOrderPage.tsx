@@ -121,13 +121,6 @@ export default function PurchaseOrderView() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {!["approved", "received", "delivered"].includes(purchase.status || "") && (
-            <Button onClick={handleApprove} disabled={isUpdating} className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-sm">
-              <Check className="h-4 w-4" />
-              {isUpdating ? "Approving..." : "Approve Order"}
-            </Button>
-          )}
-
           {["approved", "received", "delivered"].includes(purchase.status || "") && (
             purchase.invoice ? (
               <Link to={`/dashboard/purchase-invoices/${purchase.invoice.id}`}>
