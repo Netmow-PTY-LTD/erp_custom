@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { baseApi } from "@/store/baseApi";
-import type { PurchaseOrder } from "@/types/purchaseOrder.types";
+import type { PurchaseOrder, PurchaseReturn } from "@/types/purchaseOrder.types";
 import type { PurchaseResponse, PurchasePaymentResponse } from "../purchaseOrder/purchaseOrderApiService";
 import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 import type { PurchasePayment } from "@/types/purchasePayment.types";
@@ -13,7 +13,7 @@ export const purchaseReturnApiService = baseApi.injectEndpoints({
 
         // GET ALL PURCHASE RETURNS
         getAllPurchaseReturns: builder.query<
-            PurchaseResponse<PurchaseOrder>,
+            PurchaseResponse<PurchaseReturn[]>,
             { page?: number; limit?: number; search?: string; status?: string }
         >({
             query: (params) => ({
@@ -26,7 +26,7 @@ export const purchaseReturnApiService = baseApi.injectEndpoints({
 
         // GET SINGLE PURCHASE RETURN BY ID
         getPurchaseReturnById: builder.query<
-            PurchaseResponse<PurchaseOrder>,
+            PurchaseResponse<PurchaseReturn>,
             string | number
         >({
             query: (id) => ({

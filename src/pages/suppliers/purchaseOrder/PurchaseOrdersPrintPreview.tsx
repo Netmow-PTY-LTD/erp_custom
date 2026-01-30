@@ -3,7 +3,7 @@
 
 import { useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useSearchParams } from "react-router";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Printer, ArrowLeft } from "lucide-react";
 import { Link } from "react-router";
