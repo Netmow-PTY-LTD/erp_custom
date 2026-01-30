@@ -161,7 +161,7 @@ export default function RecordPaymentModal({
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-4">
                             {/* AMOUNT */}
                             <FormField
                                 name="amount"
@@ -219,7 +219,7 @@ export default function RecordPaymentModal({
                                         </FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger>
+                                                <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select Method" />
                                                 </SelectTrigger>
                                             </FormControl>

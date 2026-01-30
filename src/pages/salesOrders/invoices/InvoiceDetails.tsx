@@ -145,9 +145,9 @@ export default function InvoiceDetailsPage() {
                     <p className="text-xs text-muted-foreground uppercase font-bold">From</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{from?.company_name}</p>
                     <div className="text-sm text-gray-500 space-y-0.5 mt-1">
-                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {from?.address}</p>
-                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {from?.email}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {from?.phone}</p>
+                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {from?.address}</p>
+                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 shrink-0" /> {from?.email}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {from?.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -161,9 +161,9 @@ export default function InvoiceDetailsPage() {
                     <p className="text-xs text-muted-foreground uppercase font-bold">Bill To</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{to?.name}</p>
                     <div className="text-sm text-gray-500 space-y-0.5 mt-1">
-                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {to?.address}</p>
-                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {to?.email}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {to?.phone}</p>
+                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {to?.address}</p>
+                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 shrink-0" /> {to?.email}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {to?.phone}</p>
                     </div>
                   </div>
                 </div>
