@@ -16,7 +16,6 @@ import {
   Cell,
 } from "recharts";
 import { Plus, Calendar, CalendarDays, CalendarRange, CalendarClock, ArrowUpRight, ArrowDownLeft } from "lucide-react";
-import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
 import { Skeleton } from "@/components/ui/skeleton";
 import { startOfMonth, endOfMonth, format } from "date-fns";
@@ -24,6 +23,7 @@ import { useGetAccountingOverviewQuery, useGetRecentActivityQuery, useGetIncomeE
 import type { Overview } from "@/types/accounting.types";
 import { useState } from "react";
 import AddIncomeModal from "./AddIncomeModal";
+import AddExpenseModal from "./AddExpenseModal";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -32,6 +32,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 export default function AccountingOverview() {
   const [isAddIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const { data: accountingOverview } = useGetAccountingOverviewQuery();
   const { data: recentActivityData } = useGetRecentActivityQuery();
 
@@ -67,11 +68,12 @@ export default function AccountingOverview() {
             <Plus className="w-4 h-4" /> Add Income
           </Button>
 
-          <Link to={"/dashboard/accounting/add-expanse"}>
-            <Button className="gap-2 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white shadow-lg shadow-rose-500/20">
-              <Plus className="w-4 h-4" /> Add Expense
-            </Button>
-          </Link>
+          <Button
+            onClick={() => setIsAddExpenseModalOpen(true)}
+            className="gap-2 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white shadow-lg shadow-rose-500/20"
+          >
+            <Plus className="w-4 h-4" /> Add Expense
+          </Button>
         </div>
       </div>
 
@@ -307,6 +309,12 @@ export default function AccountingOverview() {
       <AddIncomeModal
         open={isAddIncomeModalOpen}
         onOpenChange={setIsAddIncomeModalOpen}
+      />
+
+      {/* Add Expense Modal */}
+      <AddExpenseModal
+        open={isAddExpenseModalOpen}
+        onOpenChange={setIsAddExpenseModalOpen}
       />
     </div>
   );
