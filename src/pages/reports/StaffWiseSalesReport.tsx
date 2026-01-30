@@ -230,8 +230,8 @@ export default function StaffWiseSalesReport() {
             </div>
 
             {/* Main Table */}
-            <Card className="border-none shadow-xl shadow-slate-200/50 overflow-hidden rounded-3xl">
-                <CardHeader className="border-b border-slate-50 bg-white/50 backdrop-blur-sm py-4">
+            <Card className="shadow-lg shadow-slate-200/50 overflow-hidden rounded-3xl pb-2">
+                <CardHeader className="border-b-1 border-slate-50 bg-white/50 backdrop-blur-sm py-4">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200">
@@ -244,7 +244,7 @@ export default function StaffWiseSalesReport() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-0">
+                <CardContent className="">
                     <DataTable
                         data={staffSales}
                         columns={staffSalesColumns}

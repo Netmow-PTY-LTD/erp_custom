@@ -29,11 +29,17 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
       <style>{`
         @media print {
           @page {
-            margin: 10mm;
+            margin: 5mm;
             size: A4;
           }
           body {
             -webkit-print-color-adjust: exact;
+          }
+          .invoice-box {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
         }
         .invoice-box {
@@ -134,7 +140,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
               <tr>
                 <th className="border border-gray-300 p-2 text-center w-12">Seq. No.</th>
                 <th className="border border-gray-300 p-2 text-left w-24">Item Code</th>
-                <th className="border border-gray-300 p-2 text-left">Item Name [Spec]</th>
+                <th className="border border-gray-300 p-2 text-left">Item Name</th>
+                <th className="border border-gray-300 p-2 text-left w-32">Specification</th>
                 <th className="border border-gray-300 p-2 text-center w-16">Qty</th>
                 <th className="border border-gray-300 p-2 text-right w-20">Price</th>
                 <th className="border border-gray-300 p-2 text-right w-24">Discount Pretax Amount</th>
@@ -146,9 +153,9 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                 <tr key={item.id} className="align-top">
                   <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
                   <td className="border border-gray-300 p-2">{item.product?.sku}</td>
-                  <td className="border border-gray-300 p-2">
-                    <div className="font-bold">{item.product?.name}</div>
-                    {item.product?.specification && <div className="text-[10px] text-gray-500 italic mt-0.5">{item.product.specification}</div>}
+                  <td className="border border-gray-300 p-2 font-bold uppercase">{item.product?.name}</td>
+                  <td className="border border-gray-300 p-2 italic text-gray-500">
+                    {item.specification || item.product?.specification || "-"}
                   </td>
                   <td className="border border-gray-300 p-2 text-center">{Number(item.quantity).toFixed(2)}</td>
                   <td className="border border-gray-300 p-2 text-right">{Number(item.unit_price).toFixed(2)}</td>
@@ -158,12 +165,13 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
               ))}
               {/* Grand Total Row inside Table */}
               <tr className="bg-gray-50 font-bold">
-                <td colSpan={6} className="border border-gray-300 p-2 text-center uppercase tracking-wider">Grand Total</td>
+                <td colSpan={7} className="border border-gray-300 p-2 text-center uppercase tracking-wider">Grand Total</td>
                 <td className="border border-gray-300 p-2 text-right">{total}</td>
               </tr>
               {/* Fill remaining space if needed to match PDF height (optional) */}
               {[...Array(Math.max(0, 5 - (invoice?.order?.items?.length || 0)))].map((_, i) => (
                 <tr key={`empty-${i}`} className="h-8">
+                  <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>

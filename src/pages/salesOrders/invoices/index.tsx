@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { format } from "date-fns";
 import { PlusCircle, FileText, CheckCircle, Clock, AlertTriangle, Printer } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 import { useGetSalesInvoicesQuery } from "@/store/features/salesOrder/salesOrder";
@@ -19,6 +20,8 @@ import { useAppSelector } from "@/store/store";
 export default function Invoices() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [rowSelection, setRowSelection] = useState({});
+  const navigate = useNavigate();
   const limit = 10;
 
   // Fetch invoices with pagination & search
@@ -83,6 +86,29 @@ export default function Invoices() {
   ];
 
   const invoiceColumns: ColumnDef<SalesInvoice>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "invoice_number",
       header: "Invoice #",
@@ -259,6 +285,15 @@ export default function Invoices() {
     },
   ];
 
+  const selectedInvoicesCount = Object.keys(rowSelection).length;
+  const selectedInvoiceIds = Object.keys(rowSelection).map(idx => invoices[parseInt(idx)]?.id).filter(id => id !== undefined);
+
+  const handleViewSummaryDetails = () => {
+    if (selectedInvoiceIds.length > 0) {
+      navigate(`/dashboard/sales/invoices/summary-details?ids=${selectedInvoiceIds.join(",")}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -333,6 +368,8 @@ export default function Invoices() {
           setPage(1);
         }}
         isFetching={isFetching}
+        rowSelection={rowSelection}
+        onRowSelectionChange={setRowSelection}
       />
 
       {/* Print Styles */}

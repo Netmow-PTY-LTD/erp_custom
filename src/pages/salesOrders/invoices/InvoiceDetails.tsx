@@ -229,6 +229,7 @@ export default function InvoiceDetailsPage() {
                 <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b">
                   <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
                     <th className="px-6 py-4 font-medium">Product Details</th>
+                    <th className="px-6 py-4 font-medium">Specification</th>
                     <th className="px-6 py-4 font-medium text-right">Unit Price</th>
                     <th className="px-6 py-4 font-medium text-center">Qty</th>
                     <th className="px-6 py-4 font-medium text-right">Discount</th>
@@ -245,6 +246,9 @@ export default function InvoiceDetailsPage() {
                         {item?.product?.specification && (
                           <p className="text-xs text-muted-foreground mt-1">{item?.product?.specification}</p>
                         )}
+                      </td>
+                      <td className="px-6 py-4 text-xs italic text-muted-foreground">
+                        {item.specification || item.product?.specification || "-"}
                       </td>
                       <td className="px-6 py-4 text-right font-medium">
                         {currency} {Number(item?.unit_price || 0).toFixed(2)}

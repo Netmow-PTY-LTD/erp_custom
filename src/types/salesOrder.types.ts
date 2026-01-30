@@ -15,6 +15,9 @@ export interface SalesOrderItem {
   line_total: number;     // decimal
   discount: number;
   sales_tax: number;
+  sales_tax_percent?: number;
+  tax_amount?: number | string;
+  specification?: string;
   created_at: string;      // ISO date
   updated_at: string;      // ISO date
 }
@@ -59,6 +62,8 @@ export interface SalesOrder {
   created_by: number;
   created_at: string;
   updated_at: string;
+  total_refunded_amount?: number;
+  due_refund_amount?: number;
   items: SalesOrderItem[];
   status_history?: StatusHistoryEntry[];
 }

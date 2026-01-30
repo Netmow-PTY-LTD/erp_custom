@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { MapPin, Search, Phone, Mail, Truck, User, ArrowRight, ChevronRight, Check, Plus } from "lucide-react";
+import { MapPin, Search, Phone, Mail, Truck, User, ArrowRight, ChevronRight, Check, Plus, ChevronLeft } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
     Dialog,
@@ -37,6 +37,7 @@ const StaffRoute = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterRole,] = useState<string | null>(null);
     const [explicitSelectedId, setExplicitSelectedId] = useState<string | number | null>(null);
+    const [showDetails, setShowDetails] = useState(false);
 
     // Fetch Staff Data
     const { data: routeData, isFetching: isStaffFetching } = useGetAllStaffWiseRoutesQuery({
@@ -205,9 +206,9 @@ const StaffRoute = () => {
 
 
     return (
-        <div className="flex h-[calc(100vh-6rem)] gap-4 overflow-hidden bg-background">
+        <div className="flex flex-col lg:flex-row lg:h-[calc(100vh-6rem)] gap-4 overflow-hidden bg-background">
             {/* Left Sidebar: Staff List */}
-            <Card className="w-1/3 min-w-[300px] flex flex-col h-full border-r shadow-sm p-2 overflow-hidden">
+            <Card className={`${showDetails ? "hidden lg:flex" : "flex"} w-full lg:w-1/3 lg:min-w-[300px] flex-col h-full border-r shadow-sm p-4 lg:p-2 overflow-hidden`}>
                 <CardHeader className="pb-3 border-b bg-card">
                     <CardTitle className="text-xl font-bold flex items-center justify-between">
                         <span>Staff Directory</span>
@@ -260,7 +261,10 @@ const StaffRoute = () => {
                                 <button
                                     ref={isLastElement ? lastStaffElementRef : null}
                                     key={staff.id}
-                                    onClick={() => setExplicitSelectedId(staff.id)}
+                                    onClick={() => {
+                                        setExplicitSelectedId(staff.id);
+                                        setShowDetails(true);
+                                    }}
                                     className={`flex items-center gap-3 p-3 rounded-lg text-left transition-all hover:bg-accent group
                                         ${selectedStaffId === staff.id ? "bg-accent border-l-4 border-l-primary shadow-sm pl-2" : "border-l-4 border-l-transparent"}
                                     `}
@@ -295,12 +299,18 @@ const StaffRoute = () => {
             </Card>
 
             {/* Right Panel: Detailed View */}
-            <Card className="flex-1 flex flex-col h-full shadow-sm overflow-hidden border-none bg-transparent">
+            <Card className={`${showDetails ? "flex" : "hidden lg:flex"} flex-1 flex flex-col h-full shadow-sm overflow-hidden border-none bg-transparent`}>
                 {selectedStaff ? (
                     <div className="flex flex-col h-full gap-4">
                         {/* Profile Header Card */}
-                        <div className="bg-card rounded-xl border p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
-                            <div className="flex items-center gap-5">
+                        <div className="bg-card rounded-xl border p-4 lg:p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm overflow-hidden">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-5">
+                                <button
+                                    onClick={() => setShowDetails(false)}
+                                    className="lg:hidden p-2 -ml-2 self-start hover:bg-accent rounded-full transition-colors"
+                                >
+                                    <ChevronLeft className="h-5 w-5" />
+                                </button>
                                 <Avatar className="h-20 w-20 border-4 border-background shadow-md">
                                     <AvatarImage src={selectedStaff.thumb_url ? selectedStaff.thumb_url : `https://api.dicebear.com/7.x/initials/svg?seed=${selectedStaff.name}`} />
                                     <AvatarFallback className="text-xl">{selectedStaff.name.substring(0, 2)}</AvatarFallback>
@@ -317,12 +327,12 @@ const StaffRoute = () => {
                                         <span className="text-muted-foreground/30">•</span>
                                         <span className="text-sm">ID: {selectedStaff.id}</span>
                                     </p>
-                                    <div className="flex gap-4 text-sm text-muted-foreground">
-                                        <div className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer">
+                                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-sm text-muted-foreground mt-2">
+                                        <div className="flex items-center justify-center sm:justify-start gap-1.5 hover:text-primary transition-colors cursor-pointer truncate">
                                             <Mail className="h-3.5 w-3.5" />
-                                            {selectedStaff.email}
+                                            <span className="truncate">{selectedStaff.email}</span>
                                         </div>
-                                        <div className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer">
+                                        <div className="flex items-center justify-center sm:justify-start gap-1.5 hover:text-primary transition-colors cursor-pointer whitespace-nowrap">
                                             <Phone className="h-3.5 w-3.5" />
                                             {selectedStaff.phone}
                                         </div>
@@ -331,138 +341,140 @@ const StaffRoute = () => {
                             </div>
 
                             {/* Quick Stats */}
-                            <div className="flex gap-6 pr-4 border-l pl-6 max-md:border-l-0 max-md:pl-0 max-md:pt-4 max-md:border-t">
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">{selectedStaff.routes.length}</div>
-                                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Assigned Routes</div>
+                            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-4 sm:gap-6 pr-0 sm:pr-4 border-t sm:border-t-0 sm:border-l pt-4 sm:pt-0 pl-0 sm:pl-6">
+                                <div className="text-center sm:text-left flex flex-col sm:block p-3 sm:p-0 bg-primary/5 sm:bg-transparent rounded-lg">
+                                    <div className="text-xl lg:text-2xl font-bold">{selectedStaff.routes.length}</div>
+                                    <div className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Assigned</div>
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold text-primary">{totalOrders}</div>
-                                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Active Orders</div>
+                                <div className="text-center sm:text-left flex flex-col sm:block p-3 sm:p-0 bg-primary/5 sm:bg-transparent rounded-lg">
+                                    <div className="text-xl lg:text-2xl font-bold text-primary">{totalOrders}</div>
+                                    <div className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Orders</div>
                                 </div>
-                                <div className="text-center">
-                                    <div className="text-2xl font-bold">{selectedStaff.stats.rating}</div>
-                                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Rating</div>
+                                <div className="text-center sm:text-left flex flex-col sm:block p-3 sm:p-0 bg-primary/5 sm:bg-transparent rounded-lg col-span-2 sm:col-span-1">
+                                    <div className="text-xl lg:text-2xl font-bold">{selectedStaff.stats.rating}</div>
+                                    <div className="text-[10px] lg:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Rating</div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Routes Content */}
                         <Card className="flex-1 flex flex-col overflow-hidden border">
-                            <CardHeader className="py-4 px-6 border-b bg-muted/5 flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle className="text-lg">Assigned Routes</CardTitle>
-                                    <CardDescription>Territories and areas covered by this staff member</CardDescription>
-                                </div>
-                                <div className="flex gap-2">
-                                    <div className="relative w-48">
-                                        <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Search Routes..."
-                                            className="h-8 pl-8 text-xs bg-background"
-                                            value={routeSearchTerm}
-                                            onChange={(e) => setRouteSearchTerm(e.target.value)}
-                                        />
+                            <CardHeader className="py-4 px-4 sm:px-6 border-b bg-muted/5">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                    <div className="min-w-0">
+                                        <CardTitle className="text-lg">Assigned Routes</CardTitle>
+                                        <CardDescription className="line-clamp-1">Territories and areas covered</CardDescription>
                                     </div>
+                                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                        <div className="relative w-full sm:w-48">
+                                            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                                            <Input
+                                                placeholder="Search Routes..."
+                                                className="h-8 pl-8 text-xs bg-background"
+                                                value={routeSearchTerm}
+                                                onChange={(e) => setRouteSearchTerm(e.target.value)}
+                                            />
+                                        </div>
 
-                                    {/*   this assign new route logic here */}
-                                    <Dialog open={isAssignModalOpen} onOpenChange={handleAssignModalOpenChange}>
-                                        <DialogTrigger asChild>
-                                            <Button size="sm" className="gap-2">
-                                                <MapPin className="h-4 w-4" /> Assign New Route
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="sm:max-w-[500px]">
-                                            <DialogHeader>
-                                                <DialogTitle>Assign New Route</DialogTitle>
-                                                <DialogDescription>
-                                                    Select a route to assign to {selectedStaff?.name}.
-                                                    This will grant them access to all orders within this route.
-                                                </DialogDescription>
-                                            </DialogHeader>
+                                        {/*   this assign new route logic here */}
+                                        <Dialog open={isAssignModalOpen} onOpenChange={handleAssignModalOpenChange}>
+                                            <DialogTrigger asChild>
+                                                <Button size="sm" className="gap-2">
+                                                    <MapPin className="h-4 w-4" /> Assign New Route
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-[500px]">
+                                                <DialogHeader>
+                                                    <DialogTitle>Assign New Route</DialogTitle>
+                                                    <DialogDescription>
+                                                        Select a route to assign to {selectedStaff?.name}.
+                                                        This will grant them access to all orders within this route.
+                                                    </DialogDescription>
+                                                </DialogHeader>
 
-                                            <div className="py-4 space-y-4">
-                                                <div className="relative">
-                                                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                                    <Input
-                                                        placeholder="Search available routes..."
-                                                        className="pl-9"
-                                                        value={assignSearchTerm}
-                                                        onChange={(e) => handleAssignSearchChange(e.target.value)}
-                                                    />
-                                                </div>
+                                                <div className="py-4 space-y-4">
+                                                    <div className="relative">
+                                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                        <Input
+                                                            placeholder="Search available routes..."
+                                                            className="pl-9"
+                                                            value={assignSearchTerm}
+                                                            onChange={(e) => handleAssignSearchChange(e.target.value)}
+                                                        />
+                                                    </div>
 
-                                                <ScrollArea className="h-[300px] border rounded-md p-2">
-                                                    {allAssignRoutes.length === 0 && !isRoutesFetching ? (
-                                                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
-                                                            <MapPin className="h-8 w-8 opacity-20" />
-                                                            <p className="text-sm">No routes found</p>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="space-y-2">
-                                                            {allAssignRoutes.map((route, index) => {
-                                                                const isLastRoute = index === allAssignRoutes.length - 1;
-                                                                const isAlreadyAssigned = selectedStaff?.routes.some(r => r.id === route.id);
-                                                                const isSelected = selectedRouteIdToAssign === route.id;
+                                                    <ScrollArea className="h-[300px] border rounded-md p-2">
+                                                        {allAssignRoutes.length === 0 && !isRoutesFetching ? (
+                                                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
+                                                                <MapPin className="h-8 w-8 opacity-20" />
+                                                                <p className="text-sm">No routes found</p>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="space-y-2">
+                                                                {allAssignRoutes.map((route, index) => {
+                                                                    const isLastRoute = index === allAssignRoutes.length - 1;
+                                                                    const isAlreadyAssigned = selectedStaff?.routes.some(r => r.id === route.id);
+                                                                    const isSelected = selectedRouteIdToAssign === route.id;
 
-                                                                return (
-                                                                    <div
-                                                                        ref={isLastRoute ? lastRouteElementRef : null}
-                                                                        key={route.id}
-                                                                        onClick={() => !isAlreadyAssigned && setSelectedRouteIdToAssign(route.id)}
-                                                                        className={`
+                                                                    return (
+                                                                        <div
+                                                                            ref={isLastRoute ? lastRouteElementRef : null}
+                                                                            key={route.id}
+                                                                            onClick={() => !isAlreadyAssigned && setSelectedRouteIdToAssign(route.id)}
+                                                                            className={`
                                                                             flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all
                                                                             ${isAlreadyAssigned
-                                                                                ? "opacity-50 cursor-not-allowed bg-muted"
-                                                                                : isSelected
-                                                                                    ? "border-primary bg-primary/5 shadow-sm"
-                                                                                    : "hover:bg-accent hover:border-accent-foreground/20"
-                                                                            }
+                                                                                    ? "opacity-50 cursor-not-allowed bg-muted"
+                                                                                    : isSelected
+                                                                                        ? "border-primary bg-primary/5 shadow-sm"
+                                                                                        : "hover:bg-accent hover:border-accent-foreground/20"
+                                                                                }
                                                                         `}
-                                                                    >
-                                                                        <div className="flex items-center gap-3">
-                                                                            <div className={`p-2 rounded-full ${isSelected ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                                                                                <MapPin className="h-4 w-4" />
+                                                                        >
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className={`p-2 rounded-full ${isSelected ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                                                                                    <MapPin className="h-4 w-4" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-medium text-sm">{route.route_name}</p>
+                                                                                    <p className="text-xs text-muted-foreground">ID: {route.id}</p>
+                                                                                </div>
                                                                             </div>
-                                                                            <div>
-                                                                                <p className="font-medium text-sm">{route.route_name}</p>
-                                                                                <p className="text-xs text-muted-foreground">ID: {route.id}</p>
-                                                                            </div>
+                                                                            {isAlreadyAssigned ? (
+                                                                                <Badge variant="secondary" className="text-xs">Assigned</Badge>
+                                                                            ) : isSelected && (
+                                                                                <Check className="h-4 w-4 text-primary" />
+                                                                            )}
                                                                         </div>
-                                                                        {isAlreadyAssigned ? (
-                                                                            <Badge variant="secondary" className="text-xs">Assigned</Badge>
-                                                                        ) : isSelected && (
-                                                                            <Check className="h-4 w-4 text-primary" />
-                                                                        )}
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                            {isRoutesFetching && <div className="text-center text-xs text-muted-foreground py-2">Loading more routes...</div>}
-                                                        </div>
-                                                    )}
-                                                </ScrollArea>
-                                            </div>
+                                                                    );
+                                                                })}
+                                                                {isRoutesFetching && <div className="text-center text-xs text-muted-foreground py-2">Loading more routes...</div>}
+                                                            </div>
+                                                        )}
+                                                    </ScrollArea>
+                                                </div>
 
-                                            <DialogFooter>
-                                                <Button variant="outline" onClick={() => handleAssignModalOpenChange(false)}>Cancel</Button>
-                                                <Button
-                                                    onClick={handleAssignRoute}
-                                                    disabled={!selectedRouteIdToAssign || isAssigning}
-                                                >
-                                                    {isAssigning ? "Assigning..." : "Assign Route"}
-                                                </Button>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
+                                                <DialogFooter>
+                                                    <Button variant="outline" onClick={() => handleAssignModalOpenChange(false)}>Cancel</Button>
+                                                    <Button
+                                                        onClick={handleAssignRoute}
+                                                        disabled={!selectedRouteIdToAssign || isAssigning}
+                                                    >
+                                                        {isAssigning ? "Assigning..." : "Assign Route"}
+                                                    </Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
 
 
 
 
 
+                                    </div>
                                 </div>
                             </CardHeader>
-                            <ScrollArea className="flex-1 bg-muted/5 p-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            <ScrollArea className="flex-1 bg-muted/5 p-4 lg:p-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                                     {assignedRoutesFiltered.map((route) => (
                                         <div
                                             key={route.id}
