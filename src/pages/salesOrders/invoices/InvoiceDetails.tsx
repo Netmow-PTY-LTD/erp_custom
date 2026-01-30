@@ -319,7 +319,7 @@ export default function InvoiceDetailsPage() {
           </Card>
 
           {/* Refund History (Outgoing) */}
-          {(invoice?.payments?.filter((p: any) => Number(p.amount) < 0).length || 0) > 0 && (
+          {((invoice?.payments?.filter((p: any) => Number(p.amount) < 0) || []).length || 0) > 0 && (
             <Card className="shadow-sm border-border/60 overflow-hidden mt-6">
               <CardHeader className="bg-red-50/50 dark:bg-red-900/10 py-4 border-b-1 gap-0 flex flex-row justify-between items-center">
                 <CardTitle className="text-sm font-medium uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-2">
@@ -338,7 +338,7 @@ export default function InvoiceDetailsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {invoice?.payments?.filter((p: any) => Number(p.amount) < 0).map((item, idx) => (
+                    {(invoice?.payments?.filter((p: any) => Number(p.amount) < 0) || []).map((item, idx) => (
                       <tr key={idx} className="hover:bg-red-50/10 transition-colors">
                         <td className="px-6 py-4">
                           {item?.payment_date ? format(new Date(item.payment_date), 'dd/MM/yyyy') : "-"}

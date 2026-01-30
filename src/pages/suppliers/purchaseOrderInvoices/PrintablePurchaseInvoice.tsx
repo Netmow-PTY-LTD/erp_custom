@@ -159,33 +159,45 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
           <table className="w-full table-text border-collapse">
             <thead className="bg-gray-100 font-bold">
               <tr>
-                <th className="border border-gray-300 p-2 text-center w-12">No</th>
-                <th className="border border-gray-300 p-2 text-left w-24">Item Code</th>
-                <th className="border border-gray-300 p-2 text-left">Item Name</th>
-                <th className="border border-gray-300 p-2 text-left">Specification</th>
-                <th className="border border-gray-300 p-2 text-center w-16">Qty</th>
+                <th className="border border-gray-300 p-2 text-left w-24">ID</th>
+                <th className="border border-gray-300 p-2 text-left">Item Name & Specification</th>
                 <th className="border border-gray-300 p-2 text-right w-20">Price</th>
-                <th className="border border-gray-300 p-2 text-right w-24">Disc. Amt.</th>
+                <th className="border border-gray-300 p-2 text-center w-16">Qty</th>
+                <th className="border border-gray-300 p-2 text-right w-20">Discount</th>
+                <th className="border border-gray-300 p-2 text-right w-24">Pretax Amt</th>
+                <th className="border border-gray-300 p-2 text-right w-20">Tax</th>
                 <th className="border border-gray-300 p-2 text-right w-24">Total</th>
               </tr>
             </thead>
             <tbody>
-              {invoice?.purchase_order?.items?.map((item: POItem, index: number) => (
-                <tr key={item.id} className="align-top">
-                  <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
-                  <td className="border border-gray-300 p-2">{item.product?.sku}</td>
-                  <td className="border border-gray-300 p-2">
-                    <div className="font-bold">{item.product?.name}</div>
-                  </td>
-                  <td className="border border-gray-300 p-2 italic text-[10px] text-gray-500">
-                    {item.product?.specification || "-"}
-                  </td>
-                  <td className="border border-gray-300 p-2 text-center">{Number(item.quantity).toFixed(2)}</td>
-                  <td className="border border-gray-300 p-2 text-right">{Number(item.unit_cost).toFixed(2)}</td>
-                  <td className="border border-gray-300 p-2 text-right">{Number(item.discount).toFixed(2)}</td>
-                  <td className="border border-gray-300 p-2 text-right font-bold">{Number(item.line_total).toFixed(2)}</td>
-                </tr>
-              ))}
+              {invoice?.purchase_order?.items?.map((item: any) => {
+                const price = Number(item.unit_cost || 0);
+                const qty = Number(item.quantity || 0);
+                const discount = Number(item.discount || 0);
+                const pretaxAmt = Number(item.line_total || (price * qty - discount)); // Fallback if line_total is pre-tax
+                const tax = Number(item.tax_amount || 0);
+                const itemTotal = pretaxAmt + tax;
+
+                return (
+                  <tr key={item.id} className="align-top">
+                    <td className="border border-gray-300 p-2">{item.product?.sku}</td>
+                    <td className="border border-gray-300 p-2">
+                      <div className="font-bold">{item.product?.name}</div>
+                      {(item.product?.specification || item.specification) && (
+                        <div className="italic text-[10px] text-gray-500 mt-1">
+                          {item.product?.specification || item.specification}
+                        </div>
+                      )}
+                    </td>
+                    <td className="border border-gray-300 p-2 text-right">{price.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2 text-center">{qty.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2 text-right">{discount.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2 text-right">{pretaxAmt.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2 text-right">{tax.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2 text-right font-bold">{itemTotal.toFixed(2)}</td>
+                  </tr>
+                );
+              })}
               {/* Grand Total Row inside Table */}
               <tr className="bg-gray-50 font-bold">
                 <td colSpan={7} className="border border-gray-300 p-2 text-center uppercase tracking-wider">Grand Total</td>

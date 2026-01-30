@@ -289,7 +289,7 @@ export default function PurchaseReturnInvoiceDetails() {
                                 </div>
 
                                 <div className="flex justify-between items-center text-sm font-medium text-green-600 pt-2">
-                                    <span>Total Paid</span>
+                                    <span>Total Refunded</span>
                                     <span>{currency} {totalRefunded.toFixed(2)}</span>
                                 </div>
                             </div>

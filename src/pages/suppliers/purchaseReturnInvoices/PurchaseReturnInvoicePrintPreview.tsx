@@ -31,10 +31,6 @@ export default function PurchaseReturnInvoicePrintPreview() {
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to Return Invoice
                 </Link>
-
-                <div className="text-xs text-gray-400 font-medium uppercase tracking-widest">
-                    Print Preview
-                </div>
             </div>
 
             <div className="max-w-4xl mx-auto bg-white print:max-w-none">

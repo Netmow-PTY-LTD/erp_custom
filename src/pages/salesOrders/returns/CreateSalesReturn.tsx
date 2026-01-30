@@ -175,7 +175,7 @@ export default function CreateSalesReturn() {
         const { data, isLoading } = useGetCustomersQuery({ page: 1, limit: 20, search: query });
         const { data: singleData } = useGetCustomerByIdQuery(Number(field.value), { skip: !field.value });
 
-        const list = Array.isArray(data?.data) ? data.data : [];
+        const list = Array.isArray(data?.data) ? data.data.filter((c: Customer) => c.is_active) : [];
         const selected = list.find((s: Customer) => Number(s.id) === Number(field.value)) ||
             (singleData?.data?.id && Number(singleData.data.id) === Number(field.value) ? singleData.data : undefined);
 
@@ -188,7 +188,7 @@ export default function CreateSalesReturn() {
                                 <AvatarImage src={selected?.thumb_url} />
                                 <AvatarFallback><User className="h-3 w-3" /></AvatarFallback>
                             </Avatar>
-                            <span className="truncate text-sm">{selected ? selected.name : "Select Customer..."}</span>
+                            <span className="truncate text-sm">{selected ? (selected.company || selected.name) : "Select Customer..."}</span>
                         </div>
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -197,13 +197,17 @@ export default function CreateSalesReturn() {
                     <Command shouldFilter={false}>
                         <CommandInput placeholder="Search customers..." onValueChange={(value) => setQuery(value)} />
                         <CommandList>
-                            <CommandEmpty>No customers found.</CommandEmpty>
+                            <CommandEmpty>No active customers found.</CommandEmpty>
                             <CommandGroup>
                                 {isLoading && <div className="py-2 px-3 text-sm text-gray-500">Loading...</div>}
                                 {!isLoading && list.map((customer) => (
-                                    <CommandItem key={customer.id} onSelect={() => { field.onChange(Number(customer.id)); setOpen(false); }} className="flex items-center gap-2 cursor-pointer">
-                                        <Avatar className="h-8 w-8"><AvatarImage src={customer.thumb_url} /><AvatarFallback><User className="h-4 w-4" /></AvatarFallback></Avatar>
-                                        <span>{customer.name}</span>
+                                    <CommandItem key={customer.id} onSelect={() => { field.onChange(Number(customer.id)); setOpen(false); }} className="flex items-center gap-2 cursor-pointer py-3">
+                                        <Avatar className="h-8 w-8 shrink-0"><AvatarImage src={customer.thumb_url} /><AvatarFallback><User className="h-4 w-4" /></AvatarFallback></Avatar>
+                                        <div className="flex flex-col overflow-hidden flex-1">
+                                            <span className="truncate font-medium text-sm">{customer.company || customer.name}</span>
+                                            <span className="truncate text-xs text-muted-foreground">{customer.name}</span>
+                                            {customer.address && <span className="truncate text-xs text-muted-foreground/80">{customer.address}</span>}
+                                        </div>
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
@@ -301,7 +305,7 @@ export default function CreateSalesReturn() {
                                 {!isLoading && list.map((product) => (
                                     <CommandItem key={product.id} onSelect={() => handleSelect(Number(product.id))} className="flex items-center gap-2 cursor-pointer">
                                         <Avatar className="h-8 w-8 shrink-0"><AvatarImage src={product.thumb_url} /><AvatarFallback><Package className="h-4 w-4" /></AvatarFallback></Avatar>
-                                        <div className="flex flex-col"><span className="font-medium text-sm">{product.name}</span><span className="text-xs text-muted-foreground">SKU: {product.sku} | Unit: {product.unit?.name || "-"}</span></div>
+                                        <div className="flex flex-col"><span className="font-medium text-sm">{product.name}</span><span className="text-xs text-muted-foreground">SKU: {product.sku} | Unit: {product.unit?.name || "-"} | Stock: {product.stock_quantity || 0}</span></div>
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
@@ -453,10 +457,10 @@ export default function CreateSalesReturn() {
                                                 <FormItem className="w-full sm:w-32 xl:w-32"><FormLabel className="xl:hidden">Spec.</FormLabel><FormControl><Input {...field} readOnly className="bg-gray-100 h-9" /></FormControl></FormItem>
                                             )} />
                                             <FormField name={`items.${index}.unit`} control={control} render={({ field }) => (
-                                                <FormItem className="w-20"><FormLabel className="xl:hidden">Unit</FormLabel><FormControl><Input {...field} readOnly className="bg-gray-100 h-9 text-center" /></FormControl></FormItem>
+                                                <FormItem className="w-24"><FormLabel className="xl:hidden">Unit</FormLabel><FormControl><Input {...field} readOnly className="bg-gray-100 h-9 text-center" /></FormControl></FormItem>
                                             )} />
-                                            <div className="w-20"><FormLabel className="xl:hidden text-xs font-bold block mb-1">Stock</FormLabel><Input type="number" value={items[index].stock_quantity || 0} readOnly className="bg-gray-100 h-9 text-right" /></div>
-                                            <div className="w-32 text-left bg-gray-100 dark:bg-gray-800 rounded-md xl:z-10">
+                                            <div className="w-24"><FormLabel className="xl:hidden text-xs font-bold block mb-1">Stock</FormLabel><Input type="number" value={items[index].stock_quantity || 0} readOnly className="bg-gray-100 h-9 text-right" /></div>
+                                            <div className="w-32 text-left bg-gray-100 dark:bg-gray-800 rounded-md">
                                                 <FormField name={`items.${index}.unit_price`} control={control} render={({ field }) => (
                                                     <FormItem className="w-full"><FormLabel className="xl:hidden text-xs font-bold">Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} readOnly className="h-9 text-right bg-gray-100 dark:bg-gray-800 border-none" /></FormControl></FormItem>
                                                 )} />
@@ -478,7 +482,7 @@ export default function CreateSalesReturn() {
                                                 <FormLabel className="xl:hidden text-xs font-bold block mb-1">Tax Amt</FormLabel>
                                                 <Input type="number" value={calculatedItems[index]?.taxAmount.toFixed(2) ?? "0.00"} readOnly className="bg-gray-100 h-9 text-right" />
                                             </div>
-                                            <div className="w-36 text-left pr-4 font-semibold h-9 flex items-center justify-end text-sm">
+                                            <div className="w-36 text-left pr-4 font-semibold h-9 flex items-center text-sm">
                                                 {currency} {((items[index].quantity * items[index].unit_price - items[index].discount) * (1 + (items[index].sales_tax || 0) / 100)).toFixed(2)}
                                             </div>
                                             <FormField name={`items.${index}.remark`} control={control} render={({ field }) => (
