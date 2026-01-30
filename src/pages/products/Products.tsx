@@ -464,7 +464,7 @@ export default function Products() {
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
           <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0">
             <CardTitle>All Products</CardTitle>
-            <div className="w-[140px]">
+            <div className="w-[180px]">
               <Select
                 value={selectedCategory}
                 onValueChange={(value) => {

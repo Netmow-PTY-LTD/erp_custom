@@ -194,7 +194,7 @@ export default function SalesReturnsList({ status }: { status?: string }) {
                                 setPage(1);
                             }}
                         >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-[180px] !h-auto py-2.5 rounded-lg">
                                 <SelectValue placeholder="Filter by Status" />
                             </SelectTrigger>
                             <SelectContent>
