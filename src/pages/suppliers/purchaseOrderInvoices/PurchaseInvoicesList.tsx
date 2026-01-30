@@ -6,9 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchaseInvoicesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
@@ -16,19 +13,28 @@ import { useAppSelector } from "@/store/store";
 import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { CreditCard, Eye, FileText, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { Eye, FileText, CheckCircle, AlertTriangle, XCircle, Printer } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function PurchaseInvoicesList() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
+  const [status, setStatus] = useState<string>("all");
   const limit = 10;
 
   const { data, isFetching } = useGetAllPurchaseInvoicesQuery({
     page,
     limit,
     search,
+    status: status === "all" ? undefined : status,
   });
 
   const invoicesData: PurchaseInvoice[] = Array.isArray(data?.data)
@@ -166,15 +172,9 @@ export default function PurchaseInvoicesList() {
                 <Eye className="w-4 h-4 mr-1" /> View
               </Button>
             </Link>
-            <Link
-              to={`/dashboard/purchase-payments/create?pon=${invoice.purchase_order.po_number}`}
-            >
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex items-center gap-1.5 px-3"
-              >
-                <CreditCard className="w-4 h-4" /> Pay
+            <Link to={`/dashboard/purchase-invoices/${invoice.id}/preview`}>
+              <Button size="sm" variant="outline">
+                <Printer className="w-4 h-4 mr-1" /> Print
               </Button>
             </Link>
           </div>
@@ -221,10 +221,6 @@ export default function PurchaseInvoicesList() {
       </div>
 
       <Card className="py-6">
-        <CardHeader>
-          <CardTitle>All Purchase Invoices</CardTitle>
-          <CardDescription>Manage all your purchase invoices</CardDescription>
-        </CardHeader>
         <CardContent>
           <DataTable
             columns={invoiceColumns}
@@ -238,6 +234,28 @@ export default function PurchaseInvoicesList() {
               setPage(1);
             }}
             isFetching={isFetching}
+            filters={
+              <Select
+                value={status}
+                onValueChange={(value) => {
+                  setStatus(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            }
           />
         </CardContent>
       </Card>

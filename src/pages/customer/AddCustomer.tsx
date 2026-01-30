@@ -323,14 +323,14 @@ export default function AddCustomerPage() {
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-xl border-2 border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700 font-bold transition-all"
+              className="flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
               onClick={() => {
                 setEditingContactIndex(null);
                 setContactFormValues({ name: "", phone: "", role: "", email: "", is_primary: false });
                 setIsContactModalOpen(true);
               }}
             >
-              <Plus className="w-4 h-4 mr-1" />
+              <Plus className="h-4 w-4" />
               Add New Contact
             </Button>
           </div>
@@ -766,31 +766,32 @@ export default function AddCustomerPage() {
         </Card>
 
         {/* SUBMIT */}
-        <div className="flex justify-end gap-4 pt-4">
-          <button
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
             type="button"
+            variant="outline"
             onClick={() => navigate('/dashboard/customers')}
-            className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+            className="flex items-center gap-2"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isLoading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <span>Creating...</span>
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="h-4 w-4" />
                 <span>Save Customer</span>
               </>
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

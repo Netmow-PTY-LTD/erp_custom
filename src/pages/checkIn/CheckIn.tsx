@@ -10,7 +10,7 @@ import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery } from "@
 import type { Customer } from "@/store/features/customers/types";
 import ClenderButton from "./ClenderButton";
 import { useAppSelector } from "@/store/store";
-import { MapPin, Car } from "lucide-react";
+import { MapPin, Car, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 
@@ -144,20 +144,18 @@ const customerColumns: ColumnDef<Customer>[] = [
         if (!hasLocation) return <span className="text-muted-foreground text-xs">—</span>;
 
         return (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <Button
-              variant="ghost"
               size="icon"
-              className="h-8 w-8 text-primary"
+              className="h-8 w-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none rounded-lg"
               onClick={() => setLocationData({ checkins: (row.original as any).checkins || [], customer: row.original })}
               title="View Map"
             >
               <MapPin className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
               size="icon"
-              className="h-8 w-8 text-orange-500"
+              className="h-8 w-8 bg-orange-50 text-orange-500 hover:bg-orange-100 border-none shadow-none rounded-lg"
               onClick={handleWazeClick}
               title="Open in Waze"
             >
@@ -174,12 +172,13 @@ const customerColumns: ColumnDef<Customer>[] = [
       const customer = row.original;
       return (
         <div className="flex gap-2">
-          <button
-            className="bg-blue-600 text-white px-3 py-1 rounded w-full"
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 rounded-lg w-full h-9"
             onClick={() => handleCheckIn(customer)}
           >
+            <CheckCircle2 className="h-4 w-4" />
             Check In
-          </button>
+          </Button>
         </div>
       );
     },

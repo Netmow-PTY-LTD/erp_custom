@@ -8,7 +8,6 @@ import {
   Users,
   UserCheck,
   UserX,
-  DollarSign,
   UserPlus,
   PackagePlus,
   MapPin,
@@ -17,8 +16,6 @@ import {
   MoreHorizontal,
   Edit,
   Eye,
-  ShoppingCart,
-  AlertCircle,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -79,7 +76,7 @@ export default function InActiveCustomersList() {
     index: number;
   } | null>(null);
 
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
   const currentPage = pageIndex + 1;
 
   const currency = useAppSelector((state) => state.currency.value);
@@ -120,9 +117,9 @@ export default function InActiveCustomersList() {
   const totalCustomersStat = customerStats?.data?.find((c: any) => c.label === "Total Customers")?.value || 0;
   const newCustomers = customerStats?.data?.find((c: any) => c.label === "New Customers")?.value || 0;
   const inactiveCustomers = customerStats?.data?.find((c: any) => c.label === "Inactive Customers")?.value || 0;
-  const totalSales = customerStats?.data?.find((c: any) => c.label === "Total Sales Amount")?.value || 0;
-  const totalPaid = customerStats?.data?.find((c: any) => c.label === "Total Paid")?.value || 0;
-  const totalDue = customerStats?.data?.find((c: any) => c.label === "Total Due")?.value || 0;
+  // const totalSales = customerStats?.data?.find((c: any) => c.label === "Total Sales Amount")?.value || 0;
+  // const totalPaid = customerStats?.data?.find((c: any) => c.label === "Total Paid")?.value || 0;
+  // const totalDue = customerStats?.data?.find((c: any) => c.label === "Total Due")?.value || 0;
 
   const stats = [
     {
@@ -430,17 +427,17 @@ export default function InActiveCustomersList() {
 
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/customers/create">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-              <PackagePlus size={18} />
+            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+              <PackagePlus className="h-4 w-4" />
               Add Customer
-            </button>
+            </Button>
           </Link>
 
           <Link to="/dashboard/customers/map">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none">
-              <MapPin size={18} />
+            <Button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+              <MapPin className="h-4 w-4" />
               Customer Map
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
@@ -476,11 +473,11 @@ export default function InActiveCustomersList() {
         ))}
       </div>
 
-      <Card className="pt-6 pb-2">
-        <CardHeader>
+      <Card className="pt-6 pb-2 border-none shadow-none">
+        <CardHeader className="px-0">
           <CardTitle>Inactive Customers</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-auto w-full">
+        <CardContent className="overflow-auto w-full px-0">
           {isLoading ? (
             <div className="text-center py-8">Loading customers...</div>
           ) : (
@@ -493,6 +490,11 @@ export default function InActiveCustomersList() {
               onPageChange={setPageIndex}
               onSearch={(value) => {
                 setSearchTerm(value);
+                setPageIndex(0);
+              }}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPageIndex(0);
               }}
               isFetching={isLoading}
             />

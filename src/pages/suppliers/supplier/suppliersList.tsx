@@ -8,10 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -23,7 +20,7 @@ import {
   useGetSupplierStatsQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, Users as UsersIcon, ShoppingCart, User, Filter, AlertCircle, UserCheck, DollarSign, Printer } from "lucide-react";
+import { Edit, PlusCircle, Trash2, Users as UsersIcon, ShoppingCart, User, AlertCircle, UserCheck, DollarSign, Printer } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -76,7 +73,7 @@ export default function SuppliersList() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [sort, setSort] = useState<string>("newest");
-  const limit = 10;
+  const [limit, setLimit] = useState(10);
 
   const { data: settingsData } = useGetSettingsInfoQuery();
   const from = settingsData?.data;
@@ -279,28 +276,30 @@ export default function SuppliersList() {
       cell: ({ row }) => {
         const supplier = row.original;
         return (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1.5">
             <Link to={`/dashboard/purchase-orders/create?supplierId=${supplier.id}`}>
-              <Button size="sm" variant="outline" title="Create Purchase Order">
-                <ShoppingCart className="w-4 h-4" />
+              <Button size="sm" className="h-8 bg-cyan-50 text-cyan-600 hover:bg-cyan-100 border-none shadow-none" title="Create Purchase Order">
+                <ShoppingCart className="h-4 w-4" />
+                Order
               </Button>
             </Link>
             <Link to={`/dashboard/suppliers/${supplier.id}/edit`}>
-              <Button size="sm" variant="outline">
-                <Edit className="w-4 h-4 mr-1" /> Edit
+              <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                <Edit className="h-4 w-4" />
+                Edit
               </Button>
             </Link>
-            {
-              canDeleteSupplier && <Button
+            {canDeleteSupplier && (
+              <Button
                 size="sm"
-                variant="destructive"
+                className="h-8 bg-rose-50 text-rose-600 hover:bg-rose-100 border-none shadow-none"
                 onClick={() => handleDeleteClick(supplier.id)}
                 disabled={isDeleting}
               >
-                <Trash2 className="w-4 h-4 mr-1" /> Delete
+                <Trash2 className="h-4 w-4" />
+                Delete
               </Button>
-            }
-
+            )}
           </div>
         );
       },
@@ -312,36 +311,19 @@ export default function SuppliersList() {
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6 print:hidden">
         <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
         <div className="flex items-center gap-4">
-          <div className="w-[180px] print:hidden">
-            <Select
-              value={sort}
-              onValueChange={(value) => {
-                setSort(value);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800 py-2.5 !h-auto">
-                <Filter className="w-4 h-4 mr-2 text-gray-500" />
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="top_purchase">Top Purchase</SelectItem>
-                <SelectItem value="low_purchase">Low Purchase</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <button
+          <Button
             onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
-            <Printer size={18} />
+            className="flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white print:hidden"
+          >
+            <Printer className="h-4 w-4" />
             Print
-          </button>
+          </Button>
+
           <Link to="/dashboard/suppliers/create">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none print:hidden">
-              <PlusCircle size={18} />
+            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white print:hidden">
+              <PlusCircle className="h-4 w-4" />
               Add Supplier
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
@@ -407,11 +389,8 @@ export default function SuppliersList() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden">
-            <CardTitle>All Suppliers</CardTitle>
-            <CardDescription>Manage your supplier list</CardDescription>
-          </CardHeader>
-          <CardContent className="print:p-0">
+
+          <CardContent className="print:p-0 px-0">
             {isLoading ? (
               <p>Loading...</p>
             ) : (
@@ -428,6 +407,29 @@ export default function SuppliersList() {
                     setSearch(val);
                     setPage(1);
                   }}
+                  onPageSizeChange={(newSize) => {
+                    setLimit(newSize);
+                    setPage(1);
+                  }}
+                  isFetching={isLoading}
+                  filters={
+                    <Select
+                      value={sort}
+                      onValueChange={(value) => {
+                        setSort(value);
+                        setPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Sort By" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Newest First</SelectItem>
+                        <SelectItem value="top_purchase">Top Purchase</SelectItem>
+                        <SelectItem value="low_purchase">Low Purchase</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  }
                 />
               </div>
             )}

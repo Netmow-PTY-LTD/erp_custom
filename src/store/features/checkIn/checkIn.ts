@@ -124,7 +124,7 @@ export const staffAttendanceApiService = baseApi.injectEndpoints({
     ======================= */
     getAllStaffAttendance: builder.query<
       AttendanceResponse<StaffAttendance[]>,
-      { page?: number; limit?: number; search?: string; date?: string }
+      { page?: number; limit?: number; search?: string; date?: string; staff_id?: string | number }
     >({
       query: (params) => ({
         url: "/staff-attendance",

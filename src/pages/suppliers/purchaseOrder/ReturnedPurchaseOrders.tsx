@@ -7,9 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
     CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchaseReturnsQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
@@ -17,12 +14,11 @@ import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle } from "lucide-react";
+import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle, Printer } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import UpdatePOStatusModal from "./UpdatePOStatusModal";
 import { formatDateStandard } from "@/utils/dateUtils";
-
 import {
     Select,
     SelectContent,
@@ -33,6 +29,8 @@ import {
 
 
 
+
+
 // Simple confirmation modal
 
 
@@ -40,9 +38,9 @@ import {
 export default function ReturnedPurchaseOrders({ status }: { status?: string }) {
     const [page, setPage] = useState<number>(1);
     const [search, setSearch] = useState<string>("");
+    const [filterStatus, setFilterStatus] = useState<string>(status || "all");
     const limit = 10;
 
-    const [filterStatus, setFilterStatus] = useState<string>(status || "all");
 
     // Fetch Purchase Returns
     const { data, isFetching } = useGetAllPurchaseReturnsQuery({
@@ -256,8 +254,13 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                 return (
                     <div className="flex gap-2">
                         <Link to={`/dashboard/purchase-returns/${po.id}`}>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
                                 <Eye className="w-4 h-4 mr-1" /> View
+                            </Button>
+                        </Link>
+                        <Link to={`/dashboard/purchase-returns/${po.id}/print`}>
+                            <Button size="sm" variant="outline" className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none" title="Print Return">
+                                <Printer className="w-4 h-4" />
                             </Button>
                         </Link>
 
@@ -338,13 +341,10 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                 ))}
             </div>
 
-            <Card className="py-6">
-                <CardHeader>
-                    <CardTitle>Returned Purchase Orders</CardTitle>
-                    <CardDescription>Manage your returned purchase orders</CardDescription>
-                </CardHeader>
+            <Card className="py-6 border-none shadow-none">
 
-                <CardContent>
+
+                <CardContent className="px-0">
                     <DataTable
                         columns={poColumns}
                         data={purchaseOrdersData}
@@ -357,6 +357,27 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                             setPage(1);
                         }}
                         isFetching={isFetching}
+                        filters={
+                            !status && (
+                                <Select
+                                    value={filterStatus}
+                                    onValueChange={(val) => {
+                                        setFilterStatus(val);
+                                        setPage(1);
+                                    }}
+                                >
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Filter by Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Status</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="approved">Approved</SelectItem>
+                                        <SelectItem value="rejected">Rejected</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )
+                        }
                     />
                 </CardContent>
             </Card>
