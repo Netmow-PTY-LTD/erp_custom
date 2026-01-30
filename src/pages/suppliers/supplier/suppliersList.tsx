@@ -311,7 +311,7 @@ export default function SuppliersList() {
     <div className="w-full">
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6 print:hidden">
         <h1 className="text-2xl font-bold tracking-tight">Supplier Management</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="w-[180px] print:hidden">
             <Select
               value={sort}
@@ -407,11 +407,11 @@ export default function SuppliersList() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden">
+          <CardHeader className="print:hidden px-0">
             <CardTitle>All Suppliers</CardTitle>
             <CardDescription>Manage your supplier list</CardDescription>
           </CardHeader>
-          <CardContent className="print:p-0">
+          <CardContent className="print:p-0 px-0">
             {isLoading ? (
               <p>Loading...</p>
             ) : (
