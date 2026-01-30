@@ -12,7 +12,8 @@ import {
     CardDescription,
     CardContent,
 } from "@/components/ui/card";
-import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useDeletePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useGetAllPurchaseReturnsQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
 import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
@@ -22,6 +23,7 @@ import { useCallback, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import UpdatePOStatusModal from "./UpdatePOStatusModal";
+import { formatDateStandard } from "@/utils/dateUtils";
 
 
 // Simple confirmation modal
@@ -61,12 +63,11 @@ export default function ReturnedPurchaseOrders() {
     const [search, setSearch] = useState<string>("");
     const limit = 10;
 
-    // Filter by status: "returned"
-    const { data, isFetching } = useGetAllPurchasesQuery({
+    // Fetch Purchase Returns
+    const { data, isFetching } = useGetAllPurchaseReturnsQuery({
         page,
         limit,
         search,
-        status: "returned"
     });
 
     const purchaseOrdersData: PurchaseOrder[] = Array.isArray(data?.data)
@@ -82,7 +83,7 @@ export default function ReturnedPurchaseOrders() {
 
     // For stats, we might want to still show general PO stats or specialized ones.
     // Using the same logic as PurchaseOrdersList for consistency, but we could specialize it.
-    const { data: allPOData } = useGetAllPurchasesQuery({ limit: 1000 });
+    const { data: allPOData } = useGetAllPurchaseReturnsQuery({ limit: 1000 });
     const allPOs = (Array.isArray(allPOData?.data) ? allPOData?.data : []) as any[];
 
     const totalPOs = data?.pagination?.total || 0;
@@ -178,25 +179,38 @@ export default function ReturnedPurchaseOrders() {
     /* COLUMNS */
     const poColumns: ColumnDef<PurchaseOrder>[] = [
         {
-            accessorKey: "po_number",
+            accessorFn: (row) => row.return_number || row.po_number || `RET-${row.id}`,
+            header: "Return Number",
+            meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any,
+            cell: ({ row }) => (
+                <Link
+                    to={`/dashboard/purchase-returns/${row.original.id}`}
+                    className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                >
+                    {row.getValue("Return Number")}
+                </Link>
+            ),
+        },
+        {
+            id: "po_number",
+            accessorFn: (row: any) => row.purchase_order?.po_number || row.po_number || "N/A",
             header: "PO Number",
-            meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any
+            meta: { className: "md:sticky md:left-[120px] z-20 bg-background min-w-[120px]" } as any,
         },
         {
             accessorKey: "supplier",
             header: "Supplier",
-            meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+            meta: { className: "md:sticky md:left-[240px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
             cell: ({ row }) => `${row.original.supplier?.name || "N/A"}`,
         },
         {
-            accessorKey: "order_date",
-            header: "Order Date",
-            cell: ({ row }) => new Date(row.original.order_date as string).toLocaleDateString(),
-        },
-        {
-            accessorKey: "expected_delivery_date",
-            header: "Expected Delivery Date",
-            cell: ({ row }) => new Date(row.original.expected_delivery_date as string).toLocaleDateString(),
+            id: "return_date",
+            accessorFn: (row: any) => row.return_date || row.order_date,
+            header: "Return Date",
+            cell: ({ row }) => {
+                const dateC = (row.original as any).return_date || row.original.order_date;
+                return formatDateStandard(dateC);
+            },
         },
         {
             accessorKey: "status",
@@ -222,7 +236,7 @@ export default function ReturnedPurchaseOrders() {
             accessorKey: "total_amount",
             header: () => <div className="text-right">Total Price ({currency})</div>,
             cell: ({ row }) => (
-                <div className="text-right">{row.original.total_amount.toFixed(2)}</div>
+                <div className="text-right">{(row.original.total_amount || 0).toFixed(2)}</div>
             ),
         },
         {
@@ -232,7 +246,7 @@ export default function ReturnedPurchaseOrders() {
             ),
             cell: ({ row }) => (
                 <div className="text-right">
-                    {row.original.discount_amount.toFixed(2)}
+                    {(row.original.discount_amount || 0).toFixed(2)}
                 </div>
             ),
         },
@@ -240,17 +254,41 @@ export default function ReturnedPurchaseOrders() {
             accessorKey: "tax_amount",
             header: () => <div className="text-right">Tax Amount ({currency})</div>,
             cell: ({ row }) => (
-                <div className="text-right">{row.original.tax_amount.toFixed(2)}</div>
+                <div className="text-right">{(Number(row.original.tax_amount || 0)).toFixed(2)}</div>
             ),
         },
         {
-            accessorKey: "total_payable_amount",
-            header: () => <div className="text-right">Total Payable ({currency})</div>,
+            id: "total_refundable",
+            accessorFn: (row: any) => row.grand_total || row.total_payable_amount || 0,
+            header: () => <div className="text-right">Total Refundable ({currency})</div>,
             cell: ({ row }) => (
                 <div className="text-right">
-                    {row.original.total_payable_amount.toFixed(2)}
+                    {(Number((row.original as any).grand_total || (row.original as any).total_payable_amount || 0)).toFixed(2)}
                 </div>
             ),
+        },
+        {
+            id: "total_refunded",
+            accessorKey: "total_refunded_amount",
+            header: () => <div className="text-right">Total Refunded ({currency})</div>,
+            cell: ({ row }) => (
+                <div className="text-right font-medium text-green-600">
+                    {Number(row.original.total_refunded_amount || 0).toFixed(2)}
+                </div>
+            ),
+        },
+        {
+            id: "due_refund",
+            accessorKey: "due_refund_amount",
+            header: () => <div className="text-right">Due Refund ({currency})</div>,
+            cell: ({ row }) => {
+                const due = Number(row.original.due_refund_amount);
+                return (
+                    <div className={`text-right font-bold ${due > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {due.toFixed(2)}
+                    </div>
+                );
+            },
         },
         {
             id: "actions",
@@ -261,7 +299,7 @@ export default function ReturnedPurchaseOrders() {
 
                 return (
                     <div className="flex gap-2">
-                        <Link to={`/dashboard/purchase-orders/${po.id}`}>
+                        <Link to={`/dashboard/purchase-returns/${po.id}`}>
                             <Button size="sm" variant="outline">
                                 <Eye className="w-4 h-4 mr-1" /> View
                             </Button>
@@ -310,10 +348,10 @@ export default function ReturnedPurchaseOrders() {
                 <h1 className="text-2xl font-bold tracking-tight">
                     Returned Purchase Orders
                 </h1>
-                <Link to="/dashboard/purchase-orders/create">
+                <Link to="/dashboard/purchase-orders/return/create">
                     <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
                         <PlusCircle size={18} />
-                        Add Purchase Order
+                        Create Purchase Return
                     </button>
                 </Link>
             </div>

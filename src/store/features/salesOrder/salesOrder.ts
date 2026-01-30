@@ -40,7 +40,7 @@ export const salesApiService = baseApi.injectEndpoints({
     // GET ALL SALES ORDERS
     getAllSalesOrders: builder.query<
       SalesResponse<SalesOrder[]>,
-      { page?: number; limit?: number; search?: string; status?: string }
+      { page?: number; limit?: number; search?: string; status?: string; customer_id?: number | string }
     >({
       query: (params) => ({
         url: "/sales/orders",

@@ -137,7 +137,17 @@ export const baseApi = createApi({
     "expenseCreditHead",
     "AccountingAccounts",
     "PayrollStructure",
-    "Payroll"
+    "Payroll",
+    "PurchaseReturns",
+    "PurchaseReturn",
+    "PurchaseReturnInvoices",
+    "PurchaseReturnInvoice",
+    "PurchaseReturnPayments",
+    "SalesReturns",
+    "SalesReturn",
+    "SalesReturnInvoices",
+    "SalesReturnInvoice",
+    "SalesReturnPayments"
   ],
   endpoints: () => ({}),
 });

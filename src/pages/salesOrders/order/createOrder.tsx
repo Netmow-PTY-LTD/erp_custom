@@ -650,18 +650,18 @@ export default function CreateSalesOrderPage() {
               <div className="space-y-4 overflow-x-auto min-w-full">
                 {/* Header for Desktop and Mobile (Horizontal Scroll) */}
                 <div className="flex min-w-max gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
-                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20">SKU</div>
-                  <div className="flex-1 min-w-[300px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20">Product</div>
-                  <div className="w-36">Spec.</div>
-                  <div className="w-24">Unit</div>
-                  <div className="w-24 text-right">Stock</div>
-                  <div className="w-32">Price</div>
-                  <div className="w-24">Qty</div>
-                  <div className="w-24">Discount</div>
-                  <div className="w-32">Pretax</div>
-                  <div className="w-24 text-right">Tax %</div>
-                  <div className="w-32 text-right">Tax Amt </div>
-                  <div className="w-36 text-right pr-4">Total ({currency})</div>
+                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">SKU</div>
+                  <div className="w-[350px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">Product</div>
+                  <div className="w-36 text-left">Spec.</div>
+                  <div className="w-24 text-left">Unit</div>
+                  <div className="w-24 text-left">Stock</div>
+                  <div className="w-32 text-left">Price</div>
+                  <div className="w-24 text-left">Qty</div>
+                  <div className="w-24 text-left">Discount</div>
+                  <div className="w-32 text-left">Pretax</div>
+                  <div className="w-24 text-left">Tax %</div>
+                  <div className="w-32 text-left">Tax Amt </div>
+                  <div className="w-36 text-left pr-4">Total ({currency})</div>
                   <div className="flex-1 min-w-[200px]">Remark</div>
                   <div className="w-12"></div>
                 </div>
@@ -693,7 +693,7 @@ export default function CreateSalesOrderPage() {
                       />
 
                       {/* Product */}
-                      <div className="flex-1 min-w-[250px] xl:min-w-[300px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
+                      <div className="w-[350px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
                         <FormField
                           name={`items.${index}.product_id`}
                           control={control}
@@ -803,8 +803,8 @@ export default function CreateSalesOrderPage() {
                                 type="number"
                                 min={0}
                                 {...field}
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                readOnly
+                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />

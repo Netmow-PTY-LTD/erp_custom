@@ -50,6 +50,8 @@ export interface SalesOrder {
   created_by: number;
   created_at: string;
   updated_at: string;
+  total_refunded_amount?: number;
+  due_refund_amount?: number;
   items: SalesOrderItem[];
 }
 

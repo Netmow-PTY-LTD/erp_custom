@@ -303,7 +303,7 @@ export default function CreatePurchaseOrderPage() {
               )}
               <span className="truncate text-left min-w-0 flex-1 text-sm">
                 {selected
-                  ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit?.name || 'N/A'})`
+                  ? selected.name
                   : "Select product..."}
               </span>
             </div>
@@ -539,14 +539,14 @@ export default function CreatePurchaseOrderPage() {
                   <div className="flex-1 min-w-[250px] sticky left-[144px] bg-gray-100 dark:bg-gray-800 z-20">Product</div>
                   <div className="w-32">Spec.</div>
                   <div className="w-24">Unit</div>
-                  <div className="w-24 text-right">Stock</div>
-                  <div className="w-32 text-right">Price</div>
-                  <div className="w-24 text-right">Qty</div>
-                  <div className="w-24 text-right">Total Qty</div>
-                  <div className="w-24 text-right">Discount</div>
-                  <div className="w-32 text-right">Pretax</div>
-                  <div className="w-24 text-right">Tax %</div>
-                  <div className="w-32 text-right">Tax Amt</div>
+                  <div className="w-24 text-left">Stock</div>
+                  <div className="w-32 text-left">Price</div>
+                  <div className="w-24 text-left">Qty</div>
+                  <div className="w-24 text-left">Total Qty</div>
+                  <div className="w-24 text-left">Discount</div>
+                  <div className="w-32 text-left">Pretax</div>
+                  <div className="w-24 text-left">Tax %</div>
+                  <div className="w-32 text-left">Tax Amt</div>
                   <div className="w-36 text-right pr-4">Total ({currency})</div>
                   <div className="w-10"></div>
                 </div>

@@ -2,6 +2,7 @@ import {
   Boxes,
   CalendarCheck,
   Car,
+  Banknote,
   CreditCard,
   DollarSign,
   // FileCode,
@@ -58,7 +59,9 @@ import SalesRoutesPage from "@/pages/salesOrders/salesRoutes/SalesRoutePage";
 import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/supplier/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseOrderPage";
+import CreatePurchaseReturnPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseReturnPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseOrderPage";
+import ViewPurchaseReturnPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseReturnPage";
 import Staffs from "@/pages/staffs";
 import StaffDetails from "@/pages/staffs/StaffDetails";
 import AddStaffPage from "@/pages/staffs/add";
@@ -87,15 +90,20 @@ import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
 import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
 import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
+import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
+import PurchaseReturnInvoiceDetails from "@/pages/suppliers/purchaseReturnInvoices/PurchaseReturnInvoiceDetails";
+import PurchaseReturnInvoicePrintPreview from "@/pages/suppliers/purchaseReturnInvoices/PurchaseReturnInvoicePrintPreview";
 import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayments";
 import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
 import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
+import CreatePurchaseReturnPayment from "@/pages/suppliers/purchasePayments/CreatePurchaseReturnPayment";
+import PurchaseReturnPayments from "@/pages/suppliers/purchasePayments/PurchaseReturnPayments";
+import PurchaseReturnPaymentsDetails from "@/pages/suppliers/purchasePayments/PurchaseReturnPaymentsDetails";
 import PurchaseOrdersMapPage from "@/pages/suppliers/PurchaseOrdersMap";
 // import CreditHead from "@/pages/accounting/CreditHead";
 // import DebitHead from "@/pages/accounting/DebitHead";
 import Roles from "@/pages/rolesPermission/Roles";
 import PermissionsPage from "@/pages/rolesPermission/PermissionsPage";
-import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
 
 // New Accounting Pages
 import Transactions from "@/pages/accounting/Transactions";
@@ -186,7 +194,6 @@ import StaffPayrollRun from "@/pages/HrAndPayroll/StaffPayrollRun";
 
 
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
-import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
@@ -201,6 +208,14 @@ import StaffWiseSalesReport from "@/pages/reports/StaffWiseSalesReport";
 import InvoicesSummaryPreview from "@/pages/salesOrders/invoices/InvoicesSummaryPreview";
 import InvoiceItemsSummaryPreview from "@/pages/salesOrders/invoices/InvoiceItemsSummaryPreview";
 import InvoiceSummaryDetails from "@/pages/salesOrders/invoices/InvoiceSummaryDetails";
+import CreateSalesReturn from "@/pages/salesOrders/returns/CreateSalesReturn";
+import ViewSalesReturn from "@/pages/salesOrders/returns/ViewSalesReturn";
+import SalesReturnInvoiceDetails from "@/pages/salesOrders/returns/SalesReturnInvoiceDetails";
+import SalesReturnInvoicePrintPreview from "@/pages/salesOrders/returns/SalesReturnInvoicePrintPreview";
+import SalesReturnPaymentsList from "@/pages/salesOrders/returns/SalesReturnPaymentsList";
+import CreateSalesReturnPayment from "@/pages/salesOrders/returns/CreateSalesReturnPayment";
+import SalesReturnPaymentDetails from "@/pages/salesOrders/returns/SalesReturnPaymentDetails";
+import SalesReturnsList from "@/pages/salesOrders/returns/SalesReturnsList";
 
 
 export const sidebarItemLink = [
@@ -875,16 +890,6 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "Returned Purchase Orders",
-        url: "/dashboard/purchase-orders/returned",
-        element: <ReturnedPurchaseOrders />,
-        icon: List,
-        allowedPermissions: [
-          SupplierPermission.LIST,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
         title: "Add New Purchase Order",
         url: "/dashboard/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
@@ -903,6 +908,7 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId/edit",
@@ -984,6 +990,81 @@ export const sidebarItemLink = [
         icon: MapPin,
         allowedPermissions: [
           SupplierPermission.VIEW_PURCHASE_ORDERS_MAP,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Purchase Returns",
+        url: "/dashboard/purchase-orders/returned",
+        element: <ReturnedPurchaseOrders />,
+        icon: List,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-returns/:returnId",
+        element: <ViewPurchaseReturnPage />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Create Purchase Return",
+        url: "/dashboard/purchase-orders/return/create",
+        element: <CreatePurchaseReturnPage />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-return-invoices/:id",
+        element: <PurchaseReturnInvoiceDetails />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-return-invoices/:id/preview",
+        element: <PurchaseReturnInvoicePrintPreview />,
+        allowedPermissions: [
+          SupplierPermission.PREVIEW_PURCHASE_RETURN_INVOICE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-returns/payments/create",
+        element: <CreatePurchaseReturnPayment />,
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_RETURN_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Purchase Return Refunds",
+        url: "/dashboard/purchase-returns/payments",
+        element: <PurchaseReturnPayments />,
+        icon: Banknote,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-returns/payments/:id",
+        element: <PurchaseReturnPaymentsDetails />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1069,11 +1150,76 @@ export const sidebarItemLink = [
       },
       {
         title: "Sales Return",
-        url: "/dashboard/sales/orders/returned",
-        element: <ReturnedOrders />,
+        url: "/dashboard/sales/returns",
+        element: <SalesReturnsList />,
         icon: List,
         allowedPermissions: [
-          SalesPermission.RETURNED_ORDERS,
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Create Sales Return",
+        url: "/dashboard/sales/returns/create",
+        element: <CreateSalesReturn />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          SalesPermission.CREATE_SALES_RETURN,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/:returnId",
+        element: <ViewSalesReturn />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales-return-invoices/:id",
+        element: <SalesReturnInvoiceDetails />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales-return-invoices/:id/preview",
+        element: <SalesReturnInvoicePrintPreview />,
+        allowedPermissions: [
+          SalesPermission.PREVIEW_SALES_RETURN_INVOICE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Sales Return Refunds",
+        url: "/dashboard/sales/returns/payments",
+        element: <SalesReturnPaymentsList />,
+        icon: Banknote,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/payments/create",
+        element: <CreateSalesReturnPayment />,
+        allowedPermissions: [
+          SalesPermission.CREATE_SALES_RETURN_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/payments/:id",
+        element: <SalesReturnPaymentDetails />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
