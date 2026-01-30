@@ -352,9 +352,10 @@ export default function ChartOfAccounts() {
                             reset();
                             setEditingAccount(null);
                         }} asChild>
-                            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-violet-600 to-purple-600 px-5 py-2.5 font-medium text-white shadow-lg shadow-violet-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-violet-500/40 active:translate-y-0 active:shadow-none">
-                                <Plus className="mr-2 h-4 w-4" />  Add Account
-                            </button>
+                            <Button className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white">
+                                <Plus className="h-4 w-4" />
+                                Add Account
+                            </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             {
@@ -438,7 +439,6 @@ export default function ChartOfAccounts() {
             </div>
 
             <Card className="py-6 border-none shadow-none print:shadow-none print:border-none">
-                <CardHeader className="print:hidden"><CardTitle>Accounts List</CardTitle></CardHeader>
                 <CardContent>
                     <DataTable
                         columns={accountColumns}
