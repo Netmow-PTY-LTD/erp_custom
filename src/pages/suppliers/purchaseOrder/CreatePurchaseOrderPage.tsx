@@ -221,15 +221,27 @@ export default function CreatePurchaseOrderPage() {
                         field.onChange(Number(supplier.id));
                         setOpen(false);
                       }}
-                      className="flex items-center gap-2 cursor-pointer"
+                      className="flex items-center gap-2 cursor-pointer py-3"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={supplier.thumb_url} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <span>{supplier.name}</span>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{supplier.name}</span>
+                        {supplier.contact_person && (
+                          <span className="truncate text-xs text-muted-foreground">
+                            Contact: {supplier.contact_person}
+                          </span>
+                        )}
+                        {supplier.address && (
+                          <span className="truncate text-xs text-muted-foreground/80">
+                            {supplier.address}
+                          </span>
+                        )}
+                      </div>
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -303,7 +315,7 @@ export default function CreatePurchaseOrderPage() {
               )}
               <span className="truncate text-left min-w-0 flex-1 text-sm">
                 {selected
-                  ? `${selected.name} (SKU: ${selected.sku}) (Unit: ${selected.unit?.name || 'N/A'})`
+                  ? selected.name
                   : "Select product..."}
               </span>
             </div>
@@ -345,7 +357,7 @@ export default function CreatePurchaseOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-xs text-muted-foreground">
-                          SKU: {product.sku} | Unit: {product.unit?.name || "-"}
+                          SKU: {product.sku} | Unit: {product.unit?.name || "-"} | Stock: {product.stock_quantity || 0}
                         </span>
                       </div>
                     </CommandItem>
@@ -499,8 +511,9 @@ export default function CreatePurchaseOrderPage() {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() =>
                       append({
                         productId: 0,
@@ -514,19 +527,19 @@ export default function CreatePurchaseOrderPage() {
                         stock_quantity: 0,
                       })
                     }
-                    className="flex items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                    className="gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Add Row
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none"
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/20"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     Add Items
-                  </button>
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -539,14 +552,14 @@ export default function CreatePurchaseOrderPage() {
                   <div className="flex-1 min-w-[250px] sticky left-[144px] bg-gray-100 dark:bg-gray-800 z-20">Product</div>
                   <div className="w-32">Spec.</div>
                   <div className="w-24">Unit</div>
-                  <div className="w-24 text-right">Stock</div>
-                  <div className="w-32 text-right">Price</div>
-                  <div className="w-24 text-right">Qty</div>
-                  <div className="w-24 text-right">Total Qty</div>
-                  <div className="w-24 text-right">Discount</div>
-                  <div className="w-32 text-right">Pretax</div>
-                  <div className="w-24 text-right">Tax %</div>
-                  <div className="w-32 text-right">Tax Amt</div>
+                  <div className="w-24 text-left">Stock</div>
+                  <div className="w-32 text-left">Price</div>
+                  <div className="w-24 text-left">Qty</div>
+                  <div className="w-24 text-left">Total Qty</div>
+                  <div className="w-24 text-left">Discount</div>
+                  <div className="w-32 text-left">Pretax</div>
+                  <div className="w-24 text-left">Tax %</div>
+                  <div className="w-32 text-left">Tax Amt</div>
                   <div className="w-36 text-right pr-4">Total ({currency})</div>
                   <div className="w-10"></div>
                 </div>
@@ -842,21 +855,22 @@ export default function CreatePurchaseOrderPage() {
 
           {/* Submit */}
           <div className="flex justify-end gap-4 pt-4 pb-10">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => navigate('/dashboard/suppliers/purchase-orders')}
-              className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+              className="px-6 min-w-[100px]"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+              className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white shadow-lg shadow-blue-500/40 min-w-[200px]"
             >
               {isLoading ? <span className="animate-spin mr-2">⏳</span> : <CheckCircle2 className="w-5 h-5" />}
               Create Purchase Order
-            </button>
+            </Button>
           </div>
         </form>
       </Form>

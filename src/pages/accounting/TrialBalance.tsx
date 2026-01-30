@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, CheckCircle2, AlertCircle } from "lucide-react";
+import { Calendar as CalendarIcon, CheckCircle2, AlertCircle, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -40,36 +40,58 @@ export default function TrialBalance() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Trial Balance</h2>
                     <p className="text-muted-foreground">Summary of all ledger account balances.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">As of:</span>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant={"outline"}
-                                className={cn(
-                                    "w-[240px] justify-start text-left font-normal",
-                                    !date && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="end">
-                            <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
+                    <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2"
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print
+                    </Button>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">As of:</span>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-[240px] justify-start text-left font-normal",
+                                        !date && "text-muted-foreground"
+                                    )}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                </div>
+            </div>
+
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">TRIAL BALANCE</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold">
+                    {date ? (
+                        <span>As of: {format(date, 'd MMMM yyyy')}</span>
+                    ) : (
+                        <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+                    )}
                 </div>
             </div>
 
@@ -80,11 +102,11 @@ export default function TrialBalance() {
                         <div className="h-6 w-24 bg-gray-200 animate-pulse rounded" />
                     ) : isBalanced ? (
                         <Badge className="bg-emerald-600 hover:bg-emerald-700">
-                            <CheckCircle2 className="w-3 h-3 mr-1" /> BALANCED
+                            <CheckCircle2 className="w-3 h-3 mr-1 print:hidden" /> BALANCED
                         </Badge>
                     ) : (
                         <Badge variant="destructive">
-                            <AlertCircle className="w-3 h-3 mr-1" /> UNBALANCED
+                            <AlertCircle className="w-3 h-3 mr-1 print:hidden" /> UNBALANCED
                         </Badge>
                     )}
                 </CardHeader>
@@ -167,6 +189,80 @@ export default function TrialBalance() {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    html, body {
+                        background: white !important;
+                        overflow: visible !important;
+                        height: auto !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 3px 6px !important;
+                        font-size: 9px !important;
+                    }
+                    th {
+                        line-height: 1.2 !important;
+                        padding: 4px 6px !important;
+                        text-transform: uppercase !important;
+                    }
+                    /* Aggressively remove unnecessary gaps but keep requested heading margin */
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                    /* Ensure table container has no top padding */
+                    div:has(> table), .rounded-md.border {
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        border: none !important;
+                    }
+                    /* Footer styling for check */
+                    .font-bold.text-base {
+                        font-size: 10px !important;
+                    }
+                    .text-emerald-600 {
+                        color: #059669 !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

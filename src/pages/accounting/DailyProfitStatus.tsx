@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Search as SearchIcon, FileText, Calendar, Filter } from "lucide-react";
+import { Star, Search as SearchIcon, FileText, Calendar, Filter, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import type { DateRange } from "react-day-picker";
@@ -51,18 +52,18 @@ export default function DailyProfitStatus() {
                             {/* Title & Metadata */}
                             <div className="text-center lg:text-left space-y-2">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
-                                    <Star className="w-3 h-3 fill-blue-600" />
+                                    <Star className="w-3 h-3 fill-blue-600 print:hidden" />
                                     Daily Profit Status
                                 </div>
                                 <h1 className="text-3xl font-black text-gray-900 tracking-tight">Profit Status by Item</h1>
                                 <div className="flex flex-wrap justify-center lg:justify-start items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
                                     <span className="flex items-center gap-1.5">
-                                        <FileText className="w-3.5 h-3.5" />
+                                        <FileText className="w-3.5 h-3.5 print:hidden" />
                                         F & Z Global Trade (M) Sdn Bhd
                                     </span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-200 print:hidden"></span>
                                     <span className="flex items-center gap-1.5 text-blue-600">
-                                        <Calendar className="w-3.5 h-3.5" />
+                                        <Calendar className="w-3.5 h-3.5 print:hidden" />
                                         {dateRange?.from ? format(dateRange.from, "dd MMM yyyy") : ""}
                                         {dateRange?.to ? ` — ${format(dateRange.to, "dd MMM yyyy")}` : ""}
                                     </span>
@@ -70,7 +71,16 @@ export default function DailyProfitStatus() {
                             </div>
 
                             {/* Integrated Filters */}
-                            <div className="flex flex-wrap justify-center items-center gap-3 w-full lg:w-auto bg-white p-2 rounded-xl shadow-inner border border-gray-100">
+                            <div className="flex flex-wrap justify-center items-center gap-3 w-full lg:w-auto bg-white p-2 rounded-xl shadow-inner border border-gray-100 print:hidden">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => window.print()}
+                                    className="flex items-center gap-2 h-10 border-none shadow-none text-[11px] font-bold text-gray-700 hover:bg-gray-50 transition-all"
+                                >
+                                    <Printer className="w-3.5 h-3.5" />
+                                    Print
+                                </Button>
+                                <div className="w-px h-6 bg-gray-200 hidden sm:block"></div>
                                 <div className="relative group">
                                     <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                                     <DateRangePicker
@@ -90,6 +100,22 @@ export default function DailyProfitStatus() {
                                     />
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Print Only Header */}
+                    <div className="hidden print:block text-center mb-[15px] pb-1">
+                        <h1 className="text-4xl font-extrabold uppercase tracking-tight">DAILY PROFIT STATUS</h1>
+                        <div className="mt-1 text-sm text-gray-700 font-semibold">
+                            {dateRange?.from ? (
+                                <>
+                                    <span>Period: {format(dateRange.from, 'd MMMM yyyy')}</span>
+                                    {dateRange.to && <span> - {format(dateRange.to, 'd MMMM yyyy')}</span>}
+                                </>
+                            ) : (
+                                <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+                            )}
+                            <p className="text-[10px] mt-1 text-slate-500">F & Z Global Trade (M) Sdn Bhd</p>
                         </div>
                     </div>
 
@@ -128,7 +154,16 @@ export default function DailyProfitStatus() {
                                     filteredData.map((item, index) => (
                                         <tr key={index} className="border-b border-gray-50 hover:bg-blue-50/30 transition-all group">
                                             <td className="p-4 text-center font-mono text-gray-400 group-hover:text-blue-600 transition-colors border-r border-gray-50 whitespace-nowrap">{item.sku}</td>
-                                            <td className="p-4 text-left font-bold text-gray-800 leading-tight border-r border-gray-50 whitespace-nowrap">{item.name}</td>
+                                            <td className="p-4 text-left font-bold text-gray-800 leading-tight border-r border-gray-50">
+                                                <div className="flex flex-col">
+                                                    <span>{item.name}</span>
+                                                    {item.specification && (
+                                                        <span className="text-[10px] font-medium text-gray-400 italic mt-0.5">
+                                                            {item.specification}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="p-4 text-right font-medium border-r border-gray-50 text-gray-600 whitespace-nowrap">{Number(item.qty).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                                             <td className="p-4 text-right text-blue-600 font-bold border-r border-gray-50 whitespace-nowrap">{Number(item.salesPrice).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                                             <td className="p-4 text-right font-black text-gray-900 border-r border-gray-50 bg-blue-50/5 group-hover:bg-transparent whitespace-nowrap">{Number(item.salesAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
@@ -165,7 +200,7 @@ export default function DailyProfitStatus() {
                     {/* Footer Summary */}
                     <div className="p-6 bg-[#fcfdfe] border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center text-[10px] text-gray-400 gap-6">
                         <div className="flex items-center gap-3">
-                            <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+                            <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 print:hidden"></span>
                             <span className="font-bold uppercase tracking-tighter">Automated Profitability Analysis Engine</span>
                         </div>
                         <div className="flex items-center gap-10">
@@ -177,6 +212,89 @@ export default function DailyProfitStatus() {
                     </div>
                 </div>
             </div>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    @page {
+                        size: landscape;
+                        margin: 10mm;
+                    }
+                    .print\\:hidden, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .no-print {
+                        display: none !important;
+                    }
+                    html, body {
+                        background: white !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        overflow: visible !important;
+                        height: auto !important;
+                    }
+                    .min-h-screen {
+                        min-height: auto !important;
+                    }
+                    .max-w-\\[1400px\\] {
+                        max-width: 100% !important;
+                        width: 100% !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .rounded-2xl {
+                        border-radius: 4px !important;
+                    }
+                    .shadow-xl, .shadow-inner {
+                        box-shadow: none !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        padding: 2px 4px !important;
+                        font-size: 8px !important;
+                        border: 0.5px solid #eee !important;
+                    }
+                    th {
+                        line-height: 1.1 !important;
+                        text-transform: uppercase !important;
+                        background-color: #f8fafc !important;
+                    }
+                    .p-6, .p-8 {
+                        padding: 0 !important;
+                    }
+                    .bg-blue-500, .bg-emerald-500, .bg-rose-500 {
+                        print-color-adjust: exact;
+                        -webkit-print-color-adjust: exact;
+                    }
+                    .bg-blue-50\\/30, .bg-orange-50\\/30, .bg-emerald-50\\/30 {
+                        background-color: #f1f5f9 !important;
+                        print-color-adjust: exact;
+                    }
+                    /* Ensure totals are visible */
+                    .flex-col.items-end {
+                        align-items: center !important;
+                    }
+                    .text-2xl {
+                        font-size: 14px !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

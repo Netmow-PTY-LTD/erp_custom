@@ -3,7 +3,7 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   useDeleteStaffMutation,
@@ -290,10 +290,10 @@ export default function Staffs() {
         <h1 className="text-2xl font-bold tracking-tight">Staffs Management</h1>
 
         <Link to="/dashboard/staffs/add">
-          <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-            <PlusCircle size={18} />
+          <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+            <PlusCircle className="h-4 w-4" />
             Add Staff
-          </button>
+          </Button>
         </Link>
       </div>
 
@@ -328,28 +328,10 @@ export default function Staffs() {
         ))}
       </div>
 
-      <Card className="pt-6 pb-2">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>All Staffs</CardTitle>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">Filter by Role:</span>
-            <Select value={roleId} onValueChange={(val) => { setRoleId(val); setPage(1); }}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Roles" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                {roles.map((role) => (
-                  <SelectItem key={role.id} value={String(role.id)}>
-                    {role.display_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
+      <Card className="pt-6 pb-2 border-none shadow-none">
 
-        <CardContent>
+
+        <CardContent className="px-0">
           {isLoading ? (
             <p>Loading...</p>
           ) : (
@@ -365,6 +347,21 @@ export default function Staffs() {
                 setPage(1);
               }}
               isFetching={isLoading}
+              filters={
+                <Select value={roleId} onValueChange={(val) => { setRoleId(val); setPage(1); }}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    {roles.map((role) => (
+                      <SelectItem key={role.id} value={String(role.id)}>
+                        {role.display_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              }
             />
           )}
         </CardContent>

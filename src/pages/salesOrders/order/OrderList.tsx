@@ -6,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Select,
@@ -32,19 +29,26 @@ import {
   CreditCard,
   DollarSign,
   PlusCircle,
+  Printer,
   ShoppingCart,
+  Eye,
 } from "lucide-react";
+import { format } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router";
 import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 
 export default function Orders() {
+  const { data: settingsData } = useGetSettingsInfoQuery();
+  const from = settingsData?.data;
+
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [page, setPage] = useState(1); // backend starts from 1
-  const [limit] = useState(10);
+  const [limit, setLimit] = useState(10);
 
   const { data, isLoading } = useGetAllSalesOrdersQuery({
     page,
@@ -78,6 +82,8 @@ export default function Orders() {
   };
 
   const { data: fetchedOrdersStats } = useGetSalesOrdersStatsQuery(undefined);
+  // const { data: settingsData } = useGetSettingsInfoQuery();
+  // const from = settingsData?.data;
   console.log("fetchedOrdersStats", fetchedOrdersStats);
 
   const totalOrdersCount = fetchedOrdersStats?.data?.total_orders || 0;
@@ -138,7 +144,7 @@ export default function Orders() {
     {
       accessorKey: "order_date",
       header: "Date",
-      cell: ({ row }) => new Date(row.original.order_date).toLocaleDateString(),
+      cell: ({ row }) => format(new Date(row.original.order_date), "dd/MM/yyyy"),
     },
 
     {
@@ -146,7 +152,7 @@ export default function Orders() {
       header: "Due Date",
       cell: ({ row }) =>
         row.original.due_date
-          ? new Date(row.original.due_date).toLocaleDateString()
+          ? format(new Date(row.original.due_date), "dd/MM/yyyy")
           : "-",
     },
 
@@ -156,14 +162,17 @@ export default function Orders() {
       cell: ({ row }) => {
         const status = row.original.status;
 
-        const color =
-          status === "delivered"
-            ? "bg-green-600"
-            : status === "pending"
-              ? "bg-yellow-600"
-              : status === "confirmed"
-                ? "bg-blue-600"
-                : "bg-gray-500";
+        let color = "bg-gray-500";
+        switch (status) {
+          case "delivered": color = "bg-green-600"; break;
+          case "pending": color = "bg-yellow-600"; break;
+          case "confirmed": color = "bg-blue-600"; break;
+          case "in_transit": color = "bg-indigo-600"; break;
+          case "returned": color = "bg-orange-600"; break;
+          case "cancelled":
+          case "failed": color = "bg-red-600"; break;
+          default: color = "bg-gray-500";
+        }
 
         return (
           <Badge className={`${color} text-white capitalize`}>{status}</Badge>
@@ -183,7 +192,7 @@ export default function Orders() {
 
         return (
           <div className="text-sm">
-            {new Date(dateToDisplay).toLocaleDateString()}
+            {format(new Date(dateToDisplay), "dd/MM/yyyy")}
           </div>
         )
       }
@@ -191,10 +200,10 @@ export default function Orders() {
 
     {
       accessorKey: "total_amount",
-      header: () => <div className="text-right">Total Price ({currency})</div>,
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Price ({currency})</div>,
       cell: ({ row }) => (
         <div className="text-right">
-          {parseFloat(row.original.total_amount).toFixed(2)}
+          {Number(row.original.total_amount).toFixed(2)}
         </div>
       ),
     },
@@ -202,34 +211,83 @@ export default function Orders() {
     {
       accessorKey: "discount_amount",
       header: () => (
-        <div className="text-right">Total Discount ({currency})</div>
+        <div className="text-right"><span className="print:hidden">Total </span>Disc<span className="print:hidden">ount</span> ({currency})</div>
       ),
       cell: ({ row }) => (
         <div className="text-right">
-          {parseFloat(row.original.discount_amount).toFixed(2)}
+          {Number(row.original.discount_amount).toFixed(2)}
         </div>
       ),
     },
     {
       accessorKey: "tax_amount",
-      header: () => <div className="text-right">Total Tax ({currency})</div>,
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Tax ({currency})</div>,
       cell: ({ row }) => (
         <div className="text-right">
-          {parseFloat(row.original.tax_amount).toFixed(2)}
+          {Number(row.original.tax_amount).toFixed(2)}
         </div>
       ),
     },
     {
-      id: "total_payable", // 👈 use a custom id, not accessorKey
-      header: () => <div className="text-right">Total Payable ({currency})</div>,
+      id: "total_payable",
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Payable ({currency})</div>,
       cell: ({ row }) => {
-        const totalAmount = parseFloat(row.original.total_amount) || 0;
-        const discountAmount = parseFloat(row.original.discount_amount) || 0;
-        const taxAmount = parseFloat(row.original.tax_amount) || 0;
+        const totalAmount = Number(row.original.total_amount) || 0;
+        const discountAmount = Number(row.original.discount_amount) || 0;
+        const taxAmount = Number(row.original.tax_amount) || 0;
 
         const totalPayable = totalAmount - discountAmount + taxAmount;
 
-        return <div className="text-right">{totalPayable.toFixed(2)}</div>;
+        return <div className="text-right font-semibold">{totalPayable.toFixed(2)}</div>;
+      },
+    },
+    {
+      accessorKey: "total_paid_amount",
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Paid ({currency})</div>,
+      cell: ({ row }) => {
+        const totalPaid = Number(row.original.total_paid_amount || 0);
+        const grossPaid = Number((row.original as any).gross_paid_amount ?? totalPaid);
+        const refunded = Number((row.original as any).refunded_amount || 0);
+
+        if (refunded > 0) {
+          return (
+            <div className="text-right">
+              <div className="font-medium">{grossPaid.toFixed(2)}</div>
+              <div className="text-[9px] font-semibold" style={{ lineHeight: '1.2' }}>
+                Ref: -{Math.abs(refunded).toFixed(2)}
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="text-right font-medium">
+            {totalPaid.toFixed(2)}
+          </div>
+        );
+      },
+    },
+    {
+      id: "total_due",
+      header: () => <div className="text-right"><span className="print:hidden">Balance </span>Due ({currency})</div>,
+      cell: ({ row }) => {
+        const totalAmount = Number(row.original.total_amount) || 0;
+        const discountAmount = Number(row.original.discount_amount) || 0;
+        const taxAmount = Number(row.original.tax_amount) || 0;
+        const paidAmount = Number(row.original.total_paid_amount) || 0;
+
+        const totalPayable = totalAmount - discountAmount + taxAmount;
+        const dueAmount = totalPayable - paidAmount;
+
+        const status = row.original.status?.toLowerCase();
+
+        if (['returned', 'cancelled', 'failed'].includes(status)) {
+          return <div className="text-right text-gray-500">0.00</div>;
+        }
+
+        return <div className={`text-right font-bold ${dueAmount > 0.01 ? 'text-red-600' : 'text-gray-500'}`}>
+          {dueAmount.toFixed(2)}
+        </div>;
       },
     },
     // {
@@ -246,8 +304,13 @@ export default function Orders() {
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/sales/orders/${item.id}`}>
-              <Button size="sm" variant="outline-info">
-                View
+              <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                <Eye className="h-4 w-4 mr-1" /> View
+              </Button>
+            </Link>
+            <Link to={`/dashboard/sales/orders/${item.id}/print`}>
+              <Button size="sm" variant="outline" className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none" title="Print Order">
+                <Printer className="h-4 w-4" />
               </Button>
             </Link>
             {/* <Link to={`/dashboard/orders/${item.id}/edit`}>
@@ -264,7 +327,7 @@ export default function Orders() {
                 Change Status
               </Button>
             )} */}
-          </div>
+          </div >
         );
       },
     },
@@ -274,53 +337,74 @@ export default function Orders() {
 
   const orderStatusOptions = [
     { value: "pending", label: "Pending" },
+    { value: "confirmed", label: "Confirmed" },
     { value: "in_transit", label: "In Transit" },
     { value: "delivered", label: "Delivered" },
-    { value: "failed", label: "Failed" },
     { value: "returned", label: "Returned" },
-    { value: "confirmed", label: "Confirmed" },
-    { value: "cancelled", label: "Cancelled" },
   ] as const;
 
 
 
 
 
+  const pageRows = orders || [];
+  const pageTotalPaid = pageRows.reduce((sum: number, row: any) => sum + Number(row.total_paid_amount || 0), 0);
+  // Fallback calculation for payable if not provided, though backend sends it now
+  const pageTotalPayable = pageRows.reduce((sum: number, row: any) => {
+    const payable = Number(row.total_payable_amount) || (Number(row.total_amount) - Number(row.discount_amount) + Number(row.tax_amount));
+    return sum + payable;
+  }, 0);
+
+  const pageTotalDue = pageRows.reduce((sum: number, row: any) => {
+    if (['returned', 'cancelled', 'failed'].includes(row.status?.toLowerCase())) return sum;
+    const payable = Number(row.total_payable_amount) || (Number(row.total_amount) - Number(row.discount_amount) + Number(row.tax_amount));
+    return sum + (payable - Number(row.total_paid_amount || 0));
+  }, 0);
+
   return (
     <div className="w-full">
-      <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-5 mb-6 print:hidden">
         <h1 className="text-2xl font-bold tracking-tight">
-          Sales Orders Management
+          Sales Orders
         </h1>
         <div className="flex flex-wrap items-center gap-4">
+          <Button
+            variant="outline"
+            className="gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+            onClick={() => window.print()}
+          >
+            <Printer className="h-4 w-4" />
+            Print
+          </Button>
           <Link to="/dashboard/sales/invoices">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-5 py-2.5 font-medium text-white shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-amber-500/40 active:translate-y-0 active:shadow-none">
-              <ClipboardList size={18} />
+            <Button variant="outline" className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50">
+              <ClipboardList className="h-4 w-4" />
               Invoices
-            </button>
+            </Button>
           </Link>
 
           {
             canRecordPayment && (<Link to="/dashboard/sales/payments">
-              <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none">
-                <CreditCard size={18} />
+              <Button variant="outline" className="gap-2 border-cyan-300 text-cyan-700 hover:bg-cyan-50">
+                <CreditCard className="h-4 w-4" />
                 Payments
-              </button>
+              </Button>
             </Link>)
           }
 
 
 
           <Link to="/dashboard/sales/orders/create">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-              <PlusCircle size={18} />
+            <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+              <PlusCircle className="h-4 w-4" />
               Create Order
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 print:hidden">
         {orderStats.map((item, idx) => (
           <div
             key={idx}
@@ -349,50 +433,244 @@ export default function Orders() {
           </div>
         ))}
       </div>
-      <Card className="py-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Orders</CardTitle>
-            <CardDescription>Manage your orders</CardDescription>
+
+      <div className="print:w-full print:m-0 print:p-0">
+        {/* Print Only Header */}
+        <div id="invoice" className="hidden print:block mb-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col gap-2 mt-2 details-text text-left">
+              <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+              <p className="leading-tight max-w-[400px]">
+                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+              </p>
+              <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
+            </div>
+            <div className="text-right flex flex-col items-end">
+              <div className="mb-1">
+                {from?.logo_url ? (
+                  <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                    F&Z
+                  </div>
+                )}
+              </div>
+              <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Sales Orders Report</h2>
+              <div className="details-text space-y-1">
+                <p><strong>Date:</strong> {format(new Date(), "dd/MM/yyyy")}</p>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Select value={status} onValueChange={(val) => { setStatus(val); setPage(1); }}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                {orderStatusOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={OrderColumns}
-            data={orders}
-            pageIndex={page - 1} // DataTable expects 0-based
-            pageSize={limit}
-            totalCount={data?.pagination?.total ?? 0}
-            onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-            onSearch={(value) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            isFetching={isLoading}
-          />
-        </CardContent>
-      </Card>
+        </div>
+
+        <Card className="py-6 print:py-0 border-none shadow-none">
+
+          <CardContent className="px-0">
+            <DataTable
+              columns={OrderColumns}
+              data={orders}
+              pageIndex={page - 1} // DataTable expects 0-based
+              pageSize={limit}
+              totalCount={data?.pagination?.total ?? 0}
+              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onPageSizeChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
+              onSearch={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+              isFetching={isLoading}
+              filters={
+                <Select value={status} onValueChange={(val) => { setStatus(val); setPage(1); }}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    {orderStatusOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              }
+            />
+
+            <div className="mt-4 flex flex-col md:flex-row justify-end gap-4 md:gap-8 text-sm font-medium p-4 bg-muted/20 rounded-lg border border-border/50 animate-in slide-in-from-top-2 print:hidden">
+              <div className="flex justify-between md:block w-full md:w-auto">
+                <span className="text-muted-foreground mr-2">Page Total Payable:</span>
+                <span>{currency} {pageTotalPayable.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between md:block w-full md:w-auto">
+                <span className="text-muted-foreground mr-2">Page Total Paid:</span>
+                <span className="text-green-600 font-bold">{currency} {pageTotalPaid.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between md:block w-full md:w-auto">
+                <span className="text-muted-foreground mr-2">Page Balance Due:</span>
+                <span className={`font-bold ${pageTotalDue > 0.01 ? 'text-red-600' : 'text-green-600'}`}>{currency} {pageTotalDue.toFixed(2)}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+
       <UpdateDeliveryStatusModal
         isOpen={isUpdateDeliveryStatusModalOpen}
         onClose={handleCloseUpdateDeliveryStatusModal}
         selectedOrder={selectedOrder}
         statusOptions={orderStatusOptions}
       />
+
+      {/* Print Styles */}
+      <style>{`
+        @media print {
+          @page {
+            margin: 5mm;
+            size: A4 landscape;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            font-size: 11px !important;
+            background: white !important;
+            color: black !important;
+          }
+          * {
+            box-sizing: border-box;
+          }
+          .no-print, 
+          header, 
+          nav, 
+          aside, 
+          button, 
+          input,
+          .max-w-sm,
+          .print\\:hidden,
+          .grid.grid-cols-1,
+          .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
+            display: none !important;
+          }
+          
+          /* Full width container */
+          .print\\:w-full {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          .print\\:m-0 {
+            margin: 0 !important;
+          }
+          .print\\:p-0 {
+            padding: 0 !important;
+          }
+          
+          #invoice {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          
+          /* Typography */
+          h1, h2, h3, h4, h5, h6 { 
+            font-size: 11px !important; 
+            margin: 0 !important;
+          }
+          .company-name {
+            font-size: 14px !important;
+            line-height: 1.2 !important;
+            margin: 0 !important;
+          }
+          .details-text { 
+            font-size: 11px !important; 
+            line-height: 1.3 !important; 
+          }
+          p, span, div, td, th, strong {
+            font-size: 11px !important;
+          }
+          
+          /* Table styling */
+          table { 
+            font-size: 11px !important; 
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: auto !important;
+            margin: 0 !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+          }
+          th, td { 
+            border: 1px solid #ddd !important;
+            padding: 4px !important; 
+            font-size: 11px !important;
+            line-height: 1.2 !important;
+            vertical-align: middle !important;
+          }
+          th {
+            background-color: #f3f4f6 !important;
+            font-weight: 600 !important;
+            text-align: left !important;
+          }
+          
+          /* Remove all badge styling in print */
+          .inline-flex.items-center,
+          [class*="Badge"],
+          [class*="badge"] {
+            display: inline !important;
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            color: black !important;
+            font-size: 11px !important;
+            font-weight: normal !important;
+            text-transform: capitalize !important;
+          }
+          
+          /* Ensure refund info displays in print */
+          .text-red-500 {
+            color: #000 !important;
+            font-size: 9px !important;
+          }
+          .text-green-600 {
+            color: #000 !important;
+          }
+          
+          /* Hide non-essential columns */
+          th:nth-child(4), td:nth-child(4), /* Due Date */
+          th:nth-child(6), td:nth-child(6), /* Status Date */
+          th:last-child, td:last-child { /* Actions */
+            display: none !important;
+          }
+
+          /* Ensure table container matches header width */
+          .Card, .CardContent, .rounded-xl, .border {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+
+          
+          /* Remove sticky positioning */
+          .md\\:sticky {
+            position: static !important;
+            background: white !important;
+            box-shadow: none !important;
+            z-index: auto !important;
+          }
+          
+          /* Spacing adjustments */
+          .mb-6 { margin-bottom: 8px !important; }
+          .mb-4 { margin-bottom: 4px !important; }
+          .mb-1 { margin-bottom: 2px !important; }
+          .mt-2 { margin-top: 2px !important; }
+          .gap-2 { gap: 2px !important; }
+        }
+      `}</style>
     </div>
   );
 }

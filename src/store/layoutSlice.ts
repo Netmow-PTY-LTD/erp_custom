@@ -12,6 +12,10 @@ interface PosLayoutSettings {
     gap: number;
     showImages: boolean;
     cardStyle: "standard" | "compact" | "bordered";
+    autoGenerateInvoice: boolean;
+    defaultPaymentMethod: string;
+    showDueSale: boolean;
+    showCashSale: boolean;
 }
 
 interface LayoutState {
@@ -31,6 +35,10 @@ const initialState: LayoutState = {
         gap: 4,
         showImages: true,
         cardStyle: "standard",
+        autoGenerateInvoice: true,
+        defaultPaymentMethod: "cash",
+        showDueSale: true,
+        showCashSale: true,
     },
 };
 

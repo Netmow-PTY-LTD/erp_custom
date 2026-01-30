@@ -34,6 +34,42 @@ export default function PrintableRMPurchaseInvoice({
 
   return (
     <div className="p-6">
+      <style>{`
+        @media print {
+          @page {
+            margin: 5mm;
+            size: A4;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            font-size: 11px !important;
+          }
+          #invoice {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          h1 { font-size: 11px !important; }
+          h2 { font-size: 11px !important; }
+          table { font-size: 11px !important; }
+          .details-text, .table-text { 
+            font-size: 11px !important; 
+            line-height: 1.2 !important; 
+          }
+          .company-name {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .p-6 { padding: 8px !important; }
+          .mb-8 { margin-bottom: 12px !important; }
+          .mb-10 { margin-bottom: 16px !important; }
+        }
+        /* Standardizing screen sizes */
+        .company-name { font-size: 18px !important; line-height: 1.2; }
+        .details-text { font-size: 12px !important; line-height: 1.4; }
+        .table-text { font-size: 12px !important; }
+      `}</style>
       {/* INVOICE CONTENT */}
       <div
         id="invoice"
@@ -51,12 +87,11 @@ export default function PrintableRMPurchaseInvoice({
             <img
               src={to?.logo_url || ""}
               alt={to?.company_name || "Company Logo"}
-              className="h-16 w-auto object-contain inline-block"
+              className="h-12 w-auto object-contain inline-block"
             />
             <p className="font-semibold">{to?.company_name}</p>
             <p className="text-sm">{to?.address}</p>
-            <p className="text-sm">{to?.email}</p>
-            <p className="text-sm">{to?.phone}</p>
+            <p className="text-sm">T: {to?.phone || "-"}{to?.email && `, E: ${to.email}`}</p>
           </div>
         </div>
 

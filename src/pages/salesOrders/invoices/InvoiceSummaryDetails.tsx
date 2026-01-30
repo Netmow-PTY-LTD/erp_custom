@@ -6,6 +6,7 @@ import { Loader2, Printer, ArrowLeft, FileText, Calendar, User } from "lucide-re
 import { Button } from "@/components/ui/button";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
 import { useAppSelector } from "@/store/store";
+import { format } from "date-fns";
 
 export default function InvoiceSummaryDetails() {
     const [searchParams] = useSearchParams();
@@ -158,13 +159,13 @@ export default function InvoiceSummaryDetails() {
                                         <h3 className="text-lg font-bold text-gray-900">{inv.invoice_number}</h3>
                                         <div className="flex items-center gap-4 mt-1 text-sm text-gray-500 font-medium">
                                             <span className="flex items-center gap-1.5"><User size={14} className="text-blue-500" /> {inv.order?.customer?.name}</span>
-                                            <span className="flex items-center gap-1.5"><Calendar size={14} className="text-amber-500" /> {new Date(inv.invoice_date).toLocaleDateString()}</span>
+                                            <span className="flex items-center gap-1.5"><Calendar size={14} className="text-amber-500" /> {format(new Date(inv.invoice_date), 'dd/MM/yyyy')}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex flex-col sm:items-end">
                                     <span className="text-xs uppercase font-bold text-gray-400 mb-1">Due Date</span>
-                                    <span className="text-sm font-bold text-gray-700 bg-white px-3 py-1 rounded-lg border border-gray-100">{new Date(inv.due_date).toLocaleDateString()}</span>
+                                    <span className="text-sm font-bold text-gray-700 bg-white px-3 py-1 rounded-lg border border-gray-100">{format(new Date(inv.due_date), 'dd/MM/yyyy')}</span>
                                 </div>
                             </div>
 
@@ -173,18 +174,15 @@ export default function InvoiceSummaryDetails() {
                                 <table className="w-full text-sm">
                                     <thead className="bg-white border-b text-gray-600 font-bold uppercase text-[10px] tracking-wider">
                                         <tr>
-                                            <th className="px-6 py-4 text-center w-12">Seq</th>
-                                            <th className="px-6 py-4 text-center w-40">Inv #</th>
-                                            <th className="px-6 py-4 text-left w-24">SKU</th>
-                                            <th className="px-6 py-4 text-left">Product</th>
-                                            <th className="px-6 py-4 text-left">Specification</th>
+                                            <th className="px-6 py-4 text-center w-12">No</th>
+                                            <th className="px-6 py-4 text-left w-24">Item Code</th>
+                                            <th className="px-6 py-4 text-left">Product Name & Specification</th>
+                                            <th className="px-6 py-4 text-right w-24">Rate</th>
                                             <th className="px-6 py-4 text-center w-20">Qty</th>
-                                            <th className="px-6 py-4 text-right w-24">Price</th>
-                                            <th className="px-6 py-4 text-right w-24">Total Price</th>
-                                            <th className="px-6 py-4 text-right w-24">Discount</th>
-                                            <th className="px-6 py-4 text-right w-24">Pretax Amt</th>
-                                            <th className="px-6 py-4 text-right w-24 text-blue-600">Tax</th>
-                                            <th className="px-6 py-4 text-right w-28 text-emerald-600">Payable</th>
+                                            <th className="px-6 py-4 text-right w-24">Disc</th>
+                                            <th className="px-6 py-4 text-right w-24">Pretax Amt.</th>
+                                            <th className="px-6 py-4 text-right w-24 text-blue-600">GST</th>
+                                            <th className="px-6 py-4 text-right w-28 text-emerald-600">Total</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
@@ -202,17 +200,15 @@ export default function InvoiceSummaryDetails() {
                                             return (
                                                 <tr key={item.id} className="hover:bg-gray-50/30 transition-colors">
                                                     <td className="px-6 py-4 text-center text-gray-400 font-mono">{itemIdx + 1}</td>
-                                                    <td className="px-6 py-4 text-center font-bold text-gray-700 whitespace-nowrap">{inv.invoice_number}</td>
                                                     <td className="px-6 py-4 font-mono text-gray-600 whitespace-nowrap">{item.product?.sku}</td>
-                                                    <td className="px-6 py-4 font-bold text-gray-900 uppercase whitespace-nowrap">
-                                                        {item.product?.name}
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="font-bold text-gray-900 uppercase">{item.product?.name}</div>
+                                                        <div className="text-gray-500 italic text-[11px] mt-1">
+                                                            {item.specification || item.product?.specification || ""}
+                                                        </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-gray-500 italic text-[11px] whitespace-nowrap">
-                                                        {item.specification || item.product?.specification || "-"}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center font-bold text-blue-600 whitespace-nowrap">{qty.toFixed(0)}</td>
                                                     <td className="px-6 py-4 text-right font-medium text-gray-600 whitespace-nowrap">{currency} {unitPrice.toFixed(2)}</td>
-                                                    <td className="px-6 py-4 text-right font-medium text-gray-600 whitespace-nowrap">{currency} {totalPrice.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-center font-bold text-blue-600 whitespace-nowrap">{qty.toFixed(0)}</td>
                                                     <td className="px-6 py-4 text-right font-medium text-rose-500 whitespace-nowrap">{currency} {discount.toFixed(2)}</td>
                                                     <td className="px-6 py-4 text-right font-bold text-gray-800 whitespace-nowrap">{currency} {pretaxAmount.toFixed(2)}</td>
                                                     <td className="px-6 py-4 text-right font-medium text-blue-600 whitespace-nowrap">{currency} {taxAmount.toFixed(2)}</td>

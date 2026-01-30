@@ -7,7 +7,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   Users,
   UserCheck,
-  DollarSign,
+  UserX,
   UserPlus,
   PackagePlus,
   MapPin,
@@ -76,7 +76,7 @@ export default function InActiveCustomersList() {
     index: number;
   } | null>(null);
 
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
   const currentPage = pageIndex + 1;
 
   const currency = useAppSelector((state) => state.currency.value);
@@ -113,19 +113,13 @@ export default function InActiveCustomersList() {
 
   const { data: customerStats } = useGetCustomerStatsQuery(undefined);
 
-  const activeCustomers = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "Active Customers"
-  )?.[0]?.value || 0;
-
-  console.log("activeCustomers", activeCustomers);
-
-  const totalRevenue = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "Total Revenue"
-  )?.[0]?.value || 0;
-
-  const totalNewCustomers = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "New Customers"
-  )?.[0]?.value || 0;
+  const activeCustomers = customerStats?.data?.find((c: any) => c.label === "All Active Customers")?.value || 0;
+  const totalCustomersStat = customerStats?.data?.find((c: any) => c.label === "Total Customers")?.value || 0;
+  const newCustomers = customerStats?.data?.find((c: any) => c.label === "New Customers")?.value || 0;
+  const inactiveCustomers = customerStats?.data?.find((c: any) => c.label === "Inactive Customers")?.value || 0;
+  // const totalSales = customerStats?.data?.find((c: any) => c.label === "Total Sales Amount")?.value || 0;
+  // const totalPaid = customerStats?.data?.find((c: any) => c.label === "Total Paid")?.value || 0;
+  // const totalDue = customerStats?.data?.find((c: any) => c.label === "Total Due")?.value || 0;
 
   const stats = [
     {
@@ -137,24 +131,24 @@ export default function InActiveCustomersList() {
     },
     {
       label: "Total Customers",
-      value: totalCustomers,
+      value: totalCustomersStat,
       gradient: "from-blue-600 to-blue-400",
       shadow: "shadow-blue-500/30",
       icon: <Users className="w-6 h-6 text-white" />,
     },
     {
-      label: "Total Revenue",
-      value: `${currency} ${totalRevenue?.toLocaleString() || 0}`,
-      gradient: "from-amber-600 to-amber-400",
-      shadow: "shadow-amber-500/30",
-      icon: <DollarSign className="w-6 h-6 text-white" />,
-    },
-    {
       label: "New Customers",
-      value: totalNewCustomers,
+      value: newCustomers,
       gradient: "from-violet-600 to-violet-400",
       shadow: "shadow-violet-500/30",
       icon: <UserPlus className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Inactive Customers",
+      value: inactiveCustomers,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <UserX className="w-6 h-6 text-white" />,
     },
   ];
 
@@ -168,7 +162,17 @@ export default function InActiveCustomersList() {
     {
       accessorKey: "name",
       header: "Name",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {row.original.company || "—"}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {row.original.name}
+          </span>
+        </div>
+      )
     },
     {
       accessorKey: "thumb_url", header: "Image",
@@ -255,7 +259,11 @@ export default function InActiveCustomersList() {
       header: "Address",
       cell: ({ row }) => {
         const customer = row.original;
-        return customer.address || "-";
+        return (
+          <div className="max-w-[200px] whitespace-normal break-words">
+            {customer.address || "-"}
+          </div>
+        );
       },
     },
     {
@@ -273,12 +281,42 @@ export default function InActiveCustomersList() {
       },
     },
     {
+      accessorKey: "total_sales",
+      header: () => (
+        <div className="text-right">Total Sales Amount ({currency})</div>
+      ),
+      cell: ({ row }) => {
+        const amount = row.getValue("total_sales") as number;
+        return (
+          <div className="text-right font-medium">
+            {amount ? Number(amount).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
+      id: "paid_amount",
+      header: () => (
+        <div className="text-right">Total Paid ({currency})</div>
+      ),
+      cell: ({ row }) => {
+        const total = (row.original.total_sales || 0) as number;
+        const balance = (row.original.outstanding_balance || 0) as number;
+        const paid = total - balance;
+        return (
+          <div className="text-right text-emerald-600 font-medium">
+            {paid ? Number(paid).toFixed(2) : "0.00"}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "outstanding_balance",
-      header: () => <div className="text-right">Balance ({currency})</div>,
+      header: () => <div className="text-right">Total Due ({currency})</div>,
       cell: ({ row }) => {
         const balance = row.getValue("outstanding_balance") as number;
         return (
-          <div className="text-right">
+          <div className="text-right text-rose-600 font-bold">
             {balance ? Number(balance).toFixed(2) : "0.00"}
           </div>
         );
@@ -389,17 +427,17 @@ export default function InActiveCustomersList() {
 
         <div className="flex flex-wrap items-center gap-4">
           <Link to="/dashboard/customers/create">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-              <PackagePlus size={18} />
+            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+              <PackagePlus className="h-4 w-4" />
               Add Customer
-            </button>
+            </Button>
           </Link>
 
           <Link to="/dashboard/customers/map">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none">
-              <MapPin size={18} />
+            <Button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white">
+              <MapPin className="h-4 w-4" />
               Customer Map
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
@@ -435,11 +473,11 @@ export default function InActiveCustomersList() {
         ))}
       </div>
 
-      <Card className="pt-6 pb-2">
-        <CardHeader>
+      <Card className="pt-6 pb-2 border-none shadow-none">
+        <CardHeader className="px-0">
           <CardTitle>Inactive Customers</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-auto w-full">
+        <CardContent className="overflow-auto w-full px-0">
           {isLoading ? (
             <div className="text-center py-8">Loading customers...</div>
           ) : (
@@ -452,6 +490,11 @@ export default function InActiveCustomersList() {
               onPageChange={setPageIndex}
               onSearch={(value) => {
                 setSearchTerm(value);
+                setPageIndex(0);
+              }}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPageIndex(0);
               }}
               isFetching={isLoading}
             />

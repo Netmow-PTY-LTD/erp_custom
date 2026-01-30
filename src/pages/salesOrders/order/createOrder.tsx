@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,13 +32,14 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import {
   useAddSalesInvoiceMutation,
   useAddSalesOrderMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useGetActiveCustomersQuery, useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router";
 import { useAppSelector } from "@/store/store";
 import { Textarea } from "@/components/ui/textarea";
 import z from "zod";
@@ -45,6 +47,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Product } from "@/types/types";
 import { AddProductsModal } from "@/components/products/AddProductsModal";
 import type { Customer } from "@/store/features/customers/types";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 const orderSchema = z
   .object({
@@ -53,6 +57,7 @@ const orderSchema = z
     order_date: z.string().min(1, "Order date is required"),
     due_date: z.string().min(1, "Due date is required"),
     delivery_date: z.string().optional(),
+    staff_id: z.number().optional(),
     notes: z.string().optional(),
     items: z.array(
       z.object({
@@ -97,6 +102,8 @@ const orderSchema = z
 
 export default function CreateSalesOrderPage() {
   const [searchParam] = useSearchParams();
+  const location = useLocation();
+  const isCreateAny = location.pathname.includes("/create-any");
   const customerIdFromParam = searchParam.get("customerId");
   const navigate = useNavigate();
   const [addSalesOrder, { isLoading }] = useAddSalesOrderMutation();
@@ -110,10 +117,11 @@ export default function CreateSalesOrderPage() {
     resolver: zodResolver(orderSchema),
     defaultValues: {
       customer_id: 0,
+      staff_id: 0,
       shipping_address: "",
-      order_date: "",
-      due_date: "",
-      delivery_date: "",
+      order_date: new Date().toISOString().split("T")[0],
+      due_date: new Date().toISOString().split("T")[0],
+      delivery_date: new Date().toISOString().split("T")[0],
       notes: "",
       items: [{ product_id: 0, sku: "", specification: "", unit: "", quantity: 1, unit_price: 0, discount: 0, sales_tax: 0, stock_quantity: 0, remark: "" }],
     },
@@ -217,6 +225,7 @@ export default function CreateSalesOrderPage() {
         due_date: values.due_date,
         delivery_date: values.delivery_date,
         customer_id: values.customer_id,
+        staff_id: values.staff_id,
         shipping_address: values.shipping_address,
         notes: values.notes,
         items: values.items.map((i) => ({
@@ -343,16 +352,19 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={customer.thumb_url} alt={customer.name} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{customer.name}</span>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{customer.name}</span>
                         {customer.company && (
-                          <span className="text-xs text-muted-foreground">{customer.company}</span>
+                          <span className="truncate text-xs text-muted-foreground">{customer.company}</span>
+                        )}
+                        {customer.address && (
+                          <span className="truncate text-xs text-muted-foreground/80">{customer.address}</span>
                         )}
                       </div>
                     </CommandItem>
@@ -364,6 +376,98 @@ export default function CreateSalesOrderPage() {
       </Popover>
     );
   };
+
+  const StaffSelectField = ({
+    field,
+  }: {
+    field: { value: number | undefined; onChange: (v: number) => void };
+  }) => {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const { data, isLoading } = useGetAllStaffsQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+      status: "active",
+    });
+    const list = Array.isArray(data?.data) ? data.data : [];
+    const selected = list.find((s) => s.id === field.value);
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              "w-full justify-between h-9 overflow-hidden font-normal text-left",
+              !field.value && "text-muted-foreground"
+            )}
+            type="button"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              {selected ? (
+                <>
+                  <Avatar className="h-6 w-6 shrink-0">
+                    <AvatarImage src={selected.thumb_url} alt={`${selected.first_name} ${selected.last_name}`} />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate text-left font-medium min-w-0 flex-1">{selected.first_name} {selected.last_name}</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground">Select staff...</span>
+              )}
+            </div>
+            <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0">
+          <Command>
+            <CommandInput
+              placeholder="Search staff..."
+              onValueChange={setQuery}
+            />
+            <CommandList>
+              <CommandEmpty>No staff found</CommandEmpty>
+              <CommandGroup>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+                {!isLoading &&
+                  list.map((staff) => (
+                    <CommandItem
+                      key={staff.id}
+                      onSelect={() => {
+                        field.onChange(staff.id);
+                        setOpen(false);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <Avatar className="h-8 w-8 shrink-0">
+                        <AvatarImage src={staff.thumb_url} alt={`${staff.first_name} ${staff.last_name}`} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{staff.first_name} {staff.last_name}</span>
+                        {staff.email && (
+                          <span className="truncate text-xs text-muted-foreground">{staff.email}</span>
+                        )}
+                      </div>
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
 
   const ProductSelectField = ({
     field,
@@ -432,7 +536,7 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={product.thumb_url} alt={product.name} />
                         <AvatarFallback>
                           <Package className="h-4 w-4" />
@@ -441,7 +545,7 @@ export default function CreateSalesOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
-                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'}
+                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'} | Stock: {product.stock_quantity || 0}
                         </span>
                       </div>
                     </CommandItem>
@@ -451,6 +555,56 @@ export default function CreateSalesOrderPage() {
           </Command>
         </PopoverContent>
       </Popover>
+    );
+  };
+
+  const DatePickerField = ({
+    field,
+    label,
+  }: {
+    field: any;
+    label: string;
+  }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <FormItem className="flex flex-col">
+        <FormLabel>{label}</FormLabel>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <FormControl>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full pl-3 text-left font-normal border-gray-200 dark:border-gray-800",
+                  !field.value && "text-muted-foreground"
+                )}
+              >
+                {field.value ? (
+                  format(new Date(field.value), "dd/MM/yyyy")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </FormControl>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={field.value ? new Date(field.value) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  field.onChange(format(date, "yyyy-MM-dd"));
+                  setOpen(false);
+                }
+              }}
+              disabled={(date) => date < new Date("1900-01-01")}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        <FormMessage />
+      </FormItem>
     );
   };
 
@@ -464,9 +618,9 @@ export default function CreateSalesOrderPage() {
           <p className="text-muted-foreground mt-2">Create a new sales order with customer and product details</p>
         </div>
         <Link to="/dashboard/sales/orders">
-          <button className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 flex items-center gap-2">
+          <Button variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" /> Back to Orders
-          </button>
+          </Button>
         </Link>
       </div>
 
@@ -512,11 +666,7 @@ export default function CreateSalesOrderPage() {
                   name="order_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Order Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Order Date" />
                   )}
                 />
 
@@ -548,11 +698,7 @@ export default function CreateSalesOrderPage() {
                   name="due_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Due Date" />
                   )}
                 />
 
@@ -560,11 +706,7 @@ export default function CreateSalesOrderPage() {
                   name="delivery_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Delivery Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Delivery Date" />
                   )}
                 />
 
@@ -599,6 +741,22 @@ export default function CreateSalesOrderPage() {
                     </FormItem>
                   )}
                 />
+
+                {isCreateAny && (
+                  <FormField
+                    name="staff_id"
+                    control={control}
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Assigned Staff</FormLabel>
+                        <FormControl>
+                          <StaffSelectField field={field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -617,8 +775,9 @@ export default function CreateSalesOrderPage() {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() =>
                       append({
                         product_id: 0,
@@ -631,17 +790,17 @@ export default function CreateSalesOrderPage() {
                         remark: "",
                       })
                     }
-                    className="flex items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                    className="gap-2"
                   >
                     <Plus className="w-4 h-4" /> Add Row
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none"
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/20 text-white"
                   >
                     <ShoppingCart className="w-4 h-4" /> Add Items
-                  </button>
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -650,18 +809,18 @@ export default function CreateSalesOrderPage() {
               <div className="space-y-4 overflow-x-auto min-w-full">
                 {/* Header for Desktop and Mobile (Horizontal Scroll) */}
                 <div className="flex min-w-max gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
-                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20">SKU</div>
-                  <div className="flex-1 min-w-[300px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20">Product</div>
-                  <div className="w-36">Spec.</div>
-                  <div className="w-24">Unit</div>
-                  <div className="w-24 text-right">Stock</div>
-                  <div className="w-32">Price</div>
-                  <div className="w-24">Qty</div>
-                  <div className="w-24">Discount</div>
-                  <div className="w-32">Pretax</div>
-                  <div className="w-24 text-right">Tax %</div>
-                  <div className="w-32 text-right">Tax Amt </div>
-                  <div className="w-36 text-right pr-4">Total ({currency})</div>
+                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">SKU</div>
+                  <div className="w-[350px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">Product</div>
+                  <div className="w-36 text-left">Spec.</div>
+                  <div className="w-24 text-left">Unit</div>
+                  <div className="w-24 text-left">Stock</div>
+                  <div className="w-32 text-left">Price</div>
+                  <div className="w-24 text-left">Qty</div>
+                  <div className="w-24 text-left">Discount</div>
+                  <div className="w-32 text-left">Pretax</div>
+                  <div className="w-24 text-left">Tax %</div>
+                  <div className="w-32 text-left">Tax Amt </div>
+                  <div className="w-36 text-left pr-4">Total ({currency})</div>
                   <div className="flex-1 min-w-[200px]">Remark</div>
                   <div className="w-12"></div>
                 </div>
@@ -693,7 +852,7 @@ export default function CreateSalesOrderPage() {
                       />
 
                       {/* Product */}
-                      <div className="flex-1 min-w-[250px] xl:min-w-[300px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
+                      <div className="w-[350px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
                         <FormField
                           name={`items.${index}.product_id`}
                           control={control}
@@ -803,8 +962,8 @@ export default function CreateSalesOrderPage() {
                                 type="number"
                                 min={0}
                                 {...field}
-                                className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                readOnly
+                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
@@ -935,13 +1094,15 @@ export default function CreateSalesOrderPage() {
 
                       {/* Remove */}
                       <div className="xl:pt-0 pt-6">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => remove(index)}
-                          className="p-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 transition-all duration-200 dark:border-red-900/50 dark:hover:bg-red-950/30 h-9 w-9 flex items-center justify-center"
+                          className="h-9 w-9 text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
                         >
                           <X className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -988,10 +1149,10 @@ export default function CreateSalesOrderPage() {
 
           {/* Submit */}
           <div className="flex justify-end gap-4 pt-4">
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+              className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/40 text-white min-w-[200px]"
             >
               {isLoading ? (
                 <>
@@ -1004,7 +1165,7 @@ export default function CreateSalesOrderPage() {
                   <span>Create Sales Order</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </Form>

@@ -33,12 +33,13 @@ import {
 } from "@/components/ui/select";
 import { BackButton } from "@/components/BackButton";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { Button } from "@/components/ui/button";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const supplierSchema = z.object({
   name: z.string().min(1, "Required"),
   code: z.string().optional(),
-  email: z.email("Invalid email").optional(),
+  email: z.string().email("Invalid email").optional().or(z.literal('')),
   phone: z.string().optional(),
   contactPerson: z.string().optional(),
   address: z.string().optional(),
@@ -504,31 +505,32 @@ export default function EditSupplierPage() {
           </Card>
 
           {/* SUBMIT */}
-          <div className="flex justify-end gap-4 pt-6">
-            <button
+          <div className="flex justify-end gap-3 pb-4 pt-6">
+            <Button
               type="button"
+              variant="outline"
               onClick={() => navigate('/dashboard/suppliers')}
-              className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+              className="flex items-center gap-2"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isUpdating}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isUpdating ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Updating...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-5 h-5" />
+                  <CheckCircle2 className="h-4 w-4" />
                   <span>Save Supplier</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </Form>

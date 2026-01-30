@@ -10,6 +10,8 @@ import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery } from "@
 import type { Customer } from "@/store/features/customers/types";
 import ClenderButton from "./ClenderButton";
 import { useAppSelector } from "@/store/store";
+import { MapPin, Car, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -67,6 +69,14 @@ const customerColumns: ColumnDef<Customer>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-0.5">
+        {row.original.company && <span className="font-semibold text-gray-900">{row.original.company}</span>}
+        <span className={row.original.company ? "text-xs text-muted-foreground" : "font-medium text-gray-900"}>
+          {row.original.name}
+        </span>
+      </div>
+    ),
   },
   {
     accessorKey: "address",
@@ -83,23 +93,78 @@ const customerColumns: ColumnDef<Customer>[] = [
     accessorKey: "phone",
     header: "Phone",
   },
-  // {
-  //   accessorKey: "check_in_status",
-  //   header: "Status",
-  //   cell: ({ row }) => (
-  //     <span className={(row.original as any).check_in_status ? "text-green-600 font-medium" : "text-red-500"}>
-  //       {(row.original as any).check_in_status ? "Visted" : "Not Visited"}
-  //     </span>
-  //   ),
-  // },
   {
-    id: "coords",
-    header: "Coordinates",
-    cell: ({ row }) =>
-      row.original.latitude && row.original.longitude
-        ? `${row.original.latitude}, ${row.original.longitude}`
-        : "—",
+    id: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const checkins = (row.original as any).checkins;
+      const isCheckedIn = checkins && checkins.length > 0;
+      return (
+        <span className={isCheckedIn ? "text-green-600 font-medium" : "text-red-500"}>
+          {isCheckedIn ? "True" : "False"}
+        </span>
+      );
+    },
   },
+  {
+    id: "check_in_time",
+    header: "Check-in Time",
+    cell: ({ row }) => {
+      const checkins = (row.original as any).checkins;
+      if (!checkins || checkins.length === 0) return <span className="text-gray-400">-</span>;
+      return <span>{format(new Date(checkins[0].check_in_time), "hh:mm a")}</span>;
+    },
+  },
+  {
+    id: "distance",
+    header: "Distance (m)",
+    cell: ({ row }) => {
+      const checkins = (row.original as any).checkins;
+      if (!checkins || checkins.length === 0) return <span className="text-gray-400">-</span>;
+      return <span>{checkins[0].distance_meters} m</span>;
+    },
+  },
+    {
+      id: "coords",
+      header: "Location",
+      cell: ({ row }) => {
+        const { latitude, longitude, address } = row.original;
+        const hasLocation = (latitude && longitude) || address;
+
+        const handleWazeClick = () => {
+          let url = "";
+          if (latitude && longitude) {
+            url = `https://www.waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
+          } else if (address) {
+            url = `https://www.waze.com/ul?q=${encodeURIComponent(address)}`;
+          }
+          if (url) window.open(url, "_blank");
+        };
+
+        if (!hasLocation) return <span className="text-muted-foreground text-xs">—</span>;
+
+        return (
+          <div className="flex items-center gap-1.5">
+            <Button
+              size="icon"
+              className="h-8 w-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none rounded-lg"
+              onClick={() => setLocationData({ checkins: (row.original as any).checkins || [], customer: row.original })}
+              title="View Map"
+            >
+              <MapPin className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              className="h-8 w-8 bg-orange-50 text-orange-500 hover:bg-orange-100 border-none shadow-none rounded-lg"
+              onClick={handleWazeClick}
+              title="Open in Waze"
+            >
+              <Car className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
   {
     id: "actions",
     header: "Actions",
@@ -107,19 +172,13 @@ const customerColumns: ColumnDef<Customer>[] = [
       const customer = row.original;
       return (
         <div className="flex gap-2">
-          <button
-            className="bg-blue-600 text-white px-3 py-1 rounded"
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 rounded-lg w-full h-9"
             onClick={() => handleCheckIn(customer)}
           >
+            <CheckCircle2 className="h-4 w-4" />
             Check In
-          </button>
-          <button
-            className="border px-3 py-1 rounded disabled:opacity-50"
-            onClick={() => setLocationData({ checkins: (customer as any).checkins || [], customer })}
-            disabled={!(customer as any).checkins?.length}
-          >
-            View Location
-          </button>
+          </Button>
         </div>
       );
     },

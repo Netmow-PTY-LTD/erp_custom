@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CheckCircle, AlertCircle, UploadCloud, FileText, QrCode } from "lucide-react";
+import { CheckCircle, AlertCircle, UploadCloud, FileText, QrCode, Printer } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 
@@ -153,12 +153,30 @@ export default function EInvoiceList() {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-3xl font-bold tracking-tight">E-Invoices</h2>
-            <Card className="pt-6 pb-2">
-                <CardHeader>
+            <div className="flex items-center justify-between print:hidden">
+                <h2 className="text-3xl font-bold tracking-tight">E-Invoices</h2>
+                <button
+                    onClick={() => window.print()}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none"
+                >
+                    <Printer size={18} />
+                    Print
+                </button>
+            </div>
+
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">E-INVOICES REPORT</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold">
+                    <span>Report Generated On: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+            </div>
+
+            <Card className="pt-6 pb-2 border-none shadow-none">
+                <CardHeader className="print:hidden px-0">
                     <CardTitle>Invoice List</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-0">
                     <DataTable
                         columns={columns}
                         data={data?.data || []}
@@ -171,6 +189,87 @@ export default function EInvoiceList() {
                     />
                 </CardContent>
             </Card>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                    @media print {
+                        @page {
+                            size: landscape;
+                            margin: 10mm;
+                        }
+                        .print\:hidden,
+                        header,
+                        nav,
+                        aside,
+                        button,
+                        .no-print {
+                            display: none !important;
+                        }
+                        html, body {
+                            background: white !important;
+                            overflow: visible !important;
+                            height: auto !important;
+                        }
+                        table {
+                            width: 100% !important;
+                            border-collapse: collapse !important;
+                            page-break-inside: auto !important;
+                        }
+                        thead {
+                            display: table-header-group !important;
+                        }
+                        tr {
+                            page-break-inside: avoid !important;
+                            page-break-after: auto !important;
+                        }
+                        th, td {
+                            border: 1px solid #ddd !important;
+                            padding: 6px 8px !important;
+                            font-size: 9px !important;
+                            vertical-align: middle !important;
+                        }
+                        th *, td * {
+                            font-size: 9px !important;
+                        }
+                        th {
+                            background-color: #f3f4f6 !important;
+                            font-weight: 600 !important;
+                            text-align: left !important;
+                            line-height: 1.2 !important;
+                            text-transform: uppercase !important;
+                        }
+                        th:nth-child(9), td:nth-child(9) {
+                            display: none !important;
+                        }
+                        .text-4xl {
+                            font-size: 18px !important;
+                            margin-bottom: 4px !important;
+                            line-height: 1 !important;
+                        }
+                        .text-4xl + div {
+                            line-height: 1 !important;
+                            margin-top: 2px !important;
+                        }
+                        .hidden.print\:block.mb-\[15px\] {
+                            margin-bottom: 15px !important;
+                        }
+                        .border {
+                            border: none !important;
+                        }
+                        .shadow-sm, .shadow-md, .shadow-lg {
+                            box-shadow: none !important;
+                        }
+                        [role="navigation"],
+                        input,
+                        input[type="search"],
+                        input[type="text"],
+                        .flex.items-center.justify-between {
+                            display: none !important;
+                        }
+                    }
+                `
+            }} />
         </div>
     );
 }

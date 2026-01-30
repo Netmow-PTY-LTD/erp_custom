@@ -2,6 +2,7 @@ import {
   Boxes,
   CalendarCheck,
   Car,
+  Banknote,
   CreditCard,
   DollarSign,
   // FileCode,
@@ -17,6 +18,7 @@ import {
   Package,
   PieChart,
   PlusCircle,
+  RotateCcw,
   Ruler,
   Scale,
   Settings,
@@ -28,6 +30,7 @@ import {
   CheckCircle,
   Clock,
   Database,
+  XCircle,
 } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Products from "../pages/products/Products";
@@ -44,6 +47,7 @@ import EditOrderPage from "@/pages/salesOrders/order/editOrder";
 import OrderDetails from "@/pages/salesOrders/order/OrderDetails";
 import PendingOrders from "@/pages/salesOrders/order/PendingOrders";
 import DeliveredOrders from "@/pages/salesOrders/order/DeliveredOrders";
+import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
 import AccountingOverview from "@/pages/accounting/Accounting";
 import AddIncomePage from "@/pages/accounting/AddIncomePage";
 import AddExpensePage from "@/pages/accounting/AddExpanse";
@@ -55,10 +59,17 @@ import AddSupplierPage from "@/pages/suppliers/supplier/AddSupplier";
 // import WarehousesPage from "@/pages/warehouse";
 import DeliveryPage from "@/pages/salesOrders/delivery/DeliveryPage";
 import SalesRoutesPage from "@/pages/salesOrders/salesRoutes/SalesRoutePage";
-import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersList";
+import SalesPaymentPrintPreview from "@/pages/salesOrders/payments/SalesPaymentPrintPreview";
+import { lazy } from "react";
+const PurchaseOrdersPrintPreview = lazy(() => import("@/pages/suppliers/purchaseOrder/PurchaseOrdersPrintPreview"));
+const PurchaseOrderPrint = lazy(() => import("@/pages/suppliers/purchaseOrder/PurchaseOrderPrint"));
+const SalesOrderPrint = lazy(() => import("@/pages/salesOrders/order/SalesOrderPrint"));
+// import PurchaseOrdersList from "@/pages/suppliers/purchaseOrder/PurchaseOrdersList";
 import EditSupplierPage from "@/pages/suppliers/supplier/EditSupplier";
 import CreatePurchaseOrderPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseOrderPage";
+import CreatePurchaseReturnPage from "@/pages/suppliers/purchaseOrder/CreatePurchaseReturnPage";
 import ViewPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseOrderPage";
+import ViewPurchaseReturnPage from "@/pages/suppliers/purchaseOrder/ViewPurchaseReturnPage";
 import Staffs from "@/pages/staffs";
 import StaffDetails from "@/pages/staffs/StaffDetails";
 import AddStaffPage from "@/pages/staffs/add";
@@ -87,15 +98,21 @@ import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
 import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
 import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
+import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
+import PurchaseReturnInvoiceDetails from "@/pages/suppliers/purchaseReturnInvoices/PurchaseReturnInvoiceDetails";
+import PurchaseReturnInvoicePrintPreview from "@/pages/suppliers/purchaseReturnInvoices/PurchaseReturnInvoicePrintPreview";
 import PurchasePayments from "@/pages/suppliers/purchasePayments/PurchasePayments";
 import PurchasePaymentsDetails from "@/pages/suppliers/purchasePayments/PurchasePaymentsDetails";
+import PurchasePaymentPrintPreview from "@/pages/suppliers/purchasePayments/PurchasePaymentPrintPreview";
 import CreatePurchasePayments from "@/pages/suppliers/purchasePayments/CreatePurchasePayments";
+import CreatePurchaseReturnPayment from "@/pages/suppliers/purchasePayments/CreatePurchaseReturnPayment";
+import PurchaseReturnPayments from "@/pages/suppliers/purchasePayments/PurchaseReturnPayments";
+import PurchaseReturnPaymentsDetails from "@/pages/suppliers/purchasePayments/PurchaseReturnPaymentsDetails";
 import PurchaseOrdersMapPage from "@/pages/suppliers/PurchaseOrdersMap";
 // import CreditHead from "@/pages/accounting/CreditHead";
 // import DebitHead from "@/pages/accounting/DebitHead";
 import Roles from "@/pages/rolesPermission/Roles";
 import PermissionsPage from "@/pages/rolesPermission/PermissionsPage";
-import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
 
 // New Accounting Pages
 import Transactions from "@/pages/accounting/Transactions";
@@ -108,6 +125,7 @@ import ProfitAndLoss from "@/pages/accounting/ProfitAndLoss";
 import TaxSubmission from "@/pages/accounting/TaxSubmission";
 import IncomePage from "@/pages/accounting/Income";
 import ExpensesPage from "@/pages/accounting/Expenses";
+import BalanceSheet from "@/pages/accounting/BalanceSheet";
 import {
   DashboardPermission,
   ProductPermission,
@@ -146,7 +164,9 @@ import StaffRoute from "@/pages/routeOperations/StaffRoute";
 // import RMSupplierList from "@/pages/raw-materials/suppliers/SupplierList";
 // import AddRMSupplier from "@/pages/raw-materials/suppliers/AddSupplier";
 // import EditRMSupplier from "@/pages/raw-materials/suppliers/EditSupplier";
-// import RMPurchaseOrderList from "@/pages/raw-materials/purchase-orders/PurchaseOrderList";
+const PurchaseOrdersList = lazy(
+  () => import("@/pages/suppliers/purchaseOrder/PurchaseOrdersList")
+);
 // import CreateRMPurchaseOrder from "@/pages/raw-materials/purchase-orders/CreatePurchaseOrder";
 // import ViewRMPurchaseOrder from "@/pages/raw-materials/purchase-orders/ViewPurchaseOrderPage";
 // import RMInvoiceList from "@/pages/raw-materials/invoice/RawMaterialInvoiceList";
@@ -165,6 +185,7 @@ import StaffRoute from "@/pages/routeOperations/StaffRoute";
 import InActiveCustomersList from "@/pages/customer/InActiveCustomers";
 import CheckIn from "@/pages/checkIn/CheckIn";
 import CheckInList from "@/pages/checkIn/CheckInList";
+import StaffWiseCheckInList from "@/pages/checkIn/StaffWiseCheckInList";
 import AddCustomerByStaffPage from "@/pages/customer/AddCustomerByStaff";
 import MyProfileSettings from "@/pages/Settings/MyProfileSettings";
 import Help from "@/pages/help/Help";
@@ -186,21 +207,40 @@ import StaffPayrollRun from "@/pages/HrAndPayroll/StaffPayrollRun";
 
 
 import { ConfirmedOrders } from "@/pages/salesOrders/order/ConfirmedOrders";
-import ReturnedOrders from "@/pages/salesOrders/order/ReturnedOrders";
 import IntransitOrder from "@/pages/salesOrders/order/IntransitOrder";
 import EditRoutePage from "@/pages/salesOrders/salesRoutes/EditRoutePage";
 import ProfitByItem from "@/pages/accounting/ProfitByItem";
 import ProductsByStaff from "@/pages/products/ProductsByStaff";
 import DatabaseTables from "@/pages/data_management/DatabaseTables";
 import ReturnedPurchaseOrders from "@/pages/suppliers/purchaseOrder/ReturnedPurchaseOrders";
+import PurchaseReturnPrint from "@/pages/suppliers/purchaseOrder/PurchaseReturnPrint";
 import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
 import EInvoiceList from "@/pages/salesOrders/invoices/EInvoiceList";
 import EInvoiceSettings from "@/pages/Settings/pages/EInvoiceSettings";
 import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
+import GoogleApiSettings from "@/pages/Settings/pages/GoogleApiSettings";
+import PrefixSettings from "@/pages/Settings/pages/PrefixSettings";
 import StaffWiseSalesReport from "@/pages/reports/StaffWiseSalesReport";
 import InvoicesSummaryPreview from "@/pages/salesOrders/invoices/InvoicesSummaryPreview";
 import InvoiceItemsSummaryPreview from "@/pages/salesOrders/invoices/InvoiceItemsSummaryPreview";
 import InvoiceSummaryDetails from "@/pages/salesOrders/invoices/InvoiceSummaryDetails";
+import CreateSalesReturn from "@/pages/salesOrders/returns/CreateSalesReturn";
+import ViewSalesReturn from "@/pages/salesOrders/returns/ViewSalesReturn";
+import SalesReturnInvoiceDetails from "@/pages/salesOrders/returns/SalesReturnInvoiceDetails";
+import SalesReturnInvoicePrintPreview from "@/pages/salesOrders/returns/SalesReturnInvoicePrintPreview";
+import SalesReturnPaymentsList from "@/pages/salesOrders/returns/SalesReturnPaymentsList";
+import CreateSalesReturnPayment from "@/pages/salesOrders/returns/CreateSalesReturnPayment";
+import SalesReturnPaymentDetails from "@/pages/salesOrders/returns/SalesReturnPaymentDetails";
+import SalesReturnsList from "@/pages/salesOrders/returns/SalesReturnsList";
+import SalesReturnPrint from "@/pages/salesOrders/returns/SalesReturnPrint";
+
+import ApprovedPurchaseReturns from "@/pages/suppliers/purchaseOrder/ApprovedPurchaseReturns";
+import PendingPurchaseReturns from "@/pages/suppliers/purchaseOrder/PendingPurchaseReturns";
+import ApprovedSalesReturns from "@/pages/salesOrders/returns/ApprovedSalesReturns";
+import PendingSalesReturns from "@/pages/salesOrders/returns/PendingSalesReturns";
+import ApprovedPurchaseOrders from "@/pages/suppliers/purchaseOrder/ApprovedPurchaseOrders";
+import RejectedPurchaseOrders from "@/pages/suppliers/purchaseOrder/RejectedPurchaseOrders";
+import PendingPurchaseOrders from "@/pages/suppliers/purchaseOrder/PendingPurchaseOrders";
 
 
 export const sidebarItemLink = [
@@ -832,6 +872,16 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "Staff Wise Checkin List",
+        url: "/dashboard/staff/staff-wise-check-in-list",
+        icon: Users,
+        element: <StaffWiseCheckInList />,
+        allowedPermissions: [
+          StaffPermission.VIEW_CHECK_IN_LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "",
         url: "/dashboard/staffs/leaves/request",
         element: <LeaveRequest />,
@@ -875,10 +925,30 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "Returned Purchase Orders",
-        url: "/dashboard/purchase-orders/returned",
-        element: <ReturnedPurchaseOrders />,
-        icon: List,
+        title: "Pending Purchase Order",
+        url: "/dashboard/purchase-orders/pending",
+        element: <PendingPurchaseOrders />,
+        icon: Clock,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Approved Purchase Order",
+        url: "/dashboard/purchase-orders/approved",
+        element: <ApprovedPurchaseOrders />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Rejected Purchase Order",
+        url: "/dashboard/purchase-orders/rejected",
+        element: <RejectedPurchaseOrders />,
+        icon: XCircle,
         allowedPermissions: [
           SupplierPermission.LIST,
           SuperAdminPermission.ACCESS_ALL,
@@ -903,6 +973,7 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
+
       {
         title: "",
         url: "/dashboard/purchase-orders/:purchaseId/edit",
@@ -918,6 +989,24 @@ export const sidebarItemLink = [
         element: <CreatePurchaseOrderPage />,
         allowedPermissions: [
           SupplierPermission.CREATE_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/print-preview",
+        element: <PurchaseOrdersPrintPreview />,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-orders/:purchaseId/print",
+        element: <PurchaseOrderPrint />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -978,12 +1067,138 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "",
+        url: "/dashboard/purchase-payments/:id/preview",
+        element: <PurchasePaymentPrintPreview />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Purchase Orders Map",
         url: "/dashboard/purchase-orders-map",
         element: <PurchaseOrdersMapPage />,
         icon: MapPin,
         allowedPermissions: [
           SupplierPermission.VIEW_PURCHASE_ORDERS_MAP,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+    ],
+  },
+
+  // PURCHASE RETURN
+  {
+    title: "Purchase Return",
+    url: "#",
+    icon: RotateCcw,
+    allowedPermissions: [
+      SupplierPermission.VIEW,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "Purchase Returns",
+        url: "/dashboard/purchase-orders/returned",
+        element: <ReturnedPurchaseOrders />,
+        icon: List,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Approved Purchase Returns",
+        url: "/dashboard/purchase-orders/returned/approved",
+        element: <ApprovedPurchaseReturns />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Pending Purchase Return",
+        url: "/dashboard/purchase-orders/returned/pending",
+        element: <PendingPurchaseReturns />,
+        icon: Clock,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Create Purchase Return",
+        url: "/dashboard/purchase-orders/return/create",
+        element: <CreatePurchaseReturnPage />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-returns/:returnId",
+        element: <ViewPurchaseReturnPage />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-returns/:returnId/print",
+        element: <PurchaseReturnPrint />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-return-invoices/:id",
+        element: <PurchaseReturnInvoiceDetails />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-return-invoices/:id/preview",
+        element: <PurchaseReturnInvoicePrintPreview />,
+        allowedPermissions: [
+          SupplierPermission.PREVIEW_PURCHASE_RETURN_INVOICE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-returns/payments/create",
+        element: <CreatePurchaseReturnPayment />,
+        allowedPermissions: [
+          SupplierPermission.CREATE_PURCHASE_RETURN_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Purchase Return Refunds",
+        url: "/dashboard/purchase-returns/payments",
+        element: <PurchaseReturnPayments />,
+        icon: Banknote,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/purchase-returns/payments/:id",
+        element: <PurchaseReturnPaymentsDetails />,
+        allowedPermissions: [
+          SupplierPermission.VIEW_PURCHASE_RETURN_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1020,6 +1235,16 @@ export const sidebarItemLink = [
       {
         title: "Add New Sales Order",
         url: "/dashboard/sales/orders/create",
+        icon: PlusCircle,
+        element: <CreateOrderPage />,
+        allowedPermissions: [
+          SalesPermission.CREATE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Add New Sales Order (Any)",
+        url: "/dashboard/sales/orders/create-any",
         icon: PlusCircle,
         element: <CreateOrderPage />,
         allowedPermissions: [
@@ -1068,19 +1293,29 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "Sales Return",
-        url: "/dashboard/sales/orders/returned",
+        title: "Return Orders",
+        url: "/dashboard/sales/orders/return",
         element: <ReturnedOrders />,
-        icon: List,
+        icon: RotateCcw,
         allowedPermissions: [
-          SalesPermission.RETURNED_ORDERS,
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
+      {
+        title: "",
+        url: "/dashboard/sales/orders/:orderId",
+        element: <OrderDetails />,
+        allowedPermissions: [
+          SalesPermission.ORDER_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
       {
         title: "",
-        url: "/dashboard/sales/orders/:orderId",
-        element: <OrderDetails />,
+        url: "/dashboard/sales/orders/:orderId/print",
+        element: <SalesOrderPrint />,
         allowedPermissions: [
           SalesPermission.ORDER_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
@@ -1181,6 +1416,15 @@ export const sidebarItemLink = [
       },
       {
         title: "",
+        url: "/dashboard/sales/payments/:paymentId/preview",
+        element: <SalesPaymentPrintPreview />,
+        allowedPermissions: [
+          SalesPermission.PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
         url: "/dashboard/sales/payments/create",
         element: <CreatePaymentPage />,
         allowedPermissions: [
@@ -1234,6 +1478,123 @@ export const sidebarItemLink = [
       //     SuperAdminPermission.ACCESS_ALL,
       //   ],
       // },
+    ],
+  },
+
+  // SALES RETURN
+  {
+    title: "Sales Return",
+    url: "#",
+    icon: RotateCcw,
+    allowedPermissions: [
+      SalesPermission.VIEW_SALES_RETURNS,
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+    items: [
+      {
+        title: "Sales Return Orders",
+        url: "/dashboard/sales/returns",
+        element: <SalesReturnsList />,
+        icon: List,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Approved Sales Returns",
+        url: "/dashboard/sales/returns/approved",
+        element: <ApprovedSalesReturns />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Pending Sales Return",
+        url: "/dashboard/sales/returns/pending",
+        element: <PendingSalesReturns />,
+        icon: Clock,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Create New Sales Return",
+        url: "/dashboard/sales/returns/create",
+        element: <CreateSalesReturn />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          SalesPermission.CREATE_SALES_RETURN,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/:returnId",
+        element: <ViewSalesReturn />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/:returnId/print",
+        element: <SalesReturnPrint />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales-return-invoices/:id",
+        element: <SalesReturnInvoiceDetails />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales-return-invoices/:id/preview",
+        element: <SalesReturnInvoicePrintPreview />,
+        allowedPermissions: [
+          SalesPermission.PREVIEW_SALES_RETURN_INVOICE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Sales Return Refunds",
+        url: "/dashboard/sales/returns/payments",
+        element: <SalesReturnPaymentsList />,
+        icon: Banknote,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/payments/create",
+        element: <CreateSalesReturnPayment />,
+        allowedPermissions: [
+          SalesPermission.CREATE_SALES_RETURN_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/payments/:id",
+        element: <SalesReturnPaymentDetails />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
     ],
   },
 
@@ -1334,6 +1695,16 @@ export const sidebarItemLink = [
         icon: PieChart,
         allowedPermissions: [
           AccountingPermission.PROFIT_AND_LOSS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Balance Sheet",
+        url: "/dashboard/accounting/reports/balance-sheet",
+        element: <BalanceSheet />,
+        icon: Scale,
+        allowedPermissions: [
+          AccountingPermission.BALANCE_SHEET,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1709,6 +2080,24 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/settings/einvoice",
         element: <EInvoiceSettings />,
+        allowedPermissions: [
+          SettingsPermission.VIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/settings/google-api",
+        element: <GoogleApiSettings />,
+        allowedPermissions: [
+          SettingsPermission.VIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/settings/prefixes",
+        element: <PrefixSettings />,
         allowedPermissions: [
           SettingsPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,

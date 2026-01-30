@@ -1,4 +1,4 @@
-import { Settings as SettingsIcon, Building2, Wrench, UserCog, FileCode } from 'lucide-react';
+import { Settings as SettingsIcon, Building2, Wrench, UserCog, FileCode, Hash } from 'lucide-react';
 import { Card, CardHeader } from "@/components/ui/card";
 import { SettingsSidebar } from './SettingsSidebar';
 import { Outlet } from 'react-router';
@@ -23,6 +23,16 @@ const sidebarNavItems = [
     title: 'E-Invoice Config',
     href: '/dashboard/settings/einvoice',
     icon: <FileCode size={18} />,
+  },
+  {
+    title: 'Google API Settings',
+    href: '/dashboard/settings/google-api',
+    icon: <SettingsIcon size={18} />,
+  },
+  {
+    title: 'Prefix Settings',
+    href: '/dashboard/settings/prefixes',
+    icon: <Hash size={18} />,
   },
 ]
 

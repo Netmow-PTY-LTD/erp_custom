@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -36,13 +36,21 @@ export default function ProfitAndLoss() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Profit & Loss</h2>
                     <p className="text-muted-foreground">Income Statement (Revenue vs Expense).</p>
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2"
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print
+                    </Button>
                     <div className="flex items-center gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
@@ -90,6 +98,21 @@ export default function ProfitAndLoss() {
                             </PopoverContent>
                         </Popover>
                     </div>
+                </div>
+            </div>
+
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">PROFIT & LOSS STATEMENT</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold">
+                    {dateRange.from ? (
+                        <>
+                            <span>From: {format(dateRange.from, 'd MMMM yyyy')}</span>
+                            {dateRange.to && <span> - To: {format(dateRange.to, 'd MMMM yyyy')}</span>}
+                        </>
+                    ) : (
+                        <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+                    )}
                 </div>
             </div>
 
@@ -169,6 +192,67 @@ export default function ProfitAndLoss() {
                     </p>
                 </CardContent>
             </Card>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .border, .border-2 {
+                        border: 1px solid #eee !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    /* Layout optimization for two-column on paper if possible, or stacked */
+                    .grid.md\\:grid-cols-2 {
+                        display: grid !important;
+                        grid-template-columns: 1fr 1fr !important;
+                        gap: 10px !important;
+                    }
+                    .py-6 {
+                        padding-top: 10px !important;
+                        padding-bottom: 10px !important;
+                    }
+                    .p-8 {
+                        padding: 15px !important;
+                    }
+                    .text-5xl {
+                        font-size: 24px !important;
+                    }
+                    .text-lg {
+                        font-size: 11px !important;
+                    }
+                    .text-sm {
+                        font-size: 9px !important;
+                    }
+                    /* Aggressively remove unnecessary gaps */
+                    .mb-8, .mb-6, .mt-8 {
+                        margin-bottom: 5px !important;
+                        margin-top: 5px !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

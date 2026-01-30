@@ -10,9 +10,10 @@ export interface PurchasePayment {
   payment_method: "cash" | "bank_transfer" | "card" | "cheque";
   reference_number: string;
   status: "pending" | "completed" | "failed";
+  notes?: string;
 
   created_by: number;
-  creator:{
+  creator: {
     id: number;
     name: string;
     email: string;

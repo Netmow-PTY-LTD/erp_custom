@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import CheckInLocationModal from "./CheckInLocationModal";
 import { useGetAllStaffAttendanceQuery, type StaffAttendance } from "@/store/features/checkIn/checkIn";
 import ClenderButton from "./ClenderButton";
+import { MapPin, Car } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /* ================= COMPONENT ================= */
 
@@ -39,14 +41,19 @@ export default function CheckInList(): JSX.Element {
         },
       },
       {
-        accessorKey: "customer.name",
-        header: "Customer Name",
-        cell: ({ row }) => row.original.customer.name,
-      },
-      {
-        accessorKey: "customer.company",
-        header: "Company",
-        cell: ({ row }) => row.original.customer.company,
+        id: "customer",
+        header: "Customer & Company",
+        cell: ({ row }) => {
+          const customer = row.original.customer;
+          return (
+            <div className="flex flex-col gap-0.5">
+              {customer.company && <span className="font-semibold text-gray-900">{customer.company}</span>}
+              <span className={customer.company ? "text-xs text-muted-foreground" : "font-medium text-gray-900"}>
+                {customer.name}
+              </span>
+            </div>
+          );
+        },
       },
       {
         accessorKey: "check_in_time",
@@ -64,22 +71,43 @@ export default function CheckInList(): JSX.Element {
       {
         id: "location",
         header: "Location",
-        cell: ({ row }) =>
-          row.original.latitude && row.original.longitude
-            ? `${row.original.latitude.toFixed(4)}, ${row.original.longitude.toFixed(4)}`
-            : row.original.customer.address || "—",
-      },
-      {
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }) => (
-          <button
-            className="border px-3 py-1 rounded hover:bg-gray-100 text-sm"
-            onClick={() => setLocationItem(row.original)}
-          >
-            View Location
-          </button>
-        ),
+        cell: ({ row }) => {
+          const { latitude, longitude, customer } = row.original;
+          const hasLocation = (latitude && longitude) || customer?.address;
+
+          const handleWazeClick = () => {
+            let url = "";
+            if (latitude && longitude) {
+              url = `https://www.waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
+            } else if (customer?.address) {
+              url = `https://www.waze.com/ul?q=${encodeURIComponent(customer.address)}`;
+            }
+            if (url) window.open(url, "_blank");
+          };
+
+          if (!hasLocation) return <span className="text-muted-foreground text-xs">—</span>;
+
+          return (
+            <div className="flex items-center gap-1.5">
+              <Button
+                size="icon"
+                className="h-8 w-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none rounded-lg"
+                onClick={() => setLocationItem(row.original)}
+                title="View Map"
+              >
+                <MapPin className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                className="h-8 w-8 bg-orange-50 text-orange-500 hover:bg-orange-100 border-none shadow-none rounded-lg"
+                onClick={handleWazeClick}
+                title="Open in Waze"
+              >
+                <Car className="h-4 w-4" />
+              </Button>
+            </div>
+          );
+        },
       },
     ],
     []

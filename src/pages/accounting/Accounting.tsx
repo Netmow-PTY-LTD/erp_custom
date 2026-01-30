@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 import {
   BarChart,
@@ -21,6 +22,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import { useGetAccountingOverviewQuery, useGetRecentActivityQuery, useGetIncomeExpenseTrendQuery, useGetExpenseBreakdownQuery } from "@/store/features/accounting/accoutntingApiService";
 import type { Overview } from "@/types/accounting.types";
+import { useState } from "react";
+import AddIncomeModal from "./AddIncomeModal";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -28,6 +31,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 
 export default function AccountingOverview() {
+  const [isAddIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
   const { data: accountingOverview } = useGetAccountingOverviewQuery();
   const { data: recentActivityData } = useGetRecentActivityQuery();
 
@@ -56,16 +60,17 @@ export default function AccountingOverview() {
         <h2 className="text-2xl font-semibold">Accounting Overview</h2>
 
         <div className="flex flex-wrap gap-2">
-          <Link to={"/dashboard/accounting/add-income"}>
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-emerald-500/40 active:translate-y-0 active:shadow-none">
-              <Plus size={18} /> Add Income
-            </button>
-          </Link>
+          <Button
+            onClick={() => setIsAddIncomeModalOpen(true)}
+            className="gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+          >
+            <Plus className="w-4 h-4" /> Add Income
+          </Button>
 
           <Link to={"/dashboard/accounting/add-expanse"}>
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-rose-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-rose-500/40 active:translate-y-0 active:shadow-none">
-              <Plus size={18} /> Add Expense
-            </button>
+            <Button className="gap-2 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white shadow-lg shadow-rose-500/20">
+              <Plus className="w-4 h-4" /> Add Expense
+            </Button>
           </Link>
         </div>
       </div>
@@ -297,6 +302,12 @@ export default function AccountingOverview() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Income Modal */}
+      <AddIncomeModal
+        open={isAddIncomeModalOpen}
+        onOpenChange={setIsAddIncomeModalOpen}
+      />
     </div>
   );
 }

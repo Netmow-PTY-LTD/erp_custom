@@ -53,6 +53,7 @@ interface DataTableProps<TData> {
   totalCount?: number;
 
   onPageChange?: (page: number) => void;
+  onPageSizeChange?: (size: number) => void;
   search?: string;
   onSearch?: (value: string) => void;
   isFetching?: boolean | null;
@@ -62,6 +63,7 @@ interface DataTableProps<TData> {
   onRowClick?: (row: TData) => void;
   rowSelection?: any;
   onRowSelectionChange?: any;
+  filters?: React.ReactNode;
 }
 
 /* ---------------------------
@@ -74,6 +76,7 @@ export function DataTable<TData>({
   pageIndex = 0,
   pageSize = 10,
   onPageChange = () => { },
+  onPageSizeChange = () => { },
   onSearch = () => { },
   isFetching = null,
   // onGlobalFilterChange = () => {},
@@ -81,6 +84,7 @@ export function DataTable<TData>({
   onRowClick,
   rowSelection = {},
   onRowSelectionChange,
+  filters,
 }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = useState(globalFilterValue || "");
 
@@ -111,15 +115,18 @@ export function DataTable<TData>({
 
   return (
     <div className="space-y-4">
-      <Input
-        placeholder="Search..."
-        value={globalFilter}
-        onChange={(e) => {
-          setGlobalFilter(e.target.value);
-          onSearch?.(e.target.value); // 🔥 ask parent to fetch from API
-        }}
-        className="max-w-sm"
-      />
+      <div className="flex flex-col sm:flex-row gap-4 justify-between">
+        <Input
+          placeholder="Search..."
+          value={globalFilter}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value);
+            onSearch?.(e.target.value); // 🔥 ask parent to fetch from API
+          }}
+          className="max-w-sm"
+        />
+        {filters && <div className="flex gap-2">{filters}</div>}
+      </div>
 
       <div className="rounded-md border overflow-x-auto">
         <Table>
@@ -200,10 +207,28 @@ export function DataTable<TData>({
       {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between py-4 gap-4">
         {/* Showing X–Y of Z */}
-        <div className="text-sm">
-          Showing {pageIndex * pageSize + 1}–
-          {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
-          results
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="text-sm">
+            Showing {pageIndex * pageSize + 1}–
+            {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}
+            results
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Per page:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                onPageSizeChange?.(Number(e.target.value));
+              }}
+              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none"
+            >
+              {[10, 20, 30, 50, 100].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Pagination Controls */}

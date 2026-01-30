@@ -141,6 +141,33 @@ export default function LayoutSettings() {
                             </div>
                         </div>
 
+                        {/* Column Count Mobile */}
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label>Grid Columns (Mobile)</Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Number of columns on mobile devices
+                                </p>
+                            </div>
+                            <div className="w-[120px]">
+                                <Select
+                                    value={String(posSettings.columns.mobile)}
+                                    onValueChange={(val) => handleUpdate({
+                                        columns: { ...posSettings.columns, mobile: Number(val) }
+                                    })}
+                                >
+                                    <SelectTrigger className="h-8">
+                                        <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {[1, 2, 3].map(num => (
+                                            <SelectItem key={num} value={String(num)}>{num} Columns</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
                         <Separator className="opacity-50" />
 
                         {/* Grid Gap */}
@@ -189,6 +216,80 @@ export default function LayoutSettings() {
                                         <SelectItem value="standard">Standard</SelectItem>
                                         <SelectItem value="bordered">Bordered</SelectItem>
                                         <SelectItem value="compact">Compact</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <Separator />
+
+                {/* Checkout Behavior */}
+                <div className="space-y-6">
+                    <h3 className="text-lg font-medium">Checkout Behavior</h3>
+                    <div className="grid gap-6">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="auto-invoice">Auto-generate Invoice</Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Automatically create an invoice upon order completion in POS
+                                </p>
+                            </div>
+                            <Switch
+                                id="auto-invoice"
+                                checked={posSettings.autoGenerateInvoice}
+                                onCheckedChange={(val) => handleUpdate({ autoGenerateInvoice: val })}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="show-due">Enable Due Sale Button</Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Show the "Due Invoice" button in POS checkout
+                                </p>
+                            </div>
+                            <Switch
+                                id="show-due"
+                                checked={posSettings.showDueSale}
+                                onCheckedChange={(val) => handleUpdate({ showDueSale: val })}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="show-paid">Enable Cash Sale Button</Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Show the "Complete payment" button in POS checkout
+                                </p>
+                            </div>
+                            <Switch
+                                id="show-paid"
+                                checked={posSettings.showCashSale}
+                                onCheckedChange={(val) => handleUpdate({ showCashSale: val })}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label>Default Payment Method</Label>
+                                <p className="text-xs text-muted-foreground">
+                                    Typical payment method selected by default
+                                </p>
+                            </div>
+                            <div className="w-[150px]">
+                                <Select
+                                    value={posSettings.defaultPaymentMethod}
+                                    onValueChange={(val) => handleUpdate({ defaultPaymentMethod: val })}
+                                >
+                                    <SelectTrigger className="h-8">
+                                        <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="cash">Cash</SelectItem>
+                                        <SelectItem value="bank">Bank Transfer</SelectItem>
+                                        <SelectItem value="card">Credit/Debit Card</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

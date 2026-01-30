@@ -5,17 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useParams } from "react-router";
 import {
   useGetInvoiceByIdQuery,
-  useUpdateInvoiceStatusMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
-import { toast } from "sonner";
 import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   ArrowLeft,
   Printer,
   CreditCard,
-  CheckCircle2,
   Building2,
   User,
   Calendar,
@@ -25,17 +22,29 @@ import {
   Phone,
   MapPin
 } from "lucide-react";
+import { format } from "date-fns";
+import { useState } from "react";
+import RecordPaymentModal from "../payments/RecordPaymentModal";
 
 export default function InvoiceDetailsPage() {
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [transactionType, setTransactionType] = useState<'payment' | 'refund'>('payment');
+
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canMarkAsPaid = userPermissions.includes(SalesPermission.MARK_AS_PAID) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const invoiceId = useParams().invoiceId;
   const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), { skip: !invoiceId });
   const invoice = invoiceData?.data;
   const currency = useAppSelector((state) => state.currency.value);
-  const formatDate = (dateStr: string) => dateStr?.split("T")[0];
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return "-";
+    try {
+      return format(new Date(dateStr), 'dd/MM/yyyy');
+    } catch (e) {
+      return dateStr.split("T")[0];
+    }
+  };
 
   const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
   const from = fetchedSettingsInfo?.data;
@@ -53,27 +62,13 @@ export default function InvoiceDetailsPage() {
 
   const balance = Number(total) - Number(payableAmount);
 
-  const [updateInvoiceStatus] = useUpdateInvoiceStatusMutation();
-  const handleUpdateInvoiceStatus = async (id: number) => {
-    if (!id) return;
-    try {
-      const res = await updateInvoiceStatus({
-        invoiceId: id,
-        invoiceData: { status: "paid" },
-      }).unwrap();
-      if (res.status) {
-        toast.success(res.message || "Invoice updated successfully");
-      }
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Error updating invoice status");
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'paid': return 'bg-green-500 hover:bg-green-600';
-      case 'unpaid': return 'bg-yellow-500 hover:bg-yellow-600';
+      case 'unpaid':
+      case 'pending': return 'bg-yellow-500 hover:bg-yellow-600';
       case 'overdue': return 'bg-red-500 hover:bg-red-600';
+      case 'cancelled': return 'bg-red-600 hover:bg-red-700'; /* Explicitly red for cancelled */
       default: return 'bg-gray-500 hover:bg-gray-600';
     }
   };
@@ -92,36 +87,45 @@ export default function InvoiceDetailsPage() {
               Invoice #{invoice?.invoice_number}
             </h1>
             <Badge className={`${getStatusColor(invoice?.status || '')} text-white capitalize px-3 py-1 shadow-sm`}>
-              {invoice?.status || 'Unknown'}
+              {invoice?.status === 'cancelled' ? 'Return Refund' : (invoice?.status || 'Unknown')}
             </Badge>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {canRecordPayment && invoice?.status?.toLowerCase() !== "paid" && (
-            <Link to={`/dashboard/sales/payments/create?invoiceId=${invoice?.id}`}>
-              <Button className="gap-2 shadow-sm bg-indigo-600 hover:bg-indigo-700">
+          {canRecordPayment &&
+            invoice?.status?.toLowerCase() !== "paid" &&
+            invoice?.status?.toLowerCase() !== "cancelled" &&
+            (invoice?.status?.toLowerCase() !== "draft" ||
+              ["confirmed", "processing", "shipped", "in_transit", "delivered", "completed", "partial"].includes(invoice?.order?.status?.toLowerCase() || "")) && (
+              <Button
+                onClick={() => {
+                  setTransactionType('payment');
+                  setIsPaymentModalOpen(true);
+                }}
+                className="gap-2 shadow-sm bg-indigo-600 hover:bg-indigo-700"
+              >
                 <CreditCard className="w-4 h-4" /> Record Payment
               </Button>
-            </Link>
+            )}
+
+          {canRecordPayment && invoice?.status?.toLowerCase() === "cancelled" && Number(payableAmount) > 0 && (
+            <Button
+              onClick={() => {
+                setTransactionType('refund');
+                setIsPaymentModalOpen(true);
+              }}
+              className="gap-2 shadow-sm bg-orange-600 hover:bg-orange-700"
+            >
+              <CreditCard className="w-4 h-4" /> Record Refund
+            </Button>
           )}
           <Link to={`/dashboard/sales/invoices/${invoice?.id}/preview`}>
             <Button variant="outline" className="gap-2 shadow-sm">
               <Printer className="w-4 h-4" /> Print / Preview
             </Button>
           </Link>
-          {canMarkAsPaid &&
-            invoice?.status?.toLowerCase() !== "paid" &&
-            (invoice?.payments?.length ?? 0) > 0 &&
-            Number(payableAmount) > 0 && (
-              <Button
-                variant="default"
-                className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm"
-                onClick={() => handleUpdateInvoiceStatus(Number(invoice?.id))}
-              >
-                <CheckCircle2 className="w-4 h-4" /> Mark as Paid
-              </Button>
-            )}
+
         </div>
       </div>
 
@@ -141,9 +145,9 @@ export default function InvoiceDetailsPage() {
                     <p className="text-xs text-muted-foreground uppercase font-bold">From</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{from?.company_name}</p>
                     <div className="text-sm text-gray-500 space-y-0.5 mt-1">
-                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {from?.address}</p>
-                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {from?.email}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {from?.phone}</p>
+                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {from?.address}</p>
+                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 shrink-0" /> {from?.email}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {from?.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -157,9 +161,9 @@ export default function InvoiceDetailsPage() {
                     <p className="text-xs text-muted-foreground uppercase font-bold">Bill To</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{to?.name}</p>
                     <div className="text-sm text-gray-500 space-y-0.5 mt-1">
-                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {to?.address}</p>
-                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {to?.email}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {to?.phone}</p>
+                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {to?.address}</p>
+                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 shrink-0" /> {to?.email}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {to?.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -217,6 +221,7 @@ export default function InvoiceDetailsPage() {
                     <th className="px-6 py-4 font-medium text-right">Unit Price</th>
                     <th className="px-6 py-4 font-medium text-center">Qty</th>
                     <th className="px-6 py-4 font-medium text-right">Discount</th>
+                    <th className="px-6 py-4 font-medium text-right">Tax</th>
                     <th className="px-6 py-4 font-medium text-right">Total</th>
                   </tr>
                 </thead>
@@ -226,6 +231,9 @@ export default function InvoiceDetailsPage() {
                       <td className="px-6 py-4">
                         <p className="font-semibold text-gray-900 dark:text-gray-100">{item?.product?.name}</p>
                         <p className="text-xs text-muted-foreground">SKU: {item?.product?.sku}</p>
+                        {item?.product?.specification && (
+                          <p className="text-xs text-muted-foreground mt-1">{item?.product?.specification}</p>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-xs italic text-muted-foreground">
                         {item.specification || item.product?.specification || "-"}
@@ -238,6 +246,9 @@ export default function InvoiceDetailsPage() {
                       </td>
                       <td className="px-6 py-4 text-right text-muted-foreground">
                         {Number(item?.discount || 0) > 0 ? `- ${currency} ${Number(item?.discount).toFixed(2)}` : "-"}
+                      </td>
+                      <td className="px-6 py-4 text-right text-muted-foreground">
+                        {Number((item as any)?.tax || 0) > 0 ? `${currency} ${Number((item as any)?.tax).toFixed(2)}` : "-"}
                       </td>
                       <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100">
                         {currency} {Number(item?.line_total || 0).toFixed(2)}
@@ -256,10 +267,11 @@ export default function InvoiceDetailsPage() {
             </div>
           </Card>
 
+          {/* Payment History (Incoming) */}
           <Card className="shadow-sm border-border/60 overflow-hidden">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0 flex flex-row justify-between items-center">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <CreditCard className="w-4 h-4" /> Payment History
+                <CreditCard className="w-4 h-4" /> Payment History (Received)
               </CardTitle>
             </CardHeader>
             <div className="overflow-x-auto">
@@ -271,14 +283,15 @@ export default function InvoiceDetailsPage() {
                     <th className="px-6 py-4 font-medium">Method</th>
                     <th className="px-6 py-4 font-medium">Collected By</th>
                     <th className="px-6 py-4 font-medium text-right">Amount</th>
+                    <th className="px-6 py-4 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {invoice?.payments && invoice.payments.length > 0 ? (
-                    invoice?.payments?.map((item, idx) => (
+                  {(invoice?.payments?.filter((p: any) => Number(p.amount) >= 0).length || 0) > 0 ? (
+                    invoice?.payments?.filter((p: any) => Number(p.amount) >= 0).map((item, idx) => (
                       <tr key={idx} className="hover:bg-muted/20 transition-colors">
                         <td className="px-6 py-4">
-                          {item?.payment_date ? new Date(item.payment_date).toLocaleDateString() : "-"}
+                          {item?.payment_date ? format(new Date(item.payment_date), 'dd/MM/yyyy') : "-"}
                         </td>
                         <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
                           {item?.reference_number || "-"}
@@ -292,12 +305,20 @@ export default function InvoiceDetailsPage() {
                         <td className="px-6 py-4 text-right font-bold text-green-600">
                           {currency} {Number(item?.amount || 0).toFixed(2)}
                         </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link to={`/dashboard/sales/payments/${item.id}/preview`}>
+                            <Button size="sm" variant="ghost" className="h-8 gap-1.5 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                              <Printer className="h-3.5 w-3.5" />
+                              Print
+                            </Button>
+                          </Link>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
-                        No payments recorded for this invoice yet.
+                      <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                        No received payments recorded.
                       </td>
                     </tr>
                   )}
@@ -305,6 +326,51 @@ export default function InvoiceDetailsPage() {
               </table>
             </div>
           </Card>
+
+          {/* Refund History (Outgoing) */}
+          {((invoice?.payments?.filter((p: any) => Number(p.amount) < 0) || []).length || 0) > 0 && (
+            <Card className="shadow-sm border-border/60 overflow-hidden mt-6">
+              <CardHeader className="bg-red-50/50 dark:bg-red-900/10 py-4 border-b-1 gap-0 flex flex-row justify-between items-center">
+                <CardTitle className="text-sm font-medium uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4" /> Refund History
+                </CardTitle>
+              </CardHeader>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b">
+                    <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
+                      <th className="px-6 py-4 font-medium">Date</th>
+                      <th className="px-6 py-4 font-medium">Ref #</th>
+                      <th className="px-6 py-4 font-medium">Method</th>
+                      <th className="px-6 py-4 font-medium">Issued By</th>
+                      <th className="px-6 py-4 font-medium text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {(invoice?.payments?.filter((p: any) => Number(p.amount) < 0) || []).map((item, idx) => (
+                      <tr key={idx} className="hover:bg-red-50/10 transition-colors">
+                        <td className="px-6 py-4">
+                          {item?.payment_date ? format(new Date(item.payment_date), 'dd/MM/yyyy') : "-"}
+                        </td>
+                        <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
+                          {item?.reference_number || "-"}
+                        </td>
+                        <td className="px-6 py-4 capitalize">
+                          <Badge variant="outline" className="font-normal border-red-200 text-red-600">{item?.payment_method}</Badge>
+                        </td>
+                        <td className="px-6 py-4 text-muted-foreground">
+                          {item?.creator?.name || "-"}
+                        </td>
+                        <td className="px-6 py-4 text-right font-bold text-red-600">
+                          {currency} {Math.abs(Number(item?.amount || 0)).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
         </div>
 
         <div className="lg:col-span-4 space-y-6">
@@ -387,6 +453,14 @@ export default function InvoiceDetailsPage() {
           </Card>
         </div>
       </div>
+
+      {/* Record Payment Modal */}
+      <RecordPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        invoice={invoice}
+        type={transactionType}
+      />
     </div>
   );
 }

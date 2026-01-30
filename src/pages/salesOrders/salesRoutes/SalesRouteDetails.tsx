@@ -48,10 +48,9 @@ export default function SalesRouteDetails() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
-            size="icon"
+            variant="outline"
             onClick={() => navigate(-1)}
-            className="rounded-full shrink-0"
+            className="p-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>

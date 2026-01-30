@@ -10,7 +10,7 @@ import { useGetSalesPaymentQuery } from "@/store/features/salesOrder/salesOrder"
 import { useAppSelector } from "@/store/store";
 import type { SalesPayment } from "@/types/salesPayment.types";
 import type { ColumnDef } from "@tanstack/react-table";
-import { PlusCircle, Banknote, CheckCircle, Clock, XCircle } from "lucide-react";
+import { PlusCircle, Banknote, CheckCircle, Clock, XCircle, Eye, Printer } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -139,7 +139,14 @@ export default function Payments() {
         return (
           <div className="flex items-center gap-2">
             <Link to={`/dashboard/sales/payments/${payment.id}`}>
-              <Button size="sm" variant="outline">View</Button>
+              <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                <Eye className="w-4 h-4 mr-1" /> View
+              </Button>
+            </Link>
+            <Link to={`/dashboard/sales/payments/${payment.id}/preview`}>
+              <Button size="sm" variant="outline" className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none" title="Print Receipt">
+                <Printer className="w-4 h-4" />
+              </Button>
             </Link>
           </div>
         );
@@ -153,10 +160,10 @@ export default function Payments() {
         <h1 className="text-2xl font-bold tracking-tight">Sales Payments</h1>
 
         <Link to="/dashboard/sales/payments/create">
-          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-            <PlusCircle size={18} />
+          <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+            <PlusCircle className="h-4 w-4" />
             Record Payment
-          </button>
+          </Button>
         </Link>
       </div>
 
