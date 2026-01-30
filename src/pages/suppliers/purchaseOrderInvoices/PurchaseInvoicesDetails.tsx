@@ -7,13 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useParams } from "react-router";
 import {
   useGetPurchaseInvoiceByIdQuery,
-  useUpdatePurchaseInvoiceMutation,
 } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import {
   ArrowLeft,
   Printer,
   CreditCard,
-  CheckCircle2,
   Building2,
   User,
   Calendar,
@@ -28,14 +26,14 @@ import type { PurchasePayment } from "@/types/purchasePayment.types";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { useAppSelector } from "@/store/store";
 import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
-import { toast } from "sonner";
+import RecordPurchasePaymentModal from "../purchasePayments/RecordPurchasePaymentModal";
+import { useState } from "react";
 
 export default function PurchaseInvoicesDetails() {
   const { id } = useParams();
   const currency = useAppSelector((state) => state.currency.value);
   const { data, isLoading } = useGetPurchaseInvoiceByIdQuery(id as string);
-  const [markPaid, { isLoading: isMarkingPaid }] =
-    useUpdatePurchaseInvoiceMutation();
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
   const settingsInfo = fetchedSettingsInfo?.data;
@@ -65,26 +63,6 @@ export default function PurchaseInvoicesDetails() {
   const total = subtotal + tax - discount;
   const paid = invoice?.paid_amount ?? 0;
   const balance = total - paid;
-  const isFullyPaid = balance <= 0;
-  const showMarkAsPaidButton = isFullyPaid && invoice?.status !== "paid";
-
-  const handleMarkAsPaid = async () => {
-    if (!isFullyPaid || invoice?.status === "paid") return;
-    try {
-      const res = await markPaid({
-        invoiceId: invoice?.id.toString() as string,
-        data: {
-          status: "paid",
-        },
-      }).unwrap();
-      if (res) {
-        toast.success(res.message || "Invoice marked as paid successfully");
-      }
-    } catch (error) {
-      console.error("Failed to mark invoice as paid", error);
-      toast.error("Failed to mark invoice as paid");
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -120,11 +98,12 @@ export default function PurchaseInvoicesDetails() {
         <div className="flex flex-wrap items-center gap-2">
 
           {invoice?.status !== 'paid' && (
-            <Link to={`/dashboard/purchase-payments/create?pon=${invoice?.purchase_order.po_number}`}>
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 shadow-sm">
-                <CreditCard className="w-4 h-4" /> Record Payment
-              </Button>
-            </Link>
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 shadow-sm"
+              onClick={() => setIsPaymentModalOpen(true)}
+            >
+              <CreditCard className="w-4 h-4" /> Record Payment
+            </Button>
           )}
 
           <Link to={`/dashboard/purchase-invoices/${invoice?.id}/preview`}>
@@ -132,17 +111,6 @@ export default function PurchaseInvoicesDetails() {
               <Printer className="w-4 h-4" /> Print / Preview
             </Button>
           </Link>
-
-          {showMarkAsPaidButton && (
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white gap-2 shadow-sm"
-              onClick={handleMarkAsPaid}
-              disabled={isMarkingPaid}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              {isMarkingPaid ? "Marking..." : "Mark as Paid"}
-            </Button>
-          )}
         </div>
       </div>
 
@@ -308,6 +276,7 @@ export default function PurchaseInvoicesDetails() {
                     <th className="px-6 py-4 font-medium">Method</th>
                     <th className="px-6 py-4 font-medium">Collected By</th>
                     <th className="px-6 py-4 font-medium text-right">Amount</th>
+                    <th className="px-6 py-4 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -328,6 +297,14 @@ export default function PurchaseInvoicesDetails() {
                         </td>
                         <td className="px-6 py-4 text-right font-bold text-green-600">
                           {currency} {Number(item?.amount || 0).toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link to={`/dashboard/purchase-payments/${item.id}`}>
+                            <Button size="sm" variant="ghost" className="h-8 gap-1.5 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                              <Printer className="h-3.5 w-3.5" />
+                              Print
+                            </Button>
+                          </Link>
                         </td>
                       </tr>
                     ))
@@ -436,6 +413,11 @@ export default function PurchaseInvoicesDetails() {
         </div>
 
       </div>
+      <RecordPurchasePaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        invoice={invoice}
+      />
     </div>
   );
 }

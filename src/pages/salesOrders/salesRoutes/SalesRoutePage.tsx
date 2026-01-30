@@ -9,7 +9,7 @@ import type { SalesRoute } from "@/types/salesRoute.types";
 import { useGetAllSalesRouteQuery } from "@/store/features/salesRoute/salesRoute";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Map, MapPin, CheckCircle, XCircle } from "lucide-react";
+import { Map, MapPin, CheckCircle, XCircle, Eye, Edit, UserPlus } from "lucide-react";
 import AssignRouteModal from "./AssignRoute";
 
 export default function SalesRoutesPage() {
@@ -176,30 +176,29 @@ export default function SalesRoutesPage() {
       cell: ({ row }) => {
         const route = row.original;
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Link to={`/dashboard/sales/sales-routes/${route.id}`}>
-              <Button size="sm" variant="outline-info">
+              <Button size="sm" className="h-8 bg-cyan-50 text-cyan-600 hover:bg-cyan-100 border-none shadow-none rounded-lg" title="View">
+                <Eye className="h-4 w-4" />
                 View
               </Button>
             </Link>
             <Link to={`/dashboard/sales/sales-routes/${route.id}/edit`}>
-              <Button size="sm" variant="outline-info">
+              <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none rounded-lg" title="Edit">
+                <Edit className="h-4 w-4" />
                 Edit
               </Button>
             </Link>
-            {/* <Link to={`/dashboard/sales/sales-routes/${route.id}/assign`}>
-              <Button size="sm" variant="outline-info">
-                Assign
-              </Button>
-            </Link> */}
             <Button
               size="sm"
-              variant="outline-info"
+              className="h-8 bg-violet-50 text-violet-600 hover:bg-violet-100 border-none shadow-none rounded-lg"
+              title="Assign"
               onClick={() => {
                 setSelectedRouteId(route.id);
                 setIsAssignDialogOpen(true);
               }}
             >
+              <UserPlus className="h-4 w-4" />
               Assign
             </Button>
           </div>
@@ -213,10 +212,10 @@ export default function SalesRoutesPage() {
       <div className="flex flex-wrap items-center justify-between gap-5 mb-5">
         <h2 className="text-xl font-bold">Sales Routes</h2>
         <Link to="/dashboard/sales/sales-routes/create">
-          <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-            <PlusCircle size={18} />
+          <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-10 px-5 transition-all duration-200">
+            <PlusCircle className="h-4 w-4" />
             New Route
-          </button>
+          </Button>
         </Link>
       </div>
 

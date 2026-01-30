@@ -58,12 +58,15 @@ export default function UpdatePOStatusModal({
 
     useEffect(() => {
         if (selectedPO) {
+            const currentStatus = selectedPO.status || "pending";
+            const isStatusAvailable = statusOptions.some(opt => opt.value === currentStatus);
+
             form.reset({
-                status: selectedPO.status || "pending",
+                status: isStatusAvailable ? currentStatus : "approved",
                 notes: selectedPO.notes || "",
             });
         }
-    }, [selectedPO, form]);
+    }, [selectedPO, form, statusOptions]);
 
     const [updatePO, { isLoading }] = useUpdatePurchaseOrderMutation();
 

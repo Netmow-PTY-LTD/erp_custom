@@ -147,7 +147,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
     // GET ALL INVOICES
     getAllPurchaseInvoices: builder.query<
       PurchaseResponse<PurchaseInvoice>,
-      { page?: number; limit?: number; search?: string }
+      { page?: number; limit?: number; search?: string; status?: string }
     >({
       query: (params) => ({
         url: "/purchase/orders/invoices",

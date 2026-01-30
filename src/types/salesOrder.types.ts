@@ -79,6 +79,7 @@ export interface SalesOrderFormValues {
   customer_id: number;
   shipping_address: string;
   delivery_date?: string;
+  staff_id?: number;
   notes?: string;
   items: {
     product_id: number;

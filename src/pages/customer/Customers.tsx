@@ -81,7 +81,7 @@ export default function Customers() {
     index: number;
   } | null>(null);
 
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(10);
   const currentPage = pageIndex + 1;
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
@@ -295,7 +295,7 @@ export default function Customers() {
       cell: ({ row }) => {
         const customer = row.original;
         return (
-          <div className="w-[350px] whitespace-normal break-words">
+          <div className="max-w-[350px] whitespace-normal break-words">
             {customer.address || "-"}
           </div>
         );
@@ -402,10 +402,10 @@ export default function Customers() {
 
         return (
           <div className="flex items-center gap-1 print:hidden">
-            <Button variant="ghost" size="icon" onClick={handleMapClick} title="View Map">
+            <Button variant="ghost" size="icon" onClick={handleMapClick} title="View Map" className="h-8 w-8 hover:bg-blue-50">
               <MapPin className="h-4 w-4 text-primary" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleWazeClick} title="Open in Waze">
+            <Button variant="ghost" size="icon" onClick={handleWazeClick} title="Open in Waze" className="h-8 w-8 hover:bg-orange-50">
               <Car className="h-4 w-4 text-orange-500" />
             </Button>
           </div>
@@ -484,46 +484,27 @@ export default function Customers() {
         <h2 className="text-3xl font-semibold">All Active Customers</h2>
 
         <div className="flex flex-wrap items-center gap-4 ">
-          <button
+          <Button
             onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
-            <Printer size={18} />
+            className="flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white print:hidden"
+          >
+            <Printer className="h-4 w-4" />
             Print
-          </button>
+          </Button>
 
           <Link to="/dashboard/customers/create">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none print:hidden">
-              <PackagePlus size={18} />
+            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white print:hidden">
+              <PackagePlus className="h-4 w-4" />
               Add Customer
-            </button>
+            </Button>
           </Link>
 
           <Link to="/dashboard/customers/map">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none print:hidden">
-              <MapPin size={18} />
+            <Button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white print:hidden">
+              <MapPin className="h-4 w-4" />
               Customer Map
-            </button>
+            </Button>
           </Link>
-
-          <div className="w-[180px]">
-            <Select
-              value={sort}
-              onValueChange={(value) => {
-                setSort(value);
-                setPageIndex(0);
-              }}
-            >
-              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
-                <Filter className="w-4 h-4 mr-2 text-gray-500" />
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="top_sold">Top Sold Order</SelectItem>
-                <SelectItem value="low_sold">Low Sold Order</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
       </div >
 
@@ -617,9 +598,28 @@ export default function Customers() {
           </div>
         </div>
 
-        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0 px-0">
-          <CardHeader className="print:hidden px-0">
+        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
+          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0">
             <CardTitle>All Customers</CardTitle>
+            <div className="w-[140px]">
+              <Select
+                value={sort}
+                onValueChange={(value) => {
+                  setSort(value);
+                  setPageIndex(0);
+                }}
+              >
+                <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                  <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="top_sold">Top Sold Order</SelectItem>
+                  <SelectItem value="low_sold">Low Sold Order</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent className="overflow-auto w-full print:p-0 px-0">
             {isLoading ? (
@@ -634,6 +634,11 @@ export default function Customers() {
                 onPageChange={setPageIndex}
                 onSearch={(value) => {
                   setSearchTerm(value);
+                  setPageIndex(0);
+                }}
+                onPageSizeChange={(newSize) => {
+                  setPageSize(newSize);
+                  setPageIndex(0);
                 }}
                 isFetching={isLoading}
               />

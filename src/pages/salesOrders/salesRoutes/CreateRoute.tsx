@@ -210,13 +210,14 @@ export default function CreateRoutePage() {
       <Card className="w-full overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-xl">
         <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
           <div className="flex items-center gap-4">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => navigate(-1)}
               className="p-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
             >
               <ArrowLeft className="h-5 w-5" />
-            </button>
+            </Button>
             <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
               <Route className="w-6 h-6 text-white" />
             </div>
@@ -431,7 +432,7 @@ export default function CreateRoutePage() {
                     <h3 className="text-sm font-bold flex items-center gap-2">
                       Territory Visualization
                     </h3>
-                    <Button type="button" variant="outline" size="sm" onClick={useBoundsRadius} className="text-[10px] h-7 bg-white">
+                    <Button type="button" variant="outline" size="sm" onClick={useBoundsRadius} className="text-[10px] h-7 bg-white rounded-lg">
                       <Maximize className="w-3 h-3 mr-1" /> Fit Radius to Map
                     </Button>
                   </div>
@@ -450,20 +451,21 @@ export default function CreateRoutePage() {
               </div>
 
               <div className="flex justify-end items-center gap-4 pt-8 border-t">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => navigate(-1)}
                   className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
                 >
                   Discard Changes
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-10 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg"
+                  className="flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-10 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg"
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   <span>Save Route</span>
-                </button>
+                </Button>
               </div>
             </form>
           </Form>

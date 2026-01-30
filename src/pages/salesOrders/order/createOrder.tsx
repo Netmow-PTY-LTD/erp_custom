@@ -32,13 +32,14 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import {
   useAddSalesInvoiceMutation,
   useAddSalesOrderMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useGetActiveCustomersQuery, useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router";
 import { useAppSelector } from "@/store/store";
 import { Textarea } from "@/components/ui/textarea";
 import z from "zod";
@@ -56,6 +57,7 @@ const orderSchema = z
     order_date: z.string().min(1, "Order date is required"),
     due_date: z.string().min(1, "Due date is required"),
     delivery_date: z.string().optional(),
+    staff_id: z.number().optional(),
     notes: z.string().optional(),
     items: z.array(
       z.object({
@@ -100,6 +102,8 @@ const orderSchema = z
 
 export default function CreateSalesOrderPage() {
   const [searchParam] = useSearchParams();
+  const location = useLocation();
+  const isCreateAny = location.pathname.includes("/create-any");
   const customerIdFromParam = searchParam.get("customerId");
   const navigate = useNavigate();
   const [addSalesOrder, { isLoading }] = useAddSalesOrderMutation();
@@ -113,6 +117,7 @@ export default function CreateSalesOrderPage() {
     resolver: zodResolver(orderSchema),
     defaultValues: {
       customer_id: 0,
+      staff_id: 0,
       shipping_address: "",
       order_date: new Date().toISOString().split("T")[0],
       due_date: new Date().toISOString().split("T")[0],
@@ -220,6 +225,7 @@ export default function CreateSalesOrderPage() {
         due_date: values.due_date,
         delivery_date: values.delivery_date,
         customer_id: values.customer_id,
+        staff_id: values.staff_id,
         shipping_address: values.shipping_address,
         notes: values.notes,
         items: values.items.map((i) => ({
@@ -371,6 +377,98 @@ export default function CreateSalesOrderPage() {
     );
   };
 
+  const StaffSelectField = ({
+    field,
+  }: {
+    field: { value: number; onChange: (v: number) => void };
+  }) => {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const { data, isLoading } = useGetAllStaffsQuery({
+      page: 1,
+      limit: 20,
+      search: query,
+      status: "active",
+    });
+    const list = Array.isArray(data?.data) ? data.data : [];
+    const selected = list.find((s) => s.id === field.value);
+
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              "w-full justify-between h-9 overflow-hidden font-normal text-left",
+              !field.value && "text-muted-foreground"
+            )}
+            type="button"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              {selected ? (
+                <>
+                  <Avatar className="h-6 w-6 shrink-0">
+                    <AvatarImage src={selected.thumb_url} alt={selected.name} />
+                    <AvatarFallback>
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate text-left font-medium min-w-0 flex-1">{selected.name}</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground">Select staff...</span>
+              )}
+            </div>
+            <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0">
+          <Command>
+            <CommandInput
+              placeholder="Search staff..."
+              onValueChange={setQuery}
+            />
+            <CommandList>
+              <CommandEmpty>No staff found</CommandEmpty>
+              <CommandGroup>
+                {isLoading && (
+                  <div className="py-2 px-3 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                )}
+                {!isLoading &&
+                  list.map((staff) => (
+                    <CommandItem
+                      key={staff.id}
+                      onSelect={() => {
+                        field.onChange(staff.id);
+                        setOpen(false);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <Avatar className="h-8 w-8 shrink-0">
+                        <AvatarImage src={staff.thumb_url} alt={staff.name} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{staff.name}</span>
+                        {staff.email && (
+                          <span className="truncate text-xs text-muted-foreground">{staff.email}</span>
+                        )}
+                      </div>
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
+
   const ProductSelectField = ({
     field,
     onProductSelect,
@@ -520,9 +618,9 @@ export default function CreateSalesOrderPage() {
           <p className="text-muted-foreground mt-2">Create a new sales order with customer and product details</p>
         </div>
         <Link to="/dashboard/sales/orders">
-          <button className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 flex items-center gap-2">
+          <Button variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" /> Back to Orders
-          </button>
+          </Button>
         </Link>
       </div>
 
@@ -643,6 +741,22 @@ export default function CreateSalesOrderPage() {
                     </FormItem>
                   )}
                 />
+
+                {isCreateAny && (
+                  <FormField
+                    name="staff_id"
+                    control={control}
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Assigned Staff</FormLabel>
+                        <FormControl>
+                          <StaffSelectField field={field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -661,8 +775,9 @@ export default function CreateSalesOrderPage() {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() =>
                       append({
                         product_id: 0,
@@ -675,17 +790,17 @@ export default function CreateSalesOrderPage() {
                         remark: "",
                       })
                     }
-                    className="flex items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                    className="gap-2"
                   >
                     <Plus className="w-4 h-4" /> Add Row
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none"
+                    className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/20 text-white"
                   >
                     <ShoppingCart className="w-4 h-4" /> Add Items
-                  </button>
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -979,13 +1094,15 @@ export default function CreateSalesOrderPage() {
 
                       {/* Remove */}
                       <div className="xl:pt-0 pt-6">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => remove(index)}
-                          className="p-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 hover:border-red-300 transition-all duration-200 dark:border-red-900/50 dark:hover:bg-red-950/30 h-9 w-9 flex items-center justify-center"
+                          className="h-9 w-9 text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
                         >
                           <X className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -1032,10 +1149,10 @@ export default function CreateSalesOrderPage() {
 
           {/* Submit */}
           <div className="flex justify-end gap-4 pt-4">
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+              className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/40 text-white min-w-[200px]"
             >
               {isLoading ? (
                 <>
@@ -1048,7 +1165,7 @@ export default function CreateSalesOrderPage() {
                   <span>Create Sales Order</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </Form>

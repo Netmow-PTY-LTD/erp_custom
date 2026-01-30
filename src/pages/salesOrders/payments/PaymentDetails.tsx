@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useGetSalesPaymentByIdQuery } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
 import { Link, useParams } from "react-router";
-import { ArrowLeft, CreditCard, FileText, User, Calendar, Hash, Banknote, UserCheck } from "lucide-react";
+import { ArrowLeft, CreditCard, FileText, User, Calendar, Hash, Banknote, UserCheck, Printer } from "lucide-react";
 
 export default function PaymentDetails() {
   const currency = useAppSelector((state) => state.currency.value);
@@ -87,6 +87,11 @@ export default function PaymentDetails() {
               </Button>
             </Link>
           )}
+          <Link to={`/dashboard/sales/payments/${paymentId}/preview`}>
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 shadow-md">
+              <Printer className="w-4 h-4" /> Print / Preview
+            </Button>
+          </Link>
         </div>
       </div>
 

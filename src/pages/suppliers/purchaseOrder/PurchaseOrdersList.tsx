@@ -12,6 +12,15 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
+import { useAppSelector } from "@/store/store";
+import type { PurchaseOrder } from "@/types/purchaseOrder.types";
+
+import type { ColumnDef } from "@tanstack/react-table";
+import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle, RefreshCcw, Printer } from "lucide-react";
+import UpdatePOStatusModal from "./UpdatePOStatusModal";
+import { useState } from "react";
+import { Link } from "react-router";
 import {
   Select,
   SelectContent,
@@ -19,55 +28,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDeletePurchaseOrderMutation, useGetAllPurchasesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
-import { useAppSelector } from "@/store/store";
-import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
-import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Trash2, FileText, CheckCircle, Clock, XCircle, PlusCircle } from "lucide-react";
-import { useCallback, useState } from "react";
-import { Link } from "react-router";
-import { toast } from "sonner";
-import UpdatePOStatusModal from "./UpdatePOStatusModal";
-
-
-// Simple confirmation modal
-function ConfirmModal({
-  open,
-  onClose,
-  onConfirm,
-  message,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  message: string;
-}) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-xl w-96">
-        <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
-        <p className="mb-6">{message}</p>
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* COMPONENT */
-export default function PurchaseOrdersList() {
+export default function PurchaseOrdersList({ initialStatus = "all" }: { initialStatus?: string }) {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
-  const [status, setStatus] = useState<string>("all");
-  const limit = 10;
+  const [status, setStatus] = useState<string>(initialStatus);
+  const [limit, setLimit] = useState<number>(10);
+  const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const { data, isFetching } = useGetAllPurchasesQuery({
     page,
     limit,
@@ -125,75 +95,13 @@ export default function PurchaseOrdersList() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
-  const [deletePurchaseOrder, { isLoading: isDeleting }] =
-    useDeletePurchaseOrderMutation();
-
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedPOId, setSelectedPOId] = useState<number | null>(null);
-
-  const [isUpdateStatusModalOpen, setIsUpdateStatusModalOpen] = useState(false);
-  const [selectedPO, setSelectedPO] = useState<any>(null);
-
-  const handleOpenUpdateStatusModal = (po: any) => {
-    setSelectedPO(po);
-    setIsUpdateStatusModalOpen(true);
-  };
-
-  const handleCloseUpdateStatusModal = () => {
-    setIsUpdateStatusModalOpen(false);
-    setSelectedPO(null);
-  };
-
-  const poStatusOptions = [
-    { value: "pending", label: "Pending" },
-    { value: "approved", label: "Approved" },
-    { value: "ordered", label: "Ordered" },
-    { value: "received", label: "Received" },
-    { value: "partial", label: "Partial" },
-    { value: "cancelled", label: "Cancelled" },
-    { value: "returned", label: "Returned" },
-  ] as const;
-
-  /* DELETE HANDLER */
-  const handleDelete = useCallback(async () => {
-    if (!selectedPOId) return;
-
-    try {
-      const res = await deletePurchaseOrder(selectedPOId).unwrap();
-      if (res.status) {
-        toast.success("Purchase Order Deleted Successfully");
-      } else {
-        toast.error(res?.message || "Delete failed");
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Delete failed");
-    } finally {
-      setModalOpen(false);
-      setSelectedPOId(null);
-    }
-  }, [selectedPOId, deletePurchaseOrder]);
 
 
 
 
 
-  // const [updatePurchaseOrder, { isLoading: isUpdating }] = useUpdatePurchaseOrderMutation();
 
-  // const handleApprove = async (id: number) => {
-  //   try {
-  //     const res = await updatePurchaseOrder({ id, body: { status: "approved" } }).unwrap();
-  //     if (res.status) {
-  //       toast.success("Purchase Order Approved Successfully");
-  //     } else {
-  //       toast.error(res?.message || "Approve failed");
-  //     }
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   } catch (error: any) {
-  //     toast.error(error?.data?.message || "Approve failed");
-  //   }
-  // };
+
 
   /* COLUMNS */
   const poColumns: ColumnDef<PurchaseOrder>[] = [
@@ -215,26 +123,8 @@ export default function PurchaseOrdersList() {
     },
     {
       accessorKey: "expected_delivery_date",
-      header: "Expected Delivery Date",
+      header: "Delivery Date",
       cell: ({ row }) => new Date(row.original.expected_delivery_date as string).toLocaleDateString(),
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
-
-        const color =
-          status === "pending"
-            ? "bg-yellow-500"
-            : status === "approved"
-              ? "bg-blue-600"
-              : status === "rejected"
-                ? "bg-red-600"
-                : "bg-green-600";
-
-        return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
-      },
     },
     {
       accessorKey: "total_amount",
@@ -271,70 +161,95 @@ export default function PurchaseOrdersList() {
       ),
     },
     {
+      accessorKey: "total_paid_amount",
+      header: () => <div className="text-right">Paid ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right text-emerald-600 font-medium">
+          {row.original.total_paid_amount.toFixed(2)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "total_due_amount",
+      header: () => <div className="text-right">Due ({currency})</div>,
+      cell: ({ row }) => (
+        <div className="text-right text-rose-600 font-medium">
+          {row.original.total_due_amount.toFixed(2)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }: { row: any }) => {
+        const po = row.original;
+        const status = po.status;
+
+        const color =
+          status === "pending"
+            ? "bg-amber-100 text-amber-700 border-amber-200"
+            : (status as any) === "approved" || (status as any) === "received"
+              ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+              : (status as any) === "rejected" || (status as any) === "cancelled"
+                ? "bg-rose-100 text-rose-700 border-rose-200"
+                : "bg-blue-100 text-blue-700 border-blue-200";
+
+        return <Badge variant="outline" className={`${color} capitalize font-semibold shadow-none`}>{status}</Badge>;
+      },
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const po = row.original;
-        const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
-        // const isPending = po.status === "pending";
-
         return (
-          <div className="flex gap-2">
-            {/* {isPending && (
+          <div className="flex items-center gap-1.5 ">
+            <Link to={`/dashboard/purchase-orders/${po.id}`}>
+              <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                <Eye className="h-4 w-4" />
+                View
+              </Button>
+            </Link>
+            <Link to={`/dashboard/purchase-orders/${po.id}/print`}>
               <Button
                 size="sm"
                 variant="outline"
-                className="text-emerald-600 border-emerald-600 hover:bg-emerald-600 hover:text-white"
-                onClick={() => handleApprove(Number(po.id))}
-                disabled={isUpdating}
-                title="Approve Order"
+                className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none"
+                title="Print Order"
               >
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Approve
-              </Button>
-            )} */}
-
-            <Link to={`/dashboard/purchase-orders/${po.id}`}>
-              <Button size="sm" variant="outline">
-                <Eye className="w-4 h-4 mr-1" /> View
+                <Printer className="h-4 w-4" />
               </Button>
             </Link>
-
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleOpenUpdateStatusModal(po)}
-            >
-              Change Status
-            </Button>
-
-            {isEditable && (
-              <>
-                <Link to={`/dashboard/purchase-orders/${po.id}/edit`}>
-                  <Button size="sm" variant="outline">
-                    <Edit className="w-4 h-4 mr-1" /> Edit
-                  </Button>
-                </Link>
-
+            {initialStatus === "pending" && po.status === "pending" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 bg-amber-50 text-amber-600 hover:bg-amber-100 border-none shadow-none"
+                onClick={() => {
+                  setSelectedPO(po);
+                  setIsStatusModalOpen(true);
+                }}
+              >
+                <RefreshCcw className="h-4 w-4" />
+                Status
+              </Button>
+            )}
+            {po.invoice && (
+              <Link to={`/dashboard/purchase-invoices/${po.invoice.id}/preview`}>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-                  onClick={() => {
-                    setSelectedPOId(Number(po.id));
-                    setModalOpen(true);
-                  }}
-                  disabled={isDeleting}
+                  className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none"
+                  title="Print Invoice"
                 >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  {isDeleting ? "Deleting..." : "Delete"}
+                  <Printer className="h-4 w-4" />
                 </Button>
-              </>
+              </Link>
             )}
           </div>
         );
       },
-    }
+    },
   ];
 
 
@@ -349,12 +264,20 @@ export default function PurchaseOrdersList() {
         <h1 className="text-2xl font-bold tracking-tight">
           Purchase Orders
         </h1>
-        <Link to="/dashboard/purchase-orders/create">
-          <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-            <PlusCircle size={18} />
-            Add Purchase Order
-          </button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to={`/dashboard/purchase-orders/print-preview?status=${status}&search=${search}`}>
+            <Button variant="outline" className="flex items-center gap-2 rounded-xl shadow-sm transition-all duration-200">
+              <Printer className="h-4 w-4" />
+              Print List
+            </Button>
+          </Link>
+          <Link to="/dashboard/purchase-orders/create">
+            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
+              <PlusCircle className="h-4 w-4" />
+              Add Purchase Order
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -389,27 +312,7 @@ export default function PurchaseOrdersList() {
       </div>
 
       <Card className="py-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>All Purchase Orders</CardTitle>
-            <CardDescription>Manage all your purchase orders</CardDescription>
-          </div>
-          <div className="flex items-center gap-4">
-            <Select value={status} onValueChange={(val) => { setStatus(val); setPage(1); }}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                {poStatusOptions.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
+
 
         <CardContent>
           <DataTable
@@ -423,24 +326,45 @@ export default function PurchaseOrdersList() {
               setSearch(value);
               setPage(1);
             }}
+            onPageSizeChange={(newLimit) => {
+              setLimit(newLimit);
+              setPage(1);
+            }}
             isFetching={isFetching}
+            filters={
+              <Select
+                value={status}
+                onValueChange={(value) => {
+                  setStatus(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            }
           />
         </CardContent>
       </Card>
 
-      <ConfirmModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onConfirm={handleDelete}
-        message="Are you sure you want to delete this purchase order? This action cannot be undone."
-      />
-
-      {/* Status Update Modal */}
       <UpdatePOStatusModal
-        isOpen={isUpdateStatusModalOpen}
-        onClose={handleCloseUpdateStatusModal}
+        isOpen={isStatusModalOpen}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          setSelectedPO(null);
+        }}
         selectedPO={selectedPO}
-        statusOptions={poStatusOptions}
+        statusOptions={[
+          { value: "approved", label: "Approved" },
+          { value: "rejected", label: "Rejected" },
+        ]}
       />
     </div>
   );
