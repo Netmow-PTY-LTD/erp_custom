@@ -5,17 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useParams } from "react-router";
 import {
   useGetInvoiceByIdQuery,
-  useUpdateInvoiceStatusMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
-import { toast } from "sonner";
 import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   ArrowLeft,
   Printer,
   CreditCard,
-  CheckCircle2,
   Building2,
   User,
   Calendar,
@@ -25,6 +22,7 @@ import {
   Phone,
   MapPin
 } from "lucide-react";
+import { format } from "date-fns";
 import { useState } from "react";
 import RecordPaymentModal from "../payments/RecordPaymentModal";
 
@@ -33,14 +31,20 @@ export default function InvoiceDetailsPage() {
   const [transactionType, setTransactionType] = useState<'payment' | 'refund'>('payment');
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canMarkAsPaid = userPermissions.includes(SalesPermission.MARK_AS_PAID) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canRecordPayment = userPermissions.includes(SalesPermission.PAYMENTS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const invoiceId = useParams().invoiceId;
   const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId), { skip: !invoiceId });
   const invoice = invoiceData?.data;
   const currency = useAppSelector((state) => state.currency.value);
-  const formatDate = (dateStr: string) => dateStr?.split("T")[0];
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return "-";
+    try {
+      return format(new Date(dateStr), 'dd/MM/yyyy');
+    } catch (e) {
+      return dateStr.split("T")[0];
+    }
+  };
 
   const { data: fetchedSettingsInfo } = useGetSettingsInfoQuery();
   const from = fetchedSettingsInfo?.data;
@@ -57,22 +61,6 @@ export default function InvoiceDetailsPage() {
     ?.toFixed(2) || "0.00";
 
   const balance = Number(total) - Number(payableAmount);
-
-  const [updateInvoiceStatus] = useUpdateInvoiceStatusMutation();
-  const handleUpdateInvoiceStatus = async (id: number) => {
-    if (!id) return;
-    try {
-      const res = await updateInvoiceStatus({
-        invoiceId: id,
-        invoiceData: { status: "paid" },
-      }).unwrap();
-      if (res.status) {
-        toast.success(res.message || "Invoice updated successfully");
-      }
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Error updating invoice status");
-    }
-  };
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -298,11 +286,11 @@ export default function InvoiceDetailsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {invoice?.payments?.filter((p: any) => Number(p.amount) >= 0).length > 0 ? (
+                  {(invoice?.payments?.filter((p: any) => Number(p.amount) >= 0).length || 0) > 0 ? (
                     invoice?.payments?.filter((p: any) => Number(p.amount) >= 0).map((item, idx) => (
                       <tr key={idx} className="hover:bg-muted/20 transition-colors">
                         <td className="px-6 py-4">
-                          {item?.payment_date ? new Date(item.payment_date).toLocaleDateString() : "-"}
+                          {item?.payment_date ? format(new Date(item.payment_date), 'dd/MM/yyyy') : "-"}
                         </td>
                         <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
                           {item?.reference_number || "-"}
@@ -353,7 +341,7 @@ export default function InvoiceDetailsPage() {
                     {invoice?.payments?.filter((p: any) => Number(p.amount) < 0).map((item, idx) => (
                       <tr key={idx} className="hover:bg-red-50/10 transition-colors">
                         <td className="px-6 py-4">
-                          {item?.payment_date ? new Date(item.payment_date).toLocaleDateString() : "-"}
+                          {item?.payment_date ? format(new Date(item.payment_date), 'dd/MM/yyyy') : "-"}
                         </td>
                         <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
                           {item?.reference_number || "-"}

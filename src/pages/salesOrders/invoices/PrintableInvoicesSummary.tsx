@@ -4,6 +4,7 @@ import type { SalesInvoice } from "@/types/salesInvoice.types";
 import { useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import type { Settings } from "@/types/types";
+import { format } from "date-fns";
 
 interface Props {
     invoices: SalesInvoice[];
@@ -77,11 +78,12 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
             <style>{`
         @media print {
           @page {
-            margin: 2mm;
-            size: A4;
+            margin: 5mm;
+            size: A4 landscape;
           }
           body {
             -webkit-print-color-adjust: exact;
+            font-size: 11px !important;
           }
           .summary-box {
             max-width: 100% !important;
@@ -89,12 +91,34 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
             margin: 0 !important;
             padding: 0 !important;
           }
+          h1 { font-size: 11px !important; }
+          h2 { font-size: 11px !important; }
+          table { font-size: 11px !important; }
+          .text-sm { font-size: 11px !important; }
+          .text-xs { font-size: 11px !important; }
+          .details-text, .table-text { 
+            font-size: 11px !important; 
+            line-height: 1.2 !important; 
+          }
+          .company-name {
+            font-size: 18px !important;
+            line-height: 1.2 !important;
+          }
+          .p-3 { padding: 4px !important; }
+          .p-2 { padding: 3px !important; }
+          .mb-6 { margin-bottom: 8px !important; }
+          .mb-4 { margin-bottom: 4px !important; }
         }
         .summary-box {
           max-width: 1000px;
           margin: auto;
           background: white;
         }
+        /* Standardizing screen sizes */
+        .company-name { font-size: 18px !important; line-height: 1.2; }
+        .details-text { font-size: 12px !important; line-height: 1.4; }
+        .table-text { font-size: 12px !important; }
+        
         .table-border th, .table-border td {
           border: 1px solid #ddd;
           padding: 8px;
@@ -113,43 +137,51 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
                     </button>
                 </div>
                 {/* Header Section */}
-                <div className="flex flex-wrap justify-between items-start mb-6 border-b pb-4 text-left gap-4">
-                    <div className="flex flex-col gap-2">
-                        <div className="w-16 h-16 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-xl overflow-hidden">
-                            {from?.logo_url ? <img src={from.logo_url} alt="Logo" className="w-full h-full object-contain" /> : "F&Z"}
-                        </div>
-                        <div className="mt-2 text-[13px]">
-                            <h1 className="text-xl font-bold uppercase">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
-                            <p className="leading-tight max-w-[400px]">
-                                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
-                            </p>
-                            <p>T: {from?.phone || "0162759780"}</p>
-                        </div>
+                <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-col gap-2 mt-2 details-text">
+                        <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+                        <p className="leading-tight max-w-[400px]">
+                            {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+                        </p>
+                        <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
                     </div>
-                    <div className="md:text-right">
-                        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">{itemsOnly ? "Order Items Summary" : "Invoices Summary"}</h2>
-                        <p className="text-sm font-bold text-blue-600 tracking-wider font-mono uppercase">{itemsOnly ? "Picking / Items List" : "BATCH REPORT"}</p>
-                        <p className="text-sm mt-1">Date: {new Date().toLocaleDateString()}</p>
-                        <p className="text-sm text-gray-500">Total Invoices: {invoices.length}</p>
+                    <div className="text-right flex flex-col items-end">
+                        <div className="mb-1">
+                            {from?.logo_url ? (
+                                <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                            ) : (
+                                <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                                    F&Z
+                                </div>
+                            )}
+                        </div>
+                        <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">
+                            {itemsOnly ? "Order Items Summary" : "Invoices Summary"}
+                        </h2>
+                        <p className="text-sm font-bold text-blue-600 tracking-wider font-mono uppercase mb-1">
+                            {itemsOnly ? "Picking / Items List" : "BATCH REPORT"}
+                        </p>
+                        <div className="details-text space-y-1">
+                            <p><strong>Date:</strong> {format(new Date(), 'dd/MM/yyyy')}</p>
+                            <p className="text-sm text-gray-500">Total Invoices: {invoices.length}</p>
+                        </div>
                     </div>
                 </div>
 
                 {/* Items Table Consolidated */}
                 <div className="space-y-4 overflow-x-auto print:overflow-x-visible">
-                    <table className="w-full text-[11px] border-collapse mb-4 shadow-sm min-w-[700px] print:min-w-0">
+                    <table className="w-full table-text border-collapse mb-4 shadow-sm min-w-[700px] print:min-w-0">
                         <thead className="bg-gray-50 font-bold text-gray-700 uppercase tracking-tighter">
                             <tr>
-                                <th className="border border-gray-200 p-2 text-center w-8">Seq</th>
-                                <th className="border border-gray-200 p-2 text-left w-20">SKU</th>
-                                <th className="border border-gray-200 p-2 text-left">Product Name</th>
-                                <th className="border border-gray-200 p-2 text-left">Specification</th>
+                                <th className="border border-gray-200 p-2 text-center w-8">No</th>
+                                <th className="border border-gray-200 p-2 text-left w-20">Item Code</th>
+                                <th className="border border-gray-200 p-2 text-left">Product Name & Specification</th>
+                                <th className="border border-gray-200 p-2 text-right w-20">Rate</th>
                                 <th className="border border-gray-200 p-2 text-center w-12">Qty</th>
-                                <th className="border border-gray-200 p-2 text-right w-20">Price</th>
-                                <th className="border border-gray-200 p-2 text-right w-20">Total Price</th>
-                                <th className="border border-gray-200 p-2 text-right w-20">Discount</th>
-                                <th className="border border-gray-200 p-2 text-right w-24">Pretax Amt</th>
-                                <th className="border border-gray-200 p-2 text-right w-20 text-blue-600">Tax</th>
-                                <th className="border border-gray-200 p-2 text-right w-24 text-emerald-600">Payable</th>
+                                <th className="border border-gray-200 p-2 text-right w-20">Disc</th>
+                                <th className="border border-gray-200 p-2 text-right w-24">Pretax Amt.</th>
+                                <th className="border border-gray-200 p-2 text-right w-20 text-blue-600">GST</th>
+                                <th className="border border-gray-200 p-2 text-right w-24 text-emerald-600">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -157,17 +189,16 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
                                 <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
                                     <td className="border border-gray-200 p-2 text-center text-gray-400 font-mono">{itemIdx + 1}</td>
                                     <td className="border border-gray-200 p-2 font-mono text-gray-600">{item.product?.sku}</td>
-                                    <td className="border border-gray-200 p-2 font-medium text-left">
+                                    <td className="border border-gray-200 p-2 text-left">
                                         <div className="flex flex-col">
                                             <span className="font-bold text-gray-900 uppercase">{item.product?.name}</span>
+                                            <span className="italic text-gray-500 text-[10px] mt-1">
+                                                {item.specification || item.product?.specification || ""}
+                                            </span>
                                         </div>
                                     </td>
-                                    <td className="border border-gray-200 p-2 text-left italic text-gray-500">
-                                        {item.specification || item.product?.specification || "-"}
-                                    </td>
-                                    <td className="border border-gray-200 p-2 text-center font-bold text-blue-600">{Number(item.quantity).toFixed(0)}</td>
                                     <td className="border border-gray-200 p-2 text-right">{currency} {Number(item.unit_price).toFixed(2)}</td>
-                                    <td className="border border-gray-200 p-2 text-right">{currency} {Number(item.total_price_sum).toFixed(2)}</td>
+                                    <td className="border border-gray-200 p-2 text-center font-bold text-blue-600">{Number(item.quantity).toFixed(0)}</td>
                                     <td className="border border-gray-200 p-2 text-right text-rose-500 font-medium">{currency} {Number(item.discount_sum).toFixed(2)}</td>
                                     <td className="border border-gray-200 p-2 text-right font-bold text-gray-700">{currency} {(Number(item.total_price_sum) - Number(item.discount_sum)).toFixed(2)}</td>
                                     <td className="border border-gray-200 p-2 text-right font-medium text-blue-600">{currency} {Number(item.tax_amount).toFixed(2)}</td>
@@ -177,10 +208,9 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
                         </tbody>
                         <tfoot className="bg-gray-50 font-bold text-gray-900 border-t-2 border-gray-300">
                             <tr>
-                                <td colSpan={4} className="border border-gray-200 p-3 text-right uppercase tracking-widest text-xs">Grand Total</td>
-                                <td className="border border-gray-200 p-3 text-center text-blue-600 font-black">{tableTotals.qty.toFixed(0)}</td>
+                                <td colSpan={3} className="border border-gray-200 p-3 text-right uppercase tracking-widest text-xs">Grand Total</td>
                                 <td className="border border-gray-200 p-3"></td>
-                                <td className="border border-gray-200 p-3 text-right font-mono">{currency} {tableTotals.total_price.toFixed(2)}</td>
+                                <td className="border border-gray-200 p-3 text-center text-blue-600 font-black">{tableTotals.qty.toFixed(0)}</td>
                                 <td className="border border-gray-200 p-3 text-right text-rose-600 font-mono">{currency} {tableTotals.discount.toFixed(2)}</td>
                                 <td className="border border-gray-200 p-3 text-right text-gray-800 font-mono">{currency} {(tableTotals.total_price - tableTotals.discount).toFixed(2)}</td>
                                 <td className="border border-gray-200 p-3 text-right text-blue-600 font-mono">{currency} {tableTotals.tax.toFixed(2)}</td>

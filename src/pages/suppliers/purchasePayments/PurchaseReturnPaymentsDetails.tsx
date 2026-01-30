@@ -1,8 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { useGetPurchaseReturnPaymentByIdQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
 import { useAppSelector } from "@/store/store";
-
 import { Link, useParams } from "react-router";
+import {
+    ArrowLeft,
+    Calendar,
+    CreditCard,
+    FileText,
+    User,
+    Building2,
+    Hash,
+    Phone,
+    Mail,
+    Banknote
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { formatDateStandard } from "@/utils/dateUtils";
 
 export default function PurchaseReturnPaymentsDetails() {
     const currency = useAppSelector((state) => state.currency.value);
@@ -10,8 +25,29 @@ export default function PurchaseReturnPaymentsDetails() {
     const { id } = useParams();
     const { data, isLoading, error } = useGetPurchaseReturnPaymentByIdQuery(id as string);
 
-    if (isLoading) return <p className="p-6">Loading...</p>;
-    if (error || !data?.data) return <p className="p-6 text-red-500">Refund details not found.</p>;
+    if (isLoading) return (
+        <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p className="text-muted-foreground animate-pulse">Loading refund details...</p>
+            </div>
+        </div>
+    );
+
+    if (error || !data?.data) return (
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center">
+            <div className="bg-red-100 p-4 rounded-full text-red-600">
+                <FileText className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Refund Not Found</h2>
+            <p className="text-gray-500 max-w-md">
+                The refund record you are looking for does not exist or has been removed.
+            </p>
+            <Link to="/dashboard/purchase-returns/payments">
+                <Button>Back to Refund List</Button>
+            </Link>
+        </div>
+    );
 
     const payment = data.data;
 
@@ -20,13 +56,13 @@ export default function PurchaseReturnPaymentsDetails() {
     // --------------------------
     const formattedPayment = {
         number: `RRFD-${payment.id.toString().padStart(6, "0")}`,
-        date: new Date(payment.payment_date).toLocaleDateString(),
-        method:
-            payment.payment_method.replaceAll("_", " ").replace(/^\w/, (c: string) => c.toUpperCase()),
+        date: formatDateStandard(payment.payment_date),
+        method: payment.payment_method?.replaceAll("_", " ") || "-",
         reference: payment.reference_number || "-",
         amount: Number(payment.amount),
         recordedBy: payment.created_by,
-        status: payment.status,
+        status: payment.status || "completed",
+        notes: payment.notes || "No additional notes provided."
     };
 
     // --------------------------
@@ -51,139 +87,189 @@ export default function PurchaseReturnPaymentsDetails() {
             number: payment.invoice.invoice_number,
             total: payment.invoice.total_amount,
             total_payable_amount: payment.invoice.total_payable_amount,
-            dueDate: payment.invoice.due_date,
+            dueDate: formatDateStandard(payment.invoice.due_date),
         }
         : null;
 
+    const getStatusColor = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'completed': return 'bg-emerald-600';
+            case 'pending': return 'bg-amber-500';
+            case 'cancelled': return 'bg-rose-600';
+            default: return 'bg-slate-500';
+        }
+    };
+
     return (
-        <div className="p-4 md:p-6 space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <h1 className="text-2xl sm:text-3xl font-bold text-orange-700">
-                    Purchase Return Refund {formattedPayment.number}
-                </h1>
-
-                <div className="flex flex-col sm:flex-row gap-2">
-                    <Link to="/dashboard/purchase-returns/payments">
-                        <Button variant="outline">← Back to Refunds</Button>
+        <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in-50 duration-500 pb-10">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="text-left">
+                    <Link
+                        to="/dashboard/purchase-returns/payments"
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-2"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Back to Refunds
                     </Link>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Refund {formattedPayment.number}</h1>
+                        <Badge className={`${getStatusColor(formattedPayment.status)} text-white capitalize px-3 py-1 shadow-sm border-0`}>
+                            {formattedPayment.status}
+                        </Badge>
+                    </div>
+                </div>
 
+                <div className="flex gap-3">
                     {invoice && (
                         <Link to={`/dashboard/purchase-return-invoices/${invoice.invoice_id}`}>
-                            <Button className="bg-orange-600 hover:bg-orange-700 text-white shadow-md">
-                                View Return Invoice {invoice.number}
+                            <Button variant="outline" className="shadow-sm border-primary/20 hover:bg-primary/5 text-primary gap-2">
+                                <FileText className="w-4 h-4" />
+                                View Invoice
                             </Button>
                         </Link>
                     )}
                 </div>
             </div>
 
-            {/* Main Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Payment Details */}
-                <div className="col-span-1 lg:col-span-2 border rounded-xl p-6 bg-white shadow-sm">
-                    <h2 className="font-semibold text-lg mb-4 border-b pb-2">Refund Details</h2>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {/* Left Column */}
-                        <div className="space-y-4">
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Refund Number</p>
-                                <p className="font-semibold text-gray-900">{formattedPayment.number}</p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Recorded By</p>
-                                <p className="font-semibold text-gray-900">{formattedPayment.recordedBy}</p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Method</p>
-                                <p className="font-semibold text-gray-900">{formattedPayment.method}</p>
-                            </div>
-
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Reference Number</p>
-                                <p className="font-semibold text-gray-900">{formattedPayment.reference}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column - Main Details */}
+                <div className="lg:col-span-2 space-y-6">
+                    <Card className="shadow-sm border-border/60 overflow-hidden">
+                        <div className="bg-gradient-to-r from-orange-50 to-orange-100/50 p-6 border-b border-orange-100">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-sm font-medium text-orange-800 uppercase tracking-wider mb-1">Total Refund Amount</p>
+                                    <h2 className="text-4xl font-bold text-orange-700 font-mono tracking-tight">
+                                        {currency} {formattedPayment.amount.toFixed(2)}
+                                    </h2>
+                                </div>
+                                <div className="bg-white p-3 rounded-full shadow-sm text-orange-600">
+                                    <Banknote className="w-8 h-8" />
+                                </div>
                             </div>
                         </div>
 
-                        {/* Right Column */}
-                        <div className="space-y-4">
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Refund Date</p>
-                                <p className="font-semibold text-gray-900">{formattedPayment.date}</p>
-                            </div>
+                        <CardContent className="p-0">
+                            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x border-b">
+                                <div className="p-6 space-y-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-1 bg-blue-50 p-2 rounded-lg text-blue-600">
+                                            <Calendar className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-muted-foreground">Payment Date</p>
+                                            <p className="font-semibold text-gray-900 mt-0.5">{formattedPayment.date}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-1 bg-purple-50 p-2 rounded-lg text-purple-600">
+                                            <CreditCard className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-muted-foreground">Payment Method</p>
+                                            <p className="font-semibold text-gray-900 mt-0.5 capitalize">{formattedPayment.method}</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Status</p>
-                                <p className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${formattedPayment.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                    }`}>
-                                    {formattedPayment.status}
+                                <div className="p-6 space-y-4">
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-1 bg-slate-50 p-2 rounded-lg text-slate-600">
+                                            <Hash className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-muted-foreground">Reference Number</p>
+                                            <p className="font-semibold text-gray-900 mt-0.5 font-mono">{formattedPayment.reference}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <div className="mt-1 bg-emerald-50 p-2 rounded-lg text-emerald-600">
+                                            <User className="w-4 h-4" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-muted-foreground">Recorded By</p>
+                                            <p className="font-semibold text-gray-900 mt-0.5">{formattedPayment.recordedBy || "Unknown"}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-6 bg-slate-50/50">
+                                <p className="text-sm font-semibold text-gray-900 mb-2">Notes</p>
+                                <p className="text-sm text-gray-600 leading-relaxed bg-white p-4 rounded-lg border border-slate-200">
+                                    {formattedPayment.notes}
                                 </p>
                             </div>
-
-                            <div>
-                                <p className="text-sm text-gray-500 font-medium">Refund Amount</p>
-                                <p className="text-2xl font-bold text-orange-600">{currency} {Number(formattedPayment.amount || 0).toFixed(2)}</p>
-                            </div>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                {/* Right Section */}
+                {/* Right Column - Related Info */}
                 <div className="space-y-6">
-                    {/* Supplier */}
+                    {/* Supplier Info */}
                     {po?.supplier && (
-                        <div className="border rounded-xl p-6 bg-white shadow-sm">
-                            <h3 className="font-semibold text-lg mb-3 border-b pb-2">Supplier</h3>
-
-                            <p className="font-bold text-gray-900">{po.supplier.name}</p>
-                            <p className="text-sm text-gray-600">{po.supplier.email}</p>
-                            <p className="text-sm text-gray-600">{po.supplier.phone}</p>
-                            <div className="mt-2 text-xs font-medium text-gray-500 uppercase">Contact Person</div>
-                            <p className="text-sm font-medium">{po.supplier.contact_person}</p>
-                        </div>
+                        <Card className="shadow-sm border-border/60">
+                            <CardHeader className="bg-slate-50/50 py-4 border-b">
+                                <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-700">
+                                    <Building2 className="w-4 h-4 text-blue-500" />
+                                    Supplier Details
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-6 space-y-4">
+                                <div>
+                                    <p className="font-bold text-lg text-gray-900">{po.supplier.name}</p>
+                                    <p className="text-sm text-muted-foreground">{po.supplier.company}</p>
+                                </div>
+                                <Separator />
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <User className="w-4 h-4 text-gray-400" />
+                                        <span className="text-gray-700">{po.supplier.contact_person || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <Mail className="w-4 h-4 text-gray-400" />
+                                        <span className="text-gray-700">{po.supplier.email || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <Phone className="w-4 h-4 text-gray-400" />
+                                        <span className="text-gray-700">{po.supplier.phone || 'N/A'}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     )}
 
-                    {/* Purchase Return Summary */}
-                    {po && (
-                        <div className="border rounded-xl p-6 bg-white shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg border-b pb-2">Purchase Return</h3>
-
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Return Number</span>
-                                <span className="font-bold text-gray-900">{po.number}</span>
+                    {/* Related Documents */}
+                    <Card className="shadow-sm border-border/60">
+                        <CardHeader className="bg-slate-50/50 py-4 border-b">
+                            <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-700">
+                                <FileText className="w-4 h-4 text-orange-500" />
+                                Related Documents
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="divide-y">
+                                {po && (
+                                    <div className="p-4 hover:bg-slate-50 transition-colors">
+                                        <p className="text-xs text-muted-foreground font-medium uppercase mb-1">Purchase Return</p>
+                                        <div className="flex justify-between items-center">
+                                            <span className="font-semibold text-gray-900">{po.number}</span>
+                                            <span className="text-sm font-medium text-gray-600">{currency} {Number(po.total_payable_amount || 0).toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                )}
+                                {invoice && (
+                                    <div className="p-4 hover:bg-slate-50 transition-colors">
+                                        <p className="text-xs text-muted-foreground font-medium uppercase mb-1">Return Invoice</p>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="font-semibold text-gray-900">{invoice.number}</span>
+                                            <span className="text-sm font-medium text-gray-600">{currency} {Number(invoice.total_payable_amount || 0).toFixed(2)}</span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Due: {invoice.dueDate}</p>
+                                    </div>
+                                )}
                             </div>
-
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Total Refundable</span>
-                                <span className="font-bold text-orange-600">{currency} {Number(po.total_payable_amount || 0).toFixed(2)}</span>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Invoice Summary */}
-                    {invoice && (
-                        <div className="border rounded-xl p-6 bg-white shadow-sm space-y-4">
-                            <h3 className="font-semibold text-lg border-b pb-2">Return Invoice</h3>
-
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Invoice #</span>
-                                <span className="font-bold text-gray-900">{invoice.number}</span>
-                            </div>
-
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Total</span>
-                                <span className="font-bold text-gray-900">{currency} {Number(invoice.total_payable_amount || 0).toFixed(2)}</span>
-                            </div>
-
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-500">Due Date</span>
-                                <span className="font-bold text-gray-900">{invoice.dueDate}</span>
-                            </div>
-                        </div>
-                    )}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </div>

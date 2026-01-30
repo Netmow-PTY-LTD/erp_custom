@@ -33,8 +33,12 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router";
 import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
+import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 
 export default function PendingOrders() {
+  const { data: settingsData } = useGetSettingsInfoQuery();
+  const from = settingsData?.data;
+
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
@@ -186,7 +190,7 @@ export default function PendingOrders() {
 
     {
       accessorKey: "total_amount",
-      header: () => <div className="text-right">Total Price ({currency})</div>,
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Price ({currency})</div>,
       cell: ({ row }) => (
         <div className="text-right">
           {Number(row.original.total_amount).toFixed(2)}
@@ -197,7 +201,7 @@ export default function PendingOrders() {
     {
       accessorKey: "discount_amount",
       header: () => (
-        <div className="text-right">Total Discount ({currency})</div>
+        <div className="text-right"><span className="print:hidden">Total </span>Discount ({currency})</div>
       ),
       cell: ({ row }) => (
         <div className="text-right">
@@ -207,7 +211,7 @@ export default function PendingOrders() {
     },
     {
       accessorKey: "tax_amount",
-      header: () => <div className="text-right">Total Tax ({currency})</div>,
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Tax ({currency})</div>,
       cell: ({ row }) => (
         <div className="text-right">
           {Number(row.original.tax_amount).toFixed(2)}
@@ -216,7 +220,7 @@ export default function PendingOrders() {
     },
     {
       id: "total_payable", // 👈 use a custom id, not accessorKey
-      header: () => <div className="text-right">Total Payable ({currency})</div>,
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Payable ({currency})</div>,
       cell: ({ row }) => {
         const totalAmount = Number(row.original.total_amount) || 0;
         const discountAmount = Number(row.original.discount_amount) || 0;
@@ -229,7 +233,7 @@ export default function PendingOrders() {
     },
     {
       accessorKey: "total_paid_amount",
-      header: () => <div className="text-right">Total Paid ({currency})</div>,
+      header: () => <div className="text-right"><span className="print:hidden">Total </span>Paid ({currency})</div>,
       cell: ({ row }) => (
         <div className="text-right text-green-600 font-medium">
           {Number(row.original.total_paid_amount || 0).toFixed(2)}
@@ -238,7 +242,7 @@ export default function PendingOrders() {
     },
     {
       id: "total_due",
-      header: () => <div className="text-right">Balance Due ({currency})</div>,
+      header: () => <div className="text-right">Balance<span className="print:hidden"> Due ({currency})</span></div>,
       cell: ({ row }) => {
         const totalAmount = Number(row.original.total_amount) || 0;
         const discountAmount = Number(row.original.discount_amount) || 0;
@@ -347,13 +351,6 @@ export default function PendingOrders() {
           </Link>
         </div>
       </div>
-      {/* Print Only Header */}
-      <div className="hidden print:block text-center mb-[15px] pb-1">
-        <h1 className="text-4xl font-extrabold uppercase tracking-tight">PENDING ORDERS REPORT</h1>
-        <div className="mt-1 text-sm text-gray-700 font-semibold">
-          <span>Report Generated On: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-        </div>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 print:hidden">
@@ -385,27 +382,59 @@ export default function PendingOrders() {
           </div>
         ))}
       </div>
-      <Card className="py-6">
-        <CardHeader className="print:hidden">
-          <CardTitle>{status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : "All "}Orders</CardTitle>
-          <CardDescription>Manage your orders</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={OrderColumns}
-            data={orders}
-            pageIndex={page - 1} // DataTable expects 0-based
-            pageSize={limit}
-            totalCount={data?.pagination?.total ?? 0}
-            onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-            onSearch={(value) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            isFetching={isLoading}
-          />
-        </CardContent>
-      </Card>
+
+      <div className="print:w-full print:m-0 print:p-0">
+        {/* Print Only Header */}
+        <div id="invoice" className="hidden print:block mb-4">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col gap-2 mt-2 details-text text-left">
+              <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+              <p className="leading-tight max-w-[400px]">
+                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+              </p>
+              <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
+            </div>
+            <div className="text-right flex flex-col items-end">
+              <div className="mb-1">
+                {from?.logo_url ? (
+                  <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                    F&Z
+                  </div>
+                )}
+              </div>
+              <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Pending Orders Report</h2>
+              <div className="details-text space-y-1">
+                <p><strong>Date:</strong> {format(new Date(), "dd/MM/yyyy")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
+          <CardHeader className="print:hidden">
+            <CardTitle>Pending Orders</CardTitle>
+            <CardDescription>Manage your orders</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DataTable
+              columns={OrderColumns}
+              data={orders}
+              pageIndex={page - 1} // DataTable expects 0-based
+              pageSize={limit}
+              totalCount={data?.pagination?.total ?? 0}
+              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onSearch={(value) => {
+                setSearch(value);
+                setPage(1);
+              }}
+              isFetching={isLoading}
+            />
+          </CardContent>
+        </Card>
+      </div>
+
       <UpdateDeliveryStatusModal
         isOpen={isUpdateDeliveryStatusModalOpen}
         onClose={handleCloseUpdateDeliveryStatusModal}
@@ -415,12 +444,11 @@ export default function PendingOrders() {
       />
 
       {/* Print Styles */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style>{`
           @media print {
             @page {
-              size: landscape;
-              margin: 10mm;
+              margin: 5mm;
+              size: A4 landscape;
             }
             .print\\:hidden,
             header,
@@ -452,8 +480,9 @@ export default function PendingOrders() {
             }
             th, td {
               border: 1px solid #ddd !important;
-              padding: 6px 8px !important;
-              font-size: 9px !important;
+              padding: 4px !important;
+              font-size: 11px !important;
+              line-height: 1.2 !important;
               vertical-align: middle !important;
             }
             th {
@@ -511,14 +540,18 @@ export default function PendingOrders() {
             th:nth-child(13), td:nth-child(13) {
               display: none !important;
             }
-            .text-4xl {
-              font-size: 18px !important;
-              margin-bottom: 4px !important;
-              line-height: 1 !important;
+            .company-name {
+              font-size: 12px !important;
+              line-height: 1.2 !important;
+              margin: 0 !important;
             }
-            .text-4xl + div {
-              line-height: 1 !important;
-              margin-top: 2px !important;
+            .details-text { 
+              font-size: 10px !important; 
+              line-height: 1.2 !important; 
+            }
+            h1, h2, h3 {
+              font-size: 10px !important;
+              margin: 0 !important;
             }
             .hidden.print\\:block.mb-\\[15px\\] {
               margin-bottom: 15px !important;
@@ -537,8 +570,7 @@ export default function PendingOrders() {
               display: none !important;
             }
           }
-        `
-      }} />
+      `}</style>
     </div>
   );
 }
