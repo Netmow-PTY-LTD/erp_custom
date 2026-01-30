@@ -221,15 +221,27 @@ export default function CreatePurchaseOrderPage() {
                         field.onChange(Number(supplier.id));
                         setOpen(false);
                       }}
-                      className="flex items-center gap-2 cursor-pointer"
+                      className="flex items-center gap-2 cursor-pointer py-3"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={supplier.thumb_url} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <span>{supplier.name}</span>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{supplier.name}</span>
+                        {supplier.contact_person && (
+                          <span className="truncate text-xs text-muted-foreground">
+                            Contact: {supplier.contact_person}
+                          </span>
+                        )}
+                        {supplier.address && (
+                          <span className="truncate text-xs text-muted-foreground/80">
+                            {supplier.address}
+                          </span>
+                        )}
+                      </div>
                     </CommandItem>
                   ))}
               </CommandGroup>
@@ -345,7 +357,7 @@ export default function CreatePurchaseOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-xs text-muted-foreground">
-                          SKU: {product.sku} | Unit: {product.unit?.name || "-"}
+                          SKU: {product.sku} | Unit: {product.unit?.name || "-"} | Stock: {product.stock_quantity || 0}
                         </span>
                       </div>
                     </CommandItem>
@@ -514,7 +526,7 @@ export default function CreatePurchaseOrderPage() {
                         stock_quantity: 0,
                       })
                     }
-                    className="flex items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                    className="flex items-center gap-2 rounded-xl border-1 border-gray-300 dark:border-gray-600 px-5 py-2.5 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 bg-white"
                   >
                     <Plus className="w-4 h-4" />
                     Add Row

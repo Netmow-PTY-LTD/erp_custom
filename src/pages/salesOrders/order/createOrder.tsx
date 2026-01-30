@@ -346,16 +346,19 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={customer.thumb_url} alt={customer.name} />
                         <AvatarFallback>
                           <User className="h-4 w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{customer.name}</span>
+                      <div className="flex flex-col overflow-hidden flex-1">
+                        <span className="truncate font-medium text-sm">{customer.name}</span>
                         {customer.company && (
-                          <span className="text-xs text-muted-foreground">{customer.company}</span>
+                          <span className="truncate text-xs text-muted-foreground">{customer.company}</span>
+                        )}
+                        {customer.address && (
+                          <span className="truncate text-xs text-muted-foreground/80">{customer.address}</span>
                         )}
                       </div>
                     </CommandItem>
@@ -435,7 +438,7 @@ export default function CreateSalesOrderPage() {
                       }}
                       className="flex items-center gap-2"
                     >
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 shrink-0">
                         <AvatarImage src={product.thumb_url} alt={product.name} />
                         <AvatarFallback>
                           <Package className="h-4 w-4" />
@@ -444,7 +447,7 @@ export default function CreateSalesOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
-                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'}
+                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'} | Stock: {product.stock_quantity || 0}
                         </span>
                       </div>
                     </CommandItem>

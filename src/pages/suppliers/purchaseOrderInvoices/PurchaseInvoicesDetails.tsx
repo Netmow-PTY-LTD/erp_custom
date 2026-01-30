@@ -183,9 +183,9 @@ export default function PurchaseInvoicesDetails() {
                     <p className="text-xs text-muted-foreground uppercase font-bold">Bill To</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{settingsInfo?.company_name}</p>
                     <div className="text-sm text-gray-500 space-y-0.5 mt-1">
-                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {settingsInfo?.address}</p>
-                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {settingsInfo?.email}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {settingsInfo?.phone}</p>
+                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {settingsInfo?.address}</p>
+                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 shrink-0" /> {settingsInfo?.email}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {settingsInfo?.phone}</p>
                     </div>
                   </div>
                 </div>

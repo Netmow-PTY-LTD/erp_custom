@@ -44,40 +44,26 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AddProductsModal } from "@/components/products/AddProductsModal";
 import type { PurchaseOrderStatus } from "@/types/purchaseOrder.types";
 
-const orderSchema = z
-    .object({
-        supplierId: z.number().min(1, "Required"),
-        notes: z.string().optional(),
-        order_date: z.string().min(1, "Required"),
-        expected_delivery_date: z.string().min(1, "Required"),
-        items: z.array(
-            z.object({
-                productId: z.number().min(1, "Product is required"),
-                sku: z.string().optional(),
-                specification: z.string().optional(),
-                unit: z.string().optional(),
-                quantity: z.number().min(1, "Quantity must be at least 1"),
-                unit_cost: z.number().min(0, "Unit price must be at least 0"),
-                discount: z.number().min(0, "Discount must be 0 or more"),
-                purchase_tax: z.number().min(0, "Purchase tax must be 0 or more"),
-                stock_quantity: z.number().optional(),
-            })
-        ),
-        purchaseOrderId: z.number().min(1, "Purchase Order is required"),
-        poNumber: z.string().optional(),
-    })
-    .refine(
-        (data) => {
-            const orderDate = new Date(data.order_date);
-            const dueDate = new Date(data.expected_delivery_date);
-
-            return dueDate >= orderDate;
-        },
-        {
-            message: "Expected delivery date cannot be earlier than order date",
-            path: ["expected_delivery_date"],
-        }
-    );
+const orderSchema = z.object({
+    supplierId: z.number().min(1, "Required"),
+    notes: z.string().optional(),
+    return_date: z.string().min(1, "Return date is required"),
+    items: z.array(
+        z.object({
+            productId: z.number().min(1, "Product is required"),
+            sku: z.string().optional(),
+            specification: z.string().optional(),
+            unit: z.string().optional(),
+            quantity: z.number().min(1, "Quantity must be at least 1"),
+            unit_cost: z.number().min(0, "Unit price must be at least 0"),
+            discount: z.number().min(0, "Discount must be 0 or more"),
+            purchase_tax: z.number().min(0, "Purchase tax must be 0 or more"),
+            stock_quantity: z.number().optional(),
+        })
+    ),
+    purchaseOrderId: z.number().optional(),
+    poNumber: z.string().optional(),
+});
 
 /* ---------------- TYPES ---------------- */
 
@@ -98,8 +84,7 @@ export default function CreatePurchaseReturnPage() {
         resolver: zodResolver(orderSchema),
         defaultValues: {
             supplierId: supplierIdParam ? Number(supplierIdParam) : 0,
-            order_date: new Date().toISOString().split("T")[0],
-            expected_delivery_date: "",
+            return_date: new Date().toISOString().split("T")[0],
             notes: "",
             purchaseOrderId: 0,
             poNumber: "",
@@ -227,15 +212,27 @@ export default function CreatePurchaseReturnPage() {
                                                 field.onChange(Number(supplier.id));
                                                 setOpen(false);
                                             }}
-                                            className="flex items-center gap-2 cursor-pointer"
+                                            className="flex items-center gap-2 cursor-pointer py-3"
                                         >
-                                            <Avatar className="h-8 w-8">
+                                            <Avatar className="h-8 w-8 shrink-0">
                                                 <AvatarImage src={supplier.thumb_url} />
                                                 <AvatarFallback>
                                                     <User className="h-4 w-4" />
                                                 </AvatarFallback>
                                             </Avatar>
-                                            <span>{supplier.name}</span>
+                                            <div className="flex flex-col overflow-hidden flex-1">
+                                                <span className="truncate font-medium text-sm">{supplier.name}</span>
+                                                {supplier.contact_person && (
+                                                    <span className="truncate text-xs text-muted-foreground">
+                                                        Contact: {supplier.contact_person}
+                                                    </span>
+                                                )}
+                                                {supplier.address && (
+                                                    <span className="truncate text-xs text-muted-foreground/80">
+                                                        {supplier.address}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </CommandItem>
                                     ))}
                             </CommandGroup>
@@ -447,7 +444,7 @@ export default function CreatePurchaseReturnPage() {
                                             <div className="flex flex-col">
                                                 <span className="font-medium text-sm">{product.name}</span>
                                                 <span className="text-xs text-muted-foreground">
-                                                    SKU: {product.sku} | Unit: {product.unit?.name || "-"}
+                                                    SKU: {product.sku} | Unit: {product.unit?.name || "-"} | Stock: {product.stock_quantity || 0}
                                                 </span>
                                             </div>
                                         </CommandItem>
@@ -486,8 +483,7 @@ export default function CreatePurchaseReturnPage() {
 
             const payload = {
                 supplier_id: Number(values.supplierId),
-                order_date: values.order_date,
-                expected_delivery_date: values.expected_delivery_date,
+                return_date: values.return_date,
                 notes: values.notes,
                 items: values.items.map((item) => ({
                     product_id: Number(item.productId),
@@ -585,29 +581,14 @@ export default function CreatePurchaseReturnPage() {
                                     )}
                                 />
 
-                                {/* Order Date */}
+                                {/* Return Date */}
                                 <FormField
-                                    name="order_date"
+                                    name="return_date"
                                     control={control}
-                                    rules={{ required: "Order Date is required" }}
+                                    rules={{ required: "Return date is required" }}
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Order Date</FormLabel>
-                                            <FormControl>
-                                                <Input type="date" {...field} className="block" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* Expected Date */}
-                                <FormField
-                                    name="expected_delivery_date"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Expected Date</FormLabel>
+                                            <FormLabel>Return Date</FormLabel>
                                             <FormControl>
                                                 <Input type="date" {...field} className="block" />
                                             </FormControl>

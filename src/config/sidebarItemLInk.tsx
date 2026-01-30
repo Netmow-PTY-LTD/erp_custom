@@ -1152,81 +1152,6 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "Sales Return",
-        url: "/dashboard/sales/returns",
-        element: <SalesReturnsList />,
-        icon: List,
-        allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURNS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Create Sales Return",
-        url: "/dashboard/sales/returns/create",
-        element: <CreateSalesReturn />,
-        icon: PlusCircle,
-        allowedPermissions: [
-          SalesPermission.CREATE_SALES_RETURN,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/returns/:returnId",
-        element: <ViewSalesReturn />,
-        allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales-return-invoices/:id",
-        element: <SalesReturnInvoiceDetails />,
-        allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_INVOICE_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales-return-invoices/:id/preview",
-        element: <SalesReturnInvoicePrintPreview />,
-        allowedPermissions: [
-          SalesPermission.PREVIEW_SALES_RETURN_INVOICE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Sales Return Refunds",
-        url: "/dashboard/sales/returns/payments",
-        element: <SalesReturnPaymentsList />,
-        icon: Banknote,
-        allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_PAYMENTS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/returns/payments/create",
-        element: <CreateSalesReturnPayment />,
-        allowedPermissions: [
-          SalesPermission.CREATE_SALES_RETURN_PAYMENT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/returns/payments/:id",
-        element: <SalesReturnPaymentDetails />,
-        allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_PAYMENT_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
         title: "",
         url: "/dashboard/sales/orders/:orderId",
         element: <OrderDetails />,
@@ -1344,6 +1269,81 @@ export const sidebarItemLink = [
         icon: Truck,
         allowedPermissions: [
           SalesPermission.DELIVERY,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Sales Return",
+        url: "/dashboard/sales/returns",
+        element: <SalesReturnsList />,
+        icon: List,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Create Sales Return",
+        url: "/dashboard/sales/returns/create",
+        element: <CreateSalesReturn />,
+        icon: PlusCircle,
+        allowedPermissions: [
+          SalesPermission.CREATE_SALES_RETURN,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/:returnId",
+        element: <ViewSalesReturn />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales-return-invoices/:id",
+        element: <SalesReturnInvoiceDetails />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales-return-invoices/:id/preview",
+        element: <SalesReturnInvoicePrintPreview />,
+        allowedPermissions: [
+          SalesPermission.PREVIEW_SALES_RETURN_INVOICE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Sales Return Refunds",
+        url: "/dashboard/sales/returns/payments",
+        element: <SalesReturnPaymentsList />,
+        icon: Banknote,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/payments/create",
+        element: <CreateSalesReturnPayment />,
+        allowedPermissions: [
+          SalesPermission.CREATE_SALES_RETURN_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/returns/payments/:id",
+        element: <SalesReturnPaymentDetails />,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURN_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
