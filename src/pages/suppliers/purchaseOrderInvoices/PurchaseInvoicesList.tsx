@@ -6,9 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchaseInvoicesQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
@@ -223,36 +220,8 @@ export default function PurchaseInvoicesList() {
         ))}
       </div>
 
-      <Card className="py-6 border-none shadow-none">
-        <CardHeader className="flex flex-row items-center justify-between px-0">
-          <div>
-            <CardTitle>All Purchase Invoices</CardTitle>
-            <CardDescription>Manage all your purchase invoices</CardDescription>
-          </div>
-          <div className="flex items-center gap-4">
-            <Select
-              value={status}
-              onValueChange={(value) => {
-                setStatus(value);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="partial">Partial</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-        <CardContent className="px-0">
+      <Card className="py-6">
+        <CardContent>
           <DataTable
             columns={invoiceColumns}
             data={invoicesData}
@@ -265,6 +234,28 @@ export default function PurchaseInvoicesList() {
               setPage(1);
             }}
             isFetching={isFetching}
+            filters={
+              <Select
+                value={status}
+                onValueChange={(value) => {
+                  setStatus(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            }
           />
         </CardContent>
       </Card>

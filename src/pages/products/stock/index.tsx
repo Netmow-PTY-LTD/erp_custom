@@ -295,23 +295,7 @@ export default function StockManagement() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0 px-0">
-            <CardTitle>All Products Stock</CardTitle>
-            <div className="w-[180px]">
-              <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
-                <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
-                  <SelectValue placeholder="Stock Status" />
-                </SelectTrigger>
-                <SelectContent className="rounded-md border-gray-100 shadow-xl">
-                  <SelectItem value="all">All Stock Status</SelectItem>
-                  <SelectItem value="available" className="text-emerald-600 font-medium">Available</SelectItem>
-                  <SelectItem value="low_stock" className="text-orange-600 font-medium">Low Stock</SelectItem>
-                  <SelectItem value="out_of_stock" className="text-rose-600 font-medium">Out of Stock</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          <CardContent className="print:p-0 px-0">
+          <CardContent className="print:p-0">
             <DataTable
               columns={productColumns}
               data={products}
@@ -328,6 +312,21 @@ export default function StockManagement() {
                 setPage(1);
               }}
               isFetching={isFetching}
+              filters={
+                <div className="w-[140px]">
+                  <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
+                    <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                      <SelectValue placeholder="Stock Status" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-md border-gray-100 shadow-xl">
+                      <SelectItem value="all">All Stock Status</SelectItem>
+                      <SelectItem value="available" className="text-emerald-600 font-medium">Available</SelectItem>
+                      <SelectItem value="low_stock" className="text-orange-600 font-medium">Low Stock</SelectItem>
+                      <SelectItem value="out_of_stock" className="text-rose-600 font-medium">Out of Stock</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              }
             />
           </CardContent>
         </Card>
