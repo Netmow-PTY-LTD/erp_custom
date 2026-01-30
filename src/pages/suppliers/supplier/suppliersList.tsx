@@ -320,7 +320,7 @@ export default function SuppliersList() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800 py-2.5 !h-auto">
                 <Filter className="w-4 h-4 mr-2 text-gray-500" />
                 <SelectValue placeholder="Sort By" />
               </SelectTrigger>
