@@ -83,6 +83,15 @@ export const supplierApiService = baseApi.injectEndpoints({
       invalidatesTags: ["Suppliers"],
     }),
 
+    // GET SUPPLIER STATS
+    getSupplierStats: builder.query<{ status: boolean; data: any[] }, void>({
+      query: () => ({
+        url: "/suppliers/stats",
+        method: "GET",
+      }),
+      providesTags: ["Suppliers"],
+    }),
+
   }),
 });
 
@@ -92,4 +101,5 @@ export const {
   useGetSupplierByIdQuery,
   useUpdateSupplierMutation,
   useDeleteSupplierMutation,
+  useGetSupplierStatsQuery,
 } = supplierApiService;

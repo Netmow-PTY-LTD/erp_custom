@@ -18,7 +18,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronDown, CornerDownRight, ArrowUpRight, ArrowDownLeft, Calendar as CalendarIcon } from "lucide-react";
+import { Check, ChevronDown, CornerDownRight, ArrowUpRight, ArrowDownLeft, Calendar as CalendarIcon, Printer } from "lucide-react";
 import {
     Command,
     CommandEmpty,
@@ -96,14 +96,38 @@ export default function LedgerReport() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Ledger Report</h2>
                     <p className="text-muted-foreground">View detailed transaction history for a specific account.</p>
                 </div>
+                <Button
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="flex items-center gap-2"
+                >
+                    <Printer className="h-4 w-4" />
+                    Print
+                </Button>
             </div>
 
-            <Card>
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">LEDGER REPORT</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold">
+                    <div className="text-lg mb-1">{selectedAccount ? `ACCOUNT: ${selectedAccount.name} (${selectedAccount.code})` : "ACCOUNT: ALL"}</div>
+                    {dateRange?.from ? (
+                        <>
+                            <span>From: {format(dateRange.from, 'd MMMM yyyy')}</span>
+                            {dateRange.to && <span> - To: {format(dateRange.to, 'd MMMM yyyy')}</span>}
+                        </>
+                    ) : (
+                        <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+                    )}
+                </div>
+            </div>
+
+            <Card className="print:hidden">
                 <CardContent className="p-6">
                     <div className="grid md:grid-cols-3 gap-4 items-end">
                         <div className="space-y-2">
@@ -189,7 +213,7 @@ export default function LedgerReport() {
             </Card>
 
             {/* Summary Header */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:hidden">
                 {/* Opening Balance */}
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-400 p-6 shadow-lg shadow-blue-500/20 transition-all duration-300 hover:scale-[1.02] hover:translate-y-[-2px]">
                     <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
@@ -304,6 +328,71 @@ export default function LedgerReport() {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .text-lg {
+                        font-size: 14px !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 3px 6px !important;
+                        font-size: 9px !important;
+                    }
+                    th {
+                        line-height: 1.2 !important;
+                        padding: 4px 6px !important;
+                        text-transform: uppercase !important;
+                    }
+                    /* Aggressively remove unnecessary gaps but keep requested heading margin */
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                    /* Ensure table container has no top padding */
+                    div:has(> table), .rounded-md.border {
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        border: none !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

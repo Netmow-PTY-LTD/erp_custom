@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Filter, Plus, ShieldAlert, Trash2, } from "lucide-react";
+import { Calendar as CalendarIcon, Filter, Plus, ShieldAlert, Trash2, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -64,7 +64,7 @@ export default function JournalReport() {
     });
     const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
     const [page, setPage] = useState(1);
-    const limit = 20;
+    const [limit, setLimit] = useState(20);
 
     // Permissions
     const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
@@ -247,13 +247,21 @@ export default function JournalReport() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Journal Report</h2>
                     <p className="text-muted-foreground">Chronological record of all financial transactions.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2"
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print
+                    </Button>
                     {/* Add New Entry Button */}
                     <Dialog open={isNewEntryOpen} onOpenChange={setIsNewEntryOpen}>
                         <DialogTrigger asChild>
@@ -492,6 +500,21 @@ export default function JournalReport() {
                 </div>
             </div>
 
+            {/* Print Only Header */}
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">JOURNAL REPORT</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold">
+                    {dateRange.from ? (
+                        <>
+                            <span>From: {format(dateRange.from, 'd MMMM yyyy')}</span>
+                            {dateRange.to && <span> - To: {format(dateRange.to, 'd MMMM yyyy')}</span>}
+                        </>
+                    ) : (
+                        <span>Report Generated On: {format(new Date(), 'd MMMM yyyy')}</span>
+                    )}
+                </div>
+            </div>
+
             <div className="space-y-6">
                 {isReportLoading ? (
                     <div className="text-center py-10">Loading journal entries...</div>
@@ -560,29 +583,129 @@ export default function JournalReport() {
                             </Card>
                         ))}
                         {reportData?.data && reportData.data.length > 0 && (
-                            <Pagination className="mt-8">
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            href="#"
-                                            onClick={(e) => { e.preventDefault(); if (page > 1) setPage(page - 1); }}
-                                            className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-                                        />
-                                    </PaginationItem>
-                                    {renderPaginationItems()}
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            href="#"
-                                            onClick={(e) => { e.preventDefault(); if (page < totalPages) setPage(page + 1); }}
-                                            className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 print:hidden">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-500">Per page:</span>
+                                    <select
+                                        value={limit}
+                                        onChange={(e) => {
+                                            setLimit(Number(e.target.value));
+                                            setPage(1);
+                                        }}
+                                        className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none bg-background text-foreground"
+                                    >
+                                        {[5, 10, 20, 50, 100].map((size) => (
+                                            <option key={size} value={size}>
+                                                {size}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <span className="text-sm text-gray-500 ml-2">
+                                        Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, reportData?.pagination?.total || 0)} of {reportData?.pagination?.total || 0} entries
+                                    </span>
+                                </div>
+                                <Pagination className="m-0 w-auto">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); if (page > 1) setPage(page - 1); }}
+                                                className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                                            />
+                                        </PaginationItem>
+                                        {renderPaginationItems()}
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); if (page < totalPages) setPage(page + 1); }}
+                                                className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
                         )}
                     </>
                 )}
             </div>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    html, body {
+                        background: white !important;
+                        overflow: visible !important;
+                        height: auto !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 4px !important;
+                        line-height: 1 !important;
+                    }
+                    .text-4xl + div {
+                        line-height: 1 !important;
+                        margin-top: 2px !important;
+                    }
+                    .border-2 {
+                        border: 1px solid #eee !important;
+                        margin-bottom: 10px !important;
+                        break-inside: avoid !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 2px 6px !important;
+                        font-size: 8px !important;
+                    }
+                    th {
+                        line-height: 1 !important;
+                        text-transform: uppercase !important;
+                    }
+                    .px-6 {
+                        padding-left: 8px !important;
+                        padding-right: 8px !important;
+                    }
+                    .py-2, .py-1.5 {
+                        padding-top: 2px !important;
+                        padding-bottom: 2px !important;
+                    }
+                    .text-lg {
+                        font-size: 12px !important;
+                    }
+                    .text-xs {
+                        font-size: 7px !important;
+                    }
+                    .tracking-wide {
+                        letter-spacing: normal !important;
+                    }
+                    /* Aggressively remove unnecessary gaps */
+                    .mb-8, .mb-6 {
+                        margin-bottom: 0 !important;
+                    }
+                    .mt-8 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

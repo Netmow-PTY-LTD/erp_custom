@@ -49,7 +49,7 @@ import { BackButton } from "@/components/BackButton";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const productSchema = z.object({
-  sku: z.string(),
+  sku: z.string().optional(),
   name: z.string().min(1, "Required"),
   description: z.string().optional(),
   category: z.number().min(1, "Required"),
@@ -242,7 +242,7 @@ export default function AddProductPage() {
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel>SKU</FieldLabel>
-                        <Input placeholder="SKU123" {...field} />
+                        <Input placeholder="Leave blank for auto-generation" {...field} />
                         <FieldError>{fieldState?.error?.message}</FieldError>
                       </Field>
                     )}

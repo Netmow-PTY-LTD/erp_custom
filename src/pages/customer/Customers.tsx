@@ -7,6 +7,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
   Users,
   UserCheck,
+  UserX,
   DollarSign,
   UserPlus,
   PackagePlus,
@@ -18,6 +19,9 @@ import {
   Eye,
   ShoppingCart,
   Filter,
+  AlertCircle,
+  Printer,
+  Car
 } from "lucide-react";
 import {
   Select,
@@ -117,19 +121,13 @@ export default function Customers() {
 
   const { data: customerStats } = useGetCustomerStatsQuery(undefined);
 
-  const activeCustomers = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "Active Customers"
-  )?.[0]?.value || 0;
-
-  console.log("activeCustomers", activeCustomers);
-
-  const totalRevenue = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "Total Revenue"
-  )?.[0]?.value || 0;
-
-  const totalNewCustomers = customerStats?.data?.filter(
-    (c: { label: string; value: number }) => c.label === "New Customers"
-  )?.[0]?.value || 0;
+  const activeCustomers = customerStats?.data?.find((c: any) => c.label === "All Active Customers")?.value || 0;
+  const totalCustomersStat = customerStats?.data?.find((c: any) => c.label === "Total Customers")?.value || 0;
+  const newCustomers = customerStats?.data?.find((c: any) => c.label === "New Customers")?.value || 0;
+  const inactiveCustomers = customerStats?.data?.find((c: any) => c.label === "Inactive Customers")?.value || 0;
+  const totalSales = customerStats?.data?.find((c: any) => c.label === "Total Sales Amount")?.value || 0;
+  const totalPaid = customerStats?.data?.find((c: any) => c.label === "Total Paid")?.value || 0;
+  const totalDue = customerStats?.data?.find((c: any) => c.label === "Total Due")?.value || 0;
 
   const stats = [
     {
@@ -141,24 +139,45 @@ export default function Customers() {
     },
     {
       label: "Total Customers",
-      value: totalCustomers,
+      value: totalCustomersStat,
       gradient: "from-blue-600 to-blue-400",
       shadow: "shadow-blue-500/30",
       icon: <Users className="w-6 h-6 text-white" />,
     },
     {
-      label: "Total Revenue",
-      value: `${currency} ${totalRevenue?.toLocaleString() || 0}`,
-      gradient: "from-amber-600 to-amber-400",
-      shadow: "shadow-amber-500/30",
-      icon: <DollarSign className="w-6 h-6 text-white" />,
-    },
-    {
       label: "New Customers",
-      value: totalNewCustomers,
+      value: newCustomers,
       gradient: "from-violet-600 to-violet-400",
       shadow: "shadow-violet-500/30",
       icon: <UserPlus className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Inactive Customers",
+      value: inactiveCustomers,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <UserX className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Sales Amount",
+      value: `${currency} ${Number(totalSales).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      gradient: "from-indigo-600 to-indigo-400",
+      shadow: "shadow-indigo-500/30",
+      icon: <ShoppingCart className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Paid",
+      value: `${currency} ${Number(totalPaid).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      gradient: "from-emerald-600 to-emerald-400",
+      shadow: "shadow-emerald-500/30",
+      icon: <DollarSign className="w-6 h-6 text-white" />,
+    },
+    {
+      label: "Total Due",
+      value: `${currency} ${Number(totalDue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      gradient: "from-rose-600 to-rose-400",
+      shadow: "shadow-rose-500/30",
+      icon: <AlertCircle className="w-6 h-6 text-white" />,
     },
   ];
 
@@ -172,7 +191,17 @@ export default function Customers() {
     {
       accessorKey: "name",
       header: "Name",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {row.original.company || "—"}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {row.original.name}
+          </span>
+        </div>
+      )
     },
     {
       accessorKey: "thumb_url",
@@ -261,7 +290,11 @@ export default function Customers() {
       header: "Address",
       cell: ({ row }) => {
         const customer = row.original;
-        return customer.address || "-";
+        return (
+          <div className="max-w-[200px] whitespace-normal break-words">
+            {customer.address || "-"}
+          </div>
+        );
       },
     },
     {
@@ -281,12 +314,12 @@ export default function Customers() {
     {
       accessorKey: "total_sales",
       header: () => (
-        <div className="text-right">Purchase Amount ({currency})</div>
+        <div className="text-right">Total Sales Amount ({currency})</div>
       ),
       cell: ({ row }) => {
         const amount = row.getValue("total_sales") as number;
         return (
-          <div className="text-right">
+          <div className="text-right font-medium">
             {amount ? Number(amount).toFixed(2) : "0.00"}
           </div>
         );
@@ -295,14 +328,14 @@ export default function Customers() {
     {
       id: "paid_amount",
       header: () => (
-        <div className="text-right">Paid Amount ({currency})</div>
+        <div className="text-right">Total Paid ({currency})</div>
       ),
       cell: ({ row }) => {
         const total = (row.original.total_sales || 0) as number;
         const balance = (row.original.outstanding_balance || 0) as number;
         const paid = total - balance;
         return (
-          <div className="text-right text-green-600 font-medium">
+          <div className="text-right text-emerald-600 font-medium">
             {paid ? Number(paid).toFixed(2) : "0.00"}
           </div>
         );
@@ -310,11 +343,11 @@ export default function Customers() {
     },
     {
       accessorKey: "outstanding_balance",
-      header: () => <div className="text-right">Balance ({currency})</div>,
+      header: () => <div className="text-right">Total Due ({currency})</div>,
       cell: ({ row }) => {
         const balance = row.getValue("outstanding_balance") as number;
         return (
-          <div className="text-right">
+          <div className="text-right text-rose-600 font-bold">
             {balance ? Number(balance).toFixed(2) : "0.00"}
           </div>
         );
@@ -350,12 +383,28 @@ export default function Customers() {
           if (query) setMapLocation(query);
         };
 
+        const handleWazeClick = () => {
+          let url = "";
+          if (latitude && longitude) {
+            url = `https://www.waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
+          } else {
+            const query = [address, city, state, country].filter(Boolean).join(", ");
+            url = `https://www.waze.com/ul?q=${encodeURIComponent(query)}`;
+          }
+          window.open(url, "_blank");
+        };
+
         if (!hasLocation) return <span className="text-muted-foreground">-</span>;
 
         return (
-          <Button variant="ghost" size="icon" onClick={handleMapClick}>
-            <MapPin className="h-4 w-4 text-primary" />
-          </Button>
+          <div className="flex items-center gap-1 print:hidden">
+            <Button variant="ghost" size="icon" onClick={handleMapClick} title="View Map">
+              <MapPin className="h-4 w-4 text-primary" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleWazeClick} title="Open in Waze">
+              <Car className="h-4 w-4 text-orange-500" />
+            </Button>
+          </div>
         );
       },
     },
@@ -427,19 +476,26 @@ export default function Customers() {
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-6 print:hidden">
         <h2 className="text-3xl font-semibold">All Active Customers</h2>
 
         <div className="flex flex-wrap items-center gap-4 ">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
+            <Printer size={18} />
+            Print
+          </button>
+
           <Link to="/dashboard/customers/create">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none print:hidden">
               <PackagePlus size={18} />
               Add Customer
             </button>
           </Link>
 
           <Link to="/dashboard/customers/map">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none">
+            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-green-600 to-green-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-green-500/40 active:translate-y-0 active:shadow-none print:hidden">
               <MapPin size={18} />
               Customer Map
             </button>
@@ -467,8 +523,13 @@ export default function Customers() {
         </div>
       </div >
 
+      {/* Print Only Header */}
+      <div className="hidden print:block text-center mb-1">
+        <h1 className="text-4xl font-extrabold uppercase tracking-tight">CUSTOMER LIST</h1>
+      </div>
+
       {/* Stats Cards */}
-      < div className="flex flex-wrap gap-6 mb-6" >
+      < div className="flex flex-wrap gap-6 mb-6 print:hidden" >
         {stats?.map((item, idx) => (
           <div
             key={idx}
@@ -499,8 +560,8 @@ export default function Customers() {
         }
       </div >
 
-      <Card className="pt-6 pb-2">
-        <CardHeader>
+      <Card className="pt-6 pb-2 border-none shadow-none">
+        <CardHeader className="print:hidden">
           <CardTitle>All Customers</CardTitle>
         </CardHeader>
         <CardContent className="overflow-auto w-full">
@@ -650,6 +711,120 @@ export default function Customers() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Print Styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button, 
+                    .print\\:hidden,
+                    .flex.flex-wrap.items-center.justify-between.py-4.gap-4 {
+                        display: none !important;
+                    }
+                    input, .max-w-sm { /* Hide search input specifically */
+                        display: none !important;
+                    }
+                    html, body {
+                        background: white !important;
+                        overflow: visible !important;
+                        height: auto !important;
+                        color: black !important;
+                        font-size: 10pt !important;
+                    }
+                    * {
+                        color: black !important;
+                        background: transparent !important;
+                        box-shadow: none !important;
+                        text-shadow: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 14pt !important;
+                        font-weight: bold !important;
+                        margin-bottom: 5px !important;
+                    }
+                    .border, .Card, .CardContent, .pt-6 {
+                        border: none !important;
+                        padding-top: 0 !important;
+                        padding-bottom: 0 !important;
+                        margin-top: 0 !important;
+                    }
+                    .bg-card {
+                        background: none !important;
+                        padding: 0 !important;
+                    }
+                    .p-6, .CardContent {
+                        padding: 0 !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                        color: black !important;
+                    }
+                    th, td {
+                        border: 1px solid #000 !important;
+                        padding: 3px !important;
+                        font-size: 7pt !important;
+                        color: black !important;
+                        text-align: left !important;
+                    }
+                    .text-right {
+                        text-align: right !important;
+                    }
+                    th {
+                        background-color: #f2f2f2 !important;
+                        -webkit-print-color-adjust: exact;
+                        font-weight: bold !important;
+                    }
+
+                    /* Force Company Name and Customer Name to same size */
+                    td .flex.flex-col span {
+                        font-size: 7pt !important;
+                        font-weight: normal !important;
+                        color: black !important;
+                    }
+
+                    /* Hide specific columns in print */
+                    th:nth-child(3), td:nth-child(3) { /* Image column */
+                        display: none !important;
+                    }
+                    th:nth-child(12), td:nth-child(12) { /* Status column */
+                        display: none !important;
+                    }
+                    th:nth-child(13), td:nth-child(13) { /* Location column */
+                        display: none !important;
+                    }
+                    th:last-child, td:last-child { /* Actions column */
+                        display: none !important;
+                    }
+
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    .hidden.print\\:block.mb-1 {
+                        margin-bottom: 5px !important;
+                        display: block !important;
+                    }
+                    .rounded-md.border {
+                        border: none !important;
+                        box-shadow: none !important;
+                    }
+                    
+                    /* Sticky columns fix for print */
+                    .md\\:sticky {
+                        position: static !important;
+                        background: none !important;
+                        shadow: none !important;
+                    }
+                }
+            `}} />
     </div >
   );
 }

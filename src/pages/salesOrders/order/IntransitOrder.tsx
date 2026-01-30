@@ -25,8 +25,10 @@ import {
   CreditCard,
   DollarSign,
   PlusCircle,
+  Printer,
   ShoppingCart,
 } from "lucide-react";
+import { format } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router";
 import UpdateDeliveryStatusModal from "../delivery/UpdateDeliveryStatusModal";
@@ -130,7 +132,7 @@ export default function IntransitOrder() {
     {
       accessorKey: "order_date",
       header: "Date",
-      cell: ({ row }) => new Date(row.original.order_date).toLocaleDateString(),
+      cell: ({ row }) => format(new Date(row.original.order_date), "dd/MM/yyyy"),
     },
 
     {
@@ -138,7 +140,7 @@ export default function IntransitOrder() {
       header: "Due Date",
       cell: ({ row }) =>
         row.original.due_date
-          ? new Date(row.original.due_date).toLocaleDateString()
+          ? format(new Date(row.original.due_date), "dd/MM/yyyy")
           : "-",
     },
 
@@ -175,7 +177,7 @@ export default function IntransitOrder() {
 
         return (
           <div className="text-sm">
-            {new Date(dateToDisplay).toLocaleDateString()}
+            {format(new Date(dateToDisplay), "dd/MM/yyyy")}
           </div>
         )
       }
@@ -186,7 +188,7 @@ export default function IntransitOrder() {
       header: () => <div className="text-right">Total Price ({currency})</div>,
       cell: ({ row }) => (
         <div className="text-right">
-          {parseFloat(row.original.total_amount).toFixed(2)}
+          {Number(row.original.total_amount).toFixed(2)}
         </div>
       ),
     },
@@ -198,7 +200,7 @@ export default function IntransitOrder() {
       ),
       cell: ({ row }) => (
         <div className="text-right">
-          {parseFloat(row.original.discount_amount).toFixed(2)}
+          {Number(row.original.discount_amount).toFixed(2)}
         </div>
       ),
     },
@@ -207,7 +209,7 @@ export default function IntransitOrder() {
       header: () => <div className="text-right">Total Tax ({currency})</div>,
       cell: ({ row }) => (
         <div className="text-right">
-          {parseFloat(row.original.tax_amount).toFixed(2)}
+          {Number(row.original.tax_amount).toFixed(2)}
         </div>
       ),
     },
@@ -215,13 +217,56 @@ export default function IntransitOrder() {
       id: "total_payable", // 👈 use a custom id, not accessorKey
       header: () => <div className="text-right">Total Payable ({currency})</div>,
       cell: ({ row }) => {
-        const totalAmount = parseFloat(row.original.total_amount) || 0;
-        const discountAmount = parseFloat(row.original.discount_amount) || 0;
-        const taxAmount = parseFloat(row.original.tax_amount) || 0;
+        const totalAmount = Number(row.original.total_amount) || 0;
+        const discountAmount = Number(row.original.discount_amount) || 0;
+        const taxAmount = Number(row.original.tax_amount) || 0;
 
         const totalPayable = totalAmount - discountAmount + taxAmount;
 
-        return <div className="text-right">{totalPayable.toFixed(2)}</div>;
+        return <div className="text-right font-semibold">{totalPayable.toFixed(2)}</div>;
+      },
+    },
+    {
+      accessorKey: "total_paid_amount",
+      header: () => <div className="text-right">Total Paid ({currency})</div>,
+      cell: ({ row }) => {
+        const totalPaid = Number(row.original.total_paid_amount || 0);
+        const grossPaid = Number((row.original as any).gross_paid_amount ?? totalPaid);
+        const refunded = Number((row.original as any).refunded_amount || 0);
+
+        if (refunded > 0) {
+          return (
+            <div className="text-right flex flex-col items-end">
+              <span className="text-green-600 font-medium">{grossPaid.toFixed(2)}</span>
+              <span className="text-red-500 text-[10px] font-semibold flex items-center">
+                <span className="mr-1">REFUND:</span> -{Math.abs(refunded).toFixed(2)}
+              </span>
+            </div>
+          );
+        }
+
+        return (
+          <div className="text-right text-green-600 font-medium">
+            {totalPaid.toFixed(2)}
+          </div>
+        );
+      },
+    },
+    {
+      id: "total_due",
+      header: () => <div className="text-right">Balance Due ({currency})</div>,
+      cell: ({ row }) => {
+        const totalAmount = Number(row.original.total_amount) || 0;
+        const discountAmount = Number(row.original.discount_amount) || 0;
+        const taxAmount = Number(row.original.tax_amount) || 0;
+        const paidAmount = Number(row.original.total_paid_amount) || 0;
+
+        const totalPayable = totalAmount - discountAmount + taxAmount;
+        const dueAmount = totalPayable - paidAmount;
+
+        return <div className={`text-right font-bold ${dueAmount > 0.01 ? 'text-red-600' : 'text-gray-500'}`}>
+          {dueAmount.toFixed(2)}
+        </div>;
       },
     },
     // {
@@ -276,13 +321,33 @@ export default function IntransitOrder() {
 
 
 
+  const pageRows = orders || [];
+  const pageTotalPaid = pageRows.reduce((sum: number, row: any) => sum + Number(row.total_paid_amount || 0), 0);
+  const pageTotalPayable = pageRows.reduce((sum: number, row: any) => {
+    const payable = Number(row.total_payable_amount) || (Number(row.total_amount) - Number(row.discount_amount) + Number(row.tax_amount));
+    return sum + payable;
+  }, 0);
+
+  const pageTotalDue = pageRows.reduce((sum: number, row: any) => {
+    if (['returned', 'cancelled', 'failed'].includes(row.status?.toLowerCase())) return sum;
+    const payable = Number(row.total_payable_amount) || (Number(row.total_amount) - Number(row.discount_amount) + Number(row.tax_amount));
+    return sum + (payable - Number(row.total_paid_amount || 0));
+  }, 0);
+
   return (
     <div className="w-full">
-      <div className="flex flex-wrap items-center justify-between gap-5 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-5 mb-6 print:hidden">
         <h1 className="text-2xl font-bold tracking-tight">
-          Sales Orders Management ({status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : ""})
+          In-Transit Order List
         </h1>
         <div className="flex flex-wrap items-center gap-4">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none"
+          >
+            <Printer size={18} />
+            Print
+          </button>
           <Link to="/dashboard/sales/invoices">
             <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-5 py-2.5 font-medium text-white shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-amber-500/40 active:translate-y-0 active:shadow-none">
               <ClipboardList size={18} />
@@ -309,8 +374,16 @@ export default function IntransitOrder() {
           </Link>
         </div>
       </div>
+      {/* Print Only Header */}
+      <div className="hidden print:block text-center mb-[15px] pb-1">
+        <h1 className="text-4xl font-extrabold uppercase tracking-tight">IN-TRANSIT ORDERS REPORT</h1>
+        <div className="mt-1 text-sm text-gray-700 font-semibold">
+          <span>Report Generated On: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        </div>
+      </div>
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6 print:hidden">
         {orderStats.map((item, idx) => (
           <div
             key={idx}
@@ -340,7 +413,7 @@ export default function IntransitOrder() {
         ))}
       </div>
       <Card className="py-6">
-        <CardHeader>
+        <CardHeader className="print:hidden">
           <CardTitle>{status ? `${status.charAt(0).toUpperCase() + status.slice(1)} ` : "All "}Orders</CardTitle>
           <CardDescription>Manage your orders</CardDescription>
         </CardHeader>
@@ -358,6 +431,21 @@ export default function IntransitOrder() {
             }}
             isFetching={isLoading}
           />
+
+          <div className="mt-4 flex flex-col md:flex-row justify-end gap-4 md:gap-8 text-sm font-medium p-4 bg-muted/20 rounded-lg border border-border/50 animate-in slide-in-from-top-2 print:hidden">
+            <div className="flex justify-between md:block w-full md:w-auto">
+              <span className="text-muted-foreground mr-2">Page Total Payable:</span>
+              <span>{currency} {pageTotalPayable.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between md:block w-full md:w-auto">
+              <span className="text-muted-foreground mr-2">Page Total Paid:</span>
+              <span className="text-green-600 font-bold">{currency} {pageTotalPaid.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between md:block w-full md:w-auto">
+              <span className="text-muted-foreground mr-2">Page Balance Due:</span>
+              <span className={`font-bold ${pageTotalDue > 0.01 ? 'text-red-600' : 'text-green-600'}`}>{currency} {pageTotalDue.toFixed(2)}</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
       <UpdateDeliveryStatusModal
@@ -367,6 +455,132 @@ export default function IntransitOrder() {
         statusOptions={orderStatusOptions}
         defaultStatus="delivered"
       />
+
+      {/* Print Styles */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media print {
+            @page {
+              size: landscape;
+              margin: 10mm;
+            }
+            .print\:hidden,
+            header,
+            nav,
+            aside,
+            button,
+            .no-print {
+              display: none !important;
+            }
+            html, body {
+              background: white !important;
+              overflow: visible !important;
+              height: auto !important;
+            }
+            .md\:sticky {
+              position: static !important;
+            }
+            table {
+              width: 100% !important;
+              border-collapse: collapse !important;
+              page-break-inside: auto !important;
+            }
+            thead {
+              display: table-header-group !important;
+            }
+            tr {
+              page-break-inside: avoid !important;
+              page-break-after: auto !important;
+            }
+            th, td {
+              border: 1px solid #ddd !important;
+              padding: 6px 8px !important;
+              font-size: 9px !important;
+              vertical-align: middle !important;
+            }
+            th {
+              background-color: #f3f4f6 !important;
+              font-weight: 600 !important;
+              text-align: left !important;
+              line-height: 1.2 !important;
+              text-transform: uppercase !important;
+            }
+            th:nth-child(1), td:nth-child(1) {
+              width: 10% !important;
+              font-weight: 600 !important;
+            }
+            th:nth-child(2), td:nth-child(2) {
+              width: 20% !important;
+              font-weight: 600 !important;
+            }
+            th:nth-child(3), td:nth-child(3) {
+              width: 12% !important;
+            }
+            th:nth-child(4), td:nth-child(4) {
+              display: none !important;
+            }
+            th:nth-child(5), td:nth-child(5) {
+              display: none !important;
+            }
+            th:nth-child(6), td:nth-child(6) {
+              display: none !important;
+            }
+            th:nth-child(7), td:nth-child(7) {
+              width: 14% !important;
+              text-align: right !important;
+            }
+            th:nth-child(8), td:nth-child(8) {
+              width: 12% !important;
+              text-align: right !important;
+            }
+            th:nth-child(9), td:nth-child(9) {
+              width: 12% !important;
+              text-align: right !important;
+            }
+            th:nth-child(10), td:nth-child(10) {
+              width: 14% !important;
+              text-align: right !important;
+              font-weight: 600 !important;
+            }
+            th:nth-child(11), td:nth-child(11) {
+              width: 14% !important;
+              text-align: right !important;
+            }
+            th:nth-child(12), td:nth-child(12) {
+              width: 14% !important;
+              text-align: right !important;
+            }
+            th:nth-child(13), td:nth-child(13) {
+              display: none !important;
+            }
+            .text-4xl {
+              font-size: 18px !important;
+              margin-bottom: 4px !important;
+              line-height: 1 !important;
+            }
+            .text-4xl + div {
+              line-height: 1 !important;
+              margin-top: 2px !important;
+            }
+            .hidden.print\:block.mb-\[15px\] {
+              margin-bottom: 15px !important;
+            }
+            .border {
+              border: none !important;
+            }
+            .shadow-sm, .shadow-md, .shadow-lg {
+              box-shadow: none !important;
+            }
+            [role="navigation"],
+            input,
+            input[type="search"],
+            input[type="text"],
+            .flex.items-center.justify-between {
+              display: none !important;
+            }
+          }
+        `
+      }} />
     </div>
   );
 }

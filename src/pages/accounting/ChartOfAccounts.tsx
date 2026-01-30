@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Edit, ChevronsUpDown, Check, ShieldAlert, FileText } from "lucide-react";
+import { Plus, Edit, ChevronsUpDown, Check, ShieldAlert, FileText, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +38,7 @@ import { PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router";
+import { format } from "date-fns";
 
 
 import {
@@ -328,12 +329,20 @@ export default function ChartOfAccounts() {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center print:hidden">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Chart of Accounts</h2>
                     <p className="text-muted-foreground">Manage your financial head hierarchy.</p>
                 </div>
                 <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2"
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print
+                    </Button>
 
                     <CreateIncomeHeadForm />
                     <CreateExpenseHeadForm />
@@ -421,8 +430,15 @@ export default function ChartOfAccounts() {
                 </div>
             </div>
 
-            <Card className="py-6">
-                <CardHeader><CardTitle>Accounts List</CardTitle></CardHeader>
+            <div className="hidden print:block text-center mb-[15px] pb-1">
+                <h1 className="text-4xl font-extrabold uppercase tracking-tight">CHART OF ACCOUNTS</h1>
+                <div className="mt-1 text-sm text-gray-700 font-semibold italic">
+                    Report Generated On: {format(new Date(), 'd MMMM yyyy')}
+                </div>
+            </div>
+
+            <Card className="py-6 border-none shadow-none print:shadow-none print:border-none">
+                <CardHeader className="print:hidden"><CardTitle>Accounts List</CardTitle></CardHeader>
                 <CardContent>
                     <DataTable
                         columns={accountColumns}
@@ -436,6 +452,73 @@ export default function ChartOfAccounts() {
                     />
                 </CardContent>
             </Card>
+
+            {/* Print Styles */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    .no-print, 
+                    header, 
+                    nav, 
+                    aside, 
+                    button,
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    .text-4xl {
+                        font-size: 18px !important;
+                        margin-bottom: 10px !important;
+                    }
+                    .border {
+                        border: none !important;
+                    }
+                    .shadow-lg, .shadow-md, .shadow-sm {
+                        box-shadow: none !important;
+                    }
+                    table {
+                        width: 100% !important;
+                        border-collapse: collapse !important;
+                    }
+                    th, td {
+                        border-bottom: 1px solid #eee !important;
+                        padding: 3px 6px !important;
+                        font-size: 9px !important;
+                    }
+                    th {
+                        line-height: 2 !important;
+                        padding: 8px 6px !important;
+                        text-transform: uppercase !important;
+                    }
+                    /* Aggressively remove unnecessary gaps but keep requested heading margin */
+                    .mb-8, .mb-6, .pb-2, .pb-4 {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .mt-2, .mt-1 {
+                        margin-top: 0 !important;
+                    }
+                    /* Ensure heading section has exactly 15px margin */
+                    .hidden.print\\:block.mb-\\[15px\\] {
+                        margin-bottom: 15px !important;
+                    }
+                    /* Ensure table container has no top padding */
+                    div:has(> table), .rounded-md.border {
+                        margin-top: 0 !important;
+                        padding-top: 0 !important;
+                        border: none !important;
+                    }
+                    /* Hide Actions column when printing */
+                    th:last-child, 
+                    td:last-child {
+                        display: none !important;
+                    }
+                    /* Hide search input in DataTable when printing */
+                    [placeholder="Search..."], 
+                    .flex.items-center.justify-between.py-4 {
+                        display: none !important;
+                    }
+                }
+            `}} />
         </div>
     );
 }

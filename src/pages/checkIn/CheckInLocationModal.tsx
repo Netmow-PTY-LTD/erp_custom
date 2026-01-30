@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MapEmbed } from "@/components/MapEmbed";
 import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
+import { Navigation } from "lucide-react";
 import { type StaffAttendance } from "@/store/features/checkIn/checkIn";
 import { type Customer } from "@/store/features/customers/types";
 
@@ -107,7 +108,18 @@ export default function CheckInLocationModal(props: ModalProps) {
           </div>
 
           <div className="pt-2 flex justify-end gap-2">
-            <button onClick={onClose} className="px-3 py-1.5 rounded-lg border">
+            {hasCoords && (
+              <a
+                href={`https://www.waze.com/ul?ll=${lat},${lng}&navigate=yes`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-1.5 rounded-lg bg-[#33CCFF] text-white font-semibold flex items-center gap-2 hover:bg-[#2EB8E6] transition-all shadow-md active:scale-95"
+              >
+                <Navigation className="w-4 h-4 fill-current" />
+                Navigate with Waze
+              </a>
+            )}
+            <button onClick={onClose} className="px-4 py-1.5 rounded-lg border font-medium hover:bg-gray-50 transition-colors">
               Close
             </button>
           </div>

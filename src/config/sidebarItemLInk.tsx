@@ -108,6 +108,7 @@ import ProfitAndLoss from "@/pages/accounting/ProfitAndLoss";
 import TaxSubmission from "@/pages/accounting/TaxSubmission";
 import IncomePage from "@/pages/accounting/Income";
 import ExpensesPage from "@/pages/accounting/Expenses";
+import BalanceSheet from "@/pages/accounting/BalanceSheet";
 import {
   DashboardPermission,
   ProductPermission,
@@ -197,6 +198,8 @@ import LayoutSettings from "@/pages/Settings/pages/LayoutSettings";
 import EInvoiceList from "@/pages/salesOrders/invoices/EInvoiceList";
 import EInvoiceSettings from "@/pages/Settings/pages/EInvoiceSettings";
 import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
+import GoogleApiSettings from "@/pages/Settings/pages/GoogleApiSettings";
+import PrefixSettings from "@/pages/Settings/pages/PrefixSettings";
 import StaffWiseSalesReport from "@/pages/reports/StaffWiseSalesReport";
 
 
@@ -1308,6 +1311,16 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "Balance Sheet",
+        url: "/dashboard/accounting/reports/balance-sheet",
+        element: <BalanceSheet />,
+        icon: Scale,
+        allowedPermissions: [
+          AccountingPermission.BALANCE_SHEET,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Profit by Item",
         url: "/dashboard/accounting/reports/profit-by-item",
         element: <ProfitByItem />,
@@ -1679,6 +1692,24 @@ export const sidebarItemLink = [
         title: "",
         url: "/dashboard/settings/einvoice",
         element: <EInvoiceSettings />,
+        allowedPermissions: [
+          SettingsPermission.VIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/settings/google-api",
+        element: <GoogleApiSettings />,
+        allowedPermissions: [
+          SettingsPermission.VIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/settings/prefixes",
+        element: <PrefixSettings />,
         allowedPermissions: [
           SettingsPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
