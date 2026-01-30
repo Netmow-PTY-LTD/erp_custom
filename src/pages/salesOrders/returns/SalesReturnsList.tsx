@@ -19,7 +19,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { formatDateStandard } from "@/utils/dateUtils";
 
-export default function SalesReturnsList() {
+export default function SalesReturnsList({ status }: { status?: string }) {
     const [page, setPage] = useState<number>(1);
     const [search, setSearch] = useState<string>("");
     const limit = 10;
@@ -28,6 +28,7 @@ export default function SalesReturnsList() {
         page,
         limit,
         search,
+        status, // pass status
     });
 
     const salesReturns = Array.isArray(data?.data) ? data.data : [];

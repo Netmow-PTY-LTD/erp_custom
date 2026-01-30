@@ -12,53 +12,23 @@ import {
     CardDescription,
     CardContent,
 } from "@/components/ui/card";
-import { useDeletePurchaseOrderMutation } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useGetAllPurchaseReturnsQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
 import { useAppSelector } from "@/store/store";
 import type { PurchaseOrder } from "@/types/purchaseOrder.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, Eye, Trash2, FileText, CheckCircle, Clock, XCircle, PlusCircle } from "lucide-react";
-import { useCallback, useState } from "react";
+import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
-import { toast } from "sonner";
 import UpdatePOStatusModal from "./UpdatePOStatusModal";
 import { formatDateStandard } from "@/utils/dateUtils";
 
 
 // Simple confirmation modal
-function ConfirmModal({
-    open,
-    onClose,
-    onConfirm,
-    message,
-}: {
-    open: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    message: string;
-}) {
-    if (!open) return null;
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-xl w-96">
-                <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
-                <p className="mb-6">{message}</p>
-                <div className="flex justify-end gap-3">
-                    <Button variant="outline" onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <Button variant="destructive" onClick={onConfirm}>
-                        Delete
-                    </Button>
-                </div>
-            </div>
-        </div>
-    );
-}
+
 
 /* COMPONENT */
-export default function ReturnedPurchaseOrders() {
+export default function ReturnedPurchaseOrders({ status }: { status?: string }) {
     const [page, setPage] = useState<number>(1);
     const [search, setSearch] = useState<string>("");
     const limit = 10;
@@ -68,6 +38,7 @@ export default function ReturnedPurchaseOrders() {
         page,
         limit,
         search,
+        status, // pass status filter
     });
 
     const purchaseOrdersData: PurchaseOrder[] = Array.isArray(data?.data)
@@ -124,12 +95,7 @@ export default function ReturnedPurchaseOrders() {
 
     const currency = useAppSelector((state) => state.currency.value);
 
-    const [deletePurchaseOrder, { isLoading: isDeleting }] =
-        useDeletePurchaseOrderMutation();
 
-
-    const [modalOpen, setModalOpen] = useState(false);
-    const [selectedPOId, setSelectedPOId] = useState<number | null>(null);
 
     const [isUpdateStatusModalOpen, setIsUpdateStatusModalOpen] = useState(false);
     const [selectedPO, setSelectedPO] = useState<any>(null);
@@ -154,24 +120,7 @@ export default function ReturnedPurchaseOrders() {
         { value: "returned", label: "Returned" },
     ] as const;
 
-    /* DELETE HANDLER */
-    const handleDelete = useCallback(async () => {
-        if (!selectedPOId) return;
 
-        try {
-            const res = await deletePurchaseOrder(selectedPOId).unwrap();
-            if (res.status) {
-                toast.success("Purchase Order Deleted Successfully");
-            } else {
-                toast.error(res?.message || "Delete failed");
-            }
-        } catch (error: any) {
-            toast.error(error?.data?.message || "Delete failed");
-        } finally {
-            setModalOpen(false);
-            setSelectedPOId(null);
-        }
-    }, [selectedPOId, deletePurchaseOrder]);
 
     // const [updatePurchaseOrder] = useUpdatePurchaseOrderMutation();
 
@@ -295,7 +244,7 @@ export default function ReturnedPurchaseOrders() {
             header: "Actions",
             cell: ({ row }) => {
                 const po = row.original;
-                const isEditable = !["approved", "received", "delivered"].includes(po.status); // hide for approved, received, delivered
+
 
                 return (
                     <div className="flex gap-2">
@@ -313,29 +262,7 @@ export default function ReturnedPurchaseOrders() {
                             Change Status
                         </Button>
 
-                        {isEditable && (
-                            <>
-                                <Link to={`/dashboard/purchase-orders/${po.id}/edit`}>
-                                    <Button size="sm" variant="outline">
-                                        <Edit className="w-4 h-4 mr-1" /> Edit
-                                    </Button>
-                                </Link>
 
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-                                    onClick={() => {
-                                        setSelectedPOId(Number(po.id));
-                                        setModalOpen(true);
-                                    }}
-                                    disabled={isDeleting}
-                                >
-                                    <Trash2 className="w-4 h-4 mr-1" />
-                                    {isDeleting ? "Deleting..." : "Delete"}
-                                </Button>
-                            </>
-                        )}
                     </div>
                 );
             },
@@ -404,13 +331,7 @@ export default function ReturnedPurchaseOrders() {
                 </CardContent>
             </Card>
 
-            {/* Delete confirmation modal */}
-            <ConfirmModal
-                open={modalOpen}
-                onClose={() => setModalOpen(false)}
-                onConfirm={handleDelete}
-                message="Are you sure you want to delete this purchase order? This action cannot be undone."
-            />
+
 
             {/* Status Update Modal */}
             <UpdatePOStatusModal

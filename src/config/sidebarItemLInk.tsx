@@ -222,6 +222,11 @@ import CreateSalesReturnPayment from "@/pages/salesOrders/returns/CreateSalesRet
 import SalesReturnPaymentDetails from "@/pages/salesOrders/returns/SalesReturnPaymentDetails";
 import SalesReturnsList from "@/pages/salesOrders/returns/SalesReturnsList";
 
+import ApprovedPurchaseReturns from "@/pages/suppliers/purchaseOrder/ApprovedPurchaseReturns";
+import PendingPurchaseReturns from "@/pages/suppliers/purchaseOrder/PendingPurchaseReturns";
+import ApprovedSalesReturns from "@/pages/salesOrders/returns/ApprovedSalesReturns";
+import PendingSalesReturns from "@/pages/salesOrders/returns/PendingSalesReturns";
+
 
 export const sidebarItemLink = [
   // DASHBOARD
@@ -1022,6 +1027,26 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "Approved Purchase Returns",
+        url: "/dashboard/purchase-orders/returned/approved",
+        element: <ApprovedPurchaseReturns />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Pending Purchase Return",
+        url: "/dashboard/purchase-orders/returned/pending",
+        element: <PendingPurchaseReturns />,
+        icon: Clock,
+        allowedPermissions: [
+          SupplierPermission.LIST,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Create Purchase Return",
         url: "/dashboard/purchase-orders/return/create",
         element: <CreatePurchaseReturnPage />,
@@ -1427,6 +1452,26 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/returns",
         element: <SalesReturnsList />,
         icon: List,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Approved Sales Returns",
+        url: "/dashboard/sales/returns/approved",
+        element: <ApprovedSalesReturns />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Pending Sales Return",
+        url: "/dashboard/sales/returns/pending",
+        element: <PendingSalesReturns />,
+        icon: Clock,
         allowedPermissions: [
           SalesPermission.VIEW_SALES_RETURNS,
           SuperAdminPermission.ACCESS_ALL,

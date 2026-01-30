@@ -176,7 +176,32 @@ export default function PrintablePurchaseReturnInvoice({ invoice, from, to }: Pr
                                 <th className="border border-gray-300 p-2 text-right w-20 text-orange-800">Tax</th>
                                 <th className="border border-gray-300 p-2 text-right w-24 text-orange-800">Total</th>
                             </tr>
-                        ))}
+                        </thead>
+                        <tbody>
+                            {purchaseReturn?.items?.map((item: any, index: number) => {
+                                const itemTaxAmount = Number(item.tax_amount || 0);
+                                const itemTotal = Number(item.line_total || 0) + itemTaxAmount;
+
+                                return (
+                                    <tr key={item.id} className="align-top">
+                                        <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
+                                        <td className="border border-gray-300 p-2">{item.product?.sku}</td>
+                                        <td className="border border-gray-300 p-2">
+                                            <div className="font-bold uppercase">{item.product?.name}</div>
+                                            {(item.specification || item.product?.specification) && (
+                                                <div className="text-[10px] text-gray-500 italic mt-1">
+                                                    {item.specification || item.product?.specification}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="border border-gray-300 p-2 text-center">{Number(item.quantity).toFixed(2)}</td>
+                                        <td className="border border-gray-300 p-2 text-right">{Number(item.unit_cost).toFixed(2)}</td>
+                                        <td className="border border-gray-300 p-2 text-right">{Number(item.discount || 0).toFixed(2)}</td>
+                                        <td className="border border-gray-300 p-2 text-right text-gray-600 font-medium">{itemTaxAmount.toFixed(2)}</td>
+                                        <td className="border border-gray-300 p-2 text-right font-bold">{itemTotal.toFixed(2)}</td>
+                                    </tr>
+                                );
+                            })}
                             <tr className="bg-blue-50 font-bold">
                                 <td colSpan={7} className="border border-gray-300 p-1 sm:p-2 text-center uppercase tracking-wider text-blue-800">Total Refundable</td>
                                 <td className="border border-gray-300 p-1 sm:p-2 text-right text-blue-800">{currency} {total}</td>
@@ -204,7 +229,7 @@ export default function PrintablePurchaseReturnInvoice({ invoice, from, to }: Pr
                                     </tr>
                                     <tr className="border border-gray-300">
                                         <td className="p-1 px-4 text-left border-r border-gray-300">GST</td>
-                                        <td className="p-1 px-4 text-right">{currency} {gstAmount.toFixed(2)}</td>
+                                        <td className="p-1 px-4 text-right">{currency} {taxAmount.toFixed(2)}</td>
                                     </tr>
                                     <tr className="border border-gray-300 bg-orange-50 text-sm text-orange-800">
                                         <td className="p-1 px-4 text-left border-r border-gray-300 uppercase">Total Refundable</td>
