@@ -16,8 +16,14 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useState } from "react";
 import { Link, useParams } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { FormMessage } from "@/components/ui/form";
 import { ordersData } from "@/data/data";
 //import { useEffect } from "react";
 
@@ -67,15 +73,15 @@ export default function EditOrderPage() {
 
   const { control, watch } = form;
 
-//   useEffect(() => {
-//     if (order) {
-//       form.reset({
-//         customerId: order?.customerId,
-//         orderDate: order?.date,
-//         dueDate: order?.dueDate,
-//       });
-//     }
-//   }, [orderId]);
+  //   useEffect(() => {
+  //     if (order) {
+  //       form.reset({
+  //         customerId: order?.customerId,
+  //         orderDate: order?.date,
+  //         dueDate: order?.dueDate,
+  //       });
+  //     }
+  //   }, [orderId]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -102,6 +108,56 @@ export default function EditOrderPage() {
 
   const onSubmit = (values: OrderFormValues) => {
     console.log("Order Submitted:", values);
+  };
+
+  const DatePickerField = ({
+    field,
+    label,
+  }: {
+    field: any;
+    label: string;
+  }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <FormItem className="flex flex-col">
+        <FormLabel>{label}</FormLabel>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <FormControl>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full pl-3 text-left font-normal border-gray-200 dark:border-gray-800",
+                  !field.value && "text-muted-foreground"
+                )}
+              >
+                {field.value ? (
+                  format(new Date(field.value), "dd/MM/yyyy")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </FormControl>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={field.value ? new Date(field.value) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  field.onChange(format(date, "yyyy-MM-dd"));
+                  setOpen(false);
+                }
+              }}
+              disabled={(date) => date < new Date("1900-01-01")}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        <FormMessage />
+      </FormItem>
+    );
   };
 
   return (
@@ -149,10 +205,7 @@ export default function EditOrderPage() {
                 name="orderDate"
                 control={control}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Order Date</FormLabel>
-                    <Input type="date" {...field} />
-                  </FormItem>
+                  <DatePickerField field={field} label="Order Date" />
                 )}
               />
 
@@ -161,10 +214,7 @@ export default function EditOrderPage() {
                 name="dueDate"
                 control={control}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Due Date</FormLabel>
-                    <Input type="date" {...field} />
-                  </FormItem>
+                  <DatePickerField field={field} label="Due Date" />
                 )}
               />
             </div>

@@ -152,6 +152,7 @@ export type ProductProfitLoss = {
   product_id: number;
   product_name: string;
   sku: string;
+  specification?: string;
   quantity_sold: number;
   revenue: number;
   cost: number;
@@ -212,4 +213,26 @@ export type CreateTaxSubmissionInput = {
   status?: 'PENDING' | 'SUBMITTED' | 'PAID';
   notes?: string;
   payment_mode?: 'BANK' | 'CASH';
+};
+// -------------------- BALANCE SHEET --------------------
+export type BalanceSheetItem = {
+  name: string;
+  code: string;
+  balance: number;
+};
+
+export type BalanceSheetData = {
+  assets: BalanceSheetItem[];
+  liabilities: BalanceSheetItem[];
+  equity: BalanceSheetItem[];
+  total_assets: number;
+  total_liabilities: number;
+  total_equity: number;
+  as_of_date: string;
+};
+
+export type BalanceSheetResponse = {
+  status: boolean;
+  message: string;
+  data: BalanceSheetData;
 };

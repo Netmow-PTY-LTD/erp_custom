@@ -61,20 +61,24 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
         <div className="flex justify-between items-start mb-4">
-          <div className="flex flex-col gap-2">
-            <div className="w-16 h-16 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-xl overflow-hidden">
-              {from?.logo_url ? <img src={from.logo_url} alt="Logo" className="w-full h-full object-contain" /> : "F&Z"}
-            </div>
-            <div className="mt-2 text-[13px]">
-              <h1 className="text-xl font-bold uppercase">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
-              <p className="leading-tight max-w-[300px]">
-                {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
-              </p>
-              <p>T: {from?.phone || "0162759780"}</p>
-              {from?.email && <p>E: {from.email}</p>}
-            </div>
+          <div className="flex flex-col gap-2 mt-2 text-[13px]">
+            <h1 className="text-xl font-bold uppercase">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+            <p className="leading-tight max-w-[300px]">
+              {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
+            </p>
+            <p>T: {from?.phone || "0162759780"}</p>
+            {from?.email && <p>E: {from.email}</p>}
           </div>
-          <div className="text-right">
+          <div className="text-right flex flex-col items-end">
+            <div className="mb-4">
+              {from?.logo_url ? (
+                <img src={from.logo_url} alt="Logo" className="h-20 object-contain" />
+              ) : (
+                <div className="w-16 h-16 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-xl overflow-hidden">
+                  F&Z
+                </div>
+              )}
+            </div>
             <h2 className="text-3xl font-bold text-gray-800 mb-4">Tax Invoice</h2>
             <div className="text-sm space-y-1">
               <p><strong>Date:</strong> {formatDate(invoice?.invoice_date || "")}</p>
@@ -224,6 +228,6 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

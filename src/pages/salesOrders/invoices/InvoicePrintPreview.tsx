@@ -1,10 +1,12 @@
-import { useParams } from "react-router";
+import { useParams, Link } from "react-router";
 import PrintableInvoice from "./PrintableInvoice";
 import { useGetInvoiceByIdQuery } from "@/store/features/salesOrder/salesOrder";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import type { Settings } from "@/types/types";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
 import type { Customer } from "@/store/features/customers/types";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Printer } from "lucide-react";
 
 export default function InvoicePrintPreview() {
   const invoiceId = useParams().invoiceId;
@@ -23,6 +25,20 @@ export default function InvoicePrintPreview() {
 
   return (
     <div className="">
+      {/* Header with Back and Print buttons - Hidden when printing */}
+      <div className="print:hidden flex items-center justify-between mb-4 px-4 py-3 bg-white border-b sticky top-0 z-10 shadow-sm">
+        <Link to={`/dashboard/sales/invoices/${invoiceId}`}>
+          <Button variant="outline" className="gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Invoice
+          </Button>
+        </Link>
+        <Button onClick={() => window.print()} className="gap-2">
+          <Printer className="w-4 h-4" />
+          Print Invoice
+        </Button>
+      </div>
+
       <PrintableInvoice from={from} to={to} invoice={invoice} />
     </div>
   );

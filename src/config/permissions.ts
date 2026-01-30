@@ -190,6 +190,7 @@ export const AccountingPermission = {
   LEDGER_REPORT: "accounting.reports.ledger.view" as const,
   TRIAL_BALANCE: "accounting.reports.trial_balance.view" as const,
   PROFIT_AND_LOSS: "accounting.reports.profit_and_loss.view" as const,
+  BALANCE_SHEET: "accounting.reports.balance_sheet.view" as const,
   TAX_SUBMISSION: "accounting.tax_submission.view" as const,
 };
 

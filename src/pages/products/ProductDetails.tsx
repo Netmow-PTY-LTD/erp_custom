@@ -163,30 +163,53 @@ export default function ProductDetailsPage() {
         {/* LEFT COLUMN */}
         <div className="col-span-1 space-y-6">
           {/* Overview */}
-          <Card className="py-6">
-            <CardHeader>
-              <CardTitle>Overview</CardTitle>
+          <Card className="py-6 border-none shadow-md bg-white">
+            <CardHeader className="pb-2 border-b mb-4">
+              <CardTitle className="text-xl font-bold flex items-center gap-2">
+                📦 Product Overview
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <p>
-                <strong>SKU:</strong> {product?.sku}
-              </p>
-              <p>
-                <strong>Category:</strong> {product?.category?.name}
-              </p>
-              <p className="flex items-center gap-2">
-                <strong>Status:</strong>
-                <Badge variant="outline" className="bg-gray-200 text-gray-700">
-                  {product?.is_active ? "Active" : "Inactive"}
-                </Badge>
-              </p>
-              <div className="flex flex-col gap-4">
-                <strong>Product Image:</strong>
-                <img
-                  src={product?.thumb_url}
-                  alt={product?.name}
-                  className="w-20 h-20 rounded-full"
-                />
+            <CardContent>
+              <div className="grid grid-cols-2 gap-6 items-center">
+                {/* Product Details */}
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">SKU</p>
+                    <p className="text-lg font-bold font-mono text-blue-600">{product?.sku}</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Category</p>
+                    <p className="text-sm font-medium">{product?.category?.name || "Uncategorized"}</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</p>
+                    <Badge
+                      variant="outline"
+                      className={`px-3 py-1 text-xs font-bold ${product?.is_active
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border-rose-200"
+                        }`}
+                    >
+                      {product?.is_active ? "● ACTIVE" : "○ INACTIVE"}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Product Image */}
+                <div className="flex flex-col items-center justify-center p-2 rounded-2xl border-2 border-dashed border-gray-100 bg-gray-50/50 hover:bg-white transition-colors group cursor-pointer"
+                  onClick={() => setPreviewData({ images: [product?.thumb_url || ""], index: 0 })}
+                >
+                  <img
+                    src={product?.thumb_url}
+                    alt={product?.name}
+                    className="w-full h-auto max-h-[140px] object-contain rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <p className="mt-2 text-[10px] font-bold text-gray-400 group-hover:text-blue-500 transition-colors uppercase tracking-widest">
+                    Product Image
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

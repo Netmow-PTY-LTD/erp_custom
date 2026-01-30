@@ -11,6 +11,7 @@ import type {
   CreateTransactionInput,
   LedgerReportResponse,
   ProductProfitLossResponse,
+  BalanceSheetResponse,
 } from "@/types/accounting.types";
 
 
@@ -276,7 +277,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL INCOMES
     getIncomes: builder.query<
       IncomeResponse,
-      { page?: number; limit?: number; search?: string; date?: string }
+      { page?: number; limit?: number; search?: string; date?: string; from?: string; to?: string }
     >({
       query: (params) => ({
         url: "/accounting/incomes",
@@ -295,7 +296,7 @@ export const accountingApiService = baseApi.injectEndpoints({
     // GET ALL EXPENSES
     getExpenses: builder.query<
       ExpenseResponse,
-      { page?: number; limit?: number; search?: string; date?: string }
+      { page?: number; limit?: number; search?: string; date?: string; from?: string; to?: string }
     >({
       query: (params) => ({
         url: "/accounting/expenses",
@@ -532,6 +533,16 @@ export const accountingApiService = baseApi.injectEndpoints({
       providesTags: ["Accounting"],
     }),
 
+    // GET BALANCE SHEET
+    getBalanceSheet: builder.query<BalanceSheetResponse, { date?: string }>({
+      query: (params) => ({
+        url: "/accounting/reports/balance-sheet",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Accounting"],
+    }),
+
     // GET PRODUCT PROFIT LOSS
     getProductProfitLoss: builder.query<ProductProfitLossResponse, { from?: string; to?: string }>({
       query: (params) => ({
@@ -682,6 +693,7 @@ export const {
   useAddTransactionMutation,
   useGetTrialBalanceQuery,
   useGetProfitLossQuery,
+  useGetBalanceSheetQuery,
   useGetProductProfitLossQuery,
   useGetExpenseHeadsQuery,
   useAddExpenseHeadwiseMutation,

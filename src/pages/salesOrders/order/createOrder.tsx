@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeft, User, ShoppingCart, Receipt, CheckCircle2, Plus, X, Package, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Product } from "@/types/types";
 import { AddProductsModal } from "@/components/products/AddProductsModal";
 import type { Customer } from "@/store/features/customers/types";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
 const orderSchema = z
   .object({
@@ -111,9 +114,9 @@ export default function CreateSalesOrderPage() {
     defaultValues: {
       customer_id: 0,
       shipping_address: "",
-      order_date: "",
-      due_date: "",
-      delivery_date: "",
+      order_date: new Date().toISOString().split("T")[0],
+      due_date: new Date().toISOString().split("T")[0],
+      delivery_date: new Date().toISOString().split("T")[0],
       notes: "",
       items: [{ product_id: 0, sku: "", specification: "", unit: "", quantity: 1, unit_price: 0, discount: 0, sales_tax: 0, stock_quantity: 0, remark: "" }],
     },
@@ -454,6 +457,56 @@ export default function CreateSalesOrderPage() {
     );
   };
 
+  const DatePickerField = ({
+    field,
+    label,
+  }: {
+    field: any;
+    label: string;
+  }) => {
+    const [open, setOpen] = useState(false);
+    return (
+      <FormItem className="flex flex-col">
+        <FormLabel>{label}</FormLabel>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <FormControl>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full pl-3 text-left font-normal border-gray-200 dark:border-gray-800",
+                  !field.value && "text-muted-foreground"
+                )}
+              >
+                {field.value ? (
+                  format(new Date(field.value), "dd/MM/yyyy")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </FormControl>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={field.value ? new Date(field.value) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  field.onChange(format(date, "yyyy-MM-dd"));
+                  setOpen(false);
+                }
+              }}
+              disabled={(date) => date < new Date("1900-01-01")}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        <FormMessage />
+      </FormItem>
+    );
+  };
+
   return (
     <div className="space-y-6 w-full pb-6">
       <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
@@ -512,11 +565,7 @@ export default function CreateSalesOrderPage() {
                   name="order_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Order Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Order Date" />
                   )}
                 />
 
@@ -548,11 +597,7 @@ export default function CreateSalesOrderPage() {
                   name="due_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Due Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Due Date" />
                   )}
                 />
 
@@ -560,11 +605,7 @@ export default function CreateSalesOrderPage() {
                   name="delivery_date"
                   control={control}
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Delivery Date</FormLabel>
-                      <Input type="date" {...field} className="block" />
-                      <FormMessage />
-                    </FormItem>
+                    <DatePickerField field={field} label="Delivery Date" />
                   )}
                 />
 

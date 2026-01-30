@@ -211,7 +211,6 @@ import {
     DialogTitle,
     DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
@@ -225,8 +224,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUpdateSalesOrderStatusMutation } from "@/store/features/salesOrder/salesOrder";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FormItem, FormMessage } from "@/components/ui/form";
 
 /* ---------------- TYPES ---------------- */
 
@@ -294,7 +299,7 @@ export default function UpdateDeliveryStatusModal({
     statusOptions,
     defaultStatus,
     title = "Update Status",
-    dateLabel = "Delivery Date",
+    dateLabel = "Tracking Date",
 }: UpdateDeliveryStatusModalProps) {
     const form = useForm<DeliveryFormValues>({
         resolver: zodResolver(deliverySchema),
@@ -382,7 +387,6 @@ export default function UpdateDeliveryStatusModal({
                             </Select>
                         </div>
 
-                        {/* Delivery Date */}
                         <div>
                             <label className="block font-semibold mb-1">
                                 {dateLabel}
@@ -391,7 +395,37 @@ export default function UpdateDeliveryStatusModal({
                                 ) && <span className="text-red-500 ml-1">*</span>}
                             </label>
 
-                            <Input type="date" {...form.register("delivery_date")} />
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-full pl-3 text-left font-normal border-gray-200 dark:border-gray-800",
+                                            !form.watch("delivery_date") && "text-muted-foreground"
+                                        )}
+                                    >
+                                        {form.watch("delivery_date") ? (
+                                            format(new Date(form.watch("delivery_date")), "dd/MM/yyyy")
+                                        ) : (
+                                            <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={form.watch("delivery_date") ? new Date(form.watch("delivery_date")) : undefined}
+                                        onSelect={(date) => {
+                                            if (date) {
+                                                form.setValue("delivery_date", format(date, "yyyy-MM-dd"));
+                                            }
+                                        }}
+                                        disabled={(date) => date < new Date("1900-01-01")}
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
 
                             {form.formState.errors.delivery_date && (
                                 <p className="text-sm text-red-500 mt-1">
