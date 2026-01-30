@@ -9,6 +9,8 @@ import {
     PolylineF,
 } from "@react-google-maps/api";
 
+import { useGetGoogleMapsSettingsQuery } from "@/store/features/admin/settingsApiService";
+
 interface MapEmbedProps {
     center: { lat: number; lng: number };
     zoom: number;
@@ -20,9 +22,12 @@ interface MapEmbedProps {
 const containerStyle = { width: "100%", height: "100%" };
 
 export const GoogleMapEmbed = ({ center, zoom, startLocation, endLocation, customerMarkers = [] }: MapEmbedProps) => {
+    const { data: mapSettings } = useGetGoogleMapsSettingsQuery();
+    const apiKey = mapSettings?.data?.api_key || import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+
     const { isLoaded } = useJsApiLoader({
         id: "google-map-script",
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        googleMapsApiKey: apiKey,
     });
 
     // Create the sequential path: Start -> Customers -> End

@@ -50,7 +50,7 @@ export default function Orders() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [page, setPage] = useState(1); // backend starts from 1
-  const [limit] = useState(10);
+  const [limit, setLimit] = useState(10);
 
   const { data, isLoading } = useGetAllSalesOrdersQuery({
     page,
@@ -491,6 +491,10 @@ export default function Orders() {
               pageSize={limit}
               totalCount={data?.pagination?.total ?? 0}
               onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+              onPageSizeChange={(newLimit) => {
+                setLimit(newLimit);
+                setPage(1);
+              }}
               onSearch={(value) => {
                 setSearch(value);
                 setPage(1);

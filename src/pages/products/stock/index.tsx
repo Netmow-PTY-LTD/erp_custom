@@ -8,6 +8,8 @@ import type { Product } from "@/types/types";
 import { useGetAllProductsQuery, useGetProductStatsQuery } from "@/store/features/admin/productsApiService";
 import { Link } from "react-router";
 import { useAppSelector } from "@/store/store";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -25,7 +27,7 @@ export default function StockManagement() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [stockStatus, setStockStatus] = useState<string>("all");
-  const limit = 10;
+  const [limit, setLimit] = useState<number>(10);
 
   const { data: settingsData } = useGetSettingsInfoQuery();
   const from = settingsData?.data;
@@ -172,27 +174,33 @@ export default function StockManagement() {
 
         return (
           <div className="flex items-center gap-2">
-            <Link
-              to={`/dashboard/products/${product.id}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-            >
-              <Eye className="w-4 h-4" />
-              View
+            <Link to={`/dashboard/products/${product.id}`}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5"
+              >
+                <Eye className="h-4 w-4" />
+                View
+              </Button>
             </Link>
-            <button
+            <Button
+              size="sm"
               onClick={() => {
                 setSelectedProductId(product.id);
                 setOpenDamageForm(true);
               }}
               disabled={Number(product.stock_quantity) <= 0}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${Number(product.stock_quantity) <= 0
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-rose-50 text-rose-600 hover:bg-rose-100"
-                }`}
+              className={cn(
+                "h-8 flex items-center gap-1.5",
+                Number(product.stock_quantity) <= 0
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-rose-600 hover:bg-rose-700 text-white"
+              )}
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
               Damage
-            </button>
+            </Button>
           </div>
         );
       },
@@ -214,23 +222,13 @@ export default function StockManagement() {
           <p className="text-muted-foreground mt-2">Monitor and manage product inventory</p>
         </div>
         <div className="flex items-center gap-4">
-          <button
+          <Button
             onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
-            <Printer size={18} />
+            className="flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white print:hidden"
+          >
+            <Printer className="h-4 w-4" />
             Print
-          </button>
-          <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
-            <SelectTrigger className="w-[200px] bg-white shadow-sm border-gray-200 rounded-xl font-medium print:hidden">
-              <SelectValue placeholder="Stock Status" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl border-gray-100 shadow-xl">
-              <SelectItem value="all">All Stock Status</SelectItem>
-              <SelectItem value="available" className="text-emerald-600 font-medium focus:text-emerald-700">Available</SelectItem>
-              <SelectItem value="low_stock" className="text-orange-600 font-medium focus:text-orange-700">Low Stock</SelectItem>
-              <SelectItem value="out_of_stock" className="text-rose-600 font-medium focus:text-rose-700">Out of Stock</SelectItem>
-            </SelectContent>
-          </Select>
+          </Button>
         </div>
       </div>
 
@@ -297,8 +295,21 @@ export default function StockManagement() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden">
+          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0">
             <CardTitle>All Products Stock</CardTitle>
+            <div className="w-[140px]">
+              <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
+                <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                  <SelectValue placeholder="Stock Status" />
+                </SelectTrigger>
+                <SelectContent className="rounded-md border-gray-100 shadow-xl">
+                  <SelectItem value="all">All Stock Status</SelectItem>
+                  <SelectItem value="available" className="text-emerald-600 font-medium">Available</SelectItem>
+                  <SelectItem value="low_stock" className="text-orange-600 font-medium">Low Stock</SelectItem>
+                  <SelectItem value="out_of_stock" className="text-rose-600 font-medium">Out of Stock</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent className="print:p-0">
             <DataTable
@@ -310,6 +321,10 @@ export default function StockManagement() {
               onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
               onSearch={(value) => {
                 setSearch(value);
+                setPage(1);
+              }}
+              onPageSizeChange={(newLimit) => {
+                setLimit(newLimit);
                 setPage(1);
               }}
               isFetching={isFetching}

@@ -111,14 +111,9 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
     };
 
     const poStatusOptions = [
-        { value: "pending", label: "Pending" },
         { value: "approved", label: "Approved" },
-        { value: "ordered", label: "Ordered" },
-        { value: "received", label: "Received" },
-        { value: "partial", label: "Partial" },
-        { value: "cancelled", label: "Cancelled" },
-        { value: "returned", label: "Returned" },
-    ] as const;
+        { value: "rejected", label: "Rejected" },
+    ];
 
 
 
@@ -254,13 +249,15 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                             </Button>
                         </Link>
 
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleOpenUpdateStatusModal(po)}
-                        >
-                            Change Status
-                        </Button>
+                        {status && status !== "approved" && (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleOpenUpdateStatusModal(po)}
+                            >
+                                Change Status
+                            </Button>
+                        )}
 
 
                     </div>
