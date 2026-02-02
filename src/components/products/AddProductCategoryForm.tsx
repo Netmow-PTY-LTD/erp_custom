@@ -82,7 +82,7 @@ export default function AddProductCategoryForm({
         setOpen(false);
         form.reset();
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Error in updating category', error)
       toast.error(error?.data?.message || "Error adding category");
@@ -93,10 +93,10 @@ export default function AddProductCategoryForm({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-          <PlusCircle size={18} />
+        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+          <PlusCircle className="h-4 w-4" />
           Add Category
-        </button>
+        </Button>
       </SheetTrigger>
 
       <SheetContent side="right" className="max-w-[400px] w-full">

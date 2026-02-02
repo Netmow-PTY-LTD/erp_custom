@@ -63,6 +63,7 @@ interface DataTableProps<TData> {
   onRowClick?: (row: TData) => void;
   rowSelection?: any;
   onRowSelectionChange?: any;
+  filters?: React.ReactNode;
 }
 
 /* ---------------------------
@@ -83,6 +84,7 @@ export function DataTable<TData>({
   onRowClick,
   rowSelection = {},
   onRowSelectionChange,
+  filters,
 }: DataTableProps<TData>) {
   const [globalFilter, setGlobalFilter] = useState(globalFilterValue || "");
 
@@ -113,15 +115,18 @@ export function DataTable<TData>({
 
   return (
     <div className="space-y-4">
-      <Input
-        placeholder="Search..."
-        value={globalFilter}
-        onChange={(e) => {
-          setGlobalFilter(e.target.value);
-          onSearch?.(e.target.value); // 🔥 ask parent to fetch from API
-        }}
-        className="max-w-sm"
-      />
+      <div className="flex flex-col sm:flex-row gap-4 justify-between">
+        <Input
+          placeholder="Search..."
+          value={globalFilter}
+          onChange={(e) => {
+            setGlobalFilter(e.target.value);
+            onSearch?.(e.target.value); // 🔥 ask parent to fetch from API
+          }}
+          className="max-w-sm"
+        />
+        {filters && <div className="flex gap-2">{filters}</div>}
+      </div>
 
       <div className="rounded-md border overflow-x-auto">
         <Table>
@@ -202,7 +207,7 @@ export function DataTable<TData>({
       {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between py-4 gap-4">
         {/* Showing X–Y of Z */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="text-sm">
             Showing {pageIndex * pageSize + 1}–
             {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}

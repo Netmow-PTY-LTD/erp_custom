@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useParams } from "react-router";
 import {
   useGetAllStockMovementsQuery,
@@ -24,7 +24,6 @@ import {
   Package,
   Tag,
   BarChart3,
-  Layers,
   History,
   ShoppingCart,
   Receipt,
@@ -32,11 +31,11 @@ import {
   Info
 } from "lucide-react";
 
-import { DateRangePicker } from "@/components/ui/date-range-picker";
+//import { DateRangePicker } from "@/components/ui/date-range-picker";
 import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
+//import { Separator } from "@/components/ui/separator";
 
 export default function ProductDetailsPage() {
   const [page, setPage] = useState<number>(1);
@@ -115,7 +114,7 @@ export default function ProductDetailsPage() {
   /* ---------------- PRODUCT ORDERS LOGIC ---------------- */
   const [ordersPage, setOrdersPage] = useState<number>(1);
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [dateRange] = useState<DateRange | undefined>();
 
   const {
     data: fetchedOrders,
@@ -147,9 +146,9 @@ export default function ProductDetailsPage() {
       header: "Status",
       cell: ({ row }) => (
         <Badge variant="outline" className={`capitalize px-2 py-0.5 shadow-sm border-0 ${row.original.status === 'delivered' ? 'bg-green-100 text-green-800' :
-            row.original.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-              row.original.status === 'pending' ? 'bg-amber-100 text-amber-800' :
-                'bg-slate-100 text-slate-800'
+          row.original.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+            row.original.status === 'pending' ? 'bg-amber-100 text-amber-800' :
+              'bg-slate-100 text-slate-800'
           }`}>
           {row.original.status}
         </Badge>
@@ -264,8 +263,8 @@ export default function ProductDetailsPage() {
             </Card>
 
             {/* Pricing & Stock Card */}
-            <Card className="flex flex-col border-none shadow-md h-full">
-              <CardHeader className="pb-4">
+            <Card className="flex flex-col shadow-sm h-full pb-6">
+              <CardHeader className="py-4 gap-0 border-b-1 border-gray-200">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-primary" /> Pricing & Inventory
                 </CardTitle>
@@ -321,14 +320,14 @@ export default function ProductDetailsPage() {
 
             <TabsContent value="movements">
               <Card className="border-none shadow-md">
-                <CardHeader className="px-6 py-4 border-b bg-slate-50/50">
+                <CardHeader className="px-6 py-4 border-b-1 border-gray-200 gap-0 bg-slate-50/50">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base font-semibold flex items-center gap-2">
                       <History className="w-4 h-4 text-gray-500" /> Stock Movements
                     </CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
+                <CardContent>
                   <DataTable
                     columns={columns}
                     data={fetchedStockMovements?.data}
@@ -348,7 +347,7 @@ export default function ProductDetailsPage() {
 
             <TabsContent value="orders">
               <Card className="border-none shadow-md">
-                <CardHeader className="px-6 py-4 border-b bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <CardHeader className="px-6 py-4 border-b-1 border-gray-200 gap-0 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <ShoppingCart className="w-4 h-4 text-gray-500" /> Associated Orders
                   </CardTitle>
@@ -369,7 +368,7 @@ export default function ProductDetailsPage() {
                     </select>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
+                <CardContent>
                   <DataTable
                     columns={orderColumns}
                     data={fetchedOrders?.data}
@@ -387,8 +386,8 @@ export default function ProductDetailsPage() {
 
         {/* RIGHT COLUMN - Meta Info */}
         <div className="space-y-6">
-          <Card className="border-none shadow-md">
-            <CardHeader className="pb-3 border-b">
+          <Card className="border-none shadow-sm">
+            <CardHeader className="py-4 border-b-1 border-gray-200 gap-0">
               <CardTitle className="text-base">Details & Specifications</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
@@ -414,13 +413,13 @@ export default function ProductDetailsPage() {
           </Card>
 
           {product.description && (
-            <Card className="border-none shadow-md">
-              <CardHeader className="pb-3 border-b bg-amber-50/30">
+            <Card className="border-none shadow-md gap-0">
+              <CardHeader className="py-4 border-b-1 border-gray-200 gap-0 bg-amber-50/30 gap-0">
                 <CardTitle className="text-base flex items-center gap-2 text-amber-800">
                   <Info className="w-4 h-4" /> Description
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
+              <CardContent className="px-4 py-4">
                 <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
                   {product.description}
                 </p>

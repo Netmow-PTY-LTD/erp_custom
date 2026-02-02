@@ -60,6 +60,11 @@ export interface SalesOrder {
   gross_paid_amount?: number | string;
   refunded_amount?: number | string;
   created_by: number;
+  creator?: {
+    id: number;
+    name: string;
+    email?: string;
+  };
   created_at: string;
   updated_at: string;
   total_refunded_amount?: number;
@@ -79,6 +84,7 @@ export interface SalesOrderFormValues {
   customer_id: number;
   shipping_address: string;
   delivery_date?: string;
+  staff_id?: number;
   notes?: string;
   items: {
     product_id: number;

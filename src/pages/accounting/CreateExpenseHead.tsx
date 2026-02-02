@@ -91,10 +91,10 @@ export default function CreateExpenseHeadForm() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-red-600 to-red-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:shadow-red-500/40">
-          <PlusCircle size={18} />
+        <Button className="flex items-center gap-2 bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-700 hover:to-rose-600 text-white">
+          <PlusCircle className="h-4 w-4" />
           Add Expense Head
-        </button>
+        </Button>
       </SheetTrigger>
 
       <SheetContent side="right" className="w-full max-w-[400px]">

@@ -160,10 +160,9 @@ export default function CategoryPage() {
 
         return (
           <div className="flex items-center gap-2">
-
             <Button
-              variant="success"
               size="sm"
+              className="h-8 bg-cyan-600 hover:bg-cyan-700 text-white"
               onClick={() => {
                 setCategoryId(categoryId);
                 setOpenEditForm(true);
@@ -172,17 +171,13 @@ export default function CategoryPage() {
               Edit
             </Button>
 
-
             <Button
-              variant="destructive"
               size="sm"
+              className="h-8 bg-rose-600 hover:bg-rose-700 text-white"
               onClick={() => handleDeleteCategory(categoryId)}
-
             >
               Delete
             </Button>
-
-
           </div>
         );
       },

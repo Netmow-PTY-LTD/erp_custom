@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router";
 import { Separator } from "@/components/ui/separator";
 import {
-  Check,
   Eye,
   FilePlus,
   ArrowLeft,
@@ -20,7 +19,6 @@ import {
 import {
   useAddPurchaseInvoiceMutation,
   useGetPurchaseOrderByIdQuery,
-  useUpdatePurchaseOrderMutation,
 } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { toast } from "sonner";
 import type { POItem } from "@/types/purchaseOrder.types";
@@ -35,8 +33,7 @@ export default function PurchaseOrderView() {
 
   const purchase = Array.isArray(data?.data) ? data?.data[0] : data?.data;
 
-  const [updatePurchaseOrder, { isLoading: isUpdating }] =
-    useUpdatePurchaseOrderMutation();
+
 
   const [addInvoice, { isLoading: isCreating }] =
     useAddPurchaseInvoiceMutation();
@@ -57,21 +54,7 @@ export default function PurchaseOrderView() {
     );
   }
 
-  /* ================= ACTIONS ================= */
-  const handleApprove = async () => {
-    try {
-      const res = await updatePurchaseOrder({
-        id: purchase.id,
-        body: { status: "approved" },
-      }).unwrap();
 
-      if (res.status) {
-        toast.success(res.message || "Purchase Order Approved");
-      }
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Approval failed");
-    }
-  };
 
   const handleCreateInvoice = async () => {
     try {
@@ -121,13 +104,6 @@ export default function PurchaseOrderView() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {!["approved", "received", "delivered"].includes(purchase.status || "") && (
-            <Button onClick={handleApprove} disabled={isUpdating} className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-sm">
-              <Check className="h-4 w-4" />
-              {isUpdating ? "Approving..." : "Approve Order"}
-            </Button>
-          )}
-
           {["approved", "received", "delivered"].includes(purchase.status || "") && (
             purchase.invoice ? (
               <Link to={`/dashboard/purchase-invoices/${purchase.invoice.id}`}>

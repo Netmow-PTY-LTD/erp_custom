@@ -177,7 +177,7 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
             <Button
               variant="outline"
               onClick={onClose}
-              className="mt-4"
+              className="mt-4 rounded-xl px-6"
             >
               Close
             </Button>
@@ -223,7 +223,7 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
                     <>
                       {allStaff.length > 0 && (
                         <div className="flex justify-end mt-2">
-                          <Button variant="ghost" size="sm" onClick={() => toggleSelectAll(field)}>
+                          <Button variant="ghost" size="sm" onClick={() => toggleSelectAll(field)} className="text-xs h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                             {field.value.length === allStaff.length ? "Deselect All" : "Select All"}
                           </Button>
                         </div>
@@ -291,12 +291,13 @@ export default function AssignRouteModal({ isOpen, onClose, routeId }: AssignRou
                       </div>
 
                       <DialogFooter className="mt-4 flex justify-end gap-2">
-                        <Button variant="outline" onClick={onClose}>
+                        <Button variant="outline" onClick={onClose} className="rounded-xl px-6">
                           Cancel
                         </Button>
                         <Button
                           onClick={handleAssignStaffs}
                           disabled={field.value.length === 0 || isAssigning}
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8"
                         >
                           {isAssigning ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

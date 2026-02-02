@@ -1,7 +1,6 @@
 import { useAppSelector } from "@/store/store";
 import type { RootState } from "@/store/store";
 import type { PurchaseInvoice } from "@/types/PurchaseInvoice.types";
-import type { POItem } from "@/types/purchaseOrder.types";
 import type { Supplier } from "@/types/supplier.types";
 import type { Settings } from "@/types/types";
 
@@ -183,9 +182,9 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
                     <td className="border border-gray-300 p-2">{item.product?.sku}</td>
                     <td className="border border-gray-300 p-2">
                       <div className="font-bold">{item.product?.name}</div>
-                      {(item.product?.specification || item.specification) && (
-                        <div className="italic text-[10px] text-gray-500 mt-1">
-                          {item.product?.specification || item.specification}
+                      {item.product?.specification && (
+                        <div className="text-xs text-gray-600 mt-0.5">
+                          {item.product.specification}
                         </div>
                       )}
                     </td>
@@ -241,7 +240,7 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
                   <td className="p-1 px-4 text-right">- {currency} {discount.toFixed(2)}</td>
                 </tr>
                 <tr className="border border-gray-300">
-                  <td className="p-1 px-4 text-left border-r border-gray-300">GST</td>
+                  <td className="p-1 px-4 text-left border-r border-gray-300">TAX</td>
                   <td className="p-1 px-4 text-right">{currency} {gstAmount.toFixed(2)}</td>
                 </tr>
                 <tr className="border border-gray-300 bg-gray-50 text-sm">

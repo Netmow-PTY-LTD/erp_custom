@@ -6,30 +6,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
     CardContent,
 } from "@/components/ui/card";
 import { useGetAllSalesReturnsQuery } from "@/store/features/salesOrder/salesReturnApiService";
 import { useAppSelector } from "@/store/store";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle } from "lucide-react";
+import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle, Printer } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { formatDateStandard } from "@/utils/dateUtils";
 
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
 export default function SalesReturnsList({ status }: { status?: string }) {
     const [page, setPage] = useState<number>(1);
     const [search, setSearch] = useState<string>("");
+    const [filterStatus, setFilterStatus] = useState<string>(status || "all");
     const limit = 10;
 
     const { data, isFetching } = useGetAllSalesReturnsQuery({
         page,
         limit,
         search,
-        status, // pass status
+        status: filterStatus === "all" ? undefined : filterStatus,
     });
+
+    // Sync filterStatus if prop changes (though mainly initial)
+    // useEffect(() => { if (status) setFilterStatus(status); }, [status]);
 
     const salesReturns = Array.isArray(data?.data) ? data.data : [];
     const pagination = data?.pagination ?? { total: 0, page: 1, limit: 10, totalPage: 1 };
@@ -145,9 +155,18 @@ export default function SalesReturnsList({ status }: { status?: string }) {
             id: "actions",
             header: "Actions",
             cell: ({ row }) => (
-                <Link to={`/dashboard/sales/returns/${row.original.id}`}>
-                    <Button size="sm" variant="outline"><Eye className="w-4 h-4 mr-1" /> View</Button>
-                </Link>
+                <div className="flex gap-2">
+                    <Link to={`/dashboard/sales/returns/${row.original.id}`}>
+                        <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                            <Eye className="w-4 h-4 mr-1" /> View
+                        </Button>
+                    </Link>
+                    <Link to={`/dashboard/sales/returns/${row.original.id}/print`}>
+                        <Button size="sm" variant="outline" className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none" title="Print Return">
+                            <Printer className="w-4 h-4" />
+                        </Button>
+                    </Link>
+                </div>
             ),
         }
     ];
@@ -156,12 +175,22 @@ export default function SalesReturnsList({ status }: { status?: string }) {
         <div className="w-full space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold tracking-tight text-blue-700">Sales Returns</h1>
-                <Link to="/dashboard/sales/returns/create">
-                    <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-                        <PlusCircle size={18} />
-                        Record Return
-                    </button>
-                </Link>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => window.print()}
+                    >
+                        <Printer className="h-4 w-4" />
+                        Print All
+                    </Button>
+                    <Link to="/dashboard/sales/returns/create">
+                        <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+                            <PlusCircle className="h-4 w-4" />
+                            Record Return
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -177,12 +206,9 @@ export default function SalesReturnsList({ status }: { status?: string }) {
                 ))}
             </div>
 
-            <Card className="py-6 border bg-white/50 pb-2">
-                <CardHeader>
-                    <CardTitle className="text-xl text-blue-800">Sales Return Records</CardTitle>
-                    <CardDescription>Manage and track all customer returns</CardDescription>
-                </CardHeader>
-                <CardContent>
+            <Card className="py-6 border-none shadow-none bg-white/50 pb-2">
+
+                <CardContent className="px-0">
                     <DataTable
                         columns={columns}
                         data={salesReturns}
@@ -192,9 +218,31 @@ export default function SalesReturnsList({ status }: { status?: string }) {
                         onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
                         onSearch={(value) => { setSearch(value); setPage(1); }}
                         isFetching={isFetching}
+                        filters={
+                            !status && (
+                                <Select
+                                    value={filterStatus}
+                                    onValueChange={(val) => {
+                                        setFilterStatus(val);
+                                        setPage(1);
+                                    }}
+                                >
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Filter by Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Status</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="approved">Approved</SelectItem>
+                                        <SelectItem value="rejected">Rejected</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )
+                        }
                     />
                 </CardContent>
             </Card>
+
         </div>
     );
 }

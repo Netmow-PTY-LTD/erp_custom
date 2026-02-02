@@ -41,14 +41,19 @@ export default function CheckInList(): JSX.Element {
         },
       },
       {
-        accessorKey: "customer.name",
-        header: "Customer Name",
-        cell: ({ row }) => row.original.customer.name,
-      },
-      {
-        accessorKey: "customer.company",
-        header: "Company",
-        cell: ({ row }) => row.original.customer.company,
+        id: "customer",
+        header: "Customer & Company",
+        cell: ({ row }) => {
+          const customer = row.original.customer;
+          return (
+            <div className="flex flex-col gap-0.5">
+              {customer.company && <span className="font-semibold text-gray-900">{customer.company}</span>}
+              <span className={customer.company ? "text-xs text-muted-foreground" : "font-medium text-gray-900"}>
+                {customer.name}
+              </span>
+            </div>
+          );
+        },
       },
       {
         accessorKey: "check_in_time",
@@ -83,20 +88,18 @@ export default function CheckInList(): JSX.Element {
           if (!hasLocation) return <span className="text-muted-foreground text-xs">—</span>;
 
           return (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Button
-                variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-primary"
+                className="h-8 w-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none rounded-lg"
                 onClick={() => setLocationItem(row.original)}
                 title="View Map"
               >
                 <MapPin className="h-4 w-4" />
               </Button>
               <Button
-                variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-orange-500"
+                className="h-8 w-8 bg-orange-50 text-orange-500 hover:bg-orange-100 border-none shadow-none rounded-lg"
                 onClick={handleWazeClick}
                 title="Open in Waze"
               >

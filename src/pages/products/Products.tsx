@@ -370,53 +370,33 @@ export default function Products() {
         <h2 className="text-3xl font-semibold">Product Management</h2>
 
         <div className="flex flex-wrap items-center gap-4">
-          <div className="w-[200px]">
-            <Select
-              value={selectedCategory}
-              onValueChange={(value) => {
-                setSelectedCategory(value);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
-                <Filter className="w-4 h-4 mr-2 text-gray-500" />
-                <SelectValue placeholder="Filter by Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={String(category.id)}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+
 
           {/* <button className="flex items-center gap-2 bg-yellow-400 text-black px-4 py-2 rounded-lg shadow-sm hover:bg-yellow-300">
             <AlertCircle size={18} />
             Stock Alerts
           </button> */}
 
-          <button
+          <Button
             onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl bg-linear-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none print:hidden">
-            <Printer size={18} />
+            className="flex items-center gap-2 bg-slate-600 hover:bg-slate-700 text-white print:hidden"
+          >
+            <Printer className="h-4 w-4" />
             Print
-          </button>
+          </Button>
 
           <Link to="/dashboard/products/categories">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none print:hidden">
-              <Tags size={18} />
+            <Button className="flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white print:hidden">
+              <Tags className="h-4 w-4" />
               Categories
-            </button>
+            </Button>
           </Link>
 
           <Link to="/dashboard/products/create">
-            <button className="flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none print:hidden">
-              <PackagePlus size={18} />
+            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white print:hidden">
+              <PackagePlus className="h-4 w-4" />
               Add Product
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
@@ -482,10 +462,32 @@ export default function Products() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden">
+          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0 px-0">
             <CardTitle>All Products</CardTitle>
+            <div className="w-[180px]">
+              <Select
+                value={selectedCategory}
+                onValueChange={(value) => {
+                  setSelectedCategory(value);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                  <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                  <SelectValue placeholder="Filter by Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={String(category.id)}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
-          <CardContent className="print:p-0">
+          <CardContent className="print:p-0 px-0">
             <DataTable
               columns={productColumns}
               data={products}

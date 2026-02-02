@@ -521,7 +521,7 @@ export default function JournalReport() {
                 ) : (
                     <>
                         {reportData?.data?.map((entry) => (
-                            <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg gap-4">
+                            <Card key={entry.id} className="overflow-hidden border-2 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg gap-0">
                                 <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-950/30 dark:via-green-950/30 dark:to-emerald-950/30 border-b-1 border-emerald-100 dark:border-emerald-900 py-2 px-6 gap-0">
                                     <div className="flex flex-wrap justify-between items-center gap-3">
                                         <div className="flex flex-col gap-1">

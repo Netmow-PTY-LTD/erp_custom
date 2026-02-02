@@ -256,6 +256,60 @@ export default function PurchaseReturnInvoiceDetails() {
                         </div>
                     </Card>
 
+                    {/* Refund History */}
+                    {payments && payments.length > 0 && (
+                        <Card className="shadow-sm border-border/60 overflow-hidden">
+                            <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
+                                <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                    <CreditCard className="w-4 h-4" /> Refund History
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="divide-y divide-border">
+                                    {payments.map((payment: any, index: number) => (
+                                        <div key={payment.id || index} className="p-4 hover:bg-muted/20 transition-colors">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+                                                        {currency} {Number(payment.amount || 0).toFixed(2)}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {new Date(payment.payment_date).toLocaleDateString('en-US', {
+                                                            year: 'numeric',
+                                                            month: 'short',
+                                                            day: 'numeric'
+                                                        })}
+                                                    </p>
+                                                </div>
+                                                <Badge
+                                                    variant="outline"
+                                                    className={`text-xs ${payment.payment_method === 'cash'
+                                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                                        : payment.payment_method === 'bank_transfer'
+                                                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                                            : 'bg-purple-50 text-purple-700 border-purple-200'
+                                                        }`}
+                                                >
+                                                    {payment.payment_method?.replace('_', ' ').toUpperCase()}
+                                                </Badge>
+                                            </div>
+                                            {payment.reference_number && (
+                                                <p className="text-xs text-muted-foreground">
+                                                    Ref: {payment.reference_number}
+                                                </p>
+                                            )}
+                                            {payment.notes && (
+                                                <p className="text-xs text-muted-foreground mt-1 italic">
+                                                    {payment.notes}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
                 </div>
 
                 {/* RIGHT COLUMN - Summary & Stats */}
@@ -313,6 +367,8 @@ export default function PurchaseReturnInvoiceDetails() {
                             </div>
                         </CardContent>
                     </Card>
+
+
 
                 </div>
 

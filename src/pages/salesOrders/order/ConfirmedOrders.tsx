@@ -10,9 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 import {
@@ -28,6 +25,7 @@ import {
   Clock,
   CreditCard,
   DollarSign,
+  Eye,
   PlusCircle,
   Printer,
   ShoppingCart,
@@ -291,8 +289,13 @@ export function ConfirmedOrders() {
         return (
           <div className="flex gap-2">
             <Link to={`/dashboard/sales/orders/${item.id}`}>
-              <Button size="sm" variant="outline-info">
-                View
+              <Button size="sm" className="h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border-none shadow-none">
+                <Eye className="w-4 h-4 mr-1" /> View
+              </Button>
+            </Link>
+            <Link to={`/dashboard/sales/orders/${item.id}/print`}>
+              <Button size="sm" variant="outline" className="h-8 bg-gray-50 text-gray-600 hover:bg-gray-100 border-none shadow-none" title="Print Order">
+                <Printer className="w-4 h-4" />
               </Button>
             </Link>
             {/* <Link to={`/dashboard/orders/${item.id}/edit`}>
@@ -335,36 +338,37 @@ export function ConfirmedOrders() {
           Confirmed Order List
         </h1>
         <div className="flex flex-wrap items-center gap-4">
-          <button
+          <Button
+            variant="outline"
+            className="gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
             onClick={() => window.print()}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none"
           >
-            <Printer size={18} />
+            <Printer className="h-4 w-4" />
             Print
-          </button>
+          </Button>
           <Link to="/dashboard/sales/invoices">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 px-5 py-2.5 font-medium text-white shadow-lg shadow-amber-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-amber-500/40 active:translate-y-0 active:shadow-none">
-              <ClipboardList size={18} />
+            <Button variant="outline" className="gap-2 border-amber-300 text-amber-700 hover:bg-amber-50">
+              <ClipboardList className="h-4 w-4" />
               Invoices
-            </button>
+            </Button>
           </Link>
 
           {
             canRecordPayment && (<Link to="/dashboard/sales/payments">
-              <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-cyan-500/40 active:translate-y-0 active:shadow-none">
-                <CreditCard size={18} />
+              <Button variant="outline" className="gap-2 border-cyan-300 text-cyan-700 hover:bg-cyan-50">
+                <CreditCard className="h-4 w-4" />
                 Payments
-              </button>
+              </Button>
             </Link>)
           }
 
 
 
           <Link to="/dashboard/sales/orders/create">
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-              <PlusCircle size={18} />
+            <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+              <PlusCircle className="h-4 w-4" />
               Create Order
-            </button>
+            </Button>
           </Link>
         </div>
       </div>
@@ -430,10 +434,7 @@ export function ConfirmedOrders() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden">
-            <CardTitle>Confirmed Orders</CardTitle>
-            <CardDescription>Manage your orders</CardDescription>
-          </CardHeader>
+
           <CardContent>
             <DataTable
               columns={OrderColumns}

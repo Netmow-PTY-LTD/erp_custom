@@ -195,11 +195,11 @@ export default function AddProductPage() {
         </div>
         <div className="flex items-center gap-3">
           <BackButton />
-          <button
+          <Button
             type="submit"
             form="add-product-form"
             disabled={isLoading}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-2.5 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isLoading ? (
               <>
@@ -208,11 +208,11 @@ export default function AddProductPage() {
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="h-4 w-4" />
                 <span>Add Product</span>
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
       <Form {...form}>
@@ -283,7 +283,7 @@ export default function AddProductPage() {
                                 className="w-full justify-between"
                               >
                                 {selected ? selected.name : "Select category..."}
-                                <ChevronDown className="opacity-50 h-4 w-4" />
+                                <ChevronDown className="h-4 w-4 opacity-50" />
                               </Button>
                             </PopoverTrigger>
 
@@ -360,7 +360,7 @@ export default function AddProductPage() {
                                 className="w-full justify-between"
                               >
                                 {selectedLabel}
-                                <ChevronDown className="opacity-50 h-4 w-4" />
+                                <ChevronDown className="h-4 w-4 opacity-50" />
                               </Button>
                             </PopoverTrigger>
 
@@ -413,18 +413,59 @@ export default function AddProductPage() {
                   />
 
                   {/* SPECIFICATION */}
+                  <Controller
+                    control={control}
+                    name="specification"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Product Specification</FieldLabel>
+                        <Input
+                          placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
+                          {...field}
+                        />
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+
+                  {/* STATUS */}
+                  <Controller
+                    control={control}
+                    name="is_active"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Status</FieldLabel>
+                        <Select
+                          value={field.value ? "true" : "false"}
+                          onValueChange={(v) => field.onChange(v === "true")}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Active</SelectItem>
+                            <SelectItem value="false">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+
+                  {/* DESCRIPTION */}
                   <div className="md:col-span-2">
                     <Controller
                       control={control}
-                      name="specification"
+                      name="description"
                       render={({ field, fieldState }) => (
                         <Field>
-                          <FieldLabel>Product Specification</FieldLabel>
-                          <Input
-                            placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
+                          <FieldLabel>Description</FieldLabel>
+                          <Textarea
+                            rows={4}
+                            placeholder="Write description..."
                             {...field}
                           />
-                          <FieldError>{fieldState.error?.message}</FieldError>
+                          <FieldError>{fieldState?.error?.message}</FieldError>
                         </Field>
                       )}
                     />
@@ -699,63 +740,7 @@ export default function AddProductPage() {
             </CardContent>
           </Card>
 
-          {/* DESCRIPTION & STATUS */}
-          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
-                  <CheckCircle2 className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Description & Status</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Product description and availability status</p>
-                </div>
-              </div>
-            </CardHeader>
 
-            <CardContent className="pb-6 space-y-6">
-              {/* DESCRIPTION */}
-              <Controller
-                control={control}
-                name="description"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Description</FieldLabel>
-                    <Textarea
-                      rows={4}
-                      placeholder="Write description..."
-                      {...field}
-                    />
-                    <FieldError>{fieldState?.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              {/* STATUS */}
-              <Controller
-                control={control}
-                name="is_active"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Status</FieldLabel>
-                    <Select
-                      value={field.value ? "true" : "false"}
-                      onValueChange={(v) => field.onChange(v === "true")}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Active</SelectItem>
-                        <SelectItem value="false">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            </CardContent>
-          </Card>
 
           {/* ATTRIBUTES */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
@@ -773,11 +758,9 @@ export default function AddProductPage() {
                 <Button
                   type="button"
                   onClick={() => append({ name: "", values: [] })}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  <Plus className="w-4 h-4" /> Add Attribute Group
+                  <Plus className="h-4 w-4" /> Add Attribute Group
                 </Button>
               </div>
             </CardHeader>
@@ -905,31 +888,32 @@ export default function AddProductPage() {
           </Card>
 
           {/* SUBMIT */}
-          <div className="flex justify-end gap-4 pt-4">
-            <button
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
               type="button"
+              variant="outline"
               onClick={() => navigate('/dashboard/products')}
-              className="px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-600 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200"
+              className="flex items-center gap-2"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isLoading}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 font-semibold text-white shadow-lg shadow-blue-500/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-500/50 active:translate-y-0 active:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isLoading ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-5 h-5" />
+                  <CheckCircle2 className="h-4 w-4" />
                   <span>Add Product</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </Form>
