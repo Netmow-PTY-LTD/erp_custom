@@ -10,13 +10,13 @@ import AddProductCategoryForm from "@/components/products/AddProductCategoryForm
 import EditProductCategoryForm from "@/components/products/EditProductCategoryForm";
 import type { Category } from "@/types/types";
 import {
-  useDeleteCategoryMutation,
+  // useDeleteCategoryMutation,
   useGetAllCategoriesQuery,
 } from "@/store/features/admin/productsApiService";
-import { useAppSelector } from "@/store/store";
-import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
+// import { useAppSelector } from "@/store/store";
+// import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 import { CheckCircle, Layers, XCircle } from "lucide-react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 export default function CategoryPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -25,10 +25,10 @@ export default function CategoryPage() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const limit = 10;
-  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canDeleteCategory =
-    userPermissions.includes(ProductPermission.DELETE_CATEGORIES) ||
-    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  // const canDeleteCategory =
+  //   userPermissions.includes(ProductPermission.DELETE_CATEGORIES) ||
+  //   userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   // Main query for table (paginated)
   const { data: fetchedCategories, isFetching } = useGetAllCategoriesQuery({
@@ -78,44 +78,44 @@ export default function CategoryPage() {
     totalPage: 1,
   };
 
-  const [deleteCategory] = useDeleteCategoryMutation();
-  const handleDeleteCategory = async (id: number) => {
-    // Check permission first
-    if (!canDeleteCategory) {
-      toast.error("You do not have permission to delete categories.");
-      return;
-    }
+  // const [deleteCategory] = useDeleteCategoryMutation();
+  // const handleDeleteCategory = async (id: number) => {
+  //   // Check permission first
+  //   if (!canDeleteCategory) {
+  //     toast.error("You do not have permission to delete categories.");
+  //     return;
+  //   }
 
-    // Ask for confirmation using a simple toast with prompt
-    const confirmed = await new Promise<boolean>((resolve) => {
-      toast("Are you sure you want to delete this category?", {
-        action: {
-          label: "Delete",
-          onClick: () => resolve(true), // user confirmed
-        },
-        duration: 10000, // auto-dismiss after 5s
-      });
+  //   // Ask for confirmation using a simple toast with prompt
+  //   const confirmed = await new Promise<boolean>((resolve) => {
+  //     toast("Are you sure you want to delete this category?", {
+  //       action: {
+  //         label: "Delete",
+  //         onClick: () => resolve(true), // user confirmed
+  //       },
+  //       duration: 10000, // auto-dismiss after 5s
+  //     });
 
-      // resolve false if toast disappears automatically
-      setTimeout(() => resolve(false), 10000);
-    });
+  //     // resolve false if toast disappears automatically
+  //     setTimeout(() => resolve(false), 10000);
+  //   });
 
-    console.log("User confirmed deletion: ", confirmed);
+  //   console.log("User confirmed deletion: ", confirmed);
 
-    if (!confirmed) return; // stop if user didn’t confirm
+  //   if (!confirmed) return; // stop if user didn’t confirm
 
-    try {
-      const res = await deleteCategory(id).unwrap();
-      if (res.status) {
-        toast.success("Category deleted successfully");
-      } else {
-        toast.error("Failed to delete category");
-      }
-    } catch (error: any) {
-      console.error("Error deleting category:", error);
-      toast.error(error?.data?.message || "Failed to delete category");
-    }
-  };
+  //   try {
+  //     const res = await deleteCategory(id).unwrap();
+  //     if (res.status) {
+  //       toast.success("Category deleted successfully");
+  //     } else {
+  //       toast.error("Failed to delete category");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Error deleting category:", error);
+  //     toast.error(error?.data?.message || "Failed to delete category");
+  //   }
+  // };
 
 
   // Define columns for DataTable
@@ -171,13 +171,13 @@ export default function CategoryPage() {
               Edit
             </Button>
 
-            <Button
+            {/* <Button
               size="sm"
               className="h-8 bg-rose-600 hover:bg-rose-700 text-white"
               onClick={() => handleDeleteCategory(categoryId)}
             >
               Delete
-            </Button>
+            </Button> */}
           </div>
         );
       },

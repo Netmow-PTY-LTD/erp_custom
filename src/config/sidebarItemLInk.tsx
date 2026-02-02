@@ -31,8 +31,10 @@ import {
   Clock,
   Database,
   XCircle,
+  Image,
 } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
+import GalleryPage from "@/pages/gallery";
 import Products from "../pages/products/Products";
 import CreateProduct from "@/pages/products/create";
 import Customers from "@/pages/customer/Customers";
@@ -253,6 +255,18 @@ export const sidebarItemLink = [
     allowedPermissions: [
       DashboardPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
+
+  // GALLERY
+  {
+    title: "My Gallery",
+    url: "/dashboard/gallery",
+    icon: Image,
+    element: <GalleryPage />,
+    allowedPermissions: [
+      SuperAdminPermission.ACCESS_ALL,
+      DashboardPermission.VIEW,
     ],
   },
 

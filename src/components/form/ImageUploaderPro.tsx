@@ -75,6 +75,15 @@ export default function ImageUploaderPro({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, page]);
 
+  // ---------------- HELPER ----------------
+  const getFullUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    return `${API_URL}${url}`;
+  };
+
   // ---------------- HANDLE FILE SELECTION AND UPLOAD ----------------
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -96,7 +105,7 @@ export default function ImageUploaderPro({
         });
         const data = await res.json();
         if (data?.data?.url) {
-          uploadedUrls.push(`${API_URL}${data.data.url}`);
+          uploadedUrls.push(getFullUrl(data.data.url));
         } else {
           toast.error(`Failed to upload ${file.name}`);
         }
@@ -145,6 +154,7 @@ export default function ImageUploaderPro({
 
   // ---------------- DELETE ----------------
   const deleteImage = async (url: string) => {
+    // Determine filename - logic might need adjustment for DO URLs if they don't end cleanly or contain query params
     const filename = url.split("/").pop();
     if (!filename) return;
     if (!confirm("Delete this image permanently?")) return;
@@ -157,7 +167,7 @@ export default function ImageUploaderPro({
 
       toast.success("Image deleted");
       setMediaLibrary((prev) =>
-        prev.filter((i) => `${API_URL}${i.url}` !== url)
+        prev.filter((i) => getFullUrl(i.url) !== url)
       );
 
       if (multiple) {
@@ -175,15 +185,15 @@ export default function ImageUploaderPro({
     <div>
       {/* Selected Images */}
       <div className="flex flex-wrap gap-3 mb-3">
-        {selectedValues.map((url) => (
-          <div key={url} className="relative w-28 h-28">
+        {selectedValues.map((fullUrl) => (
+          <div key={fullUrl} className="relative w-28 h-28">
             <img
-              src={url}
+              src={fullUrl}
               className="w-full h-full object-cover rounded-xl border"
               onClick={() => !multiple && setOpen(true)}
             />
             <button
-              onClick={() => removeSelected(url)}
+              onClick={() => removeSelected(fullUrl)}
               className="absolute -top-2 -right-2 bg-white p-1 rounded-full border shadow"
             >
               <X className="w-4 h-4" />
@@ -236,11 +246,11 @@ export default function ImageUploaderPro({
                 <TabsContent value="library">
                   <div className="grid grid-cols-4 gap-3 max-h-80 overflow-y-auto">
                     {mediaLibrary.map((item) => {
-                      const fullUrl = `${API_URL}${item.url}`;
+                      const fullUrl = getFullUrl(item.url);
                       const isSelected = selectedValues.includes(fullUrl);
                       return (
                         <div
-                          key={item.id}
+                          key={item.id || item.url}
                           className={`relative border rounded-xl overflow-hidden cursor-pointer ${isSelected ? "ring-2 ring-blue-500" : ""
                             }`}
                         >
