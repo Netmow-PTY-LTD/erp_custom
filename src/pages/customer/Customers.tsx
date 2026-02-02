@@ -292,10 +292,11 @@ export default function Customers() {
     {
       accessorKey: "address",
       header: "Address",
+      meta: { className: "min-w-[300px]" } as any,
       cell: ({ row }) => {
         const customer = row.original;
         return (
-          <div className="max-w-[350px] w-full whitespace-normal break-words">
+          <div className="max-w-[300px] w-full whitespace-normal break-words">
             {customer.address || "-"}
           </div>
         );

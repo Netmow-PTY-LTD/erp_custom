@@ -218,11 +218,10 @@ export default function InvoiceDetailsPage() {
                   <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
                     <th className="px-6 py-4 font-medium">Product Details</th>
                     <th className="px-6 py-4 font-medium">Specification</th>
-                    <th className="px-6 py-4 font-medium text-right">Unit Price</th>
+                    <th className="px-6 py-4 font-medium text-right">Unit Price ({currency})</th>
                     <th className="px-6 py-4 font-medium text-center">Qty</th>
-                    <th className="px-6 py-4 font-medium text-right">Discount</th>
-                    <th className="px-6 py-4 font-medium text-right">Tax</th>
-                    <th className="px-6 py-4 font-medium text-right">Total</th>
+                    <th className="px-6 py-4 font-medium text-right">Discount ({currency})</th>
+                    <th className="px-6 py-4 font-medium text-right">Total ({currency})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -239,19 +238,16 @@ export default function InvoiceDetailsPage() {
                         {item.specification || item.product?.specification || "-"}
                       </td>
                       <td className="px-6 py-4 text-right font-medium">
-                        {currency} {Number(item?.unit_price || 0).toFixed(2)}
+                        {Number(item?.unit_price || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Badge variant="outline" className="font-mono text-xs">{item?.quantity}</Badge>
                       </td>
                       <td className="px-6 py-4 text-right text-muted-foreground">
-                        {Number(item?.discount || 0) > 0 ? `- ${currency} ${Number(item?.discount).toFixed(2)}` : "-"}
-                      </td>
-                      <td className="px-6 py-4 text-right text-muted-foreground">
-                        {Number((item as any)?.tax || 0) > 0 ? `${currency} ${Number((item as any)?.tax).toFixed(2)}` : "-"}
+                        {Number((item as any)?.discount_amount || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100">
-                        {currency} {Number(item?.line_total || 0).toFixed(2)}
+                        {Number(item?.line_total || 0).toFixed(2)}
                       </td>
                     </tr>
                   ))}
