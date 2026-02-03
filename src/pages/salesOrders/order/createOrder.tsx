@@ -962,8 +962,7 @@ export default function CreateSalesOrderPage() {
                                 type="number"
                                 min={0}
                                 {...field}
-                                readOnly
-                                className="bg-gray-100 cursor-not-allowed border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
+                                className="bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                               />
                             </FormControl>
                             <FormMessage />
