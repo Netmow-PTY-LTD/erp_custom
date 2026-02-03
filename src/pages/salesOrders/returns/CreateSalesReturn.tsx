@@ -462,7 +462,7 @@ export default function CreateSalesReturn() {
                                             <div className="w-24"><FormLabel className="xl:hidden text-xs font-bold block mb-1">Stock</FormLabel><Input type="number" value={items[index].stock_quantity || 0} readOnly className="bg-gray-100 h-9 text-right" /></div>
                                             <div className="w-32 text-left bg-gray-100 dark:bg-gray-800 rounded-md">
                                                 <FormField name={`items.${index}.unit_price`} control={control} render={({ field }) => (
-                                                    <FormItem className="w-full"><FormLabel className="xl:hidden text-xs font-bold">Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} readOnly className="h-9 text-right bg-gray-100 dark:bg-gray-800 border-none" /></FormControl></FormItem>
+                                                    <FormItem className="w-full"><FormLabel className="xl:hidden text-xs font-bold">Price</FormLabel><FormControl><Input type="number" step="0.01" {...field} className="h-9 text-right bg-gray-100 dark:bg-gray-800 border-none" /></FormControl></FormItem>
                                                 )} />
                                             </div>
                                             <FormField name={`items.${index}.quantity`} control={control} render={({ field }) => (
