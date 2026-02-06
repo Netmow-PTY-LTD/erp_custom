@@ -195,6 +195,8 @@ export default function EditProductPage() {
       initial_stock: Number(values.initialStock),
       min_stock_level: Number(values.minStock),
       max_stock_level: Number(values.maxStock),
+      purchase_tax: Number(values.purchase_tax),
+      sales_tax: Number(values.sales_tax),
       weight: Number(values.weight),
       width: Number(values.width),
       height: Number(values.height),

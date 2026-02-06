@@ -124,7 +124,7 @@ export default function OrderDetails() {
           </div>
 
           {/* Order Items */}
-          <Card className="shadow-sm border-border/60 overflow-hidden gap-2">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Package className="w-4 h-4" /> Order Items
@@ -173,7 +173,7 @@ export default function OrderDetails() {
 
           {/* Status History */}
           <Card className="shadow-sm border-border/60 mt-6">
-            <CardHeader className="py-4 border-b">
+            <CardHeader className="py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
                 <History className="w-4 h-4 text-blue-500" />
                 Status Tracking History

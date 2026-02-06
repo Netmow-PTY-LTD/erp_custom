@@ -198,7 +198,7 @@ export default function PurchaseInvoicesDetails() {
           </div>
 
           {/* Line Items */}
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <FileText className="w-4 h-4" /> Invoice Items
@@ -261,7 +261,7 @@ export default function PurchaseInvoicesDetails() {
           </Card>
 
           {/* Payments History */}
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 flex flex-row justify-between items-center">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Payment History

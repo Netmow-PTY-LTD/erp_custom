@@ -56,14 +56,14 @@ export default function RecordPurchasePaymentModal({
     const currency = useAppSelector((state) => state.currency.value);
     const [addPayment, { isLoading }] = useAddPurchasePaymentMutation();
 
-    const totalAmount = invoice?.total_payable_amount || 0;
-    const paidAmount = invoice?.paid_amount || 0;
-    const remainingBalance = totalAmount - paidAmount;
+    const totalAmount = parseFloat((invoice?.total_payable_amount || 0).toFixed(2));
+    const paidAmount = parseFloat((invoice?.paid_amount || 0).toFixed(2));
+    const remainingBalance = parseFloat((totalAmount - paidAmount).toFixed(2));
 
     const form = useForm<PaymentFormValues>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
-            amount: remainingBalance > 0 ? remainingBalance : 0,
+            amount: remainingBalance > 0 ? parseFloat(remainingBalance.toFixed(2)) : 0,
             payment_method: "cash",
             date: new Date().toISOString().split("T")[0],
             reference: "",
@@ -74,7 +74,7 @@ export default function RecordPurchasePaymentModal({
     useEffect(() => {
         if (isOpen && invoice) {
             form.reset({
-                amount: remainingBalance > 0 ? remainingBalance : 0,
+                amount: remainingBalance > 0 ? parseFloat(remainingBalance.toFixed(2)) : 0,
                 payment_method: "cash",
                 date: new Date().toISOString().split("T")[0],
                 reference: "",
@@ -88,7 +88,7 @@ export default function RecordPurchasePaymentModal({
 
         const payload = {
             purchase_order_id: invoice.purchase_order_id,
-            amount: Number(values.amount),
+            amount: parseFloat(Number(values.amount).toFixed(2)),
             payment_method: values.payment_method.toLowerCase(),
             reference: values.reference || undefined,
             notes: values.notes || undefined,
@@ -110,11 +110,12 @@ export default function RecordPurchasePaymentModal({
 
     const watchAmount = form.watch("amount");
 
+    const epsilon = 0.001; // Allow for small floating-point rounding errors
     const isAmountInvalid =
         !watchAmount ||
         isNaN(Number(watchAmount)) ||
         Number(watchAmount) <= 0 ||
-        Number(watchAmount) > remainingBalance;
+        Number(watchAmount) > remainingBalance + epsilon;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -178,7 +179,9 @@ export default function RecordPurchasePaymentModal({
                                                     const value = Number(raw);
                                                     if (isNaN(value)) return;
 
-                                                    if (value > remainingBalance) {
+                                                    // Use epsilon comparison to handle floating-point precision issues
+                                                    const epsilon = 0.001;
+                                                    if (value > remainingBalance + epsilon) {
                                                         form.setError("amount", {
                                                             type: "manual",
                                                             message: `Amount cannot exceed remaining balance (${currency} ${remainingBalance.toFixed(2)})`,
@@ -207,7 +210,7 @@ export default function RecordPurchasePaymentModal({
                                         </FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger>
+                                                <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select Method" />
                                                 </SelectTrigger>
                                             </FormControl>

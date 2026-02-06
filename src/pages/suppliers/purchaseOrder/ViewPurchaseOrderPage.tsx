@@ -177,7 +177,7 @@ export default function PurchaseOrderView() {
           </div>
 
           {/* 3. Items Table */}
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 border-b-1 gap-0 py-4">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Package className="w-4 h-4" /> Purchase Items

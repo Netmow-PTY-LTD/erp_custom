@@ -106,12 +106,12 @@ export default function PurchasePaymentsDetails() {
         <div className="lg:col-span-8 space-y-6">
 
           <Card className="shadow-sm border-border/60 overflow-hidden">
-            <CardHeader className="bg-muted/30 border-b gap-0 py-4">
+            <CardHeader className="bg-muted/30 border-b-1 gap-0 py-4">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Payment Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="pb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <DetailItem
@@ -182,7 +182,7 @@ export default function PurchasePaymentsDetails() {
                   <Building2 className="w-4 h-4" /> Supplier
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6 space-y-4">
+              <CardContent className="pb-6 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
                     <Building2 className="w-5 h-5" />
@@ -226,9 +226,9 @@ export default function PurchasePaymentsDetails() {
           )}
 
           {/* Financial context */}
-          <Card className="shadow-lg border-indigo-100 dark:border-indigo-900/30 overflow-hidden">
+          <Card className="shadow-lg border-indigo-100 dark:border-indigo-900/30 overflow-hidden gap-0">
             <div className="h-1.5 bg-gradient-to-r from-indigo-500 to-emerald-500"></div>
-            <CardHeader className="py-4">
+            <CardHeader className="py-4 gap-0">
               <CardTitle className="text-sm font-bold uppercase text-muted-foreground">Related Documents</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 pb-6">
