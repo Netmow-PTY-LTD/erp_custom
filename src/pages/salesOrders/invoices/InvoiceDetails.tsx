@@ -206,7 +206,7 @@ export default function InvoiceDetailsPage() {
             </Card>
           </div>
 
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <FileText className="w-4 h-4" /> Line Items
@@ -264,7 +264,7 @@ export default function InvoiceDetailsPage() {
           </Card>
 
           {/* Payment History (Incoming) */}
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0 flex flex-row justify-between items-center">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Payment History (Received)
