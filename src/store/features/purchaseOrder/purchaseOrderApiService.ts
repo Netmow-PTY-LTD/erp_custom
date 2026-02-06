@@ -219,7 +219,7 @@ export const purchaseApiService = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["PurchasePayments"],
+      invalidatesTags: ["PurchasePayments", "PurchaseInvoices"],
     }),
 
     // GET PAYMENT BY ID
