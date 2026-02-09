@@ -59,7 +59,7 @@ export default function DatabaseTables() {
             </div>
           ) : (
             <Select value={selectedTable} onValueChange={(val) => { setSelectedTable(val); setPage(1); }}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a Table" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
@@ -77,8 +77,8 @@ export default function DatabaseTables() {
         </div>
       </div>
 
-      <Card className="shadow-sm border-border/60">
-        <CardHeader className="pb-2">
+      <Card className="shadow-sm border-border/60 py-6">
+        <CardHeader>
           <CardTitle className="text-lg font-medium">
             {selectedTable ? `Table: ${selectedTable}` : "No Table Selected"}
           </CardTitle>
