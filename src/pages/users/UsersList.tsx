@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useGetAllUsersQuery } from "@/store/features/users/usersApiService";
 import type { User } from "@/types/users.types";
 
@@ -150,11 +150,8 @@ export default function UsersList() {
       </div>
 
       {/* TABLE */}
-      <Card className="pt-6 pb-2">
-        <CardHeader>
-          <CardTitle>All Users</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="pt-6 pb-2 border-none shadow-none">
+        <CardContent className="px-0">
           <DataTable
             columns={userColumns}
             data={users}

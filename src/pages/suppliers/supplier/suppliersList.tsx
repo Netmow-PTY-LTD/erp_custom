@@ -8,22 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+  CardContent
 } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
 import {
-  useDeleteSupplierMutation,
+  // useDeleteSupplierMutation,
   useGetAllSuppliersQuery,
   useGetSupplierStatsQuery,
 } from "@/store/features/suppliers/supplierApiService";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Edit, PlusCircle, Trash2, Users as UsersIcon, ShoppingCart, User, Filter, AlertCircle, UserCheck, DollarSign, Printer } from "lucide-react";
+import { Edit, PlusCircle, Users as UsersIcon, ShoppingCart, User, AlertCircle, UserCheck, DollarSign, Printer } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -32,45 +29,45 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "react-router";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import type { Supplier } from "@/types/supplier.types";
 import { useAppSelector } from "@/store/store";
-import { SuperAdminPermission, SupplierPermission } from "@/config/permissions";
+// import { SuperAdminPermission, SupplierPermission } from "@/config/permissions";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { format } from "date-fns";
 
 
 
 // Simple confirmation modal
-function ConfirmModal({
-  open,
-  onClose,
-  onConfirm,
-  message,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  message: string;
-}) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white p-6 rounded-xl w-96">
-        <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
-        <p className="mb-6">{message}</p>
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
+// function ConfirmModal({
+//   open,
+//   onClose,
+//   onConfirm,
+//   message,
+// }: {
+//   open: boolean;
+//   onClose: () => void;
+//   onConfirm: () => void;
+//   message: string;
+// }) {
+//   if (!open) return null;
+//   return (
+//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+//       <div className="bg-white p-6 rounded-xl w-96">
+//         <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
+//         <p className="mb-6">{message}</p>
+//         <div className="flex justify-end gap-3">
+//           <Button variant="outline" onClick={onClose}>
+//             Cancel
+//           </Button>
+//           <Button variant="destructive" onClick={onConfirm}>
+//             Delete
+//           </Button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 export default function SuppliersList() {
   const [page, setPage] = useState<number>(1);
@@ -83,11 +80,11 @@ export default function SuppliersList() {
 
   const currency = useAppSelector((state) => state.currency.value);
 
-  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  // permissions
+  // // permissions
 
-  const canDeleteSupplier = userPermissions.includes(SupplierPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // const canDeleteSupplier = userPermissions.includes(SupplierPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: suppliersData, isLoading } = useGetAllSuppliersQuery({
     search,
@@ -95,7 +92,7 @@ export default function SuppliersList() {
     limit,
     sort: sort !== 'newest' ? sort : undefined
   });
-  const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
+  // const [deleteSupplier, { isLoading: isDeleting }] = useDeleteSupplierMutation();
 
   const { data: supplierStats } = useGetSupplierStatsQuery(undefined);
 
@@ -143,32 +140,32 @@ export default function SuppliersList() {
     },
   ];
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string | number | null>(null);
+  // const [modalOpen, setModalOpen] = useState(false);
+  // const [selectedSupplierId, setSelectedSupplierId] = useState<string | number | null>(null);
   const [previewData, setPreviewData] = useState<{
     images: string[];
     index: number;
   } | null>(null);
 
-  const handleDeleteClick = (id: string | number) => {
-    setSelectedSupplierId(id);
-    setModalOpen(true);
-  };
+  // const handleDeleteClick = (id: string | number) => {
+  //   setSelectedSupplierId(id);
+  //   setModalOpen(true);
+  // };
 
-  const handleConfirmDelete = async () => {
-    if (!selectedSupplierId) return;
+  // const handleConfirmDelete = async () => {
+  //   if (!selectedSupplierId) return;
 
-    try {
-      await deleteSupplier(selectedSupplierId).unwrap();
-      toast.success("Supplier deleted successfully");
-    } catch (error) {
-      toast.error("Failed to delete supplier");
-      console.error(error);
-    } finally {
-      setModalOpen(false);
-      setSelectedSupplierId(null);
-    }
-  };
+  //   try {
+  //     await deleteSupplier(selectedSupplierId).unwrap();
+  //     toast.success("Supplier deleted successfully");
+  //   } catch (error) {
+  //     toast.error("Failed to delete supplier");
+  //     console.error(error);
+  //   } finally {
+  //     setModalOpen(false);
+  //     setSelectedSupplierId(null);
+  //   }
+  // };
 
   const supplierColumns: ColumnDef<Supplier>[] = [
     {
@@ -292,7 +289,7 @@ export default function SuppliersList() {
                 Edit
               </Button>
             </Link>
-            {canDeleteSupplier && (
+            {/* {canDeleteSupplier && (
               <Button
                 size="sm"
                 className="h-8 bg-rose-50 text-rose-600 hover:bg-rose-100 border-none shadow-none"
@@ -302,7 +299,7 @@ export default function SuppliersList() {
                 <Trash2 className="h-4 w-4" />
                 Delete
               </Button>
-            )}
+            )} */}
           </div>
         );
       },
@@ -393,7 +390,7 @@ export default function SuppliersList() {
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
 
-          <CardContent className="print:p-0">
+          <CardContent className="print:p-0 px-0">
             {isLoading ? (
               <p>Loading...</p>
             ) : (
@@ -441,12 +438,12 @@ export default function SuppliersList() {
       </div>
 
       {/* Delete confirmation modal */}
-      <ConfirmModal
+      {/* <ConfirmModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleConfirmDelete}
         message="Are you sure you want to delete this supplier? This action cannot be undone."
-      />
+      /> */}
 
       <Dialog
         open={!!previewData}

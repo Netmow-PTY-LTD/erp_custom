@@ -21,7 +21,7 @@ import {
   PackagePlus,
   Pencil,
   Tags,
-  Trash,
+  // Trash,
   Filter,
   Printer
 } from "lucide-react";
@@ -37,7 +37,7 @@ import { Link } from "react-router";
 import type { Product } from "@/types/types";
 import { useState } from "react";
 import {
-  useDeleteProductMutation,
+  // useDeleteProductMutation,
   useGetAllProductsQuery,
   useGetProductStatsQuery,
   useGetAllCategoriesQuery,
@@ -45,7 +45,7 @@ import {
 import { format } from "date-fns";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { useAppSelector } from "@/store/store";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { selectCurrency } from "@/store/currencySlice";
 // import { ProductPermission } from "@/config/permissions";
 
@@ -53,7 +53,7 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
+// import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function Products() {
   const { data: settingsData } = useGetSettingsInfoQuery();
@@ -71,8 +71,8 @@ export default function Products() {
   // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
   // const canCreateProduct = userPermissions.includes(ProductPermission.CREATE)|| userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
-  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canDeleteProduct = userPermissions.includes(ProductPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  // const canDeleteProduct = userPermissions.includes(ProductPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: productStatsData } = useGetProductStatsQuery(undefined);
 
@@ -129,7 +129,7 @@ export default function Products() {
   const {
     data: fetchedProducts,
     isFetching,
-    refetch: refetchProducts,
+    // refetch: refetchProducts,
   } = useGetAllProductsQuery({
     page,
     limit,
@@ -149,39 +149,39 @@ export default function Products() {
     totalPage: 1,
   };
 
-  const [deleteProduct] = useDeleteProductMutation();
-  const handleDeleteProduct = async (id: number) => {
-    // Ask for confirmation using a simple toast with prompt
-    const confirmed = await new Promise<boolean>((resolve) => {
-      toast("Are you sure you want to delete this product?", {
-        action: {
-          label: "Delete",
-          onClick: () => resolve(true), // user confirmed
-        },
-        duration: 10000, // auto-dismiss after 5s
-      });
+  // const [deleteProduct] = useDeleteProductMutation();
+  // const handleDeleteProduct = async (id: number) => {
+  //   // Ask for confirmation using a simple toast with prompt
+  //   const confirmed = await new Promise<boolean>((resolve) => {
+  //     toast("Are you sure you want to delete this product?", {
+  //       action: {
+  //         label: "Delete",
+  //         onClick: () => resolve(true), // user confirmed
+  //       },
+  //       duration: 10000, // auto-dismiss after 5s
+  //     });
 
-      // resolve false if toast disappears automatically
-      setTimeout(() => resolve(false), 10000);
-    });
+  //     // resolve false if toast disappears automatically
+  //     setTimeout(() => resolve(false), 10000);
+  //   });
 
-    console.log("User confirmed deletion: ", confirmed);
+  //   console.log("User confirmed deletion: ", confirmed);
 
-    if (!confirmed) return; // stop if user didn’t confirm
+  //   if (!confirmed) return; // stop if user didn’t confirm
 
-    try {
-      const res = await deleteProduct(id).unwrap();
-      if (res.status) {
-        toast.success("Product deleted successfully");
-        refetchProducts();
-      } else {
-        toast.error("Failed to delete unit");
-      }
-    } catch (error: any) {
-      console.error("Error deleting unit:", error);
-      toast.error(error?.data?.message || "Failed to delete unit");
-    }
-  };
+  //   try {
+  //     const res = await deleteProduct(id).unwrap();
+  //     if (res.status) {
+  //       toast.success("Product deleted successfully");
+  //       refetchProducts();
+  //     } else {
+  //       toast.error("Failed to delete unit");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Error deleting unit:", error);
+  //     toast.error(error?.data?.message || "Failed to delete unit");
+  //   }
+  // };
 
   const currency = useAppSelector(selectCurrency);
 
@@ -346,7 +346,7 @@ export default function Products() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {
+              {/* 
                 canDeleteProduct && (
                   <DropdownMenuItem
                     onClick={() => handleDeleteProduct(product.id)}
@@ -356,7 +356,7 @@ export default function Products() {
                     Delete
                   </DropdownMenuItem>
                 )
-              }
+              */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -462,9 +462,9 @@ export default function Products() {
         </div>
 
         <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0">
+          <CardHeader className="print:hidden flex flex-row items-center justify-between space-y-0 px-0">
             <CardTitle>All Products</CardTitle>
-            <div className="w-[140px]">
+            <div className="w-[180px]">
               <Select
                 value={selectedCategory}
                 onValueChange={(value) => {
@@ -487,7 +487,7 @@ export default function Products() {
               </Select>
             </div>
           </CardHeader>
-          <CardContent className="print:p-0">
+          <CardContent className="print:p-0 px-0">
             <DataTable
               columns={productColumns}
               data={products}

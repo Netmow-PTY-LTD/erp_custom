@@ -463,9 +463,9 @@ export default function Orders() {
           </div>
         </div>
 
-        <Card className="py-6 print:py-0">
+        <Card className="py-6 print:py-0 border-none shadow-none">
 
-          <CardContent>
+          <CardContent className="px-0">
             <DataTable
               columns={OrderColumns}
               data={orders}

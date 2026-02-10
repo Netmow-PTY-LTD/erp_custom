@@ -374,10 +374,10 @@ export default function ProductsByStaff() {
           </div>
         ))}
       </div>
-      <Card className="pt-6 pb-2">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      <Card className="pt-6 pb-2 shadow-none border-none">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 px-0">
           <CardTitle>All Products</CardTitle>
-          <div className="w-[140px]">
+          <div className="w-[180px]">
             <Select
               value={selectedCategory}
               onValueChange={(value) => {
@@ -400,7 +400,7 @@ export default function ProductsByStaff() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0">
           <DataTable
             columns={productColumns}
             data={products}

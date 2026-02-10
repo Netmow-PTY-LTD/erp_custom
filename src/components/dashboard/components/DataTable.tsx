@@ -207,7 +207,7 @@ export function DataTable<TData>({
       {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between py-4 gap-4">
         {/* Showing X–Y of Z */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="text-sm">
             Showing {pageIndex * pageSize + 1}–
             {Math.min((pageIndex + 1) * pageSize, totalCount)} of {totalCount}{" "}

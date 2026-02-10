@@ -137,7 +137,7 @@ export default function TaxSubmission() {
                                                 rules={{ required: "Tax type is required" }}
                                                 render={({ field }) => (
                                                     <Select onValueChange={field.onChange} value={field.value}>
-                                                        <SelectTrigger>
+                                                        <SelectTrigger className="w-full">
                                                             <SelectValue placeholder="Select tax type" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -203,7 +203,7 @@ export default function TaxSubmission() {
                                                 control={control}
                                                 render={({ field }) => (
                                                     <Select onValueChange={field.onChange} value={field.value}>
-                                                        <SelectTrigger>
+                                                        <SelectTrigger className="w-full">
                                                             <SelectValue placeholder="Select payment mode" />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -314,7 +314,7 @@ export default function TaxSubmission() {
 
             {/* Statistics Cards */}
             <div className="grid gap-6 md:grid-cols-3">
-                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-600 to-indigo-400 text-white shadow-lg">
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-600 to-indigo-400 text-white shadow-lg py-6">
                     <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
                     <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -328,7 +328,7 @@ export default function TaxSubmission() {
                         <p className="text-xs text-white/70 mt-1">Sum of all recorded tax filings</p>
                     </CardContent>
                 </Card>
-                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-emerald-600 to-emerald-400 text-white shadow-lg">
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-emerald-600 to-emerald-400 text-white shadow-lg py-6">
                     <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
                     <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -342,7 +342,7 @@ export default function TaxSubmission() {
                         <p className="text-xs text-white/70 mt-1">Successfully processed tax payments</p>
                     </CardContent>
                 </Card>
-                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-orange-600 to-orange-400 text-white shadow-lg">
+                <Card className="relative overflow-hidden border-none bg-gradient-to-br from-orange-600 to-orange-400 text-white shadow-lg py-6">
                     <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
                     <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-black/10 blur-2xl" />
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">

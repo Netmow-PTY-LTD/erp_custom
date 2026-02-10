@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Link, useParams } from "react-router";
 import { Separator } from "@/components/ui/separator";
 import {
-  Check,
   Eye,
   FilePlus,
   ArrowLeft,
@@ -20,7 +19,6 @@ import {
 import {
   useAddPurchaseInvoiceMutation,
   useGetPurchaseOrderByIdQuery,
-  useUpdatePurchaseOrderMutation,
 } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { toast } from "sonner";
 import type { POItem } from "@/types/purchaseOrder.types";
@@ -35,8 +33,7 @@ export default function PurchaseOrderView() {
 
   const purchase = Array.isArray(data?.data) ? data?.data[0] : data?.data;
 
-  const [updatePurchaseOrder, { isLoading: isUpdating }] =
-    useUpdatePurchaseOrderMutation();
+
 
   const [addInvoice, { isLoading: isCreating }] =
     useAddPurchaseInvoiceMutation();
@@ -57,21 +54,7 @@ export default function PurchaseOrderView() {
     );
   }
 
-  /* ================= ACTIONS ================= */
-  const handleApprove = async () => {
-    try {
-      const res = await updatePurchaseOrder({
-        id: purchase.id,
-        body: { status: "approved" },
-      }).unwrap();
 
-      if (res.status) {
-        toast.success(res.message || "Purchase Order Approved");
-      }
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Approval failed");
-    }
-  };
 
   const handleCreateInvoice = async () => {
     try {
@@ -194,7 +177,7 @@ export default function PurchaseOrderView() {
           </div>
 
           {/* 3. Items Table */}
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 border-b-1 gap-0 py-4">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Package className="w-4 h-4" /> Purchase Items

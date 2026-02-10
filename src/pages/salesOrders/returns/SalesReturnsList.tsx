@@ -206,9 +206,9 @@ export default function SalesReturnsList({ status }: { status?: string }) {
                 ))}
             </div>
 
-            <Card className="py-6 border bg-white/50 pb-2">
+            <Card className="py-6 border-none shadow-none bg-white/50 pb-2">
 
-                <CardContent>
+                <CardContent className="px-0">
                     <DataTable
                         columns={columns}
                         data={salesReturns}

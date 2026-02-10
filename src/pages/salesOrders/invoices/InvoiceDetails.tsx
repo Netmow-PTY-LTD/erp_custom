@@ -145,9 +145,9 @@ export default function InvoiceDetailsPage() {
                     <p className="text-xs text-muted-foreground uppercase font-bold">From</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{from?.company_name}</p>
                     <div className="text-sm text-gray-500 space-y-0.5 mt-1">
-                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {from?.address}</p>
-                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {from?.email}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {from?.phone}</p>
+                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {from?.address}</p>
+                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 shrink-0" /> {from?.email}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {from?.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -161,9 +161,9 @@ export default function InvoiceDetailsPage() {
                     <p className="text-xs text-muted-foreground uppercase font-bold">Bill To</p>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{to?.name}</p>
                     <div className="text-sm text-gray-500 space-y-0.5 mt-1">
-                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {to?.address}</p>
-                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {to?.email}</p>
-                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> {to?.phone}</p>
+                      <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 shrink-0" /> {to?.address}</p>
+                      <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 shrink-0" /> {to?.email}</p>
+                      <p className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" /> {to?.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -206,7 +206,7 @@ export default function InvoiceDetailsPage() {
             </Card>
           </div>
 
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <FileText className="w-4 h-4" /> Line Items
@@ -218,11 +218,10 @@ export default function InvoiceDetailsPage() {
                   <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
                     <th className="px-6 py-4 font-medium">Product Details</th>
                     <th className="px-6 py-4 font-medium">Specification</th>
-                    <th className="px-6 py-4 font-medium text-right">Unit Price</th>
+                    <th className="px-6 py-4 font-medium text-right">Unit Price ({currency})</th>
                     <th className="px-6 py-4 font-medium text-center">Qty</th>
-                    <th className="px-6 py-4 font-medium text-right">Discount</th>
-                    <th className="px-6 py-4 font-medium text-right">Tax</th>
-                    <th className="px-6 py-4 font-medium text-right">Total</th>
+                    <th className="px-6 py-4 font-medium text-right">Discount ({currency})</th>
+                    <th className="px-6 py-4 font-medium text-right">Total ({currency})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -239,19 +238,16 @@ export default function InvoiceDetailsPage() {
                         {item.specification || item.product?.specification || "-"}
                       </td>
                       <td className="px-6 py-4 text-right font-medium">
-                        {currency} {Number(item?.unit_price || 0).toFixed(2)}
+                        {Number(item?.unit_price || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Badge variant="outline" className="font-mono text-xs">{item?.quantity}</Badge>
                       </td>
                       <td className="px-6 py-4 text-right text-muted-foreground">
-                        {Number(item?.discount || 0) > 0 ? `- ${currency} ${Number(item?.discount).toFixed(2)}` : "-"}
-                      </td>
-                      <td className="px-6 py-4 text-right text-muted-foreground">
-                        {Number((item as any)?.tax || 0) > 0 ? `${currency} ${Number((item as any)?.tax).toFixed(2)}` : "-"}
+                        {Number((item as any)?.discount_amount || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100">
-                        {currency} {Number(item?.line_total || 0).toFixed(2)}
+                        {Number(item?.line_total || 0).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -268,7 +264,7 @@ export default function InvoiceDetailsPage() {
           </Card>
 
           {/* Payment History (Incoming) */}
-          <Card className="shadow-sm border-border/60 overflow-hidden">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0 flex flex-row justify-between items-center">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Payment History (Received)

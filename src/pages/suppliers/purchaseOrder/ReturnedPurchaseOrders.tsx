@@ -7,14 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
     CardContent,
 } from "@/components/ui/card";
 import { useGetAllPurchaseReturnsQuery } from "@/store/features/purchaseOrder/purchaseReturnApiService";
 import { useAppSelector } from "@/store/store";
-import type { PurchaseOrder } from "@/types/purchaseOrder.types";
+import type { PurchaseReturn } from "@/types/purchaseOrder.types";
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, FileText, CheckCircle, Clock, XCircle, PlusCircle, Printer } from "lucide-react";
@@ -31,6 +28,9 @@ import {
 } from "@/components/ui/select";
 
 
+
+
+
 // Simple confirmation modal
 
 
@@ -41,6 +41,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
     const [filterStatus, setFilterStatus] = useState<string>(status || "all");
     const limit = 10;
 
+
     // Fetch Purchase Returns
     const { data, isFetching } = useGetAllPurchaseReturnsQuery({
         page,
@@ -49,7 +50,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
         status: filterStatus === "all" ? undefined : filterStatus,
     });
 
-    const purchaseOrdersData: PurchaseOrder[] = Array.isArray(data?.data)
+    const purchaseOrdersData: PurchaseReturn[] = Array.isArray(data?.data)
         ? data.data
         : [];
 
@@ -119,6 +120,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
     };
 
     const poStatusOptions = [
+        { value: "pending", label: "Pending" },
         { value: "approved", label: "Approved" },
         { value: "rejected", label: "Rejected" },
     ];
@@ -129,7 +131,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
 
 
     /* COLUMNS */
-    const poColumns: ColumnDef<PurchaseOrder>[] = [
+    const poColumns: ColumnDef<PurchaseReturn>[] = [
         {
             accessorFn: (row) => row.return_number || row.po_number || `RET-${row.id}`,
             header: "Return Number",
@@ -157,10 +159,10 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
         },
         {
             id: "return_date",
-            accessorFn: (row: any) => row.return_date || row.order_date,
+            accessorFn: (row: any) => row.return_date,
             header: "Return Date",
             cell: ({ row }) => {
-                const dateC = (row.original as any).return_date || row.original.order_date;
+                const dateC = row.original.return_date;
                 return formatDateStandard(dateC);
             },
         },
@@ -177,9 +179,7 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                             ? "bg-blue-600"
                             : status === "rejected"
                                 ? "bg-red-600"
-                                : status === "returned"
-                                    ? "bg-orange-600"
-                                    : "bg-green-600";
+                                : "bg-green-600";
 
                 return <Badge className={`${color} text-white capitalize`}>{status}</Badge>;
             },
@@ -285,12 +285,33 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                 <h1 className="text-2xl font-bold tracking-tight">
                     Returned Purchase Orders
                 </h1>
-                <Link to="/dashboard/purchase-orders/return/create">
-                    <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
-                        <PlusCircle size={18} />
-                        Create Purchase Return
-                    </button>
-                </Link>
+                <div className="flex gap-2">
+                    {!status && (
+                        <Select
+                            value={filterStatus}
+                            onValueChange={(val) => {
+                                setFilterStatus(val);
+                                setPage(1);
+                            }}
+                        >
+                            <SelectTrigger className="w-[180px] !h-auto py-2.5 rounded-lg">
+                                <SelectValue placeholder="Filter by Status" />
+                            </SelectTrigger>
+                            <SelectContent className="py-3">
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="approved">Approved</SelectItem>
+                                <SelectItem value="rejected">Rejected</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    )}
+                    <Link to="/dashboard/purchase-orders/return/create">
+                        <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
+                            <PlusCircle size={18} />
+                            Create Purchase Return
+                        </button>
+                    </Link>
+                </div>
             </div>
 
             {/* Stats Cards */}
@@ -318,10 +339,10 @@ export default function ReturnedPurchaseOrders({ status }: { status?: string }) 
                 ))}
             </div>
 
-            <Card className="py-6">
+            <Card className="py-6 border-none shadow-none">
 
 
-                <CardContent>
+                <CardContent className="px-0">
                     <DataTable
                         columns={poColumns}
                         data={purchaseOrdersData}

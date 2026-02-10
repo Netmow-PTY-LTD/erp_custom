@@ -5,13 +5,13 @@ import EditUnitForm from "@/components/products/EditUnitForm";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
-  useDeleteUnitMutation,
+  // useDeleteUnitMutation,
   useGetAllUnitsQuery,
 } from "@/store/features/admin/productsApiService";
 import type { Unit } from "@/types/types";
-import { toast } from "sonner";
-import { useAppSelector } from "@/store/store";
-import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
+// import { toast } from "sonner";
+// import { useAppSelector } from "@/store/store";
+// import { ProductPermission, SuperAdminPermission } from "@/config/permissions";
 
 export default function UnitsPage() {
   const [addSheetOpen, setAddSheetOpen] = useState(false);
@@ -21,10 +21,10 @@ export default function UnitsPage() {
   const [search, setSearch] = useState<string>("");
   const limit = 10;
 
-  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  // Units permissions
-  const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // // Units permissions
+  // const canDeleteUnits = userPermissions.includes(ProductPermission.DELETE_UNITS) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -44,45 +44,45 @@ export default function UnitsPage() {
     totalPage: 1,
   };
 
-  const [deleteUnit] = useDeleteUnitMutation();
-  const handleDeleteUnit = async (id: number) => {
-    // Ask for confirmation using a simple toast with prompt
-    const confirmed = await new Promise<boolean>((resolve) => {
-      if (!canDeleteUnits) {
-        toast.error("You do not have permission to delete this unit");
-        return; // Stop further execution
-      }
+  // const [deleteUnit] = useDeleteUnitMutation();
+  // const handleDeleteUnit = async (id: number) => {
+  //   // Ask for confirmation using a simple toast with prompt
+  //   const confirmed = await new Promise<boolean>((resolve) => {
+  //     if (!canDeleteUnits) {
+  //       toast.error("You do not have permission to delete this unit");
+  //       return; // Stop further execution
+  //     }
 
-      // Proceed with delete logic if permission exists
-      toast("Are you sure you want to delete this unit?", {
-        action: {
-          label: "Delete",
-          onClick: () => resolve(true), // user confirmed
-        },
-        duration: 10000, // auto-dismiss after 5s
-      });
+  //     // Proceed with delete logic if permission exists
+  //     toast("Are you sure you want to delete this unit?", {
+  //       action: {
+  //         label: "Delete",
+  //         onClick: () => resolve(true), // user confirmed
+  //       },
+  //       duration: 10000, // auto-dismiss after 5s
+  //     });
 
-      // resolve false if toast disappears automatically
-      setTimeout(() => resolve(false), 10000);
-    });
+  //     // resolve false if toast disappears automatically
+  //     setTimeout(() => resolve(false), 10000);
+  //   });
 
-    console.log("User confirmed deletion: ", confirmed);
+  //   console.log("User confirmed deletion: ", confirmed);
 
-    if (!confirmed) return; // stop if user didn’t confirm
+  //   if (!confirmed) return; // stop if user didn’t confirm
 
-    try {
-      const res = await deleteUnit(id).unwrap();
-      if (res.status) {
-        toast.success("Unit deleted successfully");
-        refetchUnits();
-      } else {
-        toast.error("Failed to delete unit");
-      }
-    } catch (error: any) {
-      console.error("Error deleting unit:", error);
-      toast.error(error?.data?.message || "Failed to delete unit");
-    }
-  };
+  //   try {
+  //     const res = await deleteUnit(id).unwrap();
+  //     if (res.status) {
+  //       toast.success("Unit deleted successfully");
+  //       refetchUnits();
+  //     } else {
+  //       toast.error("Failed to delete unit");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Error deleting unit:", error);
+  //     toast.error(error?.data?.message || "Failed to delete unit");
+  //   }
+  // };
 
   const columns: ColumnDef<Unit>[] = [
     { accessorKey: "name", header: "Unit Name" },
@@ -121,12 +121,12 @@ export default function UnitsPage() {
               Edit
             </Button>
 
-            <Button
+            {/* <Button
               variant="destructive"
               onClick={() => handleDeleteUnit(unit.id)}
             >
               Delete
-            </Button>
+            </Button> */}
           </div>
         );
       },

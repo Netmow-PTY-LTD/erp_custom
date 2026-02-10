@@ -134,7 +134,7 @@ export default function CreatePurchaseReturnPayment() {
                                             <div className="flex flex-col">
                                                 <span className="font-bold">{r.return_number || r.po_number || `RET-${r.id}`}</span>
                                                 <span className="text-xs text-gray-500">
-                                                    Balance: {currency} {(Number(r.grand_total || r.total_payable_amount || 0) - Number(r.total_paid_amount || 0)).toFixed(2)}
+                                                    Balance: {currency} {(Number(r.grand_total || r.total_payable_amount || 0) - Number(r.total_refunded_amount || 0)).toFixed(2)}
                                                 </span>
                                             </div>
                                         </CommandItem>
@@ -183,7 +183,7 @@ export default function CreatePurchaseReturnPayment() {
     const discount = Number(returnDetails?.discount_amount ?? 0);
 
     const total = subtotal + tax - discount;
-    const paid = Number(returnDetails?.total_paid_amount ?? 0);
+    const paid = Number(returnDetails?.total_refunded_amount ?? 0);
     const balance = total - paid;
 
     return (

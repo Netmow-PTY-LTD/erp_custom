@@ -116,7 +116,7 @@ export default function OrderDetails() {
             <Card className="shadow-sm border-border/60 md:col-span-2 lg:col-span-1">
               <CardContent className="p-4 flex flex-col gap-1">
                 <span className="text-xs text-muted-foreground uppercase font-medium">Shipping Address</span>
-                <span className="text-sm font-semibold flex items-start gap-2 max-h-[3rem] overflow-hidden text-ellipsis line-clamp-2" title={order.shipping_address}>
+                <span className="text-sm font-semibold flex items-start gap-2" title={order.shipping_address}>
                   <MapPin className="w-4 h-4 opacity-50 shrink-0 mt-0.5" /> {order.shipping_address}
                 </span>
               </CardContent>
@@ -124,7 +124,7 @@ export default function OrderDetails() {
           </div>
 
           {/* Order Items */}
-          <Card className="shadow-sm border-border/60 overflow-hidden gap-2">
+          <Card className="shadow-sm border-border/60 overflow-hidden gap-0">
             <CardHeader className="bg-muted/30 py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <Package className="w-4 h-4" /> Order Items
@@ -173,7 +173,7 @@ export default function OrderDetails() {
 
           {/* Status History */}
           <Card className="shadow-sm border-border/60 mt-6">
-            <CardHeader className="py-4 border-b">
+            <CardHeader className="py-4 border-b-1 gap-0">
               <CardTitle className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
                 <History className="w-4 h-4 text-blue-500" />
                 Status Tracking History
@@ -181,7 +181,7 @@ export default function OrderDetails() {
             </CardHeader>
             <CardContent className="p-0">
               {order.status_history && order.status_history.length > 0 ? (
-                <div className="relative p-6 pl-10">
+                <div className="relative px-6 pb-6 pl-10">
                   <div className="absolute left-8 top-8 bottom-8 w-0.5 bg-slate-100 dark:bg-slate-800"></div>
                   <div className="space-y-8">
                     {[...order.status_history].reverse().map((history, idx) => (

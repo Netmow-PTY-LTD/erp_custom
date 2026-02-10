@@ -3,14 +3,14 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
+import { Card, CardContent } from "@/components/ui/card";
+// import { StaffPermission, SuperAdminPermission } from "@/config/permissions";
 import {
-  useDeleteStaffMutation,
+
   useGetAllStaffsQuery,
 } from "@/store/features/staffs/staffApiService";
 import { useGetAllRolesQuery } from "@/store/features/role/roleApiService";
-import { useAppSelector } from "@/store/store";
+// import { useAppSelector } from "@/store/store";
 
 import type { Department, Staff } from "@/types/types";
 import type { Role } from "@/types/users.types";
@@ -19,7 +19,7 @@ import {
   CalendarX2,
   Clock,
   PlusCircle,
-  Trash,
+
   Users,
   XCircle,
 } from "lucide-react";
@@ -32,39 +32,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 
 // Simple modal
-function ConfirmModal({
-  open,
-  onClose,
-  onConfirm,
-  message,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  message: string;
-}) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-xl w-96">
-        <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
-        <p className="mb-6">{message}</p>
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            Delete
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
+// function ConfirmModal({
+//   open,
+//   onClose,
+//   onConfirm,
+//   message,
+// }: {
+//   open: boolean;
+//   onClose: () => void;
+//   onConfirm: () => void;
+//   message: string;
+// }) {
+//   if (!open) return null;
+//   return (
+//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+//       <div className="bg-white p-6 rounded-xl w-96">
+//         <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
+//         <p className="mb-6">{message}</p>
+//         <div className="flex justify-end gap-3">
+//           <Button variant="outline" onClick={onClose}>
+//             Cancel
+//           </Button>
+//           <Button variant="destructive" onClick={onConfirm}>
+//             Delete
+//           </Button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 export default function Staffs() {
   const [page, setPage] = useState(1);
@@ -73,11 +73,11 @@ export default function Staffs() {
   const [limit] = useState(10);
 
 
-  const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
+  // const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
 
-  // permissions
+  // // permissions
 
-  const canDeleteStaff = userPermissions.includes(StaffPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // const canDeleteStaff = userPermissions.includes(StaffPermission.DELETE) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const { data: staffsData, isLoading } = useGetAllStaffsQuery({
     page,
@@ -90,10 +90,10 @@ export default function Staffs() {
   const roles = rolesData?.data ?? [];
 
   const staffsList = staffsData?.data as Staff[] | [];
-  const [deleteStaff] = useDeleteStaffMutation();
+  // const [deleteStaff] = useDeleteStaffMutation();
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+  // const [modalOpen, setModalOpen] = useState(false);
+  // const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   // -----------------------------------------
   //  DYNAMIC STATS BASED ON API RESPONSE
   // -----------------------------------------
@@ -146,23 +146,23 @@ export default function Staffs() {
   // -----------------------
   // DELETE HANDLER
   // -----------------------
-  const handleDeleteClick = (staff: Staff) => {
-    setSelectedStaff(staff);
-    setModalOpen(true);
-  };
+  // const handleDeleteClick = (staff: Staff) => {
+  //   setSelectedStaff(staff);
+  //   setModalOpen(true);
+  // };
 
-  const confirmDelete = async () => {
-    if (!selectedStaff) return;
-    try {
-      await deleteStaff(selectedStaff.id).unwrap();
-      toast.success("Staff deleted successfully!");
-      setModalOpen(false);
-      setSelectedStaff(null);
-    } catch (err) {
-      toast.error("Failed to delete staff.");
-      console.error(err);
-    }
-  };
+  // const confirmDelete = async () => {
+  //   if (!selectedStaff) return;
+  //   try {
+  //     await deleteStaff(selectedStaff.id).unwrap();
+  //     toast.success("Staff deleted successfully!");
+  //     setModalOpen(false);
+  //     setSelectedStaff(null);
+  //   } catch (err) {
+  //     toast.error("Failed to delete staff.");
+  //     console.error(err);
+  //   }
+  // };
 
   const staffColumns: ColumnDef<Staff>[] = [
     {
@@ -268,7 +268,7 @@ export default function Staffs() {
               </Button>
             </Link>
 
-            {canDeleteStaff &&
+            {/* {canDeleteStaff &&
               <Button
                 size="sm"
                 variant="destructive"
@@ -276,7 +276,7 @@ export default function Staffs() {
               >
                 <Trash className="w-4 h-4 mr-1" />
               </Button>
-            }
+            } */}
 
           </div>
         );
@@ -328,10 +328,10 @@ export default function Staffs() {
         ))}
       </div>
 
-      <Card className="pt-6 pb-2">
+      <Card className="pt-6 pb-2 border-none shadow-none">
 
 
-        <CardContent>
+        <CardContent className="px-0">
           {isLoading ? (
             <p>Loading...</p>
           ) : (
@@ -368,12 +368,12 @@ export default function Staffs() {
       </Card>
 
       {/* CONFIRM MODAL */}
-      <ConfirmModal
+      {/* <ConfirmModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={confirmDelete}
         message={`Are you sure you want to delete ${selectedStaff?.first_name} ${selectedStaff?.last_name}?`}
-      />
+      /> */}
     </div>
   );
 }

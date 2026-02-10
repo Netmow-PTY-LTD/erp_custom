@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function StockManagement() {
   const [openDamageForm, setOpenDamageForm] = useState<boolean>(false);

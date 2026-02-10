@@ -195,6 +195,8 @@ export default function EditProductPage() {
       initial_stock: Number(values.initialStock),
       min_stock_level: Number(values.minStock),
       max_stock_level: Number(values.maxStock),
+      purchase_tax: Number(values.purchase_tax),
+      sales_tax: Number(values.sales_tax),
       weight: Number(values.weight),
       width: Number(values.width),
       height: Number(values.height),
@@ -460,18 +462,59 @@ export default function EditProductPage() {
                   />
 
                   {/* SPECIFICATION */}
+                  <Controller
+                    control={control}
+                    name="specification"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Product Specification</FieldLabel>
+                        <Input
+                          placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
+                          {...field}
+                        />
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+
+                  {/* STATUS */}
+                  <Controller
+                    control={control}
+                    name="is_active"
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Status</FieldLabel>
+                        <Select
+                          value={field.value ? "true" : "false"}
+                          onValueChange={(v) => field.onChange(v === "true")}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Active</SelectItem>
+                            <SelectItem value="false">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+
+                  {/* DESCRIPTION */}
                   <div className="md:col-span-2">
                     <Controller
                       control={control}
-                      name="specification"
+                      name="description"
                       render={({ field, fieldState }) => (
                         <Field>
-                          <FieldLabel>Product Specification</FieldLabel>
-                          <Input
-                            placeholder="e.g. 100% Cotton, 2.5GHz, etc..."
+                          <FieldLabel>Description</FieldLabel>
+                          <Textarea
+                            rows={4}
+                            placeholder="Write description..."
                             {...field}
                           />
-                          <FieldError>{fieldState.error?.message}</FieldError>
+                          <FieldError>{fieldState?.error?.message}</FieldError>
                         </Field>
                       )}
                     />
@@ -735,63 +778,7 @@ export default function EditProductPage() {
             </CardContent>
           </Card>
 
-          {/* DESCRIPTION & STATUS */}
-          <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
-                  <CheckCircle2 className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <CardTitle className="text-xl font-bold text-gray-800 dark:text-gray-100">Description & Status</CardTitle>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Product description and availability status</p>
-                </div>
-              </div>
-            </CardHeader>
 
-            <CardContent className="pb-6 space-y-6">
-              {/* DESCRIPTION */}
-              <Controller
-                control={control}
-                name="description"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Description</FieldLabel>
-                    <Textarea
-                      rows={4}
-                      placeholder="Write description..."
-                      {...field}
-                    />
-                    <FieldError>{fieldState?.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              {/* STATUS */}
-              <Controller
-                control={control}
-                name="is_active"
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Status</FieldLabel>
-                    <Select
-                      value={field.value ? "true" : "false"}
-                      onValueChange={(v) => field.onChange(v === "true")}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Active</SelectItem>
-                        <SelectItem value="false">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            </CardContent>
-          </Card>
 
           {/* ATTRIBUTES */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg">

@@ -58,22 +58,26 @@ export default function RecordPaymentModal({
     const currency = useAppSelector((state) => state.currency.value);
     const [addPayment, { isLoading }] = useAddSalesPaymentMutation();
 
-    const totalAmount =
+    const totalAmount = parseFloat((
         Number(invoice?.order?.total_amount || 0) -
         Number(invoice?.order?.discount_amount || 0) +
-        Number(invoice?.order?.tax_amount || 0);
+        Number(invoice?.order?.tax_amount || 0)
+    ).toFixed(2));
 
-    const paidAmount =
-        invoice?.payments?.reduce((acc: number, curr: any) => acc + Number(curr.amount), 0) || 0;
+    const paidAmount = parseFloat((
+        invoice?.payments?.reduce((acc: number, curr: any) => acc + Number(curr.amount), 0) || 0
+    ).toFixed(2));
 
-    const remainingBalance = totalAmount - paidAmount;
+    const remainingBalance = parseFloat((totalAmount - paidAmount).toFixed(2));
 
     const isRefund = type === 'refund';
 
     const form = useForm<PaymentFormValues>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
-            amount: isRefund ? paidAmount : (remainingBalance > 0 ? remainingBalance : 0),
+            amount: isRefund
+                ? parseFloat(paidAmount.toFixed(2))
+                : (remainingBalance > 0 ? parseFloat(remainingBalance.toFixed(2)) : 0),
             payment_method: "",
             date: new Date().toISOString().split("T")[0],
             reference: "",
@@ -84,7 +88,10 @@ export default function RecordPaymentModal({
     // Reset form when type changes
     useEffect(() => {
         if (isOpen) {
-            form.setValue('amount', isRefund ? paidAmount : (remainingBalance > 0 ? remainingBalance : 0));
+            const roundedAmount = isRefund
+                ? parseFloat(paidAmount.toFixed(2))
+                : (remainingBalance > 0 ? parseFloat(remainingBalance.toFixed(2)) : 0);
+            form.setValue('amount', roundedAmount);
         }
     }, [type, isOpen, paidAmount, remainingBalance, isRefund, form]);
 
@@ -94,7 +101,9 @@ export default function RecordPaymentModal({
         const payload: Record<string, any> = {
             order_id: invoice.order?.id,
             invoice_id: invoice.id,
-            amount: isRefund ? -Number(values.amount) : Number(values.amount),
+            amount: isRefund
+                ? -parseFloat(Number(values.amount).toFixed(2))
+                : parseFloat(Number(values.amount).toFixed(2)),
             payment_method: values.payment_method.toLowerCase(),
             customer_id: invoice.order?.customer_id,
             date: values.date,
@@ -120,11 +129,12 @@ export default function RecordPaymentModal({
 
     // Validation Logic
     const maxAmount = isRefund ? paidAmount : remainingBalance;
+    const epsilon = 0.001; // Allow for small floating-point rounding errors
     const isAmountInvalid =
         !watchAmount ||
         isNaN(Number(watchAmount)) ||
         Number(watchAmount) <= 0 ||
-        Number(watchAmount) > maxAmount;
+        Number(watchAmount) > maxAmount + epsilon;
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -161,7 +171,7 @@ export default function RecordPaymentModal({
 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-4">
                             {/* AMOUNT */}
                             <FormField
                                 name="amount"
@@ -190,7 +200,9 @@ export default function RecordPaymentModal({
 
                                                     const limit = isRefund ? paidAmount : remainingBalance;
 
-                                                    if (value > limit) {
+                                                    // Use epsilon comparison to handle floating-point precision issues
+                                                    const epsilon = 0.001; // Allow for small rounding errors
+                                                    if (value > limit + epsilon) {
                                                         form.setError("amount", {
                                                             type: "manual",
                                                             message: `Amount cannot exceed ${isRefund ? 'refundable amount' : 'remaining balance'} (${currency} ${limit.toFixed(2)})`,
@@ -219,7 +231,7 @@ export default function RecordPaymentModal({
                                         </FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger>
+                                                <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select Method" />
                                                 </SelectTrigger>
                                             </FormControl>

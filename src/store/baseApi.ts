@@ -67,11 +67,18 @@ const baseQueryWithRefreshToken: BaseQueryFn<
         }
       } else {
         api.dispatch(logout());
-        // optional: trigger logout endpoint if needed
+        // Use setTimeout to ensure logout action completes before redirect
+        setTimeout(() => {
+          window.location.replace('/login');
+        }, 0);
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       api.dispatch(logout());
+      // Use setTimeout to ensure logout action completes before redirect
+      setTimeout(() => {
+        window.location.replace('/login');
+      }, 0);
     }
   }
 
