@@ -277,7 +277,7 @@ export const productsApiService = baseApi.injectEndpoints({
         method: "PUT",
         body: body.body,
       }),
-      invalidatesTags: ["Stock"],
+      invalidatesTags: ["Stock", "Product", "Stats"],
     }),
     getAllStockMovements: builder.query<
       StockMovementResponse,
