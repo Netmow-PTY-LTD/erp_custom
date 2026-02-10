@@ -11,7 +11,7 @@ import {
   UserPlus,
   PackagePlus,
   MapPin,
-  Trash2,
+  // Trash2,
   User,
   MoreHorizontal,
   Edit,
@@ -28,26 +28,26 @@ import {
 import { useState } from "react";
 import { Link } from "react-router";
 import {
-  useDeleteCustomerMutation,
+  // useDeleteCustomerMutation,
   useGetCustomerStatsQuery,
   useGetInactiveCustomersQuery,
 } from "@/store/features/customers/customersApi";
 import type { Customer } from "@/store/features/customers/types";
-import { toast } from "sonner";
-import {
-  CustomerPermission,
-  SuperAdminPermission,
-} from "@/config/permissions";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+// import { toast } from "sonner";
+// import {
+//   CustomerPermission,
+//   SuperAdminPermission,
+// } from "@/config/permissions";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from "@/components/ui/alert-dialog";
 import { useAppSelector } from "@/store/store";
 
 import {
@@ -60,16 +60,16 @@ import { MapEmbed } from "@/components/MapEmbed";
 export default function InActiveCustomersList() {
   const [pageIndex, setPageIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  // const [deleteId, setDeleteId] = useState<number | null>(null);
   const [mapLocation, setMapLocation] = useState<string | null>(null);
 
-  const userPermissions = useAppSelector(
-    (state) => state.auth.user?.role.permissions || []
-  );
+  // const userPermissions = useAppSelector(
+  //   (state) => state.auth.user?.role.permissions || []
+  // );
 
-  const canDeleteCustomer =
-    userPermissions.includes(CustomerPermission.DELETE) ||
-    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  // const canDeleteCustomer =
+  //   userPermissions.includes(CustomerPermission.DELETE) ||
+  //   userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const [previewData, setPreviewData] = useState<{
     images: string[];
@@ -89,21 +89,21 @@ export default function InActiveCustomersList() {
 
   });
 
-  const [deleteCustomer, { isLoading: isDeleting }] =
-    useDeleteCustomerMutation();
+  // const [deleteCustomer, { isLoading: isDeleting }] =
+  //   useDeleteCustomerMutation();
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
+  // const handleDelete = async () => {
+  //   if (!deleteId) return;
 
-    try {
-      await deleteCustomer(deleteId).unwrap();
-      toast.success("Customer deleted successfully");
-      setDeleteId(null);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      toast.error("Failed to delete customer");
-    }
-  };
+  //   try {
+  //     await deleteCustomer(deleteId).unwrap();
+  //     toast.success("Customer deleted successfully");
+  //     setDeleteId(null);
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   } catch (err) {
+  //     toast.error("Failed to delete customer");
+  //   }
+  // };
 
   const customers = data?.data || [];
   // const totalPages = data?.pagination.totalPage || 1;
@@ -401,7 +401,7 @@ export default function InActiveCustomersList() {
                   View
                 </Link>
               </DropdownMenuItem>
-              {canDeleteCustomer && (
+              {/* {canDeleteCustomer && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -412,7 +412,7 @@ export default function InActiveCustomersList() {
                     Delete
                   </DropdownMenuItem>
                 </>
-              )}
+              )} */}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -513,7 +513,7 @@ export default function InActiveCustomersList() {
       </Card>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog
+      {/* <AlertDialog
         open={deleteId !== null}
         onOpenChange={() => setDeleteId(null)}
       >
@@ -532,7 +532,7 @@ export default function InActiveCustomersList() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
       <Dialog
         open={!!previewData}
         onOpenChange={(open) => !open && setPreviewData(null)}
