@@ -179,7 +179,7 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
                                 <th className="border border-gray-200 p-2 text-right w-20">Rate</th>
                                 <th className="border border-gray-200 p-2 text-center w-12">Qty</th>
                                 <th className="border border-gray-200 p-2 text-right w-20">Disc</th>
-                                <th className="border border-gray-200 p-2 text-right w-24">Pretax Amt.</th>
+
                                 <th className="border border-gray-200 p-2 text-right w-20 text-blue-600">GST</th>
                                 <th className="border border-gray-200 p-2 text-right w-24 text-emerald-600">Total</th>
                             </tr>
@@ -200,7 +200,7 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
                                     <td className="border border-gray-200 p-2 text-right">{currency} {Number(item.unit_price).toFixed(2)}</td>
                                     <td className="border border-gray-200 p-2 text-center font-bold text-blue-600">{Number(item.quantity).toFixed(0)}</td>
                                     <td className="border border-gray-200 p-2 text-right text-rose-500 font-medium">{currency} {Number(item.discount_sum).toFixed(2)}</td>
-                                    <td className="border border-gray-200 p-2 text-right font-bold text-gray-700">{currency} {(Number(item.total_price_sum) - Number(item.discount_sum)).toFixed(2)}</td>
+
                                     <td className="border border-gray-200 p-2 text-right font-medium text-blue-600">{currency} {Number(item.tax_amount).toFixed(2)}</td>
                                     <td className="border border-gray-200 p-2 text-right font-black text-emerald-700 bg-emerald-50/30">{currency} {Number(item.payable_amount).toFixed(2)}</td>
                                 </tr>
@@ -212,7 +212,7 @@ export default function PrintableInvoicesSummary({ invoices, from, itemsOnly = f
                                 <td className="border border-gray-200 p-3"></td>
                                 <td className="border border-gray-200 p-3 text-center text-blue-600 font-black">{tableTotals.qty.toFixed(0)}</td>
                                 <td className="border border-gray-200 p-3 text-right text-rose-600 font-mono">{currency} {tableTotals.discount.toFixed(2)}</td>
-                                <td className="border border-gray-200 p-3 text-right text-gray-800 font-mono">{currency} {(tableTotals.total_price - tableTotals.discount).toFixed(2)}</td>
+
                                 <td className="border border-gray-200 p-3 text-right text-blue-600 font-mono">{currency} {tableTotals.tax.toFixed(2)}</td>
                                 <td className="border border-gray-200 p-3 text-right text-emerald-700 text-sm font-black underline decoration-double underline-offset-4">{currency} {tableTotals.payable.toFixed(2)}</td>
                             </tr>
