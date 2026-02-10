@@ -37,6 +37,12 @@ export interface Customer {
     thumb_url?: string;
     gallery_items?: string[];
     contacts?: Contact[];
+    created_by?: number;
+    creator?: {
+        id: number;
+        name: string;
+        email?: string;
+    };
     created_at: string;
     updated_at?: string;
 }

@@ -372,6 +372,15 @@ export default function Customers() {
       },
     },
     {
+      accessorKey: "created_by",
+      header: "Added By",
+      cell: ({ row }) => (
+        <span className="text-sm font-medium text-muted-foreground italic">
+          {row.original.creator?.name || `Admin`}
+        </span>
+      ),
+    },
+    {
       id: "location",
       header: "Location",
       cell: ({ row }) => {

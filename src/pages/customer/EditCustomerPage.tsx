@@ -46,7 +46,7 @@ import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 
 const customerSchema = z.object({
   name: z.string().min(1, "Required"),
-  company: z.string().optional(),
+  company: z.string().min(1, "Required"),
   customer_type: z.enum(["individual", "business", "retail"]),
   tax_id: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
@@ -170,9 +170,12 @@ export default function EditCustomerPage() {
         company: customer.company || "",
         customer_type: (function () {
           const raw = customer.customer_type;
-          const normalized = raw && typeof raw === 'string' ? raw.trim().toLowerCase() : "individual";
-          return (["individual", "business", "retail"].includes(normalized) ? normalized : "individual") as "individual" | "business" | "retail";
-        })(),
+          const normalized = raw && typeof raw === 'string' ? raw.trim().toLowerCase() : String(raw).toLowerCase();
+          // Map potential other values to business
+          if (["wholesale", "key_account", "key account", "business"].includes(normalized)) return "business";
+          if (normalized === "retail") return "retail";
+          return "individual";
+        })() as "individual" | "business" | "retail",
         tax_id: customer.tax_id || "",
         email: customer.email || "",
         phone: customer.phone || "",
@@ -269,17 +272,6 @@ export default function EditCustomerPage() {
             <div className="flex flex-col md:flex-row gap-6 md:gap-12">
               {/* Left side: Name, Company, Type, Tax ID in a grid */}
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Controller
-                  control={control}
-                  name="name"
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel>Customer Name *</FieldLabel>
-                      <Input placeholder="e.g. John Doe" {...field} />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
 
                 <Controller
                   control={control}
@@ -295,11 +287,23 @@ export default function EditCustomerPage() {
 
                 <Controller
                   control={control}
+                  name="name"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Customer Name *</FieldLabel>
+                      <Input placeholder="e.g. John Doe" {...field} />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  control={control}
                   name="customer_type"
                   render={({ field, fieldState }) => (
                     <Field>
                       <FieldLabel>Customer Type</FieldLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select key={field.value} value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>

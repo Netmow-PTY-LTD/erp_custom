@@ -39,6 +39,7 @@ import { useAppSelector } from "@/store/store";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 
 
 /* ------------------ ZOD SCHEMA ------------------ */
@@ -81,6 +82,14 @@ export default function EditCustomerByStaffPage() {
 
   const { customerId } = useParams();
   const navigate = useNavigate();
+
+  const userPermissions = useAppSelector(
+    (state) => state.auth.user?.role.permissions || []
+  );
+
+  const canActivePermsion =
+    userPermissions.includes(CustomerPermission.CUSTOMER_ACTIVE_PERMISSION) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
@@ -161,7 +170,14 @@ export default function EditCustomerByStaffPage() {
       reset({
         name: customer.name,
         company: customer.company || "",
-        customer_type: customer.customer_type,
+        customer_type: (function () {
+          const raw = customer.customer_type;
+          const normalized = raw && typeof raw === 'string' ? raw.trim().toLowerCase() : String(raw).toLowerCase();
+          // Map potential other values to business
+          if (["wholesale", "key_account", "key account", "business"].includes(normalized)) return "business";
+          if (normalized === "retail") return "retail";
+          return "individual";
+        })() as "individual" | "business" | "retail",
         tax_id: customer.tax_id || "",
         email: customer.email || "",
         phone: customer.phone || "",
@@ -279,7 +295,7 @@ export default function EditCustomerByStaffPage() {
                   render={({ field, fieldState }) => (
                     <Field>
                       <FieldLabel>Customer Type</FieldLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select key={field.value} value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -746,11 +762,11 @@ export default function EditCustomerByStaffPage() {
                   <Field>
                     <FieldLabel>Status</FieldLabel>
                     <Select
-                      disabled={true}
+                      disabled={!canActivePermsion}
                       value={field.value ? "active" : "inactive"}
                       onValueChange={(val) => field.onChange(val === "active")}
                     >
-                      <SelectTrigger className={"bg-muted cursor-not-allowed opacity-70"}>
+                      <SelectTrigger className={!canActivePermsion ? "bg-muted cursor-not-allowed opacity-70" : ""}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
