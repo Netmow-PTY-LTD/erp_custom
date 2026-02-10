@@ -180,7 +180,7 @@ export default function InvoiceSummaryDetails() {
                                             <th className="px-6 py-4 text-right w-24">Rate</th>
                                             <th className="px-6 py-4 text-center w-20">Qty</th>
                                             <th className="px-6 py-4 text-right w-24">Disc</th>
-                                            <th className="px-6 py-4 text-right w-24">Pretax Amt.</th>
+
                                             <th className="px-6 py-4 text-right w-24 text-blue-600">GST</th>
                                             <th className="px-6 py-4 text-right w-28 text-emerald-600">Total</th>
                                         </tr>
@@ -210,7 +210,7 @@ export default function InvoiceSummaryDetails() {
                                                     <td className="px-6 py-4 text-right font-medium text-gray-600 whitespace-nowrap">{currency} {unitPrice.toFixed(2)}</td>
                                                     <td className="px-6 py-4 text-center font-bold text-blue-600 whitespace-nowrap">{qty.toFixed(0)}</td>
                                                     <td className="px-6 py-4 text-right font-medium text-rose-500 whitespace-nowrap">{currency} {discount.toFixed(2)}</td>
-                                                    <td className="px-6 py-4 text-right font-bold text-gray-800 whitespace-nowrap">{currency} {pretaxAmount.toFixed(2)}</td>
+
                                                     <td className="px-6 py-4 text-right font-medium text-blue-600 whitespace-nowrap">{currency} {taxAmount.toFixed(2)}</td>
                                                     <td className="px-6 py-4 text-right font-black text-emerald-700 bg-emerald-50/30 whitespace-nowrap">{currency} {rowTotal.toFixed(2)}</td>
                                                 </tr>
