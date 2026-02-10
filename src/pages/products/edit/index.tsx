@@ -568,7 +568,7 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>
-                      Price {currency ? `(${currency})` : ""}{" "}
+                      Selling Price {currency ? `(${currency})` : ""}{" "}
                     </FieldLabel>
                     <Input
                       type="number"
@@ -589,7 +589,7 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>
-                      Cost Price {currency ? `(${currency})` : ""}{" "}
+                      Buying Price {currency ? `(${currency})` : ""}{" "}
                     </FieldLabel>
                     <Input
                       type="number"

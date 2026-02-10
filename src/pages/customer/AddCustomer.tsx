@@ -41,13 +41,10 @@ import { Button } from "@/components/ui/button";
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
   name: z.string().min(1, "Required"),
-  company: z.string().optional(),
+  company: z.string().min(1, "Required"),
   customer_type: z.enum(["individual", "business", "retail"]).default("individual"),
   tax_id: z.string().optional(),
-  email: z.string()
-    .email("Invalid email")
-    .optional()
-    .or(z.literal('')),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -180,11 +177,11 @@ export default function AddCustomerPage() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
                   control={control}
-                  name="name"
+                  name="company"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Customer Name *</FieldLabel>
-                      <Input placeholder="e.g. John Doe" {...field} />
+                      <FieldLabel>Company Name</FieldLabel>
+                      <Input placeholder="e.g. Acme Corp" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
@@ -192,11 +189,11 @@ export default function AddCustomerPage() {
 
                 <Controller
                   control={control}
-                  name="company"
+                  name="name"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Company Name</FieldLabel>
-                      <Input placeholder="e.g. Acme Corp" {...field} />
+                      <FieldLabel>Customer Name *</FieldLabel>
+                      <Input placeholder="e.g. John Doe" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}

@@ -29,6 +29,7 @@ import {
   PlusCircle,
   Printer,
   ShoppingCart,
+  Edit,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -65,6 +66,9 @@ export default function PendingOrders() {
     userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canUpdateDelivery =
     userPermissions.includes(SalesPermission.UPDATE_DELIVERY) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canEditOrder =
+    userPermissions.includes(SalesPermission.EDIT_ORDER) ||
     userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const handleOpenUpdateDeliveryStatusModal = (order: any) => {
@@ -281,6 +285,13 @@ export default function PendingOrders() {
                 <Printer className="w-4 h-4" />
               </Button>
             </Link>
+            {canEditOrder && item.status === "pending" && (
+              <Link to={`/dashboard/sales/orders/${item.id}/edit`}>
+                <Button size="sm" variant="outline" className="h-8 bg-amber-50 text-amber-600 hover:bg-amber-100 border-none shadow-none" title="Edit Order">
+                  <Edit className="w-4 h-4 mr-1" /> Edit
+                </Button>
+              </Link>
+            )}
             {canUpdateDelivery && (
               <Button
                 size="sm"

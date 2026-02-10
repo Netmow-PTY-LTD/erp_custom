@@ -78,6 +78,19 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesOrders"],
     }),
 
+    // UPDATE SALES ORDER
+    updateSalesOrder: builder.mutation<
+      SalesResponse<SalesOrder>,
+      { id: number | string; data: SalesOrderFormValues }
+    >({
+      query: ({ id, data }) => ({
+        url: `/sales/orders/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["SalesOrders"],
+    }),
+
     // GET SINGLE SALES ORDER BY ID
     getSalesOrderById: builder.query<SalesResponse<SalesOrder>, string | number>(
       {
@@ -316,6 +329,7 @@ export const {
   useGetSalesOrdersStatsQuery,
   useGetAllSalesOrdersQuery,
   useAddSalesOrderMutation,
+  useUpdateSalesOrderMutation,
   useGetSalesOrderByIdQuery,
   useGetSalesInvoicesQuery,
   useAddSalesInvoiceMutation,

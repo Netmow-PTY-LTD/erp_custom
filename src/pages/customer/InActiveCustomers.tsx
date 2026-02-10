@@ -257,10 +257,11 @@ export default function InActiveCustomersList() {
     {
       accessorKey: "address",
       header: "Address",
+      meta: { className: "min-w-[300px]" } as any,
       cell: ({ row }) => {
         const customer = row.original;
         return (
-          <div className="max-w-[200px] whitespace-normal break-words">
+          <div className="max-w-[300px] w-full whitespace-normal break-words">
             {customer.address || "-"}
           </div>
         );
@@ -334,6 +335,15 @@ export default function InActiveCustomersList() {
           </Badge>
         );
       },
+    },
+    {
+      accessorKey: "created_by",
+      header: "Added By",
+      cell: ({ row }) => (
+        <span className="text-sm font-medium text-muted-foreground italic">
+          {row.original.creator?.name || `Admin`}
+        </span>
+      ),
     },
     {
       id: "location",

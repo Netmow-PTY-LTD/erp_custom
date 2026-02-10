@@ -35,6 +35,7 @@ export default function StockManagement() {
   const {
     data: fetchedProducts,
     isFetching,
+    refetch: refetchProducts,
   } = useGetAllProductsQuery({
     page,
     limit,
@@ -62,7 +63,17 @@ export default function StockManagement() {
     {
       accessorKey: "name",
       header: "Product Name",
-      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any
+      meta: { className: "md:sticky md:left-[60px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {row.original.name}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium">
+            {row.original.specification || "—"}
+          </span>
+        </div>
+      )
     },
     {
       accessorKey: "thumb_url",
@@ -208,7 +219,7 @@ export default function StockManagement() {
   ];
 
   // Fetch stats from API
-  const { data: statsData } = useGetProductStatsQuery(undefined);
+  const { data: statsData, refetch: refetchStats } = useGetProductStatsQuery(undefined);
   const stats = statsData?.data || [];
 
   return (
@@ -313,7 +324,7 @@ export default function StockManagement() {
               }}
               isFetching={isFetching}
               filters={
-                <div className="w-[140px]">
+                <div className="w-[150px]">
                   <Select value={stockStatus} onValueChange={(val) => { setStockStatus(val); setPage(1); }}>
                     <SelectTrigger className="w-full bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
                       <SelectValue placeholder="Stock Status" />
@@ -337,7 +348,10 @@ export default function StockManagement() {
         setOpen={setOpenDamageForm}
         products={products}
         initialProductId={selectedProductId}
-        refetchProducts={async () => { }}
+        refetchProducts={async () => {
+          refetchProducts();
+          refetchStats();
+        }}
       />
 
       {/* Print Styles */}
