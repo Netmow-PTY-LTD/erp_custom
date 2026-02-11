@@ -216,37 +216,37 @@ export default function InvoiceDetailsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b">
                   <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
-                    <th className="px-6 py-4 font-medium">Product Details</th>
-                    <th className="px-6 py-4 font-medium">Specification</th>
-                    <th className="px-6 py-4 font-medium text-right">Unit Price ({currency})</th>
-                    <th className="px-6 py-4 font-medium text-center">Qty</th>
-                    <th className="px-6 py-4 font-medium text-right">Discount ({currency})</th>
-                    <th className="px-6 py-4 font-medium text-right">Total ({currency})</th>
+                    <th className="px-6 py-4 font-medium whitespace-nowrap">Product Details</th>
+                    <th className="px-6 py-4 font-medium whitespace-nowrap">Specification</th>
+                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">Unit Price ({currency})</th>
+                    <th className="px-6 py-4 font-medium text-center whitespace-nowrap">Qty</th>
+                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">Discount ({currency})</th>
+                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">Total ({currency})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {invoice?.order?.items?.map((item, idx) => (
                     <tr key={idx} className="hover:bg-muted/20 transition-colors">
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <p className="font-semibold text-gray-900 dark:text-gray-100">{item?.product?.name}</p>
                         <p className="text-xs text-muted-foreground">SKU: {item?.product?.sku}</p>
-                        {item?.product?.specification && (
+                        {/* {item?.product?.specification && (
                           <p className="text-xs text-muted-foreground mt-1">{item?.product?.specification}</p>
-                        )}
+                        )} */}
                       </td>
-                      <td className="px-6 py-4 text-xs italic text-muted-foreground">
+                      <td className="px-6 py-4 text-xs italic text-muted-foreground whitespace-nowrap">
                         {item.specification || item.product?.specification || "-"}
                       </td>
-                      <td className="px-6 py-4 text-right font-medium">
+                      <td className="px-6 py-4 text-right font-medium whitespace-nowrap">
                         {Number(item?.unit_price || 0).toFixed(2)}
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
                         <Badge variant="outline" className="font-mono text-xs">{item?.quantity}</Badge>
                       </td>
-                      <td className="px-6 py-4 text-right text-muted-foreground">
+                      <td className="px-6 py-4 text-right text-muted-foreground whitespace-nowrap">
                         {Number((item as any)?.discount_amount || 0).toFixed(2)}
                       </td>
-                      <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100">
+                      <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                         {Number(item?.line_total || 0).toFixed(2)}
                       </td>
                     </tr>
