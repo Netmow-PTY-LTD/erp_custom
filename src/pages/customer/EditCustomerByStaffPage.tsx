@@ -45,8 +45,8 @@ import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 /* ------------------ ZOD SCHEMA ------------------ */
 
 const customerSchema = z.object({
-  name: z.string().min(1, "Required"),
-  company: z.string().optional(),
+  name: z.string().optional(),
+  company: z.string().min(1, "Company name is required"),
   customer_type: z.enum(["individual", "business", "retail"]),
   tax_id: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),

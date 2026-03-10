@@ -39,8 +39,8 @@ import ImageUploaderPro from "@/components/form/ImageUploaderPro";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
-    name: z.string().min(1, "Required"),
-    company: z.string().min(1, "Required"),
+    name: z.string().optional(),
+    company: z.string().min(1, "Company name is required"),
     customer_type: z.enum(["individual", "business", "retail"]).default("individual"),
     tax_id: z.string().optional(),
     email: z.string().email("Invalid email").optional().or(z.literal("")),
