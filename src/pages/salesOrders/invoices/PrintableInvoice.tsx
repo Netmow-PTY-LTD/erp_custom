@@ -1,4 +1,3 @@
-import { useAppSelector } from "@/store/store";
 import { format } from "date-fns";
 import type { Customer } from "@/store/features/customers/types";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
@@ -11,7 +10,6 @@ interface Props {
 }
 
 export default function PrintableInvoice({ invoice, from, to }: Props) {
-  const currency = useAppSelector((state) => state.currency.value) || "RM";
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "-";
     try {
@@ -40,6 +38,15 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
             margin: 5mm;
             size: A4;
           }
+          html, body {
+            overflow: visible !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          ::-webkit-scrollbar {
+            display: none !important;
+          }
           body {
             -webkit-print-color-adjust: exact;
             font-size: 11px !important;
@@ -49,9 +56,15 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
             width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: visible !important;
           }
-          h1 { font-size: 11px !important; }
-          h2 { font-size: 11px !important; }
+          .print\:hidden {
+            display: none !important;
+          }
+          .print-title {
+            font-size: 28px !important;
+            line-height: 1 !important;
+          }
           table { font-size: 11px !important; }
           .text-sm { font-size: 11px !important; }
           .text-xs { font-size: 11px !important; }
@@ -63,8 +76,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
             font-size: 18px !important;
             line-height: 1.2 !important;
           }
-          .mb-6 { margin-bottom: 8px !important; }
-          .mb-4 { margin-bottom: 4px !important; }
+          .mb-6 { margin-bottom: 24px !important; }
+          .mb-4 { margin-bottom: 16px !important; }
         }
         .invoice-box {
           max-width: 850px;
@@ -87,37 +100,52 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
 
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
-        {/* Header Section */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex flex-col gap-2 mt-2 text-[13px] w-1/3">
-            <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
-            <p className="leading-tight max-w-[300px]">
-              {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
-            </p>
-            <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
-          </div>
-          <div className="w-1/3 flex justify-center items-center">
-            <div className="mb-1">
+        <div className="flex flex-col mb-6">
+          {/* Top Row: Logo & Tax Invoice */}
+          <div className="flex justify-between items-center border-b-[1px] border-gray-300 pb-1 mb-2">
+            <div>
               {from?.logo_url ? (
-                <img src={from.logo_url} alt="Logo" className="h-20 object-contain" />
+                <img src={from.logo_url} alt="Logo" className="h-16 object-contain" />
               ) : (
-                <div className="w-20 h-20 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                <div className="w-16 h-16 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-sm overflow-hidden">
                   F&Z
                 </div>
               )}
             </div>
+            <div className="self-end">
+              <h2 className="font-bold text-black text-xl md:text-3xl tracking-wide print-title">Tax Invoice</h2>
+            </div>
           </div>
-          <div className="text-right flex flex-col items-end w-1/3">
-            <h2 className="font-bold text-gray-800 mb-1 uppercase details-text text-xl">Tax Invoice</h2>
-            <div className="details-text space-y-1">
-              <p><strong>Date:</strong> {formatDate(invoice?.invoice_date || "")}</p>
-              <p><strong>Invoice No.:</strong> {invoice?.invoice_number}</p>
+
+          {/* Bottom Row: Company Info & Invoice Details */}
+          <div className="flex flex-col sm:flex-row justify-start items-start gap-4 sm:gap-0 mt-2">
+            {/* Left Box: Company Info */}
+            <div className="flex flex-col gap-1 text-[13px] w-full sm:w-1/2">
+              <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+              <p className="leading-tight max-w-[400px] whitespace-pre-line">
+                {from?.address || "45, Jalan Industri USJ 1/10,\nTMN Perindustrian USJ 1, Subang Jaya"}
+              </p>
+              <p>T: {from?.phone || "0380112772"}{from?.email && `, E: ${from.email}`}</p>
+            </div>
+
+            {/* Right Box: Invoice Details */}
+            <div className="flex flex-col w-full sm:w-1/2 details-text sm:text-left sm:items-start">
+              <div className="flex w-full sm:w-auto text-left">
+                <span className="font-bold">Date</span>
+                <span className="w-4 text-center">:</span>
+                <span className="flex-1 sm:flex-none">{formatDate(invoice?.invoice_date || "")}</span>
+              </div>
+              <div className="flex w-full sm:w-auto text-left mt-1">
+                <span className="font-bold">Invoice No.</span>
+                <span className="w-4 text-center">:</span>
+                <span className="flex-1 sm:flex-none">{invoice?.invoice_number}</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Recipient Section */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
           <div className="border border-gray-300">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Bill To</div>
             <div className="p-3 details-text min-h-[80px]">
@@ -139,8 +167,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
         </div>
 
         {/* Info Bar */}
-        <div className="w-full mb-6 text-xs table-border border-collapse">
-          <table className="w-full border-collapse">
+        <div className="w-full mb-6 text-xs table-border border-collapse overflow-x-auto">
+          <table className="w-full border-collapse min-w-[600px] sm:min-w-full">
             <thead>
               <tr className="bg-gray-100 text-center font-bold">
                 <th className="w-1/5 border border-gray-300 p-1">Sales Rep.</th>
@@ -163,18 +191,17 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
         </div>
 
         {/* Main Items Table */}
-        <div className="w-full mb-6">
-          <table className="w-full table-text border-collapse">
+        <div className="w-full mb-6 overflow-x-auto">
+          <table className="w-full table-text border-collapse min-w-[700px] sm:min-w-full">
             <thead className="bg-gray-100 font-bold">
               <tr>
-                <th className="border border-gray-300 p-2 text-center w-10">No</th>
+                <th className="border border-gray-300 p-2 text-center w-10">Seq No.</th>
                 <th className="border border-gray-300 p-2 text-left w-20">Item Code</th>
-                <th className="border border-gray-300 p-2 text-left">Item Name & Specification</th>
-                <th className="border border-gray-300 p-2 text-right w-20">Rate</th>
-                <th className="border border-gray-300 p-2 text-center w-12">Qty</th>
-                <th className="border border-gray-300 p-2 text-right w-20">Disc</th>
-                <th className="border border-gray-300 p-2 text-right w-20">GST</th>
-                <th className="border border-gray-300 p-2 text-right w-24">Total</th>
+                <th className="border border-gray-300 p-2 text-left">Item Name [Spec]</th>
+                <th className="border border-gray-300 p-2 text-center w-16">Qty</th>
+                <th className="border border-gray-300 p-2 text-right w-24">Price</th>
+                <th className="border border-gray-300 p-2 text-right w-24">Discount</th>
+                <th className="border border-gray-300 p-2 text-right w-28">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -182,9 +209,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                 const qty = Number(item.quantity || 0);
                 const unitPrice = Number(item.unit_price || 0);
                 const discount = Number(item.discount || 0);
-                const taxRate = Number(item.sales_tax_percent || item.sales_tax || 0);
-                const pretax = (unitPrice * qty) - discount;
-                const tax = Number(item.tax_amount) || (pretax * (taxRate / 100));
+                // Total here should be (rate * qty) - discount
+                const rowTotal = (unitPrice * qty) - discount;
 
                 return (
                   <tr key={item.id} className="align-top">
@@ -198,64 +224,65 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                         </span>
                       )}
                     </td>
-                    <td className="border border-gray-300 p-2 text-right">{unitPrice.toFixed(2)}</td>
                     <td className="border border-gray-300 p-2 text-center">{qty.toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2 text-right">{unitPrice.toFixed(2)}</td>
                     <td className="border border-gray-300 p-2 text-right">{discount.toFixed(2)}</td>
-
-                    <td className="border border-gray-300 p-2 text-right">{tax.toFixed(2)}</td>
-                    <td className="border border-gray-300 p-2 text-right font-bold">{(pretax + tax).toFixed(2)}</td>
+                    <td className="border border-gray-300 p-2 text-right font-bold">{rowTotal.toFixed(2)}</td>
                   </tr>
                 );
               })}
               {/* Grand Total Row inside Table */}
               <tr className="bg-gray-50 font-bold">
-                <td colSpan={7} className="border border-gray-300 p-2 text-center uppercase tracking-wider">Grand Total</td>
-                <td className="border border-gray-300 p-2 text-right">{total}</td>
+                <td colSpan={6} className="border border-gray-300 p-2 text-center uppercase tracking-wider">Grand Total</td>
+                <td className="border border-gray-300 p-2 text-right">{(subtotal - discount).toFixed(2)}</td>
               </tr>
-              {/* Fill remaining space if needed to match PDF height (optional) */}
-              {[...Array(Math.max(0, 5 - (invoice?.order?.items?.length || 0)))].map((_, i) => (
-                <tr key={`empty-${i}`} className="h-8">
-                  <td className="border border-gray-300 p-2"></td>
-                  <td className="border border-gray-300 p-2"></td>
-                  <td className="border border-gray-300 p-2"></td>
-                  <td className="border border-gray-300 p-2"></td>
-                  <td className="border border-gray-300 p-2"></td>
-                  <td className="border border-gray-300 p-2"></td>
-                  <td className="border border-gray-300 p-2"></td>
-                  <td className="border border-gray-300 p-2 text-right"></td>
-                </tr>
-              ))}
             </tbody>
           </table>
         </div>
 
         {/* Footer Summary Section */}
-        <div className="flex justify-between items-start">
-          <div className="w-3/5 border border-gray-300 p-2 rounded-sm details-text">
-            <p className="font-bold mb-1">Note:</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 w-full">
+          {/* Note section */}
+          <div className="w-full sm:w-[38%] border border-gray-300 p-2 rounded-sm details-text">
+            <p className="font-bold mb-1 border-b-[1px] border-gray-200 pb-1">Note:</p>
             <p>All Cheques should be crossed and made payable to</p>
-            <p className="font-bold uppercase">{from?.company_name || "F&Z GLOBAL TRADE (M) SDN BHD"}</p>
-            <p>Account Number: <span className="font-bold">564230815279</span> (Maybank Berhad)</p>
+            <p className="font-bold uppercase text-sm">{from?.company_name || "F&Z GLOBAL TRADE (M) SDN BHD"}</p>
+            <p className="mt-1">Account Number: <span className="font-bold">564230815279</span> (Maybank Berhad)</p>
           </div>
 
-          <div className="w-1/3">
-            <table className="w-full details-text font-bold border-collapse">
+          {/* QR Code (Centered) */}
+          {from?.qr_code && (<div className="flex flex-col items-center justify-center min-w-[100px] self-center">
+            <div className="flex flex-col items-center justify-center rounded-sm bg-white">
+
+              <img
+                src={from?.qr_code}
+                alt="QR Code"
+                className="w-16 h-16"
+              />
+
+            </div>
+          </div>
+          )}
+
+          {/* Totals Table */}
+          <div className="w-full sm:w-[35%] overflow-x-auto">
+            <table className="w-full details-text font-bold border-collapse min-w-[200px] sm:min-w-full">
               <tbody>
                 <tr className="border border-gray-300">
-                  <td className="p-1 px-4 text-left border-r border-gray-300">DISCOUNT</td>
-                  <td className="p-1 px-4 text-right">- {currency} {discount.toFixed(2)}</td>
+                  <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase">Subtotal</td>
+                  <td className="p-1 px-4 text-right">RM {(subtotal - discount).toFixed(2)}</td>
                 </tr>
                 <tr className="border border-gray-300">
-                  <td className="p-1 px-4 text-left border-r border-gray-300">SUBTOTAL</td>
-                  <td className="p-1 px-4 text-right">{currency} {(subtotal - discount).toFixed(2)}</td>
+                  <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase">Discount</td>
+                  <td className="p-1 px-4 text-right"> - RM {discount.toFixed(2)}</td>
                 </tr>
                 <tr className="border border-gray-300">
-                  <td className="p-1 px-4 text-left border-r border-gray-300">GST</td>
-                  <td className="p-1 px-4 text-right">{currency} {gstAmount.toFixed(2)}</td>
+                  <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase text-[10px]">Add GST @ (6%)</td>
+                  <td className="p-1 px-4 text-right">RM {gstAmount.toFixed(2)}</td>
                 </tr>
-                <tr className="border border-gray-300 bg-gray-50 text-sm">
-                  <td className="p-1 px-4 text-left border-r border-gray-300">TOTAL</td>
-                  <td className="p-1 px-4 text-right underline underline-offset-4 decoration-double">{currency} {total}</td>
+                <tr className="border border-gray-300 bg-gray-50 text-base">
+                  <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase tracking-wider">Total</td>
+                  <td className="p-1 px-4 text-right underline underline-offset-4 decoration-double">RM {total}</td>
                 </tr>
               </tbody>
             </table>
