@@ -4,6 +4,8 @@ import RecentCustomers from "@/components/dashboard/components/RecentCustomers";
 import RecentOrders from "@/components/dashboard/components/RecentOrders";
 import StatusOrdersTable from "@/components/dashboard/components/StatusOrdersTable";
 import RecentStatusCustomers from "@/components/dashboard/components/RecentStatusCustomers";
+import { StaffsSalesOverview } from "@/components/dashboard/components/StaffsSalesOverview";
+
 
 import {
   Card,
@@ -16,11 +18,14 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { DashboardPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   useGetDashboardStatsQuery,
+  useGetDashboardSalesStatsQuery,
   type DashboardStats,
 } from "@/store/features/admin/dashboardApiService";
+import { useGetProductStatsQuery } from "@/store/features/admin/productsApiService";
 import { useAppSelector } from "@/store/store";
-import { ShoppingCart, Users, DollarSign, Clock, AlertTriangle, UserCheck } from "lucide-react";
+import { Users, DollarSign, Clock, AlertTriangle, ChevronDown, PlusCircle } from "lucide-react";
 import { Link } from "react-router";
+import { useState } from "react";
 
 export default function Dashboard() {
 
@@ -36,17 +41,41 @@ export default function Dashboard() {
   const canConfirmedSalesListShow = userPermissions.includes(DashboardPermission.CONFIRMED_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canDeliveredSalesListShow = userPermissions.includes(DashboardPermission.DELIVERED_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canInTransitSalesListShow = userPermissions.includes(DashboardPermission.INTRANSIT_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  const canRecentActiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_ACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  const canRecentInactiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_INACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const isSuperAdmin = userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentActiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_ACTIVE_CUSTOMERS_LIST) || isSuperAdmin;
+  const canRecentInactiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_INACTIVE_CUSTOMERS_LIST) || isSuperAdmin;
+  const canStaffsChartShow = userPermissions.includes(DashboardPermission.STAFFS_CHART) && !isSuperAdmin;
 
+  const [invoicePeriod, setInvoicePeriod] = useState<"thisMonth" | "lastMonth" | "thisYear">("thisMonth");
 
+  // Map UI dropdown values to API filter param
+  const periodFilterMap: Record<string, string> = {
+    thisMonth: "thisMonth",
+    lastMonth: "lastMonth",
+    thisYear: "thisYear",
+  };
 
+  const { data: dashboardSalesStatsData, isFetching: isSalesStatsFetching } =
+    useGetDashboardSalesStatsQuery(periodFilterMap[invoicePeriod]);
 
+  const salesStats = dashboardSalesStatsData?.data;
+
+  // Compute progress bar widths — capped at 100%
+  const salesBarWidth = salesStats
+    ? Math.min(100, salesStats.total_sales > 0 ? 100 : 0)
+    : 0;
+  const collectionsBarWidth = salesStats && salesStats.total_sales > 0
+    ? Math.min(100, Math.round((salesStats.total_collections / salesStats.total_sales) * 100))
+    : 0;
 
   const { data: dashboardStatsData } = useGetDashboardStatsQuery();
-
   const dashboardStats: DashboardStats | undefined = dashboardStatsData?.data;
-  // console.log('dashboardStats', dashboardStats);
+
+  const { data: productStatsData } = useGetProductStatsQuery(undefined);
+  const totalProductsCount = productStatsData?.data?.filter(
+    (p: { label: string; value: number }) => p.label === "Total Products"
+  )?.[0]?.value || 0;
+
   const currency = useAppSelector((state) => state.currency.value);
   // Stats configuration
   const stats = [
@@ -62,7 +91,7 @@ export default function Dashboard() {
       value: dashboardStats?.totalOrders || 0,
       gradient: "from-emerald-600 to-emerald-400",
       shadow: "shadow-emerald-500/30",
-      icon: <ShoppingCart className="w-6 h-6 text-white" />,
+      icon: <Users className="w-6 h-6 text-white" />,
     },
     {
       label: "Pending Orders",
@@ -84,13 +113,6 @@ export default function Dashboard() {
       gradient: "from-rose-600 to-rose-400",
       shadow: "shadow-rose-500/30",
       icon: <AlertTriangle className="w-6 h-6 text-white" />,
-    },
-    {
-      label: "Active Staff",
-      value: dashboardStats?.activeStaff || 0,
-      gradient: "from-cyan-600 to-cyan-400",
-      shadow: "shadow-cyan-500/30",
-      icon: <UserCheck className="w-6 h-6 text-white" />,
     },
   ];
 
@@ -133,6 +155,131 @@ export default function Dashboard() {
             ))}
           </div>}
 
+          {/* Sales Summary Cards */}
+          {canStaffsChartShow && (
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {/* INVOICE Card */}
+              <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 pt-5 pb-3">
+                  <h2 className="text-xs font-semibold tracking-widest text-gray-500 dark:text-gray-400 uppercase">Invoice</h2>
+                  <div className="relative">
+                    <select
+                      value={invoicePeriod}
+                      onChange={(e) => setInvoicePeriod(e.target.value as typeof invoicePeriod)}
+                      className="appearance-none rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 pl-3 pr-8 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="thisMonth">This Month</option>
+                      <option value="lastMonth">Last Month</option>
+                      <option value="thisYear">This Year</option>
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className={`px-5 pb-5 space-y-5 transition-opacity duration-200 ${isSalesStatsFetching ? "opacity-50" : "opacity-100"}`}>
+                  {/* Total Sales */}
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                      {currency} {(salesStats?.total_sales ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                      Total {salesStats?.total_invoices ?? 0} Invoices
+                    </p>
+                    {/* Blue progress bar */}
+                    <div className="mt-3 h-2 w-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-500"
+                        style={{ width: `${salesBarWidth}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Total Collection */}
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                      {currency} {(salesStats?.total_collections ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                      Total Collection From {salesStats?.total_orders ?? 0} Invoices
+                    </p>
+                    {/* Green progress bar */}
+                    <div className="mt-3 h-2 w-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-green-400 transition-all duration-500"
+                        style={{ width: `${collectionsBarWidth}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Create Invoice link */}
+                  <div className="pt-1 text-right">
+                    <Link
+                      to="/dashboard/sales/orders/create"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors bg-gray-50 dark:bg-gray-800 p-2 rounded-[30px] px-5"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Create an Invoice
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* CUSTOMER, VENDOR, ITEMS Card */}
+              <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+                {/* Header */}
+                <div className="px-5 pt-5 pb-3">
+                  <h2 className="text-xs font-semibold tracking-widest text-gray-500 dark:text-gray-400 uppercase">Customer, Vendor, Items</h2>
+                </div>
+
+                <div className="px-5 pb-5 space-y-3">
+                  {/* Customers */}
+                  <div className="rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:border-green-200 dark:hover:border-green-800 hover:bg-green-50/30 dark:hover:bg-green-900/10 transition-colors">
+                    <p className="text-xl font-bold text-green-500">
+                      {(dashboardStats?.activeCustomers ?? 0)} Customers
+                    </p>
+                    <Link
+                      to="/dashboard/customers/create/by-staff"
+                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors mt-1 font-semibold"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Create a new Customer
+                    </Link>
+                  </div>
+
+                  {/* Vendors */}
+                  {/* <div className="rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:border-orange-200 dark:hover:border-orange-800 hover:bg-orange-50/30 dark:hover:bg-orange-900/10 transition-colors">
+                    <p className="text-xl font-bold text-orange-500">
+                      {Math.floor((dashboardStats?.revenue ?? 0) / 100000) % 100} Vendors
+                    </p>
+                    <Link
+                      to="/dashboard/suppliers"
+                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors mt-1 font-semibold"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Create a new Vendor
+                    </Link>
+                  </div> */}
+
+                  {/* Items */}
+                  <div className="rounded-xl border border-gray-100 dark:border-gray-800 p-4 hover:border-orange-200 dark:hover:border-orange-800 hover:bg-orange-50/30 dark:hover:bg-orange-900/10 transition-colors">
+                    <p className="text-xl font-bold text-orange-400">
+                      {totalProductsCount} Items
+                    </p>
+                    <Link
+                      to="/dashboard/products"
+                      className="inline-flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors mt-1 font-semibold"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Create a new Item
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+
           {
             canGraphShow && <div className="col-span-1 lg:col-span-4"><Card className="py-6">
               <CardHeader>
@@ -141,6 +288,20 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent className="ps-2">
                 <Overview />
+              </CardContent>
+            </Card>
+            </div>
+          }
+
+          {/* Staffs Sales Overview - Visible only to Staff (NOT SuperAdmin) */}
+          {
+            canStaffsChartShow && <div className="col-span-1 lg:col-span-4"><Card className="py-6">
+              <CardHeader>
+                <CardTitle>Staffs Sales Overview</CardTitle>
+                <CardDescription>January - December {new Date().getFullYear()}</CardDescription>
+              </CardHeader>
+              <CardContent className="ps-2">
+                <StaffsSalesOverview />
               </CardContent>
             </Card>
             </div>

@@ -98,6 +98,7 @@ import CustomerReports from "@/pages/reports/CustomerReports";
 import EditPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/EditPurchaseOrderPage";
 import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
+import InvoicesPrintPreview from "@/pages/salesOrders/invoices/InvoicesPrintPreview";
 import PurchaseInvoicesList from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesList";
 import PurchaseInvoicesDetails from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicesDetails";
 import PurchaseInvoicePrintPreview from "@/pages/suppliers/purchaseOrderInvoices/PurchaseInvoicePrintPreview";
@@ -1379,6 +1380,15 @@ export const sidebarItemLink = [
         element: <InvoicePrintPreview />,
         allowedPermissions: [
           SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/print-preview",
+        element: <InvoicesPrintPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICES,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },

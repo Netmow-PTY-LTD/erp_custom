@@ -52,24 +52,24 @@ import { Calendar } from "@/components/ui/calendar";
 
 const orderSchema = z
   .object({
-    customer_id: z.number().min(1, "Customer is required"),
+    customer_id: z.coerce.number().min(1, "Customer is required"),
     shipping_address: z.string().min(5, "Shipping address is required"),
     order_date: z.string().min(1, "Order date is required"),
     due_date: z.string().min(1, "Due date is required"),
     delivery_date: z.string().optional(),
-    staff_id: z.number().optional(),
+    staff_id: z.coerce.number().optional(),
     notes: z.string().optional(),
     items: z.array(
       z.object({
-        product_id: z.number().min(1, "Product is required"),
+        product_id: z.coerce.number().min(1, "Product is required"),
         sku: z.string().optional(),
-        quantity: z.number().min(1, "Quantity must be at least 1"),
-        unit_price: z.number().min(1, "Unit price must be at least 1"),
-        discount: z.number().min(0, "Discount must be 0 or more"),
-        sales_tax: z.number().min(0, "Sales tax must be 0 or more"),
+        quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+        unit_price: z.coerce.number(),
+        discount: z.coerce.number().min(0, "Discount must be 0 or more"),
+        sales_tax: z.coerce.number().min(0, "Sales tax must be 0 or more"),
         specification: z.string().optional(),
         unit: z.string().optional(),
-        stock_quantity: z.number().optional(),
+        stock_quantity: z.coerce.number().optional(),
         remark: z.string().optional(),
       })
     ),
@@ -114,7 +114,7 @@ export default function CreateSalesOrderPage() {
 
 
   const form = useForm<SalesOrderFormValues>({
-    resolver: zodResolver(orderSchema),
+    resolver: zodResolver(orderSchema) as any,
     defaultValues: {
       customer_id: 0,
       staff_id: 0,
@@ -829,7 +829,7 @@ export default function CreateSalesOrderPage() {
                   {fields.map((item, index) => (
                     <div
                       key={item.id}
-                      className="flex flex-nowrap min-w-max gap-4 items-center bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
+                      className="flex flex-nowrap min-w-max gap-4 items-str bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
                     >
                       {/* SKU */}
                       <FormField
@@ -960,8 +960,10 @@ export default function CreateSalesOrderPage() {
                             <FormControl>
                               <Input
                                 type="number"
+                                step="any"
                                 min={0}
                                 {...field}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
                                 className="bg-gray-100 border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-9 text-right"
                               />
                             </FormControl>
@@ -980,6 +982,7 @@ export default function CreateSalesOrderPage() {
                             <FormControl>
                               <Input
                                 type="number"
+                                step="any"
                                 min={0}
                                 {...field}
                                 onChange={(e) => {
@@ -1010,9 +1013,10 @@ export default function CreateSalesOrderPage() {
                             <FormControl>
                               <Input
                                 type="number"
+                                step="any"
                                 min={0}
                                 {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
                                 className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 h-9 text-right"
                               />
                             </FormControl>
@@ -1042,9 +1046,10 @@ export default function CreateSalesOrderPage() {
                             <FormControl>
                               <Input
                                 type="number"
+                                step="any"
                                 min={0}
                                 {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
                                 className="bg-white border-gray-200 dark:bg-gray-950 dark:border-gray-800 text-right h-9"
                               />
                             </FormControl>

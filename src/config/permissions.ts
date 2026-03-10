@@ -21,6 +21,8 @@ export const DashboardPermission = {
   INTRANSIT_SALES_LIST: "dashboard.intransit_sales.list" as const,
   RECENT_ACTIVE_CUSTOMERS_LIST: "dashboard.recent_active_customers.list" as const,
   RECENT_INACTIVE_CUSTOMERS_LIST: "dashboard.recent_inactive_customers.list" as const,
+  STAFFS_STATS: "dashboard.staffs.stats" as const,
+  STAFFS_CHART: "dashboard.staffs.chart" as const,
 };
 
 // --- Products ---

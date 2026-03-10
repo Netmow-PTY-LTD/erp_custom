@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { format } from "date-fns";
 import { PlusCircle, FileText, CheckCircle, Clock, AlertTriangle, Printer } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -20,7 +20,8 @@ import { useAppSelector } from "@/store/store";
 export default function Invoices() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
 
   const [limit, setLimit] = useState<number>(10);
 
@@ -298,7 +299,24 @@ export default function Invoices() {
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none"
           >
             <Printer size={18} />
-            Print
+            Print All
+          </button>
+          <button
+            onClick={() => {
+              const selectedIdsKeys = Object.keys(rowSelection);
+              if (selectedIdsKeys.length === 0) {
+                alert("Please select at least one invoice to print.");
+                return;
+              }
+              const selected = invoices.filter((_, index) => selectedIdsKeys.includes(index.toString()));
+              navigate("/dashboard/sales/invoices/print-preview", {
+                state: { selectedInvoices: selected }
+              });
+            }}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-teal-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-500/40 active:translate-y-0 active:shadow-none"
+          >
+            <Printer size={18} />
+            Print Selected
           </button>
           <Link to="/dashboard/sales/orders/create">
             <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
