@@ -290,11 +290,15 @@ export default function Orders() {
         </div>;
       },
     },
-    // {
-    //   accessorKey: "created_by",
-    //   header: "Staff",
-    //   cell: ({ row }) => `User #${row.original.created_by}`,
-    // },
+    {
+      accessorKey: "creator",
+      header: "Created By",
+      cell: ({ row }) => (
+        <div className="text-sm">
+          {row.original.creator?.name || `User #${row.original.created_by}`}
+        </div>
+      ),
+    },
 
     {
       id: "actions",
