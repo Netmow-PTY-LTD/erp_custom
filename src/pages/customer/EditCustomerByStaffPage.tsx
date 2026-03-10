@@ -267,11 +267,11 @@ export default function EditCustomerByStaffPage() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
                   control={control}
-                  name="name"
+                  name="company"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Customer Name *</FieldLabel>
-                      <Input placeholder="e.g. John Doe" {...field} />
+                      <FieldLabel>Company Name *</FieldLabel>
+                      <Input placeholder="e.g. Acme Corp" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
@@ -279,11 +279,11 @@ export default function EditCustomerByStaffPage() {
 
                 <Controller
                   control={control}
-                  name="company"
+                  name="name"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Company Name</FieldLabel>
-                      <Input placeholder="e.g. Acme Corp" {...field} />
+                      <FieldLabel>Customer Name</FieldLabel>
+                      <Input placeholder="e.g. John Doe" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}

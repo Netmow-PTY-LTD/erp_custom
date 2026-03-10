@@ -174,7 +174,7 @@ export default function AddCustomerByStaffPage() {
                                     name="company"
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel>Company Name</FieldLabel>
+                                            <FieldLabel>Company Name *</FieldLabel>
                                             <Input placeholder="e.g. Acme Corp" {...field} />
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>
@@ -186,7 +186,7 @@ export default function AddCustomerByStaffPage() {
                                     name="name"
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel>Customer Name *</FieldLabel>
+                                            <FieldLabel>Customer Name</FieldLabel>
                                             <Input placeholder="e.g. John Doe" {...field} />
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>
