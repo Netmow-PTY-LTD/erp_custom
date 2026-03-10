@@ -87,25 +87,28 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
 
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
+        {/* Header Section */}
         <div className="flex justify-between items-start mb-4">
-          <div className="flex flex-col gap-2 mt-2 text-[13px]">
+          <div className="flex flex-col gap-2 mt-2 text-[13px] w-1/3">
             <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
             <p className="leading-tight max-w-[300px]">
               {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
             </p>
             <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
           </div>
-          <div className="text-right flex flex-col items-end">
+          <div className="w-1/3 flex justify-center items-center">
             <div className="mb-1">
               {from?.logo_url ? (
-                <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                <img src={from.logo_url} alt="Logo" className="h-20 object-contain" />
               ) : (
-                <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                <div className="w-20 h-20 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
                   F&Z
                 </div>
               )}
             </div>
-            <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Tax Invoice</h2>
+          </div>
+          <div className="text-right flex flex-col items-end w-1/3">
+            <h2 className="font-bold text-gray-800 mb-1 uppercase details-text text-xl">Tax Invoice</h2>
             <div className="details-text space-y-1">
               <p><strong>Date:</strong> {formatDate(invoice?.invoice_date || "")}</p>
               <p><strong>Invoice No.:</strong> {invoice?.invoice_number}</p>
@@ -167,12 +170,11 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                 <th className="border border-gray-300 p-2 text-center w-10">No</th>
                 <th className="border border-gray-300 p-2 text-left w-20">Item Code</th>
                 <th className="border border-gray-300 p-2 text-left">Item Name & Specification</th>
-                <th className="border border-gray-300 p-2 text-right w-16">Rate</th>
+                <th className="border border-gray-300 p-2 text-right w-20">Rate</th>
                 <th className="border border-gray-300 p-2 text-center w-12">Qty</th>
-                <th className="border border-gray-300 p-2 text-right w-16">Disc</th>
-                <th className="border border-gray-300 p-2 text-right w-20">Pretax Amt.</th>
-                <th className="border border-gray-300 p-2 text-right w-16">GST</th>
-                <th className="border border-gray-300 p-2 text-right w-20">Total</th>
+                <th className="border border-gray-300 p-2 text-right w-20">Disc</th>
+                <th className="border border-gray-300 p-2 text-right w-20">GST</th>
+                <th className="border border-gray-300 p-2 text-right w-24">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -189,15 +191,17 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                     <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
                     <td className="border border-gray-300 p-2">{item.product?.sku}</td>
                     <td className="border border-gray-300 p-2">
-                      <div className="font-bold uppercase">{item.product?.name}</div>
-                      <div className="italic text-gray-500 mt-1">
-                        {item.specification || item.product?.specification || ""}
-                      </div>
+                      <span className="font-bold uppercase">{item.product?.name}</span>
+                      {(item.specification || item.product?.specification) && (
+                        <span className="text-gray-600 italic ml-1 lowercase">
+                          ({(item.specification || item.product?.specification || "").toLowerCase()})
+                        </span>
+                      )}
                     </td>
                     <td className="border border-gray-300 p-2 text-right">{unitPrice.toFixed(2)}</td>
                     <td className="border border-gray-300 p-2 text-center">{qty.toFixed(2)}</td>
                     <td className="border border-gray-300 p-2 text-right">{discount.toFixed(2)}</td>
-                    <td className="border border-gray-300 p-2 text-right">{pretax.toFixed(2)}</td>
+
                     <td className="border border-gray-300 p-2 text-right">{tax.toFixed(2)}</td>
                     <td className="border border-gray-300 p-2 text-right font-bold">{(pretax + tax).toFixed(2)}</td>
                   </tr>
@@ -205,13 +209,12 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
               })}
               {/* Grand Total Row inside Table */}
               <tr className="bg-gray-50 font-bold">
-                <td colSpan={8} className="border border-gray-300 p-2 text-center uppercase tracking-wider">Grand Total</td>
+                <td colSpan={7} className="border border-gray-300 p-2 text-center uppercase tracking-wider">Grand Total</td>
                 <td className="border border-gray-300 p-2 text-right">{total}</td>
               </tr>
               {/* Fill remaining space if needed to match PDF height (optional) */}
               {[...Array(Math.max(0, 5 - (invoice?.order?.items?.length || 0)))].map((_, i) => (
                 <tr key={`empty-${i}`} className="h-8">
-                  <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>
                   <td className="border border-gray-300 p-2"></td>

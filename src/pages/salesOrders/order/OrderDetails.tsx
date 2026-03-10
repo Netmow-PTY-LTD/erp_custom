@@ -134,34 +134,34 @@ export default function OrderDetails() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b">
                   <tr className="text-left text-muted-foreground text-xs uppercase tracking-wider">
-                    <th className="px-6 py-4 font-medium">Product</th>
-                    <th className="px-6 py-4 font-medium">Specification</th>
-                    <th className="px-6 py-4 font-medium text-right">Unit Price</th>
-                    <th className="px-6 py-4 font-medium text-center">Qty</th>
-                    <th className="px-6 py-4 font-medium text-right">Discount</th>
-                    <th className="px-6 py-4 font-medium text-right">Total</th>
+                    <th className="px-6 py-4 font-medium whitespace-nowrap">Product</th>
+                    <th className="px-6 py-4 font-medium whitespace-nowrap">Specification</th>
+                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">Unit Price</th>
+                    <th className="px-6 py-4 font-medium text-center whitespace-nowrap">Qty</th>
+                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">Discount</th>
+                    <th className="px-6 py-4 font-medium text-right whitespace-nowrap">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {order?.items?.map((item) => (
                     <tr key={item.id} className="hover:bg-muted/20 transition-colors">
                       <td className="px-6 py-4">
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">{item.product.name}</p>
-                        <p className="text-xs text-muted-foreground">SKU: {item.product.sku}</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">{item.product.name}</p>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap">SKU: {item.product.sku}</p>
                       </td>
-                      <td className="px-6 py-4 text-xs italic text-muted-foreground">
+                      <td className="px-6 py-4 text-xs italic text-muted-foreground whitespace-nowrap">
                         {item.specification || item.product?.specification || "-"}
                       </td>
-                      <td className="px-6 py-4 text-right font-medium">
+                      <td className="px-6 py-4 text-right font-medium whitespace-nowrap">
                         {Number(item.unit_price).toFixed(2)}
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
                         <Badge variant="outline" className="font-mono text-xs">{item.quantity}</Badge>
                       </td>
-                      <td className="px-6 py-4 text-right text-muted-foreground">
+                      <td className="px-6 py-4 text-right text-muted-foreground whitespace-nowrap">
                         {Number(item?.discount) > 0 ? `- ${currency} ${Number(item.discount).toFixed(2)}` : '-'}
                       </td>
-                      <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100">
+                      <td className="px-6 py-4 text-right font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">
                         {currency} {Number(item.line_total).toFixed(2)}
                       </td>
                     </tr>

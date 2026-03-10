@@ -175,7 +175,6 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                                 <th className="border border-gray-300 p-2 text-right w-16">Rate</th>
                                 <th className="border border-gray-300 p-2 text-center w-12">Qty</th>
                                 <th className="border border-gray-300 p-2 text-right w-16">Disc</th>
-                                <th className="border border-gray-300 p-2 text-right w-20">Pretax Amt.</th>
                                 <th className="border border-gray-300 p-2 text-right w-16">Tax</th>
                                 <th className="border border-gray-300 p-2 text-right w-20">Total</th>
                             </tr>
@@ -203,7 +202,6 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                                         <td className="border border-gray-300 p-2 text-right">{unitPrice.toFixed(2)}</td>
                                         <td className="border border-gray-300 p-2 text-center">{qty.toFixed(2)}</td>
                                         <td className="border border-gray-300 p-2 text-right">{discount.toFixed(2)}</td>
-                                        <td className="border border-gray-300 p-2 text-right">{pretax.toFixed(2)}</td>
                                         <td className="border border-gray-300 p-2 text-right">{tax.toFixed(2)}</td>
                                         <td className="border border-gray-300 p-2 text-right font-bold">{(pretax + tax).toFixed(2)}</td>
                                     </tr>

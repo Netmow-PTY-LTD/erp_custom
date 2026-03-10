@@ -283,7 +283,7 @@ export default function EditProductPage() {
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel>SKU</FieldLabel>
-                        <Input disabled placeholder="SKU123" {...field} />
+                        <Input placeholder="SKU123" {...field} />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </Field>
                     )}

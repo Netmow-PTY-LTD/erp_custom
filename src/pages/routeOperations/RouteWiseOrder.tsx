@@ -29,6 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetSalesOrdersByRouteQuery } from "@/store/features/salesOrder/salesOrder";
 import { useAppSelector } from "@/store/store";
 import { selectCurrency } from "@/store/currencySlice";
+import { Link } from "react-router";
 
 // Expanded Dummy Data for "Lots of Orders" (kept for structure reference if needed, but unused for route list logic)
 const dummyRoutes: Route[] = [
@@ -362,8 +363,15 @@ const RouteWiseOrder = () => {
                                 <TableBody>
                                     {filteredOrders && filteredOrders.length > 0 ? (
                                         filteredOrders.map((order) => (
-                                            <TableRow key={order.id} className="hover:bg-muted/50 transition-colors cursor-pointer">
-                                                <TableCell className="font-medium text-primary">{order.order_number}</TableCell>
+                                            <TableRow key={order.id} className="hover:bg-muted/50 transition-colors">
+                                                <TableCell className="font-medium">
+                                                    <Link
+                                                        to={`/dashboard/sales/orders/${order.id}`}
+                                                        className="text-primary hover:underline"
+                                                    >
+                                                        {order.order_number}
+                                                    </Link>
+                                                </TableCell>
                                                 <TableCell className="font-medium">
                                                     <div className="flex items-center gap-2">
                                                         <Avatar className="h-6 w-6">

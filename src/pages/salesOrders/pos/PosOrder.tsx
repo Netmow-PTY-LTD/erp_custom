@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarcode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -85,6 +85,7 @@ type SalesOrderFormValues = z.infer<typeof orderSchema>;
 export default function PosOrder() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const [barcode, setBarcode] = useState("");
     const [newlyAddedCustomer, setNewlyAddedCustomer] = useState<any>(null);
     const currency = useAppSelector((state) => state.currency.value);
     const posLayout = useAppSelector((state) => state.layout.pos);
@@ -217,6 +218,28 @@ export default function PosOrder() {
         });
         setNewlyAddedCustomer(null);
         setSearch("");
+        setBarcode("");
+    };
+
+    // Barcode Handler
+    const handleBarcodeScan = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (!barcode) return;
+
+            // Search product in loaded data
+            const product = productsData?.data?.find(
+                (p: any) => p.sku?.toLowerCase() === barcode.toLowerCase() || p.barcode === barcode
+            );
+
+            if (product) {
+                addToCart(product);
+                setBarcode("");
+                toast.success(`Added ${product.name}`);
+            } else {
+                toast.error("Product not found or not in loaded list");
+            }
+        }
     };
 
     // Submit Handler
@@ -581,8 +604,8 @@ export default function PosOrder() {
 
             {/* LEFT: Product Grid - Shows second on mobile */}
             <div className="flex-1 flex flex-col gap-4 lg:order-1">
-                <div className="flex items-center gap-4 bg-card p-3 lg:p-4 rounded-xl shadow-sm border">
-                    <div className="relative flex-1">
+                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 bg-card p-3 lg:p-4 rounded-xl shadow-sm border">
+                    <div className="relative w-full sm:flex-1 lg:w-full xl:flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             type="search"
@@ -590,6 +613,18 @@ export default function PosOrder() {
                             className="pl-8 bg-background"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    {/* Barcode Input */}
+                    <div className="relative w-full sm:w-48 lg:w-full xl:w-64">
+                        <ScanBarcode className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Scan Barcode..."
+                            className="pl-8 bg-background"
+                            value={barcode}
+                            onChange={(e) => setBarcode(e.target.value)}
+                            onKeyDown={handleBarcodeScan}
                         />
                     </div>
                 </div>

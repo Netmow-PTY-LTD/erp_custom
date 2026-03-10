@@ -84,24 +84,26 @@ export default function PrintableSalesPayment({ payment, to, from }: Props) {
             <div id="payment-receipt" className="invoice-box print:border-0 print:p-0">
                 {/* Header Section */}
                 <div className="flex justify-between items-start mb-4">
-                    <div className="flex flex-col gap-2 mt-2 details-text text-[13px]">
-                        <h1 className="font-bold uppercase company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+                    <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-1/3">
+                        <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
                         <p className="leading-tight max-w-[400px]">
                             {from?.address || "45, Jalan Industri USJ 1/10, TMN Perindustrian USJ 1, Subang Jaya"}
                         </p>
                         <p>T: {from?.phone || "0162759780"}{from?.email && `, E: ${from.email}`}</p>
                     </div>
-                    <div className="text-right flex flex-col items-end">
+                    <div className="w-1/3 flex justify-center items-center">
                         <div className="mb-1">
                             {from?.logo_url ? (
-                                <img src={from.logo_url} alt="Logo" className="h-14 object-contain" />
+                                <img src={from.logo_url} alt="Logo" className="h-20 object-contain" />
                             ) : (
-                                <div className="w-12 h-12 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
+                                <div className="w-20 h-20 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
                                     F&Z
                                 </div>
                             )}
                         </div>
-                        <h2 className="font-bold text-gray-800 mb-1 uppercase details-text">Receive Voucher</h2>
+                    </div>
+                    <div className="text-right flex flex-col items-end w-1/3">
+                        <h2 className="font-bold text-gray-800 mb-1 uppercase details-text text-xl">Receive Voucher</h2>
                         <div className="details-text space-y-1">
                             <p><strong>Date:</strong> {formatDate(payment?.payment_date)}</p>
                             <p><strong>Receipt No.:</strong> PAY-{payment?.id.toString().padStart(6, "0")}</p>
