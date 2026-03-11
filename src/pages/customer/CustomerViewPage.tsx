@@ -136,7 +136,7 @@ export default function CustomerViewPage() {
                                 <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
                                     <AvatarImage src="" />
                                     <AvatarFallback className="text-xl font-bold bg-slate-100 text-slate-700">
-                                        {getInitials(customer.name)}
+                                        {getInitials(customer?.name || "")}
                                     </AvatarFallback>
                                 </Avatar>
                                 <Badge
