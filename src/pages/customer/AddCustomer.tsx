@@ -26,6 +26,7 @@ import {
 //import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
+import { type CreateCustomerRequest } from "@/store/features/customers/types";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
@@ -51,9 +52,9 @@ const customerSchema = z.object({
   state: z.string().optional(),
   country: z.string().optional(),
   postal_code: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  credit_limit: z.number().min(0, "Credit limit must be 0 or more").default(0),
+  latitude: z.coerce.number().optional().or(z.literal("")),
+  longitude: z.coerce.number().optional().or(z.literal("")),
+  credit_limit: z.coerce.number().min(0, "Credit limit must be 0 or more").default(0),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),
   thumb_url: z.string().optional(),
@@ -126,12 +127,13 @@ export default function AddCustomerPage() {
 
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
     try {
-      const payload = {
-        ...values,
-        sales_route_id: Number(values.salesRouteId),
+      const { salesRouteId, ...rest } = values;
+      const payload: CreateCustomerRequest = {
+        ...rest,
+        sales_route_id: Number(salesRouteId),
+        latitude: rest.latitude === "" ? undefined : rest.latitude,
+        longitude: rest.longitude === "" ? undefined : rest.longitude,
       };
-      // @ts-ignore
-      delete payload.salesRouteId;
 
       const res = await createCustomer(payload).unwrap();
       if (res.status) {

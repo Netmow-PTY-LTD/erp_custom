@@ -28,6 +28,7 @@ import {
 
 import { useNavigate, useParams } from "react-router";
 import { useGetCustomerByIdQuery, useUpdateCustomerMutation } from "@/store/features/customers/customersApi";
+import { type UpdateCustomerRequest } from "@/store/features/customers/types";
 import { toast } from "sonner";
 import { User, CheckCircle2, Phone, MapPin, Briefcase, Plus, Trash2, Edit2, Mail, BadgeCheck, Image as ImageIcon } from "lucide-react";
 
@@ -56,9 +57,9 @@ const customerSchema = z.object({
   state: z.string().optional(),
   country: z.string().optional(),
   postal_code: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  credit_limit: z.number().min(0, "Credit limit must be 0 or more"),
+  latitude: z.coerce.number().optional().or(z.literal("")),
+  longitude: z.coerce.number().optional().or(z.literal("")),
+  credit_limit: z.coerce.number().min(0, "Credit limit must be 0 or more"),
   notes: z.string().optional(),
   is_active: z.boolean(),
   thumb_url: z.string().optional(),
@@ -202,11 +203,13 @@ export default function EditCustomerByStaffPage() {
   /* ------------------ SUBMIT ------------------ */
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
     try {
-      const payload = {
-        ...values,
-        salesRouteId: Number(values.salesRouteId)
-
-      }
+      const { salesRouteId, ...rest } = values;
+      const payload: UpdateCustomerRequest = {
+        ...rest,
+        sales_route_id: Number(salesRouteId),
+        latitude: rest.latitude === "" ? undefined : rest.latitude,
+        longitude: rest.longitude === "" ? undefined : rest.longitude,
+      };
 
 
       const res = await updateCustomer({

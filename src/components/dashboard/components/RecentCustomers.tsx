@@ -27,7 +27,7 @@ export default function RecentCustomers() {
   return (
     <div className="space-y-4">
       {customers.map((customer) => {
-        const initials = customer.name
+        const initials = (customer.name || "N A")
           .split(" ")
           .map((n: string) => n[0])
           .slice(0, 2)
