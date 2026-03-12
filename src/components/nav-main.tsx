@@ -17,12 +17,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collap
 import React, { type ReactNode } from "react";
 import { useAppSelector } from "@/store/store";
 
-// Type for sub-menu items
+// Type for sub-menu items (supports nested items)
 export interface NavSubItem {
   title: string;
   url: string;
   icon?: React.ElementType;
   allowedPermissions?: string[];
+  items?: NavSubItem[]; // Support nested sub-menus
+  element?: ReactNode; // Support React elements
 }
 
 // Type for main menu items
@@ -104,6 +106,52 @@ export function NavMain({ items }: NavMainProps) {
                         const isHide = subItem.allowedPermissions && !subItem.allowedPermissions.some(p => userPermissions.includes(p));
                         if (!subItem.title) return null; //  completely hide the item
                         if (isHide) return null; //  completely hide the item
+
+                        // Check if sub-item has nested items
+                        const hasNestedItems = Array.isArray(subItem.items) && subItem.items.length > 0;
+
+                        if (hasNestedItems) {
+                          // Render nested submenu
+                          return (
+                            <Collapsible
+                              key={subItem.title}
+                              asChild
+                              defaultOpen={false}
+                              className="group/collapsible"
+                            >
+                              <SidebarMenuSubItem>
+                                <CollapsibleTrigger className="cursor-pointer" asChild>
+                                  <SidebarMenuSubButton>
+                                    {subItem.icon && <subItem.icon />}
+                                    <span>{subItem.title}</span>
+                                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                  </SidebarMenuSubButton>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <SidebarMenuSub>
+                                    {subItem.items!.map((nestedItem) => {
+                                      const isNestedHide = nestedItem.allowedPermissions && !nestedItem.allowedPermissions.some(p => userPermissions.includes(p));
+                                      if (!nestedItem.title) return null;
+                                      if (isNestedHide) return null;
+                                      return (
+                                        <SidebarMenuSubItem key={nestedItem.title}>
+                                          <SidebarMenuSubButton asChild>
+                                            <Link to={nestedItem.url} onClick={handleLinkClick}>
+                                              {nestedItem.icon && <nestedItem.icon />}
+                                              <span>{nestedItem.title}</span>
+                                            </Link>
+                                          </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                      );
+                                    })}
+                                  </SidebarMenuSub>
+                                </CollapsibleContent>
+                              </SidebarMenuSubItem>
+                            </Collapsible>
+                          );
+                        }
+
+                        // Render simple sub-item
                         return (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton asChild>
