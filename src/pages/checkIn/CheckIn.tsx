@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import CheckInLocationModal from "./CheckInLocationModal";
 import { format } from "date-fns";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery } from "@/store/features/checkIn/checkIn";
+import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery, useGetMyRoutesWithCustomersQuery } from "@/store/features/checkIn/checkIn";
 import type { Customer } from "@/store/features/customers/types";
 import ClenderButton from "./ClenderButton";
 import { useAppSelector } from "@/store/store";
@@ -37,21 +37,26 @@ const user = useAppSelector((state) => state.auth.user);
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
-  // Fetch customers with status by date
-  const { data: customerData, isLoading: customersLoading, error: customersError } = useGetCustomerCheckInListByDateQuery({
-    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
-    page: currentPage,
-    limit: pageSize,
-    search: searchTerm || undefined,
-  });
+  // Fetch staff's routes with customers
+  const { data: routesData, isLoading: customersLoading, error: customersError } = useGetMyRoutesWithCustomersQuery();
 
 
   const [locationData, setLocationData] = useState<{ checkins: any[]; customer: Customer } | null>(null);
   const [attendanceResult, setAttendanceResult] = useState<any>(null);
   const [check_in, { isLoading: isSubmitting }] = useStaffCheckInMutation();
 
-  const customers = customerData?.data || [];
-  const totalCount = customerData?.pagination?.total || 0;
+  // Flatten routes and customers into a single customer list
+  const customers = routesData?.data?.flatMap((route: any) => {
+    return (route.customers || []).map((customer: any) => ({
+      ...customer,
+      salesRoute: {
+        id: route.id,
+        route_name: route.route_name,
+        description: route.description
+      }
+    }));
+  }) || [];
+  const totalCount = customers.length;
 
 
 const customerColumns: ColumnDef<Customer>[] = [
@@ -287,14 +292,11 @@ const customerColumns: ColumnDef<Customer>[] = [
           <DataTable
             columns={customerColumns}
             data={customers}
-            pageIndex={currentPage - 1}
-            pageSize={pageSize}
+            pageIndex={0}
+            pageSize={customers.length || 10}
             totalCount={totalCount}
-            onPageChange={(newPageIndex) => setCurrentPage(newPageIndex + 1)}
-            onSearch={(value) => {
-              setSearchTerm(value);
-              setCurrentPage(1);
-            }}
+            onPageChange={() => {}}
+            onSearch={(value) => setSearchTerm(value)}
             isFetching={customersLoading || isSubmitting}
           />
         )}

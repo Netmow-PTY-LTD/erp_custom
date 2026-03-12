@@ -26,12 +26,14 @@ import {
   ShoppingCart,
   Truck,
   UserPlus,
+  User,
   Users,
   CheckCircle,
   Clock,
   Database,
   XCircle,
   Image,
+  Receipt,
 } from "lucide-react";
 import Dashboard from "../pages/dashboard/Dashboard";
 import GalleryPage from "@/pages/gallery";
@@ -224,6 +226,9 @@ import EditProfilePage from "@/pages/Settings/pages/UserProfilePage";
 import GoogleApiSettings from "@/pages/Settings/pages/GoogleApiSettings";
 import PrefixSettings from "@/pages/Settings/pages/PrefixSettings";
 import StaffWiseSalesReport from "@/pages/reports/StaffWiseSalesReport";
+import StaffWiseInvoicesReport from "@/pages/reports/StaffWiseInvoicesReport";
+import MySales from "@/pages/reports/MySales";
+import MyInvoices from "@/pages/reports/MyInvoices";
 import InvoicesSummaryPreview from "@/pages/salesOrders/invoices/InvoicesSummaryPreview";
 import InvoiceItemsSummaryPreview from "@/pages/salesOrders/invoices/InvoiceItemsSummaryPreview";
 import InvoiceSummaryDetails from "@/pages/salesOrders/invoices/InvoiceSummaryDetails";
@@ -2005,13 +2010,65 @@ export const sidebarItemLink = [
         ],
       },
       {
-        title: "Staff Wise Sales Report",
-        url: "/dashboard/reports/staff-wise-sales",
-        element: <StaffWiseSalesReport />,
+        title: "Staff Reports",
+        url: "#",
         icon: Users,
         allowedPermissions: [
           ReportPermission.SALES,
           SuperAdminPermission.ACCESS_ALL,
+        ],
+        items: [
+          {
+            title: "Staff Wise Sales",
+            url: "/dashboard/reports/staff-wise-sales",
+            element: <StaffWiseSalesReport />,
+            icon: DollarSign,
+            allowedPermissions: [
+              ReportPermission.SALES,
+              SuperAdminPermission.ACCESS_ALL,
+            ],
+          },
+          {
+            title: "Staff Wise Invoices",
+            url: "/dashboard/reports/staff-wise-invoices",
+            element: <StaffWiseInvoicesReport />,
+            icon: Receipt,
+            allowedPermissions: [
+              ReportPermission.SALES,
+              SuperAdminPermission.ACCESS_ALL,
+            ],
+          },
+        ],
+      },
+      {
+        title: "My Reports",
+        url: "#",
+        icon: User,
+        allowedPermissions: [
+          ReportPermission.SALES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+        items: [
+          {
+            title: "My Sales",
+            url: "/dashboard/reports/my-sales",
+            element: <MySales />,
+            icon: DollarSign,
+            allowedPermissions: [
+              ReportPermission.SALES,
+              SuperAdminPermission.ACCESS_ALL,
+            ],
+          },
+          {
+            title: "My Invoices",
+            url: "/dashboard/reports/my-invoices",
+            element: <MyInvoices />,
+            icon: FileText,
+            allowedPermissions: [
+              ReportPermission.SALES,
+              SuperAdminPermission.ACCESS_ALL,
+            ],
+          },
         ],
       },
     ],
