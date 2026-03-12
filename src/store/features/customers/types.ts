@@ -10,7 +10,7 @@ export interface Contact {
 
 export interface Customer {
     id: number;
-    name: string;
+    name?: string;
     email?: string;
     phone?: string;
     company?: string;
@@ -48,7 +48,7 @@ export interface Customer {
 }
 
 export interface CreateCustomerRequest {
-    name: string;
+    name?: string;
     email?: string;
     phone?: string;
     company?: string;
@@ -131,7 +131,7 @@ export interface DeleteCustomerResponse {
 
 export interface CustomerMapLocation {
     id: number;
-    name: string;
+    name?: string;
     company?: string;
     address?: string;
     city?: string;

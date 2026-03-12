@@ -187,4 +187,5 @@ export type Settings = {
   address: string;
   currency: string;
   logo_url: string;
+  qr_code?: string;
 };
