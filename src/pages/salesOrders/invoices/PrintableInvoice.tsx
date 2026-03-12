@@ -118,7 +118,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
           </div>
 
           {/* Bottom Row: Company Info & Invoice Details */}
-          <div className="flex flex-col sm:flex-row justify-start items-start gap-4 sm:gap-0 mt-2">
+          <div className="flex flex-col sm:flex-row justify-start items-start gap-4 sm:gap-10 mt-2">
             {/* Left Box: Company Info */}
             <div className="flex flex-col gap-1 text-[13px] w-full sm:w-1/2">
               <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
@@ -145,8 +145,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
         </div>
 
         {/* Recipient Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
-          <div className="border border-gray-300">
+        <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-5 mb-6">
+          <div className="border border-gray-300 break-inside-avoid">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Bill To</div>
             <div className="p-3 details-text min-h-[80px]">
               <p className="font-bold">{to?.name}</p>
@@ -155,7 +155,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
               {to?.email && <p>E: {to.email}</p>}
             </div>
           </div>
-          <div className="border border-gray-300">
+          <div className="border border-gray-300 break-inside-avoid">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Ship To</div>
             <div className="p-3 details-text min-h-[80px]">
               <p className="font-bold">{to?.name}</p>
