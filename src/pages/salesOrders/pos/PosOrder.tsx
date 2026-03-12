@@ -374,73 +374,88 @@ export default function PosOrder() {
                                 </div>
 
                                 {/* Customer Select & Add */}
-                                <div className="flex gap-2 items-end">
-                                    <div className="flex-1 space-y-2">
-                                        <FormField
-                                            control={control}
-                                            name="customer_id"
-                                            render={({ field }) => (
-                                                <FormItem className="space-y-0">
-                                                    <FormLabel className="sr-only">Customer</FormLabel>
-                                                    <FormControl>
-                                                        <CustomerSelect field={field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
+                                <div className="space-y-2">
+                                    <FormLabel>Customer</FormLabel>
+                                    <div className="flex gap-2">
+                                        <div className="flex-1">
+                                            <FormField
+                                                control={control}
+                                                name="customer_id"
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-0">
+                                                        <FormControl>
+                                                            <CustomerSelect field={field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <PosAddCustomer
+                                            onCustomerAdded={(c) => {
+                                                setNewlyAddedCustomer(c);
+                                                setValue("customer_id", c.id);
+                                                if (c.address) setValue("shipping_address", c.address);
+                                            }}
                                         />
                                     </div>
-                                    <PosAddCustomer
-                                        onCustomerAdded={(c) => {
-                                            setNewlyAddedCustomer(c);
-                                            setValue("customer_id", c.id);
-                                            if (c.address) setValue("shipping_address", c.address);
-                                        }}
-                                    />
                                 </div>
 
                                 {/* Dates & Address (Collapsible or Compact) */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                <div className="space-y-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                            <FormLabel className="text-xs">Order Date</FormLabel>
+                                            <FormField
+                                                control={control}
+                                                name="order_date"
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-0">
+                                                        <FormControl>
+                                                            <Input type="date" {...field} className="h-8 text-xs block" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <FormLabel className="text-xs">Delivery Date</FormLabel>
+                                            <FormField
+                                                control={form.control}
+                                                name="due_date"
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-0">
+                                                        <FormControl>
+                                                            <Input type="date" {...field} className="h-8 text-xs block" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <FormLabel className="text-xs">Shipping Address</FormLabel>
                                     <FormField
                                         control={control}
-                                        name="order_date"
+                                        name="shipping_address"
                                         render={({ field }) => (
                                             <FormItem className="space-y-0">
                                                 <FormControl>
-                                                    <Input type="date" {...field} className="h-8 text-xs block" />
+                                                    <Textarea
+                                                        placeholder="Shipping Address..."
+                                                        {...field}
+                                                        className="min-h-[2.5rem] py-1 text-xs resize-none"
+                                                        rows={1}
+                                                    />
                                                 </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="due_date"
-                                        render={({ field }) => (
-                                            <FormItem className="space-y-0">
-                                                <FormControl>
-                                                    <Input type="date" {...field} className="h-8 text-xs block" />
-                                                </FormControl>
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-                                <FormField
-                                    control={control}
-                                    name="shipping_address"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-0">
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder="Shipping Address..."
-                                                    {...field}
-                                                    className="min-h-[2.5rem] py-1 text-xs resize-none"
-                                                    rows={1}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             </CardHeader>
 
                             {/* 2. Cart Items List */}

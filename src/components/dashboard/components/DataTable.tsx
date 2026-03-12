@@ -115,7 +115,7 @@ export function DataTable<TData>({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between print:hidden">
         <Input
           placeholder="Search..."
           value={globalFilter}
@@ -128,7 +128,7 @@ export function DataTable<TData>({
         {filters && <div className="flex gap-2">{filters}</div>}
       </div>
 
-      <div className="rounded-md border overflow-x-auto">
+      <div className="rounded-md border overflow-x-auto print:border-none">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -205,7 +205,7 @@ export function DataTable<TData>({
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-wrap items-center justify-between py-4 gap-4">
+      <div className="flex flex-wrap items-center justify-between py-4 gap-4 print:hidden">
         {/* Showing X–Y of Z */}
         <div className="flex flex-wrap items-center gap-4">
           <div className="text-sm">

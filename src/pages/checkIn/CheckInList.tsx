@@ -2,12 +2,20 @@
 import { useState, useMemo, type JSX } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/dashboard/components/DataTable";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import CheckInLocationModal from "./CheckInLocationModal";
 import { useGetAllStaffAttendanceQuery, type StaffAttendance } from "@/store/features/checkIn/checkIn";
+import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import ClenderButton from "./ClenderButton";
-import { MapPin, Car } from "lucide-react";
+import { MapPin, Car, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /* ================= COMPONENT ================= */
 
@@ -17,13 +25,37 @@ export default function CheckInList(): JSX.Element {
   const [limit] = useState(10);
   const [locationItem, setLocationItem] = useState<StaffAttendance | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedStaffId, setSelectedStaffId] = useState<string>("all");
 
+  // Fetch staff list for filter dropdown
+  const { data: staffResponse } = useGetAllStaffsQuery({ limit: 1000, status: 'active' });
+  const staffList = useMemo(() => staffResponse?.data || [], [staffResponse]);
+
+  // Fetch attendance data with filters
   const { data: response, isFetching, isLoading } = useGetAllStaffAttendanceQuery({
     page,
     limit,
     search,
     date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined,
+    staff_id: selectedStaffId === "all" ? undefined : selectedStaffId,
   });
+
+  // Fetch today's attendance for status indicators
+  const today = format(new Date(), "yyyy-MM-dd");
+  const { data: todayAttendanceResponse } = useGetAllStaffAttendanceQuery({
+    date: today,
+    limit: 1000,
+  });
+  const todayCheckIns = useMemo(() => {
+    const checkInMap = new Map<number, StaffAttendance[]>();
+    todayAttendanceResponse?.data?.forEach((attendance: StaffAttendance) => {
+      if (!checkInMap.has(attendance.staff_id)) {
+        checkInMap.set(attendance.staff_id, []);
+      }
+      checkInMap.get(attendance.staff_id)?.push(attendance);
+    });
+    return checkInMap;
+  }, [todayAttendanceResponse]);
 
   const attendanceItems = useMemo(() => response?.data || [], [response]);
   const totalCount = useMemo(() => response?.pagination?.total || 0, [response]);
@@ -37,7 +69,18 @@ export default function CheckInList(): JSX.Element {
         header: "Checked-in User",
         cell: ({ row }) => {
           const staff = row.original.staff;
-          return staff?.first_name ? `${staff.first_name} ${staff.last_name}` : staff?.name || "N/A";
+          const staffId = row.original.staff_id;
+          const hasCheckedInToday = todayCheckIns.has(staffId) && todayCheckIns.get(staffId)!.length > 0;
+          const isTodaySelected = selectedDate && isToday(selectedDate);
+
+          return (
+            <div className="flex items-center gap-2">
+              <span>{staff?.first_name ? `${staff.first_name} ${staff.last_name}` : staff?.name || "N/A"}</span>
+              {isTodaySelected && hasCheckedInToday && (
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+              )}
+            </div>
+          );
         },
       },
       {
@@ -119,7 +162,25 @@ export default function CheckInList(): JSX.Element {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Check In List</h1>
-        <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        <div className="flex items-center gap-3">
+          <Select value={selectedStaffId} onValueChange={(value) => {
+            setSelectedStaffId(value || "all");
+            setPage(1);
+          }}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter by Staff" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Staff</SelectItem>
+              {staffList.map((staff: any) => (
+                <SelectItem key={staff.id} value={staff.id.toString()}>
+                  {staff.first_name} {staff.last_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <ClenderButton selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        </div>
       </div>
 
       <div className="bg-white">

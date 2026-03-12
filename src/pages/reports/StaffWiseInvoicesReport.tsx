@@ -12,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useGetStaffWiseSalesQuery } from "@/store/features/reports/reportApiService";
+import { useGetStaffWiseInvoicesQuery } from "@/store/features/reports/reportApiService";
 import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import { useAppSelector } from "@/store/store";
 import { useState } from "react";
@@ -32,7 +32,7 @@ function getEndOfCurrentMonth() {
         .slice(0, 10);
 }
 
-export default function StaffWiseSalesReport() {
+export default function StaffWiseInvoicesReport() {
     const [startDate, setStartDate] = useState(getStartOfCurrentMonth());
     const [endDate, setEndDate] = useState(getEndOfCurrentMonth());
     const [tempStartDate, setTempStartDate] = useState(startDate);
@@ -48,8 +48,8 @@ export default function StaffWiseSalesReport() {
     const { data: staffListResponse } = useGetAllStaffsQuery({ status: "active", limit: 100 });
     const staffList = staffListResponse?.data || [];
 
-    const { data: staffSalesData, isFetching: staffSalesIsFetching } =
-        useGetStaffWiseSalesQuery({
+    const { data: staffInvoicesData, isFetching: staffInvoicesIsFetching } =
+        useGetStaffWiseInvoicesQuery({
             start_date: startDate,
             end_date: endDate,
             page,
@@ -58,17 +58,26 @@ export default function StaffWiseSalesReport() {
             staff_id: staffId === "all" ? undefined : staffId,
         });
 
-    const staffSales = staffSalesData?.data || [];
+    const staffInvoices = staffInvoicesData?.data || [];
 
-    const staffSalesColumns: ColumnDef<any>[] = [
+    interface StaffInvoice {
+        staff_id: number;
+        staff_name: string;
+        total_invoices: number;
+        total_amount: number;
+        paid_amount: number;
+        unpaid_amount: number;
+    }
+
+    const columns: ColumnDef<StaffInvoice>[] = [
         {
             accessorKey: "staff_name",
             header: "Staff Name",
             cell: (info) => <div className="font-medium text-slate-900">{info.getValue() as string}</div>,
         },
         {
-            accessorKey: "order_count",
-            header: "Total Orders",
+            accessorKey: "total_invoices",
+            header: "Total Invoices",
             cell: (info) => (
                 <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {(info.getValue() as number).toLocaleString()}
@@ -76,10 +85,10 @@ export default function StaffWiseSalesReport() {
             ),
         },
         {
-            accessorKey: "total_sales",
-            header: () => <div className="text-right">Total Sales ({currency})</div>,
+            accessorKey: "total_amount",
+            header: () => <div className="text-right">Total Amount ({currency})</div>,
             cell: (info) => (
-                <div className="text-right font-mono font-bold text-emerald-600">
+                <div className="text-right font-mono font-bold text-slate-800">
                     {(info.getValue() as number).toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -88,10 +97,10 @@ export default function StaffWiseSalesReport() {
             ),
         },
         {
-            accessorKey: "total_paid",
-            header: () => <div className="text-right">Total Paid ({currency})</div>,
+            accessorKey: "paid_amount",
+            header: () => <div className="text-right">Paid Amount ({currency})</div>,
             cell: (info) => (
-                <div className="text-right font-mono font-semibold text-blue-600">
+                <div className="text-right font-mono font-semibold text-emerald-600">
                     {(info.getValue() as number).toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -100,8 +109,8 @@ export default function StaffWiseSalesReport() {
             ),
         },
         {
-            accessorKey: "due_amount",
-            header: () => <div className="text-right">Due ({currency})</div>,
+            accessorKey: "unpaid_amount",
+            header: () => <div className="text-right">Unpaid Amount ({currency})</div>,
             cell: (info) => {
                 const value = info.getValue() as number;
                 return (
@@ -122,9 +131,9 @@ export default function StaffWiseSalesReport() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-violet-400 bg-clip-text text-transparent">
-                        Staff Wise Sales Report
+                        Staff Wise Invoices Report
                     </h1>
-                    <p className="text-muted-foreground mt-1 text-sm">Monitor sales performance by individual staff members</p>
+                    <p className="text-muted-foreground mt-1 text-sm">Monitor invoice performance by individual staff members</p>
                 </div>
                 <div className="flex flex-wrap gap-3 items-end bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
                     <div className="flex flex-col">
@@ -187,7 +196,7 @@ export default function StaffWiseSalesReport() {
                 </div>
             </div>
 
-            {/* Stats Overview (Optional) */}
+            {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="border-none shadow-sm bg-gradient-to-br from-white to-slate-50 relative overflow-hidden group">
                     <div className="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
@@ -202,10 +211,10 @@ export default function StaffWiseSalesReport() {
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-2xl font-bold text-slate-900">
-                                {staffSales[0]?.staff_name || "N/A"}
+                                {staffInvoices[0]?.staff_name || "N/A"}
                             </h3>
                             <p className="text-sm text-slate-500">
-                                Highest sales contributor this period
+                                Highest invoice contributor this period
                             </p>
                         </div>
                     </CardContent>
@@ -246,10 +255,10 @@ export default function StaffWiseSalesReport() {
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-2xl font-bold text-slate-900">
-                                {staffSalesData?.pagination?.total || 0}
+                                {staffInvoicesData?.pagination?.total || 0}
                             </h3>
                             <p className="text-sm text-slate-500">
-                                Staff members with sales data
+                                Staff members with invoice data
                             </p>
                         </div>
                     </CardContent>
@@ -265,19 +274,19 @@ export default function StaffWiseSalesReport() {
                                 <Users className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <CardTitle className="text-lg font-bold text-slate-800">Sales Performance by Staff</CardTitle>
-                                <p className="text-xs text-slate-500 mt-0.5 font-medium italic">Breakdown of orders and revenue per person</p>
+                                <CardTitle className="text-lg font-bold text-slate-800">Invoice Performance by Staff</CardTitle>
+                                <p className="text-xs text-slate-500 mt-0.5 font-medium italic">Breakdown of invoices and payments per person</p>
                             </div>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="">
                     <DataTable
-                        data={staffSales}
-                        columns={staffSalesColumns}
+                        data={staffInvoices}
+                        columns={columns}
                         pageIndex={page - 1}
                         pageSize={limit}
-                        totalCount={staffSalesData?.pagination?.total || 0}
+                        totalCount={staffInvoicesData?.pagination?.total || 0}
                         onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
                         onPageSizeChange={(newLimit) => {
                             setLimit(newLimit);
@@ -287,7 +296,7 @@ export default function StaffWiseSalesReport() {
                             setSearch(value);
                             setPage(1);
                         }}
-                        isFetching={staffSalesIsFetching}
+                        isFetching={staffInvoicesIsFetching}
                     />
                 </CardContent>
             </Card>
