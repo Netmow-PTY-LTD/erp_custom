@@ -6,7 +6,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetMyCustomerWiseInvoicesQuery } from "@/store/features/reports/reportApiService";
 import { useAppSelector } from "@/store/store";
-import { FileText, DollarSign, AlertCircle, Users, TrendingUp } from "lucide-react";
+import { FileText, DollarSign, AlertCircle, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -96,7 +96,6 @@ export default function MyCustomerWiseInvoices() {
     const totalCustomers = data?.pagination?.total || 0;
     const totalInvoices = data?.data?.reduce((sum: number, item: any) => sum + (item.invoice_count || 0), 0) || 0;
     const totalAmount = data?.data?.reduce((sum: number, item: any) => sum + (item.total_amount || 0), 0) || 0;
-    const totalPaid = data?.data?.reduce((sum: number, item: any) => sum + (item.paid_amount || 0), 0) || 0;
     const totalUnpaid = data?.data?.reduce((sum: number, item: any) => sum + (item.unpaid_amount || 0), 0) || 0;
 
     const stats = [
@@ -193,11 +192,10 @@ export default function MyCustomerWiseInvoices() {
                     <DataTable
                         columns={columns}
                         data={data?.data || []}
-                        pagination={{
-                            page,
-                            totalPages: data?.pagination?.totalPage || 1,
-                            onPageChange: setPage,
-                        }}
+                        pageIndex={page - 1}
+                        pageSize={limit}
+                        totalCount={data?.pagination?.total || 0}
+                        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
                         isFetching={isFetching}
                     />
                 </CardContent>

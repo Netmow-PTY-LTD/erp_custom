@@ -180,11 +180,10 @@ export default function MyCustomerWiseSales() {
                     <DataTable
                         columns={columns}
                         data={data?.data || []}
-                        pagination={{
-                            page,
-                            totalPages: data?.pagination?.totalPage || 1,
-                            onPageChange: setPage,
-                        }}
+                        pageIndex={page - 1}
+                        pageSize={limit}
+                        totalCount={data?.pagination?.total || 0}
+                        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
                         isFetching={isFetching}
                     />
                 </CardContent>
