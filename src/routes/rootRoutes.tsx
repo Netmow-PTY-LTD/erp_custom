@@ -13,6 +13,10 @@ import UnauthorizedPage from "@/pages/UnauthorizedPage";
 import Privacy from "@/pages/privacy/Privacy";
 import Terms from "@/pages/terms/Terms";
 import Contact from "@/pages/contact/Contact";
+import ModulesFunctionality from "@/pages/modules/ModulesFunctionality";
+import AuthModule from "@/pages/modules/details/AuthModule";
+import SalesModule from "@/pages/modules/details/SalesModule";
+import ProductsModule from "@/pages/modules/details/ProductsModule";
 
 import DashboardRedirect from "@/routes/DashboardRedirect";
 
@@ -37,6 +41,11 @@ const rootRouter = createBrowserRouter([
   { path: "/privacy", element: <Privacy /> },
   { path: "/terms", element: <Terms /> },
   { path: "/contact", element: <Contact /> },
+  { path: "/modules-functionality", element: <ModulesFunctionality /> },
+  { path: "/modules/auth", element: <AuthModule /> },
+  { path: "/modules/sales", element: <SalesModule /> },
+  { path: "/modules/products", element: <ProductsModule /> },
+  // Add other module routes here following the same pattern
 
   //  PROTECTED DASHBOARD
   {
