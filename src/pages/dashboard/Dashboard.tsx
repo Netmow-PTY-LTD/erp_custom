@@ -157,7 +157,7 @@ export default function Dashboard() {
 
           {/* Sales Summary Cards */}
           {canStaffsChartShow && (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {/* INVOICE Card */}
               <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
                 {/* Header */}

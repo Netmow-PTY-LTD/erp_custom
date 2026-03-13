@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetMyInvoicesQuery } from "@/store/features/reports/reportApiService";
-import { useGetCustomersQuery } from "@/store/features/customers/customersApiService";
+import { useGetCustomersQuery, type Customer } from "@/store/features/customers/customersApiService";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import { useAppSelector } from "@/store/store";
-import { FileText, DollarSign, AlertCircle, CheckCircle, Filter, Printer } from "lucide-react";
+import { FileText, DollarSign, AlertCircle, Filter, Printer } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -72,7 +73,14 @@ export default function MyInvoices() {
         {
             accessorKey: "invoice_number",
             header: "Invoice #",
-            cell: (info) => info.getValue() as string,
+            cell: (info) => (
+                <Link
+                    to={`/dashboard/sales/invoices/${info.row.original.id}`}
+                    className="text-blue-600 hover:underline font-medium"
+                >
+                    {info.getValue() as string}
+                </Link>
+            ),
         },
         {
             accessorKey: "customer_name",
@@ -120,9 +128,8 @@ export default function MyInvoices() {
 
     // Calculate summary stats from data
     const totalInvoices = data?.pagination?.total || 0;
-    const totalAmount = data?.data?.reduce((sum: number, item: any) => sum + (item.total_amount || 0), 0) || 0;
-    const totalPaid = data?.data?.reduce((sum: number, item: any) => sum + (item.paid_amount || 0), 0) || 0;
-    const totalUnpaid = data?.data?.reduce((sum: number, item: any) => sum + (item.balance_due || 0), 0) || 0;
+    const totalAmount = data?.data?.reduce((sum: number, item: MyInvoicesData) => sum + (item.total_amount || 0), 0) || 0;
+    const totalUnpaid = data?.data?.reduce((sum: number, item: MyInvoicesData) => sum + (item.balance_due || 0), 0) || 0;
 
     const stats = [
         {
@@ -188,7 +195,7 @@ export default function MyInvoices() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
                 {stats.map((stat) => (
-                    <Card key={stat.label} className={`bg-gradient-to-br ${stat.gradient} ${stat.shadow}`}>
+                    <Card key={stat.label} className={`bg-gradient-to-br ${stat.gradient} ${stat.shadow} py-6`}>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-white">{stat.label}</CardTitle>
                             {stat.icon}
@@ -230,20 +237,20 @@ export default function MyInvoices() {
                     </div>
                 </div>
 
-                <Card className="pt-6 pb-2 border-none shadow-none print:pt-0">
-                    <CardHeader className="print:hidden">
+                <Card className="pt-6 pb-2 border-none shadow-none print:pt-0 gap-4">
+                    <CardHeader className="print:hidden px-0">
                         <div className="flex items-center justify-between gap-4">
                             <CardTitle>Invoice List</CardTitle>
                             <div className="flex gap-2">
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <Button variant="outline" className="w-[200px] justify-start">
+                                        <Button variant="outline" className="w-[200px] justify-start overflow-hidden text-ellipsis">
                                             <Filter className="w-4 h-4 mr-2" />
                                             {selectedCustomer === "all"
                                                 ? "Filter by Customer"
-                                                : customersData?.data?.find((c: any) => c.id.toString() === selectedCustomer)?.company +
-                                                  " - " +
-                                                  customersData?.data?.find((c: any) => c.id.toString() === selectedCustomer)?.name || "Filter by Customer"}
+                                                : (customersData?.data as Customer[])?.find((c) => c.id.toString() === selectedCustomer)?.company +
+                                                " - " +
+                                                (customersData?.data as Customer[])?.find((c) => c.id.toString() === selectedCustomer)?.name || "Filter by Customer"}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[300px] p-0">
@@ -266,12 +273,12 @@ export default function MyInvoices() {
                                                 >
                                                     All Customers
                                                 </div>
-                                                {customersData?.data
-                                                    ?.filter((customer: any) =>
+                                                {(customersData?.data as Customer[])
+                                                    ?.filter((customer) =>
                                                         customer.company.toLowerCase().includes(search.toLowerCase()) ||
                                                         customer.name.toLowerCase().includes(search.toLowerCase())
                                                     )
-                                                    .map((customer: any) => (
+                                                    .map((customer) => (
                                                         <div
                                                             key={customer.id}
                                                             className="flex items-center gap-2 px-2 py-2 hover:bg-accent rounded-md cursor-pointer"
@@ -296,7 +303,7 @@ export default function MyInvoices() {
                             <h3 className="text-xl font-bold uppercase details-text">
                                 {selectedCustomer === "all"
                                     ? "Customer Wise Invoices"
-                                    : `${customersData?.data?.find((c: any) => c.id.toString() === selectedCustomer)?.company || ""} Invoices`
+                                    : `${(customersData?.data as Customer[])?.find((c) => c.id.toString() === selectedCustomer)?.company || ""} Invoices`
                                 }
                             </h3>
                         </div>

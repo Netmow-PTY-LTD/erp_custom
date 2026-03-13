@@ -679,7 +679,7 @@ export default function PosOrder() {
                             return (
                                 <Card
                                     key={product.id}
-                                    className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 ${isOutOfStock ? 'opacity-60 grayscale' : ''} ${posLayout.cardStyle === 'compact' ? 'h-fit' : ''} ${posLayout.cardStyle === 'bordered' ? 'border-muted-foreground/20' : ''}`}
+                                    className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 overflow-hidden ${isOutOfStock ? 'opacity-60 grayscale' : ''} ${posLayout.cardStyle === 'compact' ? 'h-fit' : ''} ${posLayout.cardStyle === 'bordered' ? 'border-muted-foreground/20' : ''}`}
                                     onClick={() => addToCart(product)}
                                 >
                                     <CardContent className={posLayout.cardStyle === 'compact' ? 'p-0' : 'p-0'}>
