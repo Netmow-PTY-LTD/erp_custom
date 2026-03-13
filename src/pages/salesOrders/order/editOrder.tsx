@@ -45,6 +45,7 @@ import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import {
   useGetSalesOrderByIdQuery,
   useUpdateSalesOrderMutation,
+  useAddSalesOrderItemMutation,
   useUpdateSalesOrderItemMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useGetActiveCustomersQuery, useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
@@ -120,7 +121,14 @@ export default function EditOrderPage() {
 
   const { data: orderResponse, isLoading: isFetchingOrder } = useGetSalesOrderByIdQuery(orderId!);
   const [updateSalesOrder, { isLoading: isUpdating }] = useUpdateSalesOrderMutation();
+  const [addSalesOrderItem, { isLoading: isAddingItem }] = useAddSalesOrderItemMutation();
   const [updateSalesOrderItem, { isLoading: isUpdatingItem }] = useUpdateSalesOrderItemMutation();
+
+  // Fetch products for Add Product modal
+  const { data: productsData } = useGetAllProductsQuery({
+    page: 1,
+    limit: 100,
+  });
 
   const currency = useAppSelector((state) => state.currency.value);
   const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
@@ -132,6 +140,23 @@ export default function EditOrderPage() {
     sales_tax: number;
     remark: string;
   } | null>(null);
+
+  // Add Product Modal State
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [selectedProductToAdd, setSelectedProductToAdd] = useState<Product | null>(null);
+  const [newItemData, setNewItemData] = useState<{
+    quantity: number;
+    unit_price: number;
+    discount: number;
+    sales_tax: number;
+    remark: string;
+  }>({
+    quantity: 1,
+    unit_price: 0,
+    discount: 0,
+    sales_tax: 0,
+    remark: "",
+  });
 
   const order = orderResponse?.data;
 
@@ -775,22 +800,17 @@ export default function EditOrderPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      append({
-                        id: undefined,
-                        product_id: 0,
-                        product_name: "",
-                        sku: "",
+                    onClick={() => {
+                      setSelectedProductToAdd(null);
+                      setNewItemData({
                         quantity: 1,
                         unit_price: 0,
                         discount: 0,
                         sales_tax: 0,
-                        stock_quantity: 0,
                         remark: "",
-                        specification: "",
-                        unit: "",
-                      })
-                    }
+                      });
+                      setIsAddProductModalOpen(true);
+                    }}
                     className="gap-2"
                   >
                     <Plus className="w-4 h-4" /> Add Row
@@ -1282,6 +1302,288 @@ export default function EditOrderPage() {
               className="bg-blue-600 hover:bg-blue-700"
             >
               {(isUpdatingItem || isUpdating) ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Product Modal */}
+      <Dialog
+        open={isAddProductModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsAddProductModalOpen(false);
+            setSelectedProductToAdd(null);
+            setNewItemData({
+              quantity: 1,
+              unit_price: 0,
+              discount: 0,
+              sales_tax: 0,
+              remark: "",
+            });
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Product to Order</DialogTitle>
+            <DialogDescription>
+              Search and select a product to add to this order.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Product Search */}
+            <div className="space-y-2">
+              <Label htmlFor="product-search">Search Product *</Label>
+              <ProductSelectField
+                field={{
+                  value: selectedProductToAdd?.id || 0,
+                  onChange: (productId: number) => {
+                    const product = productsData?.data?.find((p: Product) => p.id === productId);
+                    if (product) {
+                      setSelectedProductToAdd(product);
+                      setNewItemData({
+                        quantity: 1,
+                        unit_price: Number(product.price) || 0,
+                        discount: 0,
+                        sales_tax: 0,
+                        remark: "",
+                      });
+                    }
+                  },
+                }}
+              />
+            </div>
+
+            {/* Product Info (Read-only) */}
+            {selectedProductToAdd && (
+              <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <Label className="text-muted-foreground">Product</Label>
+                    <div className="font-medium">{selectedProductToAdd.name || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">SKU</Label>
+                    <div className="font-mono text-xs">{selectedProductToAdd.sku || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Unit</Label>
+                    <div>{selectedProductToAdd.unit?.name || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Stock</Label>
+                    <div>{selectedProductToAdd.stock_quantity || 0}</div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-muted-foreground">Specification</Label>
+                    <div className="text-sm">{selectedProductToAdd.specification || '-'}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Editable Fields */}
+            {selectedProductToAdd && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="add-quantity">Quantity *</Label>
+                  <Input
+                    id="add-quantity"
+                    type="number"
+                    min="1"
+                    max={selectedProductToAdd.stock_quantity || undefined}
+                    value={newItemData.quantity}
+                    onChange={(e) => setNewItemData({ ...newItemData, quantity: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="add-price">Unit Price ({currency}) *</Label>
+                  <Input
+                    id="add-price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItemData.unit_price}
+                    onChange={(e) => setNewItemData({ ...newItemData, unit_price: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="add-discount">Discount ({currency})</Label>
+                  <Input
+                    id="add-discount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItemData.discount}
+                    onChange={(e) => setNewItemData({ ...newItemData, discount: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="add-tax">Sales Tax (%)</Label>
+                  <Input
+                    id="add-tax"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={newItemData.sales_tax}
+                    onChange={(e) => setNewItemData({ ...newItemData, sales_tax: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="add-remark">Remark</Label>
+                  <Input
+                    id="add-remark"
+                    type="text"
+                    value={newItemData.remark}
+                    onChange={(e) => setNewItemData({ ...newItemData, remark: e.target.value })}
+                    placeholder="Add a note (optional)"
+                  />
+                </div>
+
+                {/* Calculated Preview */}
+                <div className="col-span-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="text-sm space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total Price:</span>
+                      <span className="font-medium">
+                        {currency} {(newItemData.quantity * newItemData.unit_price).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Less Discount:</span>
+                      <span className="font-medium text-red-600">
+                        -{currency} {newItemData.discount.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Taxable Amount:</span>
+                      <span className="font-medium">
+                        {currency} {(newItemData.quantity * newItemData.unit_price - newItemData.discount).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Tax ({newItemData.sales_tax}%):</span>
+                      <span className="font-medium">
+                        {currency} {((newItemData.quantity * newItemData.unit_price - newItemData.discount) * (newItemData.sales_tax / 100)).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="border-t border-blue-200 dark:border-blue-800 pt-1 mt-1 flex justify-between font-bold">
+                      <span>Line Total:</span>
+                      <span className="text-blue-600">
+                        {currency} {(
+                          newItemData.quantity * newItemData.unit_price -
+                          newItemData.discount +
+                          (newItemData.quantity * newItemData.unit_price - newItemData.discount) * (newItemData.sales_tax / 100)
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddProductModalOpen(false);
+                setSelectedProductToAdd(null);
+                setNewItemData({
+                  quantity: 1,
+                  unit_price: 0,
+                  discount: 0,
+                  sales_tax: 0,
+                  remark: "",
+                });
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (selectedProductToAdd && orderId) {
+                  // Validate stock
+                  if (newItemData.quantity > (selectedProductToAdd.stock_quantity || 0)) {
+                    toast.error(`Insufficient stock. Available: ${selectedProductToAdd.stock_quantity}`);
+                    return;
+                  }
+
+                  try {
+                    console.log('=== Add to Order Clicked ===');
+                    console.log('orderId:', orderId);
+                    console.log('productId:', selectedProductToAdd.id);
+                    console.log('Payload:', newItemData);
+
+                    // Prepare API payload
+                    const itemPayload = {
+                      product_id: selectedProductToAdd.id,
+                      quantity: newItemData.quantity,
+                      unit_price: newItemData.unit_price,
+                      discount: newItemData.discount,
+                      sales_tax: newItemData.sales_tax,
+                      remark: newItemData.remark,
+                    };
+
+                    console.log('Item payload:', itemPayload);
+
+                    // Call API to add item to database
+                    const res = await addSalesOrderItem({
+                      orderId: orderId,
+                      data: itemPayload,
+                    }).unwrap();
+
+                    console.log('API Response:', res);
+
+                    if (res.status && res.data) {
+                      toast.success("Product added to order");
+
+                      // Add item to form with the returned ID from database
+                      append({
+                        id: res.data.id, // Use the ID returned from the database
+                        product_id: res.data.product_id,
+                        product_name: res.data.product?.name || selectedProductToAdd.name || "",
+                        sku: res.data.product?.sku || selectedProductToAdd.sku || "",
+                        specification: res.data.product?.specification || selectedProductToAdd.specification || "",
+                        unit: res.data.product?.unit?.name || selectedProductToAdd.unit?.name || "",
+                        quantity: res.data.quantity,
+                        unit_price: Number(res.data.unit_price),
+                        discount: Number(res.data.discount),
+                        sales_tax: Number(res.data.sales_tax),
+                        stock_quantity: res.data.product?.stock_quantity || selectedProductToAdd.stock_quantity || 0,
+                        remark: res.data.remark || "",
+                      });
+
+                      // Close modal and reset
+                      setIsAddProductModalOpen(false);
+                      setSelectedProductToAdd(null);
+                      setNewItemData({
+                        quantity: 1,
+                        unit_price: 0,
+                        discount: 0,
+                        sales_tax: 0,
+                        remark: "",
+                      });
+                    }
+                  } catch (error: any) {
+                    toast.error(error?.data?.message || "Failed to add product to order");
+                    console.error("Error adding item:", error);
+                  }
+                } else {
+                  toast.error("Please select a product");
+                }
+              }}
+              disabled={!selectedProductToAdd || isAddingItem}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isAddingItem ? "Adding..." : "Add to Order"}
             </Button>
           </DialogFooter>
         </DialogContent>
