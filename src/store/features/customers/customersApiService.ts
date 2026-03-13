@@ -23,7 +23,7 @@ interface CustomersResponse {
 
 export const customersApiService = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getCustomers: builder.query<CustomersResponse, { page?: number; limit?: number; search?: string }>({
+    getCustomers: builder.query<CustomersResponse, { page?: number; limit?: number; search?: string; status?: string }>({
       query: (params) => ({
         url: "/customers",
         method: "GET",

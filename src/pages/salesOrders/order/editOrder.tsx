@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { ArrowLeft, User, ShoppingCart, Receipt, Plus, Package, Calendar as CalendarIcon, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, User, ShoppingCart, Plus, X, Package, Calendar as CalendarIcon, Loader2, AlertCircle, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,15 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
   Command,
   CommandInput,
   CommandList,
@@ -36,6 +45,8 @@ import { useGetAllStaffsQuery } from "@/store/features/staffs/staffApiService";
 import {
   useGetSalesOrderByIdQuery,
   useUpdateSalesOrderMutation,
+  useAddSalesOrderItemMutation,
+  useUpdateSalesOrderItemMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useGetActiveCustomersQuery, useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
@@ -45,7 +56,6 @@ import { Textarea } from "@/components/ui/textarea";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Product } from "@/types/types";
-import { AddProductsModal } from "@/components/products/AddProductsModal";
 import type { Customer } from "@/store/features/customers/types";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -53,24 +63,26 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const orderSchema = z
   .object({
-    customer_id: z.number().min(1, "Customer is required"),
+    customer_id: z.coerce.number().min(1, "Customer is required"),
     shipping_address: z.string().min(5, "Shipping address is required"),
     order_date: z.string().min(1, "Order date is required"),
     due_date: z.string().min(1, "Due date is required"),
     delivery_date: z.string().optional(),
-    staff_id: z.number().optional(),
+    staff_id: z.coerce.number().optional(),
     notes: z.string().optional(),
     items: z.array(
       z.object({
-        product_id: z.number().min(1, "Product is required"),
+        id: z.number().optional(),
+        product_id: z.coerce.number().min(1, "Product is required"),
+        product_name: z.string().optional(),
         sku: z.string().optional(),
-        quantity: z.number().min(1, "Quantity must be at least 1"),
-        unit_price: z.number().min(1, "Unit price must be at least 1"),
-        discount: z.number().min(0, "Discount must be 0 or more"),
-        sales_tax: z.number().min(0, "Sales tax must be 0 or more"),
+        quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+        unit_price: z.coerce.number(),
+        discount: z.coerce.number().min(0, "Discount must be 0 or more"),
+        sales_tax: z.coerce.number().min(0, "Sales tax must be 0 or more"),
         specification: z.string().optional(),
         unit: z.string().optional(),
-        stock_quantity: z.number().optional(),
+        stock_quantity: z.coerce.number().optional(),
         remark: z.string().optional(),
       })
     ),
@@ -86,6 +98,19 @@ const orderSchema = z
       message: "Due date cannot be earlier than order date",
       path: ["due_date"],
     }
+  )
+  .refine(
+    (data) => {
+      if (!data.delivery_date) return true;
+      const orderDate = new Date(data.order_date);
+      const deliveryDate = new Date(data.delivery_date);
+
+      return deliveryDate >= orderDate;
+    },
+    {
+      message: "Delivery date cannot be earlier than order date",
+      path: ["delivery_date"],
+    }
   );
 
 export default function EditOrderPage() {
@@ -96,14 +121,47 @@ export default function EditOrderPage() {
 
   const { data: orderResponse, isLoading: isFetchingOrder } = useGetSalesOrderByIdQuery(orderId!);
   const [updateSalesOrder, { isLoading: isUpdating }] = useUpdateSalesOrderMutation();
+  const [addSalesOrderItem, { isLoading: isAddingItem }] = useAddSalesOrderItemMutation();
+  const [updateSalesOrderItem, { isLoading: isUpdatingItem }] = useUpdateSalesOrderItemMutation();
+
+  // Fetch products for Add Product modal
+  const { data: productsData } = useGetAllProductsQuery({
+    page: 1,
+    limit: 100,
+  });
 
   const currency = useAppSelector((state) => state.currency.value);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItemIndex, setEditingItemIndex] = useState<number | null>(null);
+  const [isItemEditModalOpen, setIsItemEditModalOpen] = useState(false);
+  const [tempItemData, setTempItemData] = useState<{
+    quantity: number;
+    unit_price: number;
+    discount: number;
+    sales_tax: number;
+    remark: string;
+  } | null>(null);
+
+  // Add Product Modal State
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [selectedProductToAdd, setSelectedProductToAdd] = useState<Product | null>(null);
+  const [newItemData, setNewItemData] = useState<{
+    quantity: number;
+    unit_price: number;
+    discount: number;
+    sales_tax: number;
+    remark: string;
+  }>({
+    quantity: 1,
+    unit_price: 0,
+    discount: 0,
+    sales_tax: 0,
+    remark: "",
+  });
 
   const order = orderResponse?.data;
 
   const form = useForm<SalesOrderFormValues>({
-    resolver: zodResolver(orderSchema),
+    resolver: zodResolver(orderSchema) as any,
     defaultValues: {
       customer_id: 0,
       staff_id: 0,
@@ -112,11 +170,11 @@ export default function EditOrderPage() {
       due_date: new Date().toISOString().split("T")[0],
       delivery_date: new Date().toISOString().split("T")[0],
       notes: "",
-      items: [{ product_id: 0, sku: "", specification: "", unit: "", quantity: 1, unit_price: 0, discount: 0, sales_tax: 0, stock_quantity: 0, remark: "" }],
+      items: [{ id: undefined, product_id: 0, product_name: "", sku: "", specification: "", unit: "", quantity: 1, unit_price: 0, discount: 0, sales_tax: 0, stock_quantity: 0, remark: "" }],
     },
   });
 
-  const { control, watch, setValue, reset } = form;
+  const { control, watch, setValue, reset, getValues } = form;
 
   useEffect(() => {
     if (order) {
@@ -129,16 +187,18 @@ export default function EditOrderPage() {
         delivery_date: order.delivery_date ? new Date(order.delivery_date).toISOString().split("T")[0] : "",
         notes: order.notes || "",
         items: order.items.map((it) => ({
+          id: it.id, // ← CRITICAL: Store the item ID!
           product_id: it.product_id,
+          product_name: it.product?.name || "",
           sku: it.product?.sku || "",
-          specification: it.specification || "",
+          specification: it.specification || it.product?.specification || "",
           unit: it.product?.unit?.name || "",
           quantity: it.quantity,
           unit_price: Number(it.unit_price),
           discount: Number(it.discount),
           sales_tax: Number(it.sales_tax),
           stock_quantity: it.product?.stock_quantity || 0,
-          remark: "",
+          remark: it.remark || "",
         })),
       });
     }
@@ -500,7 +560,7 @@ export default function EditOrderPage() {
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">{product.name}</span>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
-                          SKU: {product.sku} | Stock: {product.stock_quantity || 0}
+                          SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'} | Stock: {product.stock_quantity || 0}
                         </span>
                       </div>
                     </CommandItem>
@@ -554,7 +614,6 @@ export default function EditOrderPage() {
                 }
               }}
               disabled={(date) => date < new Date("1900-01-01")}
-              initialFocus
             />
           </PopoverContent>
         </Popover>
@@ -596,26 +655,33 @@ export default function EditOrderPage() {
             </CardHeader>
             <CardContent className="pb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                <FormField
-                  name="customer_id"
-                  control={control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Customer</FormLabel>
-                      <FormControl>
-                        <CustomerSelectField
-                          field={field}
-                          onCustomerSelect={(customer) => {
-                            if (customer.address) {
-                              form.setValue("shipping_address", customer.address);
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                {/* Customer - Read Only */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Customer</Label>
+                  {order?.customer ? (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-800">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={order.customer.thumb_url} alt={order.customer.name} />
+                        <AvatarFallback>
+                          <User className="h-5 w-5" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">{order.customer.name}</div>
+                        {order.customer.company && (
+                          <div className="text-xs text-muted-foreground truncate">{order.customer.company}</div>
+                        )}
+                        {order.customer.email && (
+                          <div className="text-xs text-muted-foreground truncate">{order.customer.email}</div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-800">
+                      <span className="text-sm text-muted-foreground">Loading customer...</span>
+                    </div>
                   )}
-                />
+                </div>
 
                 <FormField
                   name="order_date"
@@ -734,195 +800,187 @@ export default function EditOrderPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      append({
-                        product_id: 0,
-                        sku: "",
+                    onClick={() => {
+                      setSelectedProductToAdd(null);
+                      setNewItemData({
                         quantity: 1,
                         unit_price: 0,
                         discount: 0,
                         sales_tax: 0,
-                        stock_quantity: 0,
                         remark: "",
-                        specification: "",
-                        unit: "",
-                      })
-                    }
+                      });
+                      setIsAddProductModalOpen(true);
+                    }}
                     className="gap-2"
                   >
                     <Plus className="w-4 h-4" /> Add Row
                   </Button>
-                  <Button
-                    type="button"
-                    onClick={() => setIsModalOpen(true)}
-                    className="gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-lg shadow-blue-500/20 text-white"
-                  >
-                    <Package className="w-4 h-4" /> Browse Products
-                  </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-0 overflow-x-auto">
-              {/* Product Table Headers */}
-              <div className="min-w-[1200px] bg-gray-50/50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-800">
-                <div className="grid grid-cols-[minmax(250px,1.5fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(100px,0.8fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_80px] gap-2 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  <div className="sticky left-0 bg-gray-50/50 dark:bg-gray-900/50 z-10">SKU & Product Name</div>
-                  <div>Specification</div>
-                  <div>Remark</div>
-                  <div>Stock</div>
-                  <div className="text-right">Quantity</div>
-                  <div className="text-right">Unit Price</div>
-                  <div className="text-right">Line Total</div>
-                  <div className="text-center">Action</div>
+            <CardContent className="pb-6">
+
+              <div className="space-y-4 overflow-x-auto min-w-full">
+                {/* Header for Desktop and Mobile (Horizontal Scroll) */}
+                <div className="flex min-w-max gap-4 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 items-center font-bold text-[12px] capitalize tracking-wider text-gray-500">
+                  <div className="w-32 xl:sticky xl:left-0 bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">SKU</div>
+                  <div className="w-[350px] xl:sticky xl:left-[144px] bg-gray-100 dark:bg-gray-800 xl:z-20 text-left">Product</div>
+                  <div className="w-36 text-left">Spec.</div>
+                  <div className="w-24 text-left">Unit</div>
+                  <div className="w-24 text-left">Stock</div>
+                  <div className="w-32 text-left">Price</div>
+                  <div className="w-24 text-left">Qty</div>
+                  <div className="w-24 text-left">Discount</div>
+                  <div className="w-32 text-left">Pretax</div>
+                  <div className="w-24 text-left">Tax %</div>
+                  <div className="w-32 text-left">Tax Amt </div>
+                  <div className="w-36 text-left pr-4">Total ({currency})</div>
+                  <div className="flex-1 min-w-[200px]">Remark</div>
+                  <div className="w-28 text-center">Actions</div>
                 </div>
-              </div>
 
-              {/* Items List */}
-              <div className="min-w-[1200px] divide-y divide-gray-100 dark:divide-gray-800">
-                {fields.map((field, index) => {
-                  const lineTotal = calculatedItems[index]?.total || 0;
-
-                  return (
+                <div className="space-y-4">
+                  {fields.map((item, index) => {
+                    return (
                     <div
-                      key={field.id}
-                      className="grid grid-cols-[minmax(250px,1.5fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(100px,0.8fr)_minmax(120px,1fr)_minmax(120px,1fr)_minmax(120px,1fr)_80px] gap-2 px-4 py-3 items-center transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-900/50 group"
+                      key={item.id}
+                      className="flex flex-nowrap min-w-max gap-4 items-str bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
                     >
-                      {/* Product Selector */}
-                      <div className="sticky left-0 bg-white dark:bg-black z-10 group-hover:bg-gray-50/50 dark:group-hover:bg-gray-900/50">
-                        <FormField
-                          control={control}
-                          name={`items.${index}.product_id`}
-                          render={({ field: productField }) => (
-                            <ProductSelectField
-                              field={productField}
-                              onProductSelect={(p) => {
-                                setValue(`items.${index}.product_id`, p.id);
-                                setValue(`items.${index}.sku`, p.sku);
-                                setValue(`items.${index}.unit_price`, Number(p.price));
-                                setValue(`items.${index}.stock_quantity`, p.stock_quantity);
-                                setValue(`items.${index}.unit`, p.unit?.name || '');
-                              }}
-                            />
-                          )}
-                        />
+                      {/* SKU */}
+                      <div className="w-32 xl:sticky xl:left-0 bg-inherit xl:z-10">
+                        <div className="font-mono text-[10px] text-gray-600 dark:text-gray-400">
+                          {watch(`items.${index}.sku`) || '-'}
+                        </div>
                       </div>
 
-                      {/* Specification */}
-                      <FormField
-                        control={control}
-                        name={`items.${index}.specification`}
-                        render={({ field: specField }) => (
-                          <Input {...specField} value={specField.value || ""} placeholder="Spec..." className="h-9 text-sm" />
-                        )}
-                      />
-
-                      {/* Remark */}
-                      <FormField
-                        control={control}
-                        name={`items.${index}.remark`}
-                        render={({ field: remarkField }) => (
-                          <Input {...remarkField} value={remarkField.value || ""} placeholder="Remark..." className="h-9 text-sm" />
-                        )}
-                      />
-
-                      {/* Stock Info */}
-                      <div className="flex flex-col">
-                        <span className="text-xs font-medium">{watch(`items.${index}.stock_quantity`) || 0}</span>
-                        <span className="text-[10px] text-muted-foreground">{watch(`items.${index}.unit`) || 'Units'}</span>
+                      {/* Product */}
+                      <div className="w-[350px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
+                        <div className="font-medium text-sm">
+                          {watch(`items.${index}.product_name`) || '-'}
+                        </div>
                       </div>
 
-                      {/* Quantity */}
-                      <FormField
-                        control={control}
-                        name={`items.${index}.quantity`}
-                        render={({ field: qtyField }) => (
-                          <Input
-                            type="number"
-                            {...qtyField}
-                            onChange={(e) => qtyField.onChange(Number(e.target.value))}
-                            className="h-9 text-right font-medium"
-                          />
-                        )}
-                      />
+                      {/* Spec */}
+                      <div className="w-36">
+                        <div className="text-sm text-gray-700 dark:text-gray-300">
+                          {watch(`items.${index}.specification`) || '-'}
+                        </div>
+                      </div>
 
-                      {/* Unit Price */}
-                      <FormField
-                        control={control}
-                        name={`items.${index}.unit_price`}
-                        render={({ field: priceField }) => (
-                          <div className="relative">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">{currency}</span>
-                            <Input
-                              type="number"
-                              {...priceField}
-                              onChange={(e) => priceField.onChange(Number(e.target.value))}
-                              className="h-9 pl-6 text-right font-medium"
-                            />
-                          </div>
-                        )}
-                      />
+                      {/* Unit */}
+                      <div className="w-24 text-center">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {watch(`items.${index}.unit`) || '-'}
+                        </div>
+                      </div>
+
+                      {/* Stock */}
+                      <div className="w-24 text-right">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {watch(`items.${index}.stock_quantity`) || 0}
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="w-32 text-right">
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {currency} {Number(watch(`items.${index}.unit_price`) || 0).toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Qty */}
+                      <div className="w-24 text-right">
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {watch(`items.${index}.quantity`) || 0}
+                        </div>
+                      </div>
+
+                      {/* Discount */}
+                      <div className="w-24 text-right">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {currency} {Number(watch(`items.${index}.discount`) || 0).toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Pretax Amt */}
+                      <div className="w-32 text-right">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {currency} {(calculatedItems[index]?.pretaxAmount ?? 0).toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Tax % */}
+                      <div className="w-24 text-right">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {watch(`items.${index}.sales_tax`) || 0}%
+                        </div>
+                      </div>
+
+                      {/* Total Tax */}
+                      <div className="w-32 text-right">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {currency} {(calculatedItems[index]?.taxAmount ?? 0).toFixed(2)}
+                        </div>
+                      </div>
 
                       {/* Line Total */}
-                      <div className="text-right font-bold text-blue-600 dark:text-blue-400">
-                        {currency} {lineTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      <div className="w-36 text-right">
+                        <div className="font-bold text-blue-600 dark:text-blue-400">
+                          {currency} {(calculatedItems[index]?.total ?? 0).toFixed(2)}
+                        </div>
                       </div>
 
-                      {/* Delete Action */}
-                      <div className="flex justify-center">
+                      {/* Remark */}
+                      <div className="flex-1 min-w-[200px]">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {watch(`items.${index}.remark`) || '-'}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="w-28 flex items-center justify-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setEditingItemIndex(index);
+                            // Initialize temp data with current values
+                            setTempItemData({
+                              quantity: Number(watch(`items.${index}.quantity`) || 0),
+                              unit_price: Number(watch(`items.${index}.unit_price`) || 0),
+                              discount: Number(watch(`items.${index}.discount`) || 0),
+                              sales_tax: Number(watch(`items.${index}.sales_tax`) || 0),
+                              remark: watch(`items.${index}.remark`) || '',
+                            });
+                            setIsItemEditModalOpen(true);
+                          }}
+                          className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                          title="Edit Item"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
                           onClick={() => remove(index)}
                           className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                          title="Delete"
                         >
-                          <Plus className="w-4 h-4 rotate-45" />
+                          <X className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Summary Section */}
               <div className="bg-gray-50/80 dark:bg-gray-900/80 border-t-2 border-dashed border-gray-200 dark:border-gray-800 p-6">
                 <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                  <div className="flex-1 space-y-4 max-w-md">
-                    <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg">
-                          <Receipt className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <h3 className="font-bold text-gray-800 dark:text-gray-100 uppercase tracking-tight text-xs">Tax & Discount</h3>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormItem>
-                          <FormLabel className="text-[10px] uppercase text-muted-foreground">Default Sales Tax (%)</FormLabel>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            className="h-9"
-                            onChange={(e) => {
-                              const val = Number(e.target.value);
-                              fields.forEach((_, idx) => setValue(`items.${idx}.sales_tax`, val));
-                            }}
-                          />
-                        </FormItem>
-                        <FormItem>
-                          <FormLabel className="text-[10px] uppercase text-muted-foreground">Default Discount ({currency})</FormLabel>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            className="h-9"
-                            onChange={(e) => {
-                              const val = Number(e.target.value);
-                              fields.forEach((_, idx) => setValue(`items.${idx}.discount`, val));
-                            }}
-                          />
-                        </FormItem>
-                      </div>
-                    </div>
-                  </div>
+                  <div className="flex-1"></div>
 
                   <div className="w-full md:w-80 space-y-3">
                     <div className="flex justify-between items-center text-sm">
@@ -968,29 +1026,568 @@ export default function EditOrderPage() {
         </form>
       </Form>
 
-      {/* Product Browser Modal */}
-      <AddProductsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onApply={(selectedProducts: Product[]) => {
-          selectedProducts.forEach((p) => {
-            append({
-              product_id: p.id,
-              sku: p.sku,
+      {/* Edit Item Modal */}
+      <Dialog
+        open={isItemEditModalOpen}
+        onOpenChange={(open) => {
+          if (!open && !isUpdatingItem) {
+            setIsItemEditModalOpen(false);
+            setTempItemData(null);
+            setEditingItemIndex(null);
+          }
+        }}
+      >
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          onPointerDownOutside={(e) => {
+            if (isUpdatingItem) e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            if (isUpdatingItem) e.preventDefault();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>Edit Order Item</DialogTitle>
+            <DialogDescription>
+              Update the details for this order item.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingItemIndex !== null && tempItemData && (
+            <div className="space-y-4 py-4">
+              {/* Product Info (Read-only) */}
+              <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <Label className="text-muted-foreground">Product</Label>
+                    <div className="font-medium">{watch(`items.${editingItemIndex}.product_name`) || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">SKU</Label>
+                    <div className="font-mono text-xs">{watch(`items.${editingItemIndex}.sku`) || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Unit</Label>
+                    <div>{watch(`items.${editingItemIndex}.unit`) || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Stock</Label>
+                    <div>{watch(`items.${editingItemIndex}.stock_quantity`) || 0}</div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-muted-foreground">Specification</Label>
+                    <div className="text-sm">{watch(`items.${editingItemIndex}.specification`) || '-'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Editable Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`edit-quantity-${editingItemIndex}`}>Quantity *</Label>
+                  <Input
+                    id={`edit-quantity-${editingItemIndex}`}
+                    type="number"
+                    min="1"
+                    value={tempItemData.quantity}
+                    onChange={(e) => setTempItemData({ ...tempItemData, quantity: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`edit-price-${editingItemIndex}`}>Unit Price ({currency}) *</Label>
+                  <Input
+                    id={`edit-price-${editingItemIndex}`}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={tempItemData.unit_price}
+                    onChange={(e) => setTempItemData({ ...tempItemData, unit_price: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`edit-discount-${editingItemIndex}`}>Discount ({currency})</Label>
+                  <Input
+                    id={`edit-discount-${editingItemIndex}`}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={tempItemData.discount}
+                    onChange={(e) => setTempItemData({ ...tempItemData, discount: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`edit-tax-${editingItemIndex}`}>Sales Tax (%)</Label>
+                  <Input
+                    id={`edit-tax-${editingItemIndex}`}
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={tempItemData.sales_tax}
+                    onChange={(e) => setTempItemData({ ...tempItemData, sales_tax: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor={`edit-remark-${editingItemIndex}`}>Remark</Label>
+                  <Textarea
+                    id={`edit-remark-${editingItemIndex}`}
+                    value={tempItemData.remark}
+                    onChange={(e) => setTempItemData({ ...tempItemData, remark: e.target.value })}
+                    placeholder="Enter any remarks for this item"
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              {/* Calculated Totals */}
+              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotal:</span>
+                    <span className="font-medium">
+                      {currency} {(tempItemData.unit_price * tempItemData.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Less Discount:</span>
+                    <span className="font-medium text-rose-600">
+                      -{currency} {tempItemData.discount.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Tax Amount:</span>
+                    <span className="font-medium">
+                      {currency} {(((tempItemData.unit_price * tempItemData.quantity) - tempItemData.discount) * (tempItemData.sales_tax / 100)).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-blue-200 dark:border-blue-900">
+                    <span className="font-bold">Line Total:</span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400">
+                      {currency} {(((tempItemData.unit_price * tempItemData.quantity) - tempItemData.discount) * (1 + tempItemData.sales_tax / 100)).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsItemEditModalOpen(false);
+                setTempItemData(null);
+                setEditingItemIndex(null);
+              }}
+              disabled={isUpdatingItem}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (editingItemIndex !== null && tempItemData && orderId) {
+                  console.log('=== Save Changes Clicked ===');
+                  console.log('editingItemIndex:', editingItemIndex);
+                  console.log('orderId:', orderId);
+
+                  try {
+                    // Get the current item ID
+                    const items = getValues().items;
+                    const currentItem = items[editingItemIndex];
+
+                    console.log('Current item:', currentItem);
+                    console.log('Has ID:', !!currentItem.id);
+
+                    // Prepare item update payload
+                    const itemPayload = {
+                      quantity: tempItemData.quantity,
+                      unit_price: tempItemData.unit_price,
+                      discount: tempItemData.discount,
+                      sales_tax: tempItemData.sales_tax,
+                      remark: tempItemData.remark,
+                    };
+
+                    console.log('Item payload:', itemPayload);
+
+                    if (currentItem.id) {
+                      console.log('Calling updateSalesOrderItem with:', {
+                        orderId,
+                        itemId: currentItem.id,
+                        data: itemPayload,
+                      });
+
+                      // EXISTING ITEM: Use single-item API
+                      const res = await updateSalesOrderItem({
+                        orderId: orderId,
+                        itemId: currentItem.id,
+                        data: itemPayload,
+                      }).unwrap();
+
+                      console.log('API Response:', res);
+
+                      if (res.status) {
+                        toast.success("Item updated successfully");
+
+                        // Update form with saved values
+                        setValue(`items.${editingItemIndex}.quantity`, tempItemData.quantity);
+                        setValue(`items.${editingItemIndex}.unit_price`, tempItemData.unit_price);
+                        setValue(`items.${editingItemIndex}.discount`, tempItemData.discount);
+                        setValue(`items.${editingItemIndex}.sales_tax`, tempItemData.sales_tax);
+                        setValue(`items.${editingItemIndex}.remark`, tempItemData.remark);
+
+                        setIsItemEditModalOpen(false);
+                        setTempItemData(null);
+                        setEditingItemIndex(null);
+                      }
+                    } else {
+                      // NEW ITEM: Save entire order first
+                      toast.info("Saving new item - updating entire order...");
+
+                      // Create updated items array with the edited item
+                      const updatedItems = items.map((item, index) =>
+                        index === editingItemIndex
+                          ? {
+                              ...item,
+                              quantity: tempItemData.quantity,
+                              unit_price: tempItemData.unit_price,
+                              discount: tempItemData.discount,
+                              sales_tax: tempItemData.sales_tax,
+                              remark: tempItemData.remark,
+                            }
+                          : item
+                      );
+
+                      // Prepare the full order payload
+                      const orderData = getValues();
+                      const payload = {
+                        ...orderData,
+                        items: updatedItems.map((item) => ({
+                          ...item,
+                          quantity: Number(item.quantity),
+                          unit_price: Number(item.unit_price),
+                          discount: Number(item.discount),
+                          sales_tax: Number(item.sales_tax),
+                        })),
+                      };
+
+                      // Save entire order to database
+                      const res = await updateSalesOrder({
+                        id: orderId,
+                        data: payload,
+                      }).unwrap();
+
+                      if (res.status) {
+                        toast.success("Order updated successfully");
+
+                        // Update form with saved values
+                        updatedItems.forEach((item, index) => {
+                          setValue(`items.${index}`, item);
+                        });
+
+                        setIsItemEditModalOpen(false);
+                        setTempItemData(null);
+                        setEditingItemIndex(null);
+                      }
+                    }
+                  } catch (error: any) {
+                    toast.error(error?.data?.message || "Failed to update item");
+                    console.error("Error updating item:", error);
+                  }
+                }
+              }}
+              disabled={isUpdatingItem || isUpdating}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {(isUpdatingItem || isUpdating) ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Product Modal */}
+      <Dialog
+        open={isAddProductModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsAddProductModalOpen(false);
+            setSelectedProductToAdd(null);
+            setNewItemData({
               quantity: 1,
-              unit_price: Number(p.price),
+              unit_price: 0,
               discount: 0,
               sales_tax: 0,
-              stock_quantity: p.stock_quantity,
-              unit: p.unit?.name || "",
-              specification: "",
               remark: "",
             });
-          });
+          }
         }}
-        orderType="sales"
-        initialSelectedIds={items.map((it) => it.product_id)}
-      />
+      >
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Add Product to Order</DialogTitle>
+            <DialogDescription>
+              Search and select a product to add to this order.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Product Search */}
+            <div className="space-y-2">
+              <Label htmlFor="product-search">Search Product *</Label>
+              <ProductSelectField
+                field={{
+                  value: selectedProductToAdd?.id || 0,
+                  onChange: (productId: number) => {
+                    const product = productsData?.data?.find((p: Product) => p.id === productId);
+                    if (product) {
+                      setSelectedProductToAdd(product);
+                      setNewItemData({
+                        quantity: 1,
+                        unit_price: Number(product.price) || 0,
+                        discount: 0,
+                        sales_tax: 0,
+                        remark: "",
+                      });
+                    }
+                  },
+                }}
+              />
+            </div>
+
+            {/* Product Info (Read-only) */}
+            {selectedProductToAdd && (
+              <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <Label className="text-muted-foreground">Product</Label>
+                    <div className="font-medium">{selectedProductToAdd.name || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">SKU</Label>
+                    <div className="font-mono text-xs">{selectedProductToAdd.sku || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Unit</Label>
+                    <div>{selectedProductToAdd.unit?.name || '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground">Stock</Label>
+                    <div>{selectedProductToAdd.stock_quantity || 0}</div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-muted-foreground">Specification</Label>
+                    <div className="text-sm">{selectedProductToAdd.specification || '-'}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Editable Fields */}
+            {selectedProductToAdd && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="add-quantity">Quantity *</Label>
+                  <Input
+                    id="add-quantity"
+                    type="number"
+                    min="1"
+                    max={selectedProductToAdd.stock_quantity || undefined}
+                    value={newItemData.quantity}
+                    onChange={(e) => setNewItemData({ ...newItemData, quantity: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="add-price">Unit Price ({currency}) *</Label>
+                  <Input
+                    id="add-price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItemData.unit_price}
+                    onChange={(e) => setNewItemData({ ...newItemData, unit_price: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="add-discount">Discount ({currency})</Label>
+                  <Input
+                    id="add-discount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItemData.discount}
+                    onChange={(e) => setNewItemData({ ...newItemData, discount: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="add-tax">Sales Tax (%)</Label>
+                  <Input
+                    id="add-tax"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={newItemData.sales_tax}
+                    onChange={(e) => setNewItemData({ ...newItemData, sales_tax: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="col-span-2 space-y-2">
+                  <Label htmlFor="add-remark">Remark</Label>
+                  <Input
+                    id="add-remark"
+                    type="text"
+                    value={newItemData.remark}
+                    onChange={(e) => setNewItemData({ ...newItemData, remark: e.target.value })}
+                    placeholder="Add a note (optional)"
+                  />
+                </div>
+
+                {/* Calculated Preview */}
+                <div className="col-span-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="text-sm space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total Price:</span>
+                      <span className="font-medium">
+                        {currency} {(newItemData.quantity * newItemData.unit_price).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Less Discount:</span>
+                      <span className="font-medium text-red-600">
+                        -{currency} {newItemData.discount.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Taxable Amount:</span>
+                      <span className="font-medium">
+                        {currency} {(newItemData.quantity * newItemData.unit_price - newItemData.discount).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Tax ({newItemData.sales_tax}%):</span>
+                      <span className="font-medium">
+                        {currency} {((newItemData.quantity * newItemData.unit_price - newItemData.discount) * (newItemData.sales_tax / 100)).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="border-t border-blue-200 dark:border-blue-800 pt-1 mt-1 flex justify-between font-bold">
+                      <span>Line Total:</span>
+                      <span className="text-blue-600">
+                        {currency} {(
+                          newItemData.quantity * newItemData.unit_price -
+                          newItemData.discount +
+                          (newItemData.quantity * newItemData.unit_price - newItemData.discount) * (newItemData.sales_tax / 100)
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddProductModalOpen(false);
+                setSelectedProductToAdd(null);
+                setNewItemData({
+                  quantity: 1,
+                  unit_price: 0,
+                  discount: 0,
+                  sales_tax: 0,
+                  remark: "",
+                });
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (selectedProductToAdd && orderId) {
+                  // Validate stock
+                  if (newItemData.quantity > (selectedProductToAdd.stock_quantity || 0)) {
+                    toast.error(`Insufficient stock. Available: ${selectedProductToAdd.stock_quantity}`);
+                    return;
+                  }
+
+                  try {
+                    console.log('=== Add to Order Clicked ===');
+                    console.log('orderId:', orderId);
+                    console.log('productId:', selectedProductToAdd.id);
+                    console.log('Payload:', newItemData);
+
+                    // Prepare API payload
+                    const itemPayload = {
+                      product_id: selectedProductToAdd.id,
+                      quantity: newItemData.quantity,
+                      unit_price: newItemData.unit_price,
+                      discount: newItemData.discount,
+                      sales_tax: newItemData.sales_tax,
+                      remark: newItemData.remark,
+                    };
+
+                    console.log('Item payload:', itemPayload);
+
+                    // Call API to add item to database
+                    const res = await addSalesOrderItem({
+                      orderId: orderId,
+                      data: itemPayload,
+                    }).unwrap();
+
+                    console.log('API Response:', res);
+
+                    if (res.status && res.data) {
+                      toast.success("Product added to order");
+
+                      // Add item to form with the returned ID from database
+                      append({
+                        id: res.data.id, // Use the ID returned from the database
+                        product_id: res.data.product_id,
+                        product_name: res.data.product?.name || selectedProductToAdd.name || "",
+                        sku: res.data.product?.sku || selectedProductToAdd.sku || "",
+                        specification: res.data.product?.specification || selectedProductToAdd.specification || "",
+                        unit: res.data.product?.unit?.name || selectedProductToAdd.unit?.name || "",
+                        quantity: res.data.quantity,
+                        unit_price: Number(res.data.unit_price),
+                        discount: Number(res.data.discount),
+                        sales_tax: Number(res.data.sales_tax),
+                        stock_quantity: res.data.product?.stock_quantity || selectedProductToAdd.stock_quantity || 0,
+                        remark: res.data.remark || "",
+                      });
+
+                      // Close modal and reset
+                      setIsAddProductModalOpen(false);
+                      setSelectedProductToAdd(null);
+                      setNewItemData({
+                        quantity: 1,
+                        unit_price: 0,
+                        discount: 0,
+                        sales_tax: 0,
+                        remark: "",
+                      });
+                    }
+                  } catch (error: any) {
+                    toast.error(error?.data?.message || "Failed to add product to order");
+                    console.error("Error adding item:", error);
+                  }
+                } else {
+                  toast.error("Please select a product");
+                }
+              }}
+              disabled={!selectedProductToAdd || isAddingItem}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isAddingItem ? "Adding..." : "Add to Order"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

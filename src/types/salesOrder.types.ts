@@ -18,6 +18,7 @@ export interface SalesOrderItem {
   sales_tax_percent?: number;
   tax_amount?: number | string;
   specification?: string;
+  remark?: string;
   created_at: string;      // ISO date
   updated_at: string;      // ISO date
 }
@@ -87,7 +88,9 @@ export interface SalesOrderFormValues {
   staff_id?: number;
   notes?: string;
   items: {
+    id?: number;
     product_id: number;
+    product_name?: string;
     sku?: string;
     quantity: number;
     unit_price: number;

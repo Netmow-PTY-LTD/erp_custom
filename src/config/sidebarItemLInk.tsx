@@ -97,6 +97,7 @@ import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
 
 import CustomerReports from "@/pages/reports/CustomerReports";
+import CustomerWiseReport from "@/pages/reports/CustomerWiseReport";
 import EditPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/EditPurchaseOrderPage";
 import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
@@ -241,6 +242,7 @@ import CreateSalesReturnPayment from "@/pages/salesOrders/returns/CreateSalesRet
 import SalesReturnPaymentDetails from "@/pages/salesOrders/returns/SalesReturnPaymentDetails";
 import SalesReturnsList from "@/pages/salesOrders/returns/SalesReturnsList";
 import SalesReturnPrint from "@/pages/salesOrders/returns/SalesReturnPrint";
+import ModulesFunctionality from "@/pages/modules/ModulesFunctionality";
 
 import ApprovedPurchaseReturns from "@/pages/suppliers/purchaseOrder/ApprovedPurchaseReturns";
 import PendingPurchaseReturns from "@/pages/suppliers/purchaseOrder/PendingPurchaseReturns";
@@ -2010,6 +2012,16 @@ export const sidebarItemLink = [
         ],
       },
       {
+        title: "Customer Wise Report",
+        url: "/dashboard/reports/customer-wise",
+        element: <CustomerWiseReport />,
+        icon: FileText,
+        allowedPermissions: [
+          ReportPermission.CUSTOMERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
         title: "Staff Reports",
         url: "#",
         icon: Users,
@@ -2045,7 +2057,7 @@ export const sidebarItemLink = [
         url: "#",
         icon: User,
         allowedPermissions: [
-          ReportPermission.SALES,
+          ReportPermission.MYREPORTS,
           SuperAdminPermission.ACCESS_ALL,
         ],
         items: [
@@ -2055,7 +2067,7 @@ export const sidebarItemLink = [
             element: <MySales />,
             icon: DollarSign,
             allowedPermissions: [
-              ReportPermission.SALES,
+              ReportPermission.MYSALES,
               SuperAdminPermission.ACCESS_ALL,
             ],
           },
@@ -2065,7 +2077,7 @@ export const sidebarItemLink = [
             element: <MyInvoices />,
             icon: FileText,
             allowedPermissions: [
-              ReportPermission.SALES,
+              ReportPermission.MYINVOICES,
               SuperAdminPermission.ACCESS_ALL,
             ],
           },
@@ -2211,6 +2223,15 @@ export const sidebarItemLink = [
     ],
   },
 
+  {
+    title: "Modules",
+    url: "/dashboard/modules-functionality",
+    icon: Layers,
+    element: <ModulesFunctionality />,
+    allowedPermissions: [
+      SuperAdminPermission.ACCESS_ALL,
+    ],
+  },
 
   {
     title: "Help",

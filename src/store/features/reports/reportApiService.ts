@@ -337,6 +337,28 @@ export const reportsApiService = baseApi.injectEndpoints({
       providesTags: ["Reports"],
     }),
 
+    getCustomerWiseInvoices: builder.query<
+      ReportResponse,
+      {
+        customer_id: number | string;
+        startDate?: string;
+        endDate?: string;
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+        status?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/customer-wise-invoices",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
     getMyCustomers: builder.query<
       {
         status: boolean;
@@ -404,6 +426,7 @@ export const {
   useGetMyInvoicesQuery,
   useGetMyCustomerWiseSalesQuery,
   useGetMyCustomerWiseInvoicesQuery,
+  useGetCustomerWiseInvoicesQuery,
   useGetMyCustomersQuery,
   useGetStaffsChartsQuery,
 } = reportsApiService;
