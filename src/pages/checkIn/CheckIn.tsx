@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import CheckInLocationModal from "./CheckInLocationModal";
 import { format } from "date-fns";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useStaffCheckInMutation, useGetCustomerCheckInListByDateQuery, useGetMyRoutesWithCustomersQuery } from "@/store/features/checkIn/checkIn";
+import { useStaffCheckInMutation, useGetMyRoutesWithCustomersQuery } from "@/store/features/checkIn/checkIn";
 import type { Customer } from "@/store/features/customers/types";
 import ClenderButton from "./ClenderButton";
 import { useAppSelector } from "@/store/store";
@@ -26,9 +26,6 @@ type CheckIn = {
 
 
 export default function CheckIn(): JSX.Element {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
 const user = useAppSelector((state) => state.auth.user);
 
 
@@ -296,7 +293,7 @@ const customerColumns: ColumnDef<Customer>[] = [
             pageSize={customers.length || 10}
             totalCount={totalCount}
             onPageChange={() => {}}
-            onSearch={(value) => setSearchTerm(value)}
+            onSearch={() => {}}
             isFetching={customersLoading || isSubmitting}
           />
         )}
