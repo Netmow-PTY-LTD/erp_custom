@@ -97,6 +97,7 @@ import AddUserPage from "@/pages/users/AddUser";
 import EditUserPage from "@/pages/users/EditUser";
 
 import CustomerReports from "@/pages/reports/CustomerReports";
+import CustomerWiseReport from "@/pages/reports/CustomerWiseReport";
 import EditPurchaseOrderPage from "@/pages/suppliers/purchaseOrder/EditPurchaseOrderPage";
 import CreateRoutePage from "@/pages/salesOrders/salesRoutes/CreateRoute";
 import InvoicePrintPreview from "@/pages/salesOrders/invoices/InvoicePrintPreview";
@@ -2004,6 +2005,16 @@ export const sidebarItemLink = [
         url: "/dashboard/reports/customers",
         element: <CustomerReports />,
         icon: Users,
+        allowedPermissions: [
+          ReportPermission.CUSTOMERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Customer Wise Report",
+        url: "/dashboard/reports/customer-wise",
+        element: <CustomerWiseReport />,
+        icon: FileText,
         allowedPermissions: [
           ReportPermission.CUSTOMERS,
           SuperAdminPermission.ACCESS_ALL,
