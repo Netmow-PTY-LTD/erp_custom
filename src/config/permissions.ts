@@ -232,6 +232,11 @@ export const ReportPermission = {
   INVENTORY: "reports.inventory.view" as const,
   CUSTOMERS: "reports.customers.view" as const,
   STAFFS: "reports.staffs.view" as const,
+  STAFFWISE_SALES: "reports.staffwise_sales.view" as const,
+  STAFFWISE_INVOICES: "reports.staffwise_invoices.view" as const,
+  MYREPORTS: "reports.myreports.view" as const,
+  MYSALES: "reports.mysales.view" as const,
+  MYINVOICES: "reports.myinvoices.view" as const,
 };
 
 // --- Raw Materials ---

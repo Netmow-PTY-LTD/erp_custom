@@ -2056,7 +2056,7 @@ export const sidebarItemLink = [
         url: "#",
         icon: User,
         allowedPermissions: [
-          ReportPermission.SALES,
+          ReportPermission.MYREPORTS,
           SuperAdminPermission.ACCESS_ALL,
         ],
         items: [
@@ -2066,7 +2066,7 @@ export const sidebarItemLink = [
             element: <MySales />,
             icon: DollarSign,
             allowedPermissions: [
-              ReportPermission.SALES,
+              ReportPermission.MYSALES,
               SuperAdminPermission.ACCESS_ALL,
             ],
           },
@@ -2076,7 +2076,7 @@ export const sidebarItemLink = [
             element: <MyInvoices />,
             icon: FileText,
             allowedPermissions: [
-              ReportPermission.SALES,
+              ReportPermission.MYINVOICES,
               SuperAdminPermission.ACCESS_ALL,
             ],
           },

@@ -93,9 +93,6 @@ export default function EditCustomerByStaffPage() {
     userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
-
-
-
   const currency = useAppSelector((state) => state.currency.value);
   const { data, isLoading: isFetching } = useGetCustomerByIdQuery(
     Number(customerId)

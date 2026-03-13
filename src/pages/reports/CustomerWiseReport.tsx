@@ -19,6 +19,8 @@ import { useGetCustomersQuery } from "@/store/features/customers/customersApiSer
 import { useGetCustomerWiseInvoicesQuery } from "@/store/features/reports/reportApiService";
 import { useAppSelector } from "@/store/store";
 import { format } from "date-fns";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { type Customer } from "@/store/features/customers/customersApiService";
 
 interface InvoiceData {
   id: number;
@@ -61,7 +63,7 @@ export default function CustomerWiseReport() {
     limit: 1000,
     status: "active",
   });
-  const customers = customersResponse?.data || [];
+  const customers = (customersResponse?.data as Customer[]) || [];
 
   // Fetch invoices for selected customer
   const queryParams = selectedCustomerId ? {
@@ -74,14 +76,8 @@ export default function CustomerWiseReport() {
     ...(statusFilter !== 'all' && { status: statusFilter }),
   } : undefined;
 
-  console.log('Current statusFilter:', statusFilter);
-  console.log('Frontend queryParams:', JSON.stringify(queryParams, null, 2));
-
   const { data: invoicesData, isFetching } = useGetCustomerWiseInvoicesQuery(
-    queryParams,
-    {
-      skip: !selectedCustomerId,
-    }
+    queryParams || skipToken
   );
 
   const columns: ColumnDef<InvoiceData>[] = [
@@ -101,12 +97,18 @@ export default function CustomerWiseReport() {
     {
       accessorKey: "total_amount",
       header: "Total Amount",
-      cell: (info) => `${currency} ${(info.getValue() as number).toFixed(2)}`,
+      cell: (info) => {
+        const value = info.getValue() as number;
+        return `${currency} ${value.toFixed(2)}`;
+      }
     },
     {
       accessorKey: "paid_amount",
       header: "Paid Amount",
-      cell: (info) => `${currency} ${(info.getValue() as number).toFixed(2)}`,
+      cell: (info) => {
+        const value = info.getValue() as number;
+        return `${currency} ${value.toFixed(2)}`;
+      }
     },
     {
       accessorKey: "due_amount",
@@ -131,7 +133,7 @@ export default function CustomerWiseReport() {
         const colorClass = statusColors[status] || "text-gray-600 bg-gray-50";
         // Format status for display
         const displayStatus = status === 'partially_paid' ? 'Partial' :
-                             status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
+          status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>
             {displayStatus}
@@ -149,9 +151,10 @@ export default function CustomerWiseReport() {
     },
   ];
 
-  // Calculate summary stats from data
-  const invoiceList = invoicesData?.data || [];
   const totalInvoices = invoicesData?.pagination?.total || 0;
+  
+  // Calculate summary stats from current visible data
+  const invoiceList = invoicesData?.data || [];
   const totalAmount = invoiceList.reduce(
     (sum: number, item: InvoiceData) => sum + (item.total_amount || 0),
     0
@@ -162,7 +165,7 @@ export default function CustomerWiseReport() {
   );
   const totalDue = totalAmount - totalPaid;
 
-  const selectedCustomer = customers.find((c: any) => c.id === Number(selectedCustomerId));
+  const selectedCustomer = customers.find((c) => c.id === Number(selectedCustomerId));
 
   const handlePrint = () => {
     window.print();
@@ -258,221 +261,231 @@ export default function CustomerWiseReport() {
         }
       `}</style>
       <div className="space-y-6" data-print-container id="customer-wise-report">
-      {/* Print-only header */}
-      <div className="print-only hidden mb-6 p-4">
-        <h1 className="text-2xl font-bold text-center">Customer Wise Invoice Report</h1>
-        {selectedCustomer && (
-          <div className="text-center mt-2">
-            <p className="text-lg font-semibold">{selectedCustomer.company} ({selectedCustomer.name})</p>
-            <p className="text-sm text-gray-600">Period: {startDate} to {endDate}</p>
-            <p className="text-xs text-gray-500 mt-1">Printed on: {new Date().toLocaleString()}</p>
+        {/* Print-only header */}
+        <div className="print-only hidden mb-6 p-4">
+          <h1 className="text-2xl font-bold text-center">Customer Wise Invoice Report</h1>
+          {selectedCustomer && (
+            <div className="text-center mt-2">
+              <p className="text-lg font-semibold">{selectedCustomer.company} ({selectedCustomer.name})</p>
+              <p className="text-sm text-gray-600">Period: {startDate} to {endDate}</p>
+              <p className="text-xs text-gray-500 mt-1">Printed on: {new Date().toLocaleString()}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Header Card */}
+        <Card className="py-6 print:hidden">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                Customer Wise Invoice Report
+              </CardTitle>
+              {invoiceList.length > 0 && (
+                <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2 no-print">
+                  <Printer className="w-4 h-4" />
+                  Print
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="no-print">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Customer Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="customer">Select Customer</Label>
+                <Select value={selectedCustomerId} onValueChange={(value) => {
+                  setSelectedCustomerId(value);
+                  setPage(1);
+                }}>
+                  <SelectTrigger id="customer">
+                    <SelectValue placeholder="Select a customer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id.toString()}>
+                        {customer.company} ({customer.name})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Start Date */}
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    setPage(1);
+                  }}
+                  max={endDate}
+                />
+              </div>
+
+              {/* End Date */}
+              <div className="space-y-2">
+                <Label htmlFor="endDate">End Date</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setPage(1);
+                  }}
+                  min={startDate}
+                />
+              </div>
+
+              {/* Payment Status Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="status">Payment Status</Label>
+                <Select value={statusFilter} onValueChange={(value) => {
+                  console.log('Status filter changed:', value);
+                  setStatusFilter(value);
+                  setPage(1);
+                }}>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="unpaid">Unpaid</SelectItem>
+                    <SelectItem value="partially_paid">Partial</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Summary Stats */}
+        {invoiceList.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 summary-stats-grid">
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-600 font-medium">Total Invoices (All)</p>
+                    <p className="text-2xl font-bold text-blue-700">{totalInvoices}</p>
+                  </div>
+                  <FileText className="w-10 h-10 text-blue-300" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm text-green-600 font-medium">Total Amount</p>
+                      <span className="text-[10px] text-green-500">(Page)</span>
+                    </div>
+                    <p className="text-2xl font-bold text-green-700">
+                      {currency} {totalAmount.toFixed(2)}
+                    </p>
+                  </div>
+                  <DollarSign className="w-10 h-10 text-green-300" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-emerald-50 border-emerald-200">
+              <CardContent className="py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm text-emerald-600 font-medium">Paid Amount</p>
+                      <span className="text-[10px] text-emerald-500">(Page)</span>
+                    </div>
+                    <p className="text-2xl font-bold text-emerald-700">
+                      {currency} {totalPaid.toFixed(2)}
+                    </p>
+                  </div>
+                  <DollarSign className="w-10 h-10 text-emerald-300" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-orange-50 border-orange-200">
+              <CardContent className="py-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm text-orange-600 font-medium">Due Amount</p>
+                      <span className="text-[10px] text-orange-500">(Page)</span>
+                    </div>
+                    <p className="text-2xl font-bold text-orange-700">
+                      {currency} {totalDue.toFixed(2)}
+                    </p>
+                  </div>
+                  <Calendar className="w-10 h-10 text-orange-300" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
+
+        {/* Invoices Table */}
+        {invoiceList.length > 0 && (
+          <Card className="py-6">
+            <CardHeader className="no-print">
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Invoices for {selectedCustomer?.company} ({selectedCustomer?.name})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={columns}
+                data={invoiceList}
+                pageIndex={page - 1}
+                pageSize={limit}
+                totalCount={totalInvoices}
+                onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
+                onSearch={setSearch}
+                isFetching={isFetching}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* No Data Message */}
+        {!invoiceList.length && selectedCustomerId && !isFetching && (
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">No invoices found</p>
+                <p className="text-sm">
+                  Try adjusting the date range or select a different customer
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Initial State */}
+        {!selectedCustomerId && (
+          <Card>
+            <CardContent className="py-12">
+              <div className="text-center text-muted-foreground">
+                <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium">Select a Customer</p>
+                <p className="text-sm">
+                  Choose a customer from the dropdown above to view their invoices
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* Header Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-600" />
-              Customer Wise Invoice Report
-            </CardTitle>
-            {invoiceList.length > 0 && (
-              <Button onClick={handlePrint} variant="outline" size="sm" className="gap-2 no-print">
-                <Printer className="w-4 h-4" />
-                Print
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="no-print">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Customer Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="customer">Select Customer</Label>
-              <Select value={selectedCustomerId} onValueChange={(value) => {
-                setSelectedCustomerId(value);
-                setPage(1);
-              }}>
-                <SelectTrigger id="customer">
-                  <SelectValue placeholder="Select a customer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {customers.map((customer: any) => (
-                    <SelectItem key={customer.id} value={customer.id.toString()}>
-                      {customer.company} ({customer.name})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Start Date */}
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setPage(1);
-                }}
-                max={endDate}
-              />
-            </div>
-
-            {/* End Date */}
-            <div className="space-y-2">
-              <Label htmlFor="endDate">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setPage(1);
-                }}
-                min={startDate}
-              />
-            </div>
-
-            {/* Payment Status Filter */}
-            <div className="space-y-2">
-              <Label htmlFor="status">Payment Status</Label>
-              <Select value={statusFilter} onValueChange={(value) => {
-                console.log('Status filter changed:', value);
-                setStatusFilter(value);
-                setPage(1);
-              }}>
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="due">Due</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Summary Stats */}
-      {invoiceList.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 summary-stats-grid">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-blue-600 font-medium">Total Invoices</p>
-                  <p className="text-2xl font-bold text-blue-700">{totalInvoices}</p>
-                </div>
-                <FileText className="w-10 h-10 text-blue-300" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-green-600 font-medium">Total Amount</p>
-                  <p className="text-2xl font-bold text-green-700">
-                    {currency} {totalAmount.toFixed(2)}
-                  </p>
-                </div>
-                <DollarSign className="w-10 h-10 text-green-300" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-emerald-50 border-emerald-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-emerald-600 font-medium">Paid Amount</p>
-                  <p className="text-2xl font-bold text-emerald-700">
-                    {currency} {totalPaid.toFixed(2)}
-                  </p>
-                </div>
-                <DollarSign className="w-10 h-10 text-emerald-300" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-orange-50 border-orange-200">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-orange-600 font-medium">Due Amount</p>
-                  <p className="text-2xl font-bold text-orange-700">
-                    {currency} {totalDue.toFixed(2)}
-                  </p>
-                </div>
-                <Calendar className="w-10 h-10 text-orange-300" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Invoices Table */}
-      {invoiceList.length > 0 && (
-        <Card>
-          <CardHeader className="no-print">
-            <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              Invoices for {selectedCustomer?.company} ({selectedCustomer?.name})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <DataTable
-              columns={columns}
-              data={invoiceList}
-              pageIndex={page - 1}
-              pageSize={limit}
-              totalCount={totalInvoices}
-              onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
-              onSearch={setSearch}
-              isFetching={isFetching}
-            />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* No Data Message */}
-      {!invoiceList.length && selectedCustomerId && !isFetching && (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center text-muted-foreground">
-              <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No invoices found</p>
-              <p className="text-sm">
-                Try adjusting the date range or select a different customer
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Initial State */}
-      {!selectedCustomerId && (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center text-muted-foreground">
-              <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">Select a Customer</p>
-              <p className="text-sm">
-                Choose a customer from the dropdown above to view their invoices
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
     </>
   );
 }

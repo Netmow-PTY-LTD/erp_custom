@@ -5,7 +5,7 @@ import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetMySalesQuery } from "@/store/features/reports/reportApiService";
-import { useGetCustomersQuery } from "@/store/features/customers/customersApiService";
+import { useGetCustomersQuery, type Customer } from "@/store/features/customers/customersApiService";
 import { useAppSelector } from "@/store/store";
 import { DollarSign, ShoppingCart, Users, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -91,10 +91,10 @@ export default function MySales() {
 
     // Calculate summary stats from data
     const totalCustomers = data?.data?.length || 0;
-    const totalOrders = data?.data?.reduce((sum: number, item: any) => sum + (item.order_count || 0), 0) || 0;
-    const totalSales = data?.data?.reduce((sum: number, item: any) => sum + (item.total_sales || 0), 0) || 0;
-    const totalPaid = data?.data?.reduce((sum: number, item: any) => sum + (item.paid_amount || 0), 0) || 0;
-    const totalDue = data?.data?.reduce((sum: number, item: any) => sum + (item.due_amount || 0), 0) || 0;
+    const totalOrders = data?.data?.reduce((sum: number, item: MySalesData) => sum + (item.order_count || 0), 0) || 0;
+    const totalSales = data?.data?.reduce((sum: number, item: MySalesData) => sum + (item.total_sales || 0), 0) || 0;
+    const totalPaid = data?.data?.reduce((sum: number, item: MySalesData) => sum + (item.paid_amount || 0), 0) || 0;
+    const totalDue = data?.data?.reduce((sum: number, item: MySalesData) => sum + (item.due_amount || 0), 0) || 0;
 
     const stats = [
         {
@@ -164,9 +164,9 @@ export default function MySales() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {stats.map((stat) => (
-                    <Card key={stat.label} className={`bg-gradient-to-br ${stat.gradient} ${stat.shadow}`}>
+                    <Card key={stat.label} className={`bg-gradient-to-br ${stat.gradient} ${stat.shadow} py-6`}>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-white">{stat.label}</CardTitle>
                             {stat.icon}
@@ -178,7 +178,7 @@ export default function MySales() {
                 ))}
             </div>
 
-            <Card>
+            <Card className="pt-6 pb-2">
                 <CardHeader>
                     <div className="flex items-center justify-between gap-4">
                         <CardTitle>Sales by Customer</CardTitle>
@@ -189,9 +189,9 @@ export default function MySales() {
                                         <Filter className="w-4 h-4 mr-2" />
                                         {selectedCustomer === "all"
                                             ? "Filter by Customer"
-                                            : customersData?.data?.find((c: any) => c.id.toString() === selectedCustomer)?.company +
-                                              " - " +
-                                              customersData?.data?.find((c: any) => c.id.toString() === selectedCustomer)?.name || "Filter by Customer"}
+                                            : (customersData?.data as Customer[])?.find((c) => c.id.toString() === selectedCustomer)?.company +
+                                            " - " +
+                                            (customersData?.data as Customer[])?.find((c) => c.id.toString() === selectedCustomer)?.name || "Filter by Customer"}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-[300px] p-0">
@@ -214,12 +214,12 @@ export default function MySales() {
                                             >
                                                 All Customers
                                             </div>
-                                            {customersData?.data
-                                                ?.filter((customer: any) =>
+                                            {(customersData?.data as Customer[])
+                                                ?.filter((customer) =>
                                                     customer.company.toLowerCase().includes(search.toLowerCase()) ||
                                                     customer.name.toLowerCase().includes(search.toLowerCase())
                                                 )
-                                                .map((customer: any) => (
+                                                .map((customer) => (
                                                     <div
                                                         key={customer.id}
                                                         className="flex items-center gap-2 px-2 py-2 hover:bg-accent rounded-md cursor-pointer"
@@ -242,11 +242,10 @@ export default function MySales() {
                     <DataTable
                         columns={columns}
                         data={data?.data || []}
-                        pagination={{
-                            page,
-                            totalPages: data?.pagination?.totalPage || 1,
-                            onPageChange: setPage,
-                        }}
+                        pageIndex={page - 1}
+                        totalCount={data?.pagination?.total || 0}
+                        pageSize={limit}
+                        onPageChange={(newPageIndex) => setPage(newPageIndex + 1)}
                         isFetching={isFetching}
                     />
                 </CardContent>
