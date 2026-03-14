@@ -22,9 +22,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
   // Calculations
   const subtotal = Number(invoice?.order?.total_amount || 0);
   const discount = Number(invoice?.order?.discount_amount || 0);
-  const gstRate = 0.06; // Based on PDF showing 6%
-  const gstAmount = Number(invoice?.order?.tax_amount || (subtotal - discount) * gstRate);
-  const total = (subtotal - discount + gstAmount).toFixed(2);
+  const taxAmount = Number(invoice?.order?.tax_amount || 0);
+  const total = (subtotal - discount + taxAmount).toFixed(2);
 
   const handlePrint = () => {
     window.print();
@@ -277,8 +276,8 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                   <td className="p-1 px-4 text-right"> - RM {discount.toFixed(2)}</td>
                 </tr>
                 <tr className="border border-gray-300">
-                  <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase text-[10px]">Add GST @ (6%)</td>
-                  <td className="p-1 px-4 text-right">RM {gstAmount.toFixed(2)}</td>
+                  <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase">Tax</td>
+                  <td className="p-1 px-4 text-right">RM {taxAmount.toFixed(2)}</td>
                 </tr>
                 <tr className="border border-gray-300 bg-gray-50 text-base">
                   <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase tracking-wider">Total</td>
