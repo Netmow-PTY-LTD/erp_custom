@@ -2223,15 +2223,15 @@ export const sidebarItemLink = [
     ],
   },
 
-  {
-    title: "Modules",
-    url: "/dashboard/modules-functionality",
-    icon: Layers,
-    element: <ModulesFunctionality />,
-    allowedPermissions: [
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-  },
+  // {
+  //   title: "Modules",
+  //   url: "/dashboard/modules-functionality",
+  //   icon: Layers,
+  //   element: <ModulesFunctionality />,
+  //   allowedPermissions: [
+  //     SuperAdminPermission.ACCESS_ALL,
+  //   ],
+  // },
 
   {
     title: "Help",

@@ -21,6 +21,7 @@ import {
   useDeleteNotificationMutation,
 } from "@/store/features/notifications/notificationsApi";
 import type { Notification } from "@/store/features/notifications/notificationsApi";
+import { useAppSelector } from "@/store/store";
 
 const getNotificationIcon = (type: Notification["type"]) => {
   switch (type) {
@@ -44,7 +45,12 @@ const getNotificationIcon = (type: Notification["type"]) => {
 };
 
 export function NotificationDropdown() {
-  const { data, isLoading } = useGetNotificationsQuery();
+  const user = useAppSelector((state) => state.auth.user);
+  const isSuperadmin = user?.role?.name?.toLowerCase() === 'superadmin';
+
+  const { data, isLoading } = useGetNotificationsQuery(undefined, {
+    skip: !isSuperadmin,
+  });
   const [markAsRead] = useMarkAsReadMutation();
   const [markAllAsRead] = useMarkAllAsReadMutation();
   const [deleteNotification] = useDeleteNotificationMutation();
