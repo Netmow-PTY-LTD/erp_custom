@@ -100,10 +100,11 @@ export const customersApi = baseApi.injectEndpoints({
     // ------------------------------------------
     // GET MAP DATA
     // ------------------------------------------
-    getCustomerMaps: builder.query<GetCustomerMapsResponse, void>({
-      query: () => ({
+    getCustomerMaps: builder.query<GetCustomerMapsResponse, { country?: string } | void>({
+      query: (params) => ({
         url: "/customers/maps",
         method: "GET",
+        params: params || {},
       }),
       providesTags: [{ type: "Customers", id: "MAP" }],
     }),

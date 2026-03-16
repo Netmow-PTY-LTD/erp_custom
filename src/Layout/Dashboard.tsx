@@ -6,6 +6,7 @@ import {
 
 import { AppSidebar } from "../components/app-sidebar";
 import { ProfileDropdown } from "../components/dashboard/components/ProfileDropdown";
+import { NotificationDropdown } from "../components/dashboard/components/NotificationDropdown";
 
 import { ThemeSwitch } from "../components/theme-switch";
 import { Link, Outlet } from "react-router";
@@ -34,6 +35,7 @@ export default function DashboardLayout() {
             <SidebarTrigger className="-ml-1 cursor-pointer" />
             <div className="ml-auto flex items-center gap-4">
               <span className="text-xs bg-blue-100 px-3 py-1 rounded-full text-blue-600 font-semibold">{user?.role?.display_name}</span>
+              {user?.role?.name?.toLowerCase() === 'superadmin' && <NotificationDropdown />}
               <ThemeSwitch />
               <ProfileDropdown />
             </div>

@@ -135,6 +135,7 @@ export interface CustomerMapLocation {
     company?: string;
     address?: string;
     city?: string;
+    country?: string;
     phone?: string;
     email?: string;
     coordinates: {
