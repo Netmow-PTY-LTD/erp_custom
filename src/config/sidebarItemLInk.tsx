@@ -242,7 +242,6 @@ import CreateSalesReturnPayment from "@/pages/salesOrders/returns/CreateSalesRet
 import SalesReturnPaymentDetails from "@/pages/salesOrders/returns/SalesReturnPaymentDetails";
 import SalesReturnsList from "@/pages/salesOrders/returns/SalesReturnsList";
 import SalesReturnPrint from "@/pages/salesOrders/returns/SalesReturnPrint";
-import ModulesFunctionality from "@/pages/modules/ModulesFunctionality";
 
 import ApprovedPurchaseReturns from "@/pages/suppliers/purchaseOrder/ApprovedPurchaseReturns";
 import PendingPurchaseReturns from "@/pages/suppliers/purchaseOrder/PendingPurchaseReturns";
