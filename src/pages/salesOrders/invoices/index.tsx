@@ -109,12 +109,20 @@ export default function Invoices() {
       ),
       enableSorting: false,
       enableHiding: false,
+      meta: { className: "print:hidden" } as any,
     },
     {
       accessorKey: "invoice_number",
       header: "Invoice #",
       meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any,
-      cell: ({ row }) => <span className="font-medium">{row.getValue("invoice_number")}</span>,
+      cell: ({ row }) => (
+        <Link 
+          to={`/dashboard/sales/invoices/${row.original.id}`}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          {row.getValue("invoice_number")}
+        </Link>
+      ),
     },
     {
       accessorKey: "order.customer.name",
@@ -277,11 +285,14 @@ export default function Invoices() {
     },
     {
       id: "actions",
-      header: "Actions",
+      meta: { className: "print:hidden" } as any,
+      header: () => (
+        <div className="print:hidden">Actions</div>
+      ),
       cell: ({ row }) => {
         const invoice = row.original;
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 print:hidden">
             <Link to={`/dashboard/sales/invoices/${invoice.id}`}>
               <Button size="sm" variant="outline-info">View</Button>
             </Link>
@@ -443,9 +454,6 @@ export default function Invoices() {
               text-align: left !important;
               line-height: 1.2 !important;
               text-transform: uppercase !important;
-            }
-            th:nth-child(11), td:nth-child(11) {
-              display: none !important;
             }
             .text-4xl {
               font-size: 18px !important;

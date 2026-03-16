@@ -185,7 +185,7 @@ export default function MySales() {
                         <div className="flex gap-2">
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <Button variant="outline" className="w-[200px] justify-start">
+                                    <Button variant="outline" className="w-[200px] justify-start overflow-hidden">
                                         <Filter className="w-4 h-4 mr-2" />
                                         {selectedCustomer === "all"
                                             ? "Filter by Customer"

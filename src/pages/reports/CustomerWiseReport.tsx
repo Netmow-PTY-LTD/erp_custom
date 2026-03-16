@@ -152,7 +152,7 @@ export default function CustomerWiseReport() {
   ];
 
   const totalInvoices = invoicesData?.pagination?.total || 0;
-  
+
   // Calculate summary stats from current visible data
   const invoiceList = invoicesData?.data || [];
   const totalAmount = invoiceList.reduce(

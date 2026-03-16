@@ -462,6 +462,291 @@ export const sidebarItemLink = [
     ],
   },
 
+  // SALES & ORDERS
+  {
+    title: "Sales & Orders",
+    url: "#",
+    icon: ShoppingCart,
+    allowedPermissions: [SalesPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
+    items: [
+      {
+        title: "POS Order",
+        url: "/dashboard/sales/pos",
+        element: <PosOrder />,
+        icon: ShoppingCart,
+        allowedPermissions: [
+          SalesPermission.POS_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Orders",
+        url: "/dashboard/sales/orders",
+        element: <Orders />,
+        icon: List,
+        allowedPermissions: [
+          SalesPermission.ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Add New Sales Order",
+        url: "/dashboard/sales/orders/create",
+        icon: PlusCircle,
+        element: <CreateOrderPage />,
+        allowedPermissions: [
+          SalesPermission.CREATE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Add New Sales Order (Any)",
+        url: "/dashboard/sales/orders/create-any",
+        icon: PlusCircle,
+        element: <CreateOrderPage />,
+        allowedPermissions: [
+          SalesPermission.CREATE_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Pending Orders",
+        url: "/dashboard/sales/orders/pending",
+        element: <PendingOrders />,
+        icon: Clock,
+        allowedPermissions: [
+          SalesPermission.PENDING_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Confirmed Orders",
+        url: "/dashboard/sales/orders/confirmed",
+        element: <ConfirmedOrders />,
+        icon: CheckCircle,
+        allowedPermissions: [
+          SalesPermission.CONFIRMED_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "In-Transit Orders",
+        url: "/dashboard/sales/orders/intransit-order",
+        element: <IntransitOrder />,
+        icon: Truck,
+        allowedPermissions: [
+          SalesPermission.INTRANSIT_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Delivered Orders",
+        url: "/dashboard/sales/orders/delivered",
+        element: <DeliveredOrders />,
+        icon: Package,
+        allowedPermissions: [
+          SalesPermission.DELIVERED_ORDERS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Return Orders",
+        url: "/dashboard/sales/orders/return",
+        element: <ReturnedOrders />,
+        icon: RotateCcw,
+        allowedPermissions: [
+          SalesPermission.VIEW_SALES_RETURNS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+
+      {
+        title: "",
+        url: "/dashboard/sales/orders/:orderId",
+        element: <OrderDetails />,
+        allowedPermissions: [
+          SalesPermission.ORDER_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/orders/:orderId/print",
+        element: <SalesOrderPrint />,
+        allowedPermissions: [
+          SalesPermission.ORDER_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/orders/:orderId/edit",
+        element: <EditOrderPage />,
+        allowedPermissions: [
+          SalesPermission.EDIT_ORDER,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Invoices",
+        url: "/dashboard/sales/invoices",
+        element: <Invoices />,
+        icon: FileText,
+        allowedPermissions: [
+          SalesPermission.INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "E-Invoices",
+        url: "/dashboard/sales/einvoices",
+        element: <EInvoiceList />,
+        icon: FileText,
+        allowedPermissions: [
+          SalesPermission.INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/:invoiceId",
+        element: <InvoiceDetailsPage />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/:invoiceId/preview",
+        element: <InvoicePrintPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/print-preview",
+        element: <InvoicesPrintPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/summary",
+        element: <InvoicesSummaryPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/items-summary",
+        element: <InvoiceItemsSummaryPreview />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/invoices/summary-details",
+        element: <InvoiceSummaryDetails />,
+        allowedPermissions: [
+          SalesPermission.INVOICE_PREVIEW,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Payments",
+        url: "/dashboard/sales/payments",
+        element: <Payments />,
+        icon: CreditCard,
+        allowedPermissions: [
+          SalesPermission.PAYMENTS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/payments/:paymentId",
+        element: <PaymentDetails />,
+        allowedPermissions: [
+          SalesPermission.PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/payments/:paymentId/preview",
+        element: <SalesPaymentPrintPreview />,
+        allowedPermissions: [
+          SalesPermission.PAYMENT_DETAILS,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/payments/create",
+        element: <CreatePaymentPage />,
+        allowedPermissions: [
+          SalesPermission.CREATE_PAYMENT,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "Delivery",
+        url: "/dashboard/sales/delivery",
+        element: <DeliveryPage />,
+        icon: Truck,
+        allowedPermissions: [
+          SalesPermission.DELIVERY,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/sales-routes/create",
+        element: <CreateRoutePage />,
+        allowedPermissions: [
+          SalesPermission.CREATE_ROUTE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/sales-routes/:id",
+        element: <SalesRouteDetails />,
+        allowedPermissions: [
+          SalesPermission.DETAILS_SALES_ROUTES,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      {
+        title: "",
+        url: "/dashboard/sales/sales-routes/:id/edit",
+        element: <EditRoutePage />,
+        allowedPermissions: [
+          SalesPermission.EDIT_ROUTE,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
+      },
+      // {
+      //   title: "",
+      //   url: "/dashboard/sales/sales-routes/:routeId/assign",
+      //   element: <AssignRoutePage />,
+      //   allowedPermissions: [
+      //     SalesPermission.ASSIGN_ROUTE,
+      //     SuperAdminPermission.ACCESS_ALL,
+      //   ],
+      // },
+    ],
+  },
+
   // SUPPLIERS
   {
     title: "Suppliers",
@@ -1224,291 +1509,6 @@ export const sidebarItemLink = [
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
-    ],
-  },
-
-  // SALES & ORDERS
-  {
-    title: "Sales & Orders",
-    url: "#",
-    icon: ShoppingCart,
-    allowedPermissions: [SalesPermission.VIEW, SuperAdminPermission.ACCESS_ALL],
-    items: [
-      {
-        title: "POS Order",
-        url: "/dashboard/sales/pos",
-        element: <PosOrder />,
-        icon: ShoppingCart,
-        allowedPermissions: [
-          SalesPermission.POS_ORDER,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Orders",
-        url: "/dashboard/sales/orders",
-        element: <Orders />,
-        icon: List,
-        allowedPermissions: [
-          SalesPermission.ORDERS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Add New Sales Order",
-        url: "/dashboard/sales/orders/create",
-        icon: PlusCircle,
-        element: <CreateOrderPage />,
-        allowedPermissions: [
-          SalesPermission.CREATE_ORDER,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Add New Sales Order (Any)",
-        url: "/dashboard/sales/orders/create-any",
-        icon: PlusCircle,
-        element: <CreateOrderPage />,
-        allowedPermissions: [
-          SalesPermission.CREATE_ORDER,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Pending Orders",
-        url: "/dashboard/sales/orders/pending",
-        element: <PendingOrders />,
-        icon: Clock,
-        allowedPermissions: [
-          SalesPermission.PENDING_ORDERS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Confirmed Orders",
-        url: "/dashboard/sales/orders/confirmed",
-        element: <ConfirmedOrders />,
-        icon: CheckCircle,
-        allowedPermissions: [
-          SalesPermission.CONFIRMED_ORDERS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "In-Transit Orders",
-        url: "/dashboard/sales/orders/intransit-order",
-        element: <IntransitOrder />,
-        icon: Truck,
-        allowedPermissions: [
-          SalesPermission.INTRANSIT_ORDERS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Delivered Orders",
-        url: "/dashboard/sales/orders/delivered",
-        element: <DeliveredOrders />,
-        icon: Package,
-        allowedPermissions: [
-          SalesPermission.DELIVERED_ORDERS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Return Orders",
-        url: "/dashboard/sales/orders/return",
-        element: <ReturnedOrders />,
-        icon: RotateCcw,
-        allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURNS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-
-      {
-        title: "",
-        url: "/dashboard/sales/orders/:orderId",
-        element: <OrderDetails />,
-        allowedPermissions: [
-          SalesPermission.ORDER_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/orders/:orderId/print",
-        element: <SalesOrderPrint />,
-        allowedPermissions: [
-          SalesPermission.ORDER_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/orders/:orderId/edit",
-        element: <EditOrderPage />,
-        allowedPermissions: [
-          SalesPermission.EDIT_ORDER,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Invoices",
-        url: "/dashboard/sales/invoices",
-        element: <Invoices />,
-        icon: FileText,
-        allowedPermissions: [
-          SalesPermission.INVOICES,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "E-Invoices",
-        url: "/dashboard/sales/einvoices",
-        element: <EInvoiceList />,
-        icon: FileText,
-        allowedPermissions: [
-          SalesPermission.INVOICES,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/invoices/:invoiceId",
-        element: <InvoiceDetailsPage />,
-        allowedPermissions: [
-          SalesPermission.INVOICE_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/invoices/:invoiceId/preview",
-        element: <InvoicePrintPreview />,
-        allowedPermissions: [
-          SalesPermission.INVOICE_PREVIEW,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/invoices/print-preview",
-        element: <InvoicesPrintPreview />,
-        allowedPermissions: [
-          SalesPermission.INVOICES,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/invoices/summary",
-        element: <InvoicesSummaryPreview />,
-        allowedPermissions: [
-          SalesPermission.INVOICE_PREVIEW,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/invoices/items-summary",
-        element: <InvoiceItemsSummaryPreview />,
-        allowedPermissions: [
-          SalesPermission.INVOICE_PREVIEW,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/invoices/summary-details",
-        element: <InvoiceSummaryDetails />,
-        allowedPermissions: [
-          SalesPermission.INVOICE_PREVIEW,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Payments",
-        url: "/dashboard/sales/payments",
-        element: <Payments />,
-        icon: CreditCard,
-        allowedPermissions: [
-          SalesPermission.PAYMENTS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/payments/:paymentId",
-        element: <PaymentDetails />,
-        allowedPermissions: [
-          SalesPermission.PAYMENT_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/payments/:paymentId/preview",
-        element: <SalesPaymentPrintPreview />,
-        allowedPermissions: [
-          SalesPermission.PAYMENT_DETAILS,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/payments/create",
-        element: <CreatePaymentPage />,
-        allowedPermissions: [
-          SalesPermission.CREATE_PAYMENT,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "Delivery",
-        url: "/dashboard/sales/delivery",
-        element: <DeliveryPage />,
-        icon: Truck,
-        allowedPermissions: [
-          SalesPermission.DELIVERY,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/sales-routes/create",
-        element: <CreateRoutePage />,
-        allowedPermissions: [
-          SalesPermission.CREATE_ROUTE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/sales-routes/:id",
-        element: <SalesRouteDetails />,
-        allowedPermissions: [
-          SalesPermission.DETAILS_SALES_ROUTES,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      {
-        title: "",
-        url: "/dashboard/sales/sales-routes/:id/edit",
-        element: <EditRoutePage />,
-        allowedPermissions: [
-          SalesPermission.EDIT_ROUTE,
-          SuperAdminPermission.ACCESS_ALL,
-        ],
-      },
-      // {
-      //   title: "",
-      //   url: "/dashboard/sales/sales-routes/:routeId/assign",
-      //   element: <AssignRoutePage />,
-      //   allowedPermissions: [
-      //     SalesPermission.ASSIGN_ROUTE,
-      //     SuperAdminPermission.ACCESS_ALL,
-      //   ],
-      // },
     ],
   },
 
