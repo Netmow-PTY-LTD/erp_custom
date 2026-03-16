@@ -100,7 +100,14 @@ export default function SalesReturnsList({ status }: { status?: string }) {
         {
             id: "customer",
             header: "Customer",
-            cell: ({ row }) => row.original.customer?.name || row.original.customer_name || "-",
+            cell: ({ row }) => (
+                <div className="font-semibold">
+                    <div className="text-xs text-muted-foreground">
+                        {row.original.customer?.company || row.original.customer_company || '-'}
+                    </div>
+                    <div>{row.original.customer?.name || row.original.customer_name || '-'}</div>
+                </div>
+            ),
         },
         {
             accessorKey: "return_date",

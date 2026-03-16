@@ -86,7 +86,14 @@ export default function SalesReturnPaymentsList() {
         {
             id: "customer",
             header: "Customer",
-            cell: ({ row }) => (row.original as any).sales_return?.customer?.name || "-",
+            cell: ({ row }) => (
+                <div className="font-semibold">
+                    <div className="text-xs text-muted-foreground">
+                        {(row.original as any).sales_return?.customer?.company || '-'}
+                    </div>
+                    <div>{(row.original as any).sales_return?.customer?.name || '-'}</div>
+                </div>
+            ),
         },
         {
             id: "invoice_number",
