@@ -25,8 +25,8 @@ interface LayoutState {
 const initialState: LayoutState = {
     pos: {
         columns: {
-            mobile: 2,
-            sm: 3,
+            mobile: 1,
+            sm: 2,
             md: 4,
             lg: 2,
             xl: 3,
