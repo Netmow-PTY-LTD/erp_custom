@@ -47,6 +47,7 @@ import {
   useUpdateSalesOrderMutation,
   useAddSalesOrderItemMutation,
   useUpdateSalesOrderItemMutation,
+  useDeleteSalesOrderItemMutation,
 } from "@/store/features/salesOrder/salesOrder";
 import { useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
@@ -122,6 +123,7 @@ export default function EditOrderPage() {
   const [updateSalesOrder, { isLoading: isUpdating }] = useUpdateSalesOrderMutation();
   const [addSalesOrderItem, { isLoading: isAddingItem }] = useAddSalesOrderItemMutation();
   const [updateSalesOrderItem, { isLoading: isUpdatingItem }] = useUpdateSalesOrderItemMutation();
+  const [deleteSalesOrderItem, { isLoading: isDeletingItem }] = useDeleteSalesOrderItemMutation();
 
   // Fetch products for Add Product modal
   const { data: productsData } = useGetAllProductsQuery({
@@ -272,6 +274,33 @@ export default function EditOrderPage() {
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to update sales order");
       console.error(error);
+    }
+  };
+
+  const handleDeleteItem = async (index: number) => {
+    const currentItem = items[index];
+
+    // If item has an ID, it's an existing item - call delete API
+    if (currentItem.id && orderId) {
+      try {
+        const res = await deleteSalesOrderItem({
+          orderId: orderId,
+          itemId: currentItem.id,
+        }).unwrap();
+
+        if (res.status) {
+          toast.success(`Item deleted and stock restored (${res.data.stockRestored} units)`);
+          // Remove from form after successful API call
+          remove(index);
+        }
+      } catch (error: any) {
+        toast.error(error?.data?.message || "Failed to delete item");
+        console.error("Error deleting item:", error);
+      }
+    } else {
+      // New item without ID - just remove from form
+      remove(index);
+      toast.info("Item removed from order");
     }
   };
 
@@ -757,7 +786,7 @@ export default function EditOrderPage() {
                     return (
                       <div
                         key={item.id}
-                        className="flex flex-nowrap min-w-max gap-4 items-str bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
+                        className="flex flex-nowrap min-w-max gap-4 items-center bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
                       >
                         {/* SKU */}
                         <div className="w-32 xl:sticky xl:left-0 bg-inherit xl:z-10">
@@ -877,11 +906,16 @@ export default function EditOrderPage() {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            onClick={() => remove(index)}
+                            onClick={() => handleDeleteItem(index)}
+                            disabled={isDeletingItem}
                             className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                             title="Delete"
                           >
-                            <X className="w-4 h-4" />
+                            {isDeletingItem ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <X className="w-4 h-4" />
+                            )}
                           </Button>
                         </div>
                       </div>

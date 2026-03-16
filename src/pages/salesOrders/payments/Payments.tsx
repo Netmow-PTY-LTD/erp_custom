@@ -87,7 +87,10 @@ export default function Payments() {
       accessorKey: "order.customer_id",
       header: "Customer",
       cell: ({ row }) => (
-        <div className="font-semibold">{row.original.order?.customer.name}</div>
+        <div className="font-semibold">
+          <div className="text-xs text-muted-foreground">{row.original.order?.customer?.company || '-'}</div>
+          <div>{row.original.order?.customer?.name}</div>
+        </div>
       ),
     },
     // {

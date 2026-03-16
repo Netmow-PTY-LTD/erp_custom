@@ -117,6 +117,18 @@ export const salesApiService = baseApi.injectEndpoints({
       invalidatesTags: ["SalesOrders"],
     }),
 
+    // DELETE SINGLE ORDER ITEM
+    deleteSalesOrderItem: builder.mutation<
+      SalesResponse<any>,
+      { orderId: number | string; itemId: number | string }
+    >({
+      query: ({ orderId, itemId }) => ({
+        url: `/sales/orders/${orderId}/items/${itemId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["SalesOrders"],
+    }),
+
     // GET SINGLE SALES ORDER BY ID
     getSalesOrderById: builder.query<SalesResponse<SalesOrder>, string | number>(
       {
@@ -358,6 +370,7 @@ export const {
   useUpdateSalesOrderMutation,
   useAddSalesOrderItemMutation,
   useUpdateSalesOrderItemMutation,
+  useDeleteSalesOrderItemMutation,
   useGetSalesOrderByIdQuery,
   useGetSalesInvoicesQuery,
   useAddSalesInvoiceMutation,

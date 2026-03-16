@@ -59,8 +59,8 @@ export default function EInvoiceList() {
             header: "Customer",
             cell: ({ row }) => (
                 <div className="flex flex-col">
-                    <span className="font-medium">{row.original.order?.customer?.name || "-"}</span>
-                    <span className="text-[10px] text-muted-foreground">{row.original.order?.customer?.company || ""}</span>
+                    <span className="text-[10px] text-muted-foreground">{row.original.order?.customer?.company || "-"}</span>
+                    <span className="font-medium">{row.original.order?.customer?.name || ""}</span>
                 </div>
             )
         },

@@ -120,7 +120,12 @@ export default function Invoices() {
       accessorKey: "order.customer.name",
       header: "Customer",
       meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
-      cell: ({ row }) => row.original?.order?.customer.name,
+      cell: ({ row }) => (
+        <div className="font-semibold">
+          <div className="text-xs text-muted-foreground">{row.original?.order?.customer?.company || '-'}</div>
+          <div>{row.original?.order?.customer?.name}</div>
+        </div>
+      ),
     },
     {
       accessorKey: "order.order_number",
