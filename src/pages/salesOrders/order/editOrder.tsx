@@ -49,7 +49,7 @@ import {
   useUpdateSalesOrderItemMutation,
   useDeleteSalesOrderItemMutation,
 } from "@/store/features/salesOrder/salesOrder";
-import { useGetActiveCustomersQuery, useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
+import { useLazyGetCustomerByIdQuery } from "@/store/features/customers/customersApi";
 import type { SalesOrderFormValues } from "@/types/salesOrder.types";
 import { Link, useNavigate, useParams, useLocation } from "react-router";
 import { useAppSelector } from "@/store/store";
@@ -57,7 +57,6 @@ import { Textarea } from "@/components/ui/textarea";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Product } from "@/types/types";
-import type { Customer } from "@/store/features/customers/types";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -342,93 +341,7 @@ export default function EditOrderPage() {
       </div>
     );
   }
-
-  /* -------------------- Customer & Product Select Fields -------------------- */
-  const CustomerSelectField = ({
-    field,
-    onCustomerSelect,
-  }: {
-    field: { value: number; onChange: (v: number) => void };
-    onCustomerSelect?: (customer: Customer) => void;
-  }) => {
-    const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState("");
-    const { data, isLoading } = useGetActiveCustomersQuery({
-      page: 1,
-      limit: 20,
-      search: query,
-    });
-    const list = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.find((c) => c.id === field.value);
-
-    return (
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-between h-9 overflow-hidden">
-            <div className="flex items-center gap-2 min-w-0">
-              {selected ? (
-                <>
-                  <Avatar className="h-6 w-6 shrink-0">
-                    <AvatarImage src={selected.thumb_url} alt={selected.name} />
-                    <AvatarFallback>
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="truncate text-left font-medium min-w-0 flex-1">{selected.name}</span>
-                </>
-              ) : (
-                <span className="text-muted-foreground">Select customer...</span>
-              )}
-            </div>
-            <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0">
-          <Command>
-            <CommandInput
-              placeholder="Search customers..."
-              onValueChange={setQuery}
-            />
-            <CommandList>
-              <CommandEmpty>No customers found</CommandEmpty>
-              <CommandGroup>
-                {isLoading && (
-                  <div className="py-2 px-3 text-sm text-gray-500">
-                    Loading...
-                  </div>
-                )}
-                {!isLoading &&
-                  list.map((customer) => (
-                    <CommandItem
-                      key={customer.id}
-                      onSelect={() => {
-                        field.onChange(customer.id);
-                        if (onCustomerSelect) onCustomerSelect(customer);
-                        setOpen(false);
-                      }}
-                      className="flex items-center gap-2"
-                    >
-                      <Avatar className="h-8 w-8 shrink-0">
-                        <AvatarImage src={customer.thumb_url} alt={customer.name} />
-                        <AvatarFallback>
-                          <User className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col overflow-hidden flex-1">
-                        <span className="truncate font-medium text-sm">{customer.name}</span>
-                        {customer.company && (
-                          <span className="truncate text-xs text-muted-foreground">{customer.company}</span>
-                        )}
-                      </div>
-                    </CommandItem>
-                  ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    );
-  };
+  /* -------------------- Staff & Product Select Fields -------------------- */
 
   const StaffSelectField = ({
     field,
@@ -871,14 +784,134 @@ export default function EditOrderPage() {
                 <div className="space-y-4">
                   {fields.map((item, index) => {
                     return (
-                    <div
-                      key={item.id}
-                      className="flex flex-nowrap min-w-max gap-4 items-str bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
-                    >
-                      {/* SKU */}
-                      <div className="w-32 xl:sticky xl:left-0 bg-inherit xl:z-10">
-                        <div className="font-mono text-[10px] text-gray-600 dark:text-gray-400">
-                          {watch(`items.${index}.sku`) || '-'}
+                      <div
+                        key={item.id}
+                        className="flex flex-nowrap min-w-max gap-4 items-str bg-gray-50 p-4 rounded-xl border border-gray-100 dark:bg-gray-900/40 dark:border-gray-800 transition-all duration-200 hover:shadow-md"
+                      >
+                        {/* SKU */}
+                        <div className="w-32 xl:sticky xl:left-0 bg-inherit xl:z-10">
+                          <div className="font-mono text-[10px] text-gray-600 dark:text-gray-400">
+                            {watch(`items.${index}.sku`) || '-'}
+                          </div>
+                        </div>
+
+                        {/* Product */}
+                        <div className="w-[350px] xl:sticky xl:left-[144px] bg-inherit xl:z-10">
+                          <div className="font-medium text-sm">
+                            {watch(`items.${index}.product_name`) || '-'}
+                          </div>
+                        </div>
+
+                        {/* Spec */}
+                        <div className="w-36">
+                          <div className="text-sm text-gray-700 dark:text-gray-300">
+                            {watch(`items.${index}.specification`) || '-'}
+                          </div>
+                        </div>
+
+                        {/* Unit */}
+                        <div className="w-24 text-center">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {watch(`items.${index}.unit`) || '-'}
+                          </div>
+                        </div>
+
+                        {/* Stock */}
+                        <div className="w-24 text-right">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {watch(`items.${index}.stock_quantity`) || 0}
+                          </div>
+                        </div>
+
+                        {/* Price */}
+                        <div className="w-32 text-right">
+                          <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {currency} {Number(watch(`items.${index}.unit_price`) || 0).toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Qty */}
+                        <div className="w-24 text-right">
+                          <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {watch(`items.${index}.quantity`) || 0}
+                          </div>
+                        </div>
+
+                        {/* Discount */}
+                        <div className="w-24 text-right">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {currency} {Number(watch(`items.${index}.discount`) || 0).toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Pretax Amt */}
+                        <div className="w-32 text-right">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {currency} {(calculatedItems[index]?.pretaxAmount ?? 0).toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Tax % */}
+                        <div className="w-24 text-right">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {watch(`items.${index}.sales_tax`) || 0}%
+                          </div>
+                        </div>
+
+                        {/* Total Tax */}
+                        <div className="w-32 text-right">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {currency} {(calculatedItems[index]?.taxAmount ?? 0).toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Line Total */}
+                        <div className="w-36 text-right">
+                          <div className="font-bold text-blue-600 dark:text-blue-400">
+                            {currency} {(calculatedItems[index]?.total ?? 0).toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Remark */}
+                        <div className="flex-1 min-w-[200px]">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {watch(`items.${index}.remark`) || '-'}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="w-28 flex items-center justify-center gap-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setEditingItemIndex(index);
+                              // Initialize temp data with current values
+                              setTempItemData({
+                                quantity: Number(watch(`items.${index}.quantity`) || 0),
+                                unit_price: Number(watch(`items.${index}.unit_price`) || 0),
+                                discount: Number(watch(`items.${index}.discount`) || 0),
+                                sales_tax: Number(watch(`items.${index}.sales_tax`) || 0),
+                                remark: watch(`items.${index}.remark`) || '',
+                              });
+                              setIsItemEditModalOpen(true);
+                            }}
+                            className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                            title="Edit Item"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => remove(index)}
+                            className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                            title="Delete"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
 
@@ -1284,13 +1317,13 @@ export default function EditOrderPage() {
                       const updatedItems = items.map((item, index) =>
                         index === editingItemIndex
                           ? {
-                              ...item,
-                              quantity: tempItemData.quantity,
-                              unit_price: tempItemData.unit_price,
-                              discount: tempItemData.discount,
-                              sales_tax: tempItemData.sales_tax,
-                              remark: tempItemData.remark,
-                            }
+                            ...item,
+                            quantity: tempItemData.quantity,
+                            unit_price: tempItemData.unit_price,
+                            discount: tempItemData.discount,
+                            sales_tax: tempItemData.sales_tax,
+                            remark: tempItemData.remark,
+                          }
                           : item
                       );
 
