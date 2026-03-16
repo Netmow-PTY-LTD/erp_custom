@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarcode } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarcode, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -89,6 +89,30 @@ export default function PosOrder() {
     const [newlyAddedCustomer, setNewlyAddedCustomer] = useState<any>(null);
     const currency = useAppSelector((state) => state.currency.value);
     const posLayout = useAppSelector((state) => state.layout.pos);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // When sentinel is NOT intersecting (scrolled past), show button
+                setShowScrollTop(!entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
+
+        if (sentinelRef.current) {
+            observer.observe(sentinelRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    const scrollToTop = () => {
+        sentinelRef.current?.scrollIntoView({
+            behavior: "smooth",
+        });
+    };
 
     // API Hooks
     const { data: productsData } = useGetAllProductsQuery({
@@ -180,7 +204,7 @@ export default function PosOrder() {
                 sku: product.sku,
                 stock_quantity: availableStock,
                 unit: product.unit?.name || "",
-            });
+            }, { shouldFocus: false });
         }
     };
 
@@ -349,6 +373,8 @@ export default function PosOrder() {
 
     return (
         <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-6rem)] gap-4">
+            {/* Sentinel for Scroll Detection */}
+            <div ref={sentinelRef} className="absolute top-0 left-0 w-px h-px pointer-events-none" aria-hidden="true" />
             {/* RIGHT: Cart / Checkout Form - Shows first on mobile */}
             <div className="w-full lg:w-[400px] flex flex-col lg:order-2">
                 <Form {...form}>
@@ -475,7 +501,7 @@ export default function PosOrder() {
                                             <div key={field.id} className="flex flex-col gap-2 p-3 bg-muted/20 rounded-lg border group relative hover:border-blue-200 transition-colors">
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex-1 pr-2">
-                                                        <div className="font-medium text-sm truncate">
+                                                        <div className="font-medium text-sm">
                                                             {(field as any).name || "Item #" + (index + 1)}
                                                         </div>
                                                         <div className="flex items-center gap-2 mt-0.5">
@@ -645,7 +671,7 @@ export default function PosOrder() {
                 </div>
 
                 <div
-                    className="grid overflow-y-auto p-1 pr-2 pb-4 lg:pb-1"
+                    className="grid overflow-y-auto pb-4 lg:pb-1"
                     style={{
                         gridTemplateColumns: `repeat(auto-fill, minmax(0, 1fr))`,
                         display: 'grid',
@@ -676,10 +702,12 @@ export default function PosOrder() {
                         {productsData?.data?.map((product) => {
                             const stock = product.stock_quantity ?? 0;
                             const isOutOfStock = stock <= 0;
+                            const isSelected = items.some((item) => item.product_id === product.id);
+
                             return (
                                 <Card
                                     key={product.id}
-                                    className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 overflow-hidden ${isOutOfStock ? 'opacity-60 grayscale' : ''} ${posLayout.cardStyle === 'compact' ? 'h-fit' : ''} ${posLayout.cardStyle === 'bordered' ? 'border-muted-foreground/20' : ''}`}
+                                    className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 overflow-hidden ${isOutOfStock ? 'opacity-60 grayscale' : ''} ${posLayout.cardStyle === 'compact' ? 'h-fit' : ''} ${posLayout.cardStyle === 'bordered' ? 'border-muted-foreground/20' : ''} ${isSelected ? 'border-blue-600 bg-blue-50/50 shadow-sm' : ''}`}
                                     onClick={() => addToCart(product)}
                                 >
                                     <CardContent className={posLayout.cardStyle === 'compact' ? 'p-0' : 'p-0'}>
@@ -732,6 +760,19 @@ export default function PosOrder() {
                     )}
                 </div>
             </div>
+
+            {/* Floating Go to Top Button */}
+            {showScrollTop && (
+                <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="fixed bottom-6 right-6 rounded-full shadow-lg z-50 bg-primary text-primary-foreground hover:bg-primary/90 lg:hidden"
+                    onClick={scrollToTop}
+                >
+                    <ChevronUp className="h-6 w-6" />
+                </Button>
+            )}
         </div>
     );
 }
