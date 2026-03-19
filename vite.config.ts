@@ -27,6 +27,10 @@ export default defineConfig({
     include: ['leaflet', 'react-leaflet'],
   },
   server: {
+    host: true, // Expose server to network (required for subdomain testing)
+    port: 5173,
+    // Allow all lvh.me subdomains for multi-tenant testing
+    allowedHosts: ['lvh.me', '.lvh.me', 'localhost', '127.0.0.1', '.localhost'],
     proxy: {
       '/module-docs': {
         target: 'http://localhost:5000',
