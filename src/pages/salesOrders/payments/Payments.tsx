@@ -125,8 +125,8 @@ export default function Payments() {
         <div className="text-right">Amount ({currency})</div>
       ),
       cell: ({ row }) => {
-        const value = parseFloat(row.original.amount);
-        return <div className="text-right">{value.toFixed(2)}</div>;
+        const value = row.original.amount;
+        return <div className="text-right">{value?.toFixed(2) || "0.00"}</div>;
       },
     },
     {

@@ -3,7 +3,7 @@
 import { useGetPurchaseOrderByIdQuery } from "@/store/features/purchaseOrder/purchaseOrderApiService";
 import { useParams, Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import PrintablePurchaseOrder from "./PrintablePurchaseOrder";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 
@@ -53,12 +53,15 @@ export default function PurchaseOrderPrint() {
 
     return (
         <div className="">
-            <div className="max-w-[850px] mx-auto pt-6 px-4 sm:px-0 print:hidden">
+            <div className="max-w-[850px] mx-auto pt-6 px-4 sm:px-0 flex justify-between items-center print:hidden">
                 <Link to="/dashboard/purchase-orders">
                     <Button variant="outline" className="gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back to List
                     </Button>
                 </Link>
+                <Button onClick={() => window.print()} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+                    <Printer className="h-4 w-4" /> Print Purchase Order
+                </Button>
             </div>
             <PrintablePurchaseOrder purchase={purchase} settings={settings} />
         </div>
