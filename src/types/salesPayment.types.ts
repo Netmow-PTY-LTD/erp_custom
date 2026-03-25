@@ -11,13 +11,13 @@ export interface SalesPayment {
   id: number;
   invoice_id: number | null;
   order_id: number;
-  amount: string;
+  amount: number;
   payment_date: string;
   payment_method: string;
   reference_number: string;
   status: string;
   created_by: number;
-  creator:{
+  creator: {
     id: number;
     name: string;
     email: string

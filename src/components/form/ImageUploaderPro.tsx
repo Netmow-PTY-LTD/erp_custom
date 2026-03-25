@@ -13,6 +13,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ImageUploadProProps {
   value?: string | string[];
@@ -285,9 +292,27 @@ export default function ImageUploaderPro({
                     >
                       Previous
                     </Button>
-                    <span>
-                      Page {page} / {totalPages}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">Page</span>
+                      <Select
+                        value={page.toString()}
+                        onValueChange={(v) => setPage(parseInt(v, 10))}
+                      >
+                        <SelectTrigger className="h-8 w-[70px]">
+                          <SelectValue placeholder={page.toString()} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                            <SelectItem key={p} value={p.toString()}>
+                              {p}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        of {totalPages}
+                      </span>
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"

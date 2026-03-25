@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import type { Settings } from "@/types/types";
 import { useGetSalesReturnByIdQuery } from "@/store/features/salesOrder/salesReturnApiService";
@@ -56,12 +56,15 @@ export default function SalesReturnPrint() {
 
     return (
         <div className="bg-white min-h-screen py-10 print:bg-white print:py-0">
-            <div className="max-w-[850px] mx-auto mb-6 px-4 print:hidden">
+            <div className="max-w-[850px] mx-auto mb-6 flex justify-between items-center print:hidden">
                 <Link to="/dashboard/sales/returns">
                     <Button variant="outline" className="gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back to Returns
                     </Button>
                 </Link>
+                <Button onClick={() => window.print()} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+                    <Printer className="h-4 w-4" /> Print Return Invoice
+                </Button>
             </div>
             <PrintableSalesReturnInvoice
                 from={from}

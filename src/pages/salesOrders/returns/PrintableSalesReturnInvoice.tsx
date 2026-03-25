@@ -13,6 +13,7 @@ interface Props {
 }
 
 export default function PrintableSalesReturnInvoice({ invoice, from, to }: Props) {
+  console.log('to', to)
   const currency = useAppSelector((state: RootState) => state.currency.value) || "RM";
   const salesReturn = (invoice as any)?.sales_return;
 
@@ -101,63 +102,48 @@ export default function PrintableSalesReturnInvoice({ invoice, from, to }: Props
 
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
-        <div className="flex flex-col mb-6">
-          {/* Top Row: Logo & Title */}
-          <div className="flex justify-between items-center border-b-[1px] border-gray-300 pb-1 mb-2">
-            <div>
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-1/3">
+            <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
+            <p className="leading-tight max-w-[400px] whitespace-pre-line">
+              {from?.address || "45, Jalan Industri USJ 1/10,\nTMN Perindustrian USJ 1, Subang Jaya"}
+            </p>
+            <p>T: {from?.phone || "0380112772"}{from?.email && `, E: ${from.email}`}</p>
+          </div>
+          <div className="w-1/3 flex justify-center items-center">
+            <div className="mb-1">
               {from?.logo_url ? (
-                <img src={from.logo_url} alt="Logo" className="h-16 object-contain" />
+                <img src={from.logo_url} alt="Logo" className="h-20 object-contain" />
               ) : (
-                <div className="w-16 h-16 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-sm overflow-hidden">
+                <div className="w-20 h-20 rounded-full border-2 border-[#4CAF50] flex items-center justify-center text-[#4CAF50] font-bold text-lg overflow-hidden">
                   F&Z
                 </div>
               )}
             </div>
-            <div className="self-end">
-              <h2 className="font-bold text-black text-xl md:text-3xl tracking-wide print-title">Sales Return Invoice</h2>
-            </div>
           </div>
-
-          {/* Bottom Row: Company Info & Return Details */}
-          <div className="flex flex-col sm:flex-row justify-start items-start gap-4 sm:gap-10 mt-2">
-            {/* Left Box: Company Info */}
-            <div className="flex flex-col gap-1 text-[13px] w-full sm:w-1/2">
-              <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
-              <p className="leading-tight max-w-[400px] whitespace-pre-line">
-                {from?.address || "45, Jalan Industri USJ 1/10,\nTMN Perindustrian USJ 1, Subang Jaya"}
-              </p>
-              <p>T: {from?.phone || "0380112772"}{from?.email && `, E: ${from.email}`}</p>
-            </div>
-
-            {/* Right Box: Return Details */}
-            <div className="flex flex-col w-full sm:w-1/2 details-text sm:text-left sm:items-start">
-              <div className="flex w-full sm:w-auto text-left">
-                <span className="font-bold">Date</span>
-                <span className="w-4 text-center">:</span>
-                <span className="flex-1 sm:flex-none">{formatDateStandard(invoice?.invoice_date)}</span>
-              </div>
-              <div className="flex w-full sm:w-auto text-left mt-1">
-                <span className="font-bold">Return No.</span>
-                <span className="w-4 text-center">:</span>
-                <span className="flex-1 sm:flex-none uppercase">{invoice?.invoice_number}</span>
-              </div>
+          <div className="text-right flex flex-col items-end w-1/3">
+            <h2 className="font-bold text-gray-800 mb-1 uppercase details-text text-xl">Sales Return Invoice</h2>
+            <div className="details-text space-y-1">
+              <p><strong>Date:</strong> {formatDateStandard(invoice?.invoice_date)}</p>
+              <p><strong>Return No.:</strong> {invoice?.invoice_number}</p>
             </div>
           </div>
         </div>
 
         {/* Recipient Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 print:grid-cols-2 gap-5 mb-6">
-          <div className="border border-gray-300 break-inside-avoid">
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="border border-gray-300">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Bill From</div>
             <div className="p-3 details-text min-h-[80px]">
               <p className="font-bold">{from?.company_name}</p>
               <p className="whitespace-pre-line">{from?.address}</p>
             </div>
           </div>
-          <div className="border border-gray-300 break-inside-avoid">
+          <div className="border border-gray-300">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Bill To (Customer)</div>
             <div className="p-3 details-text min-h-[80px]">
-              <p className="font-bold">{to?.name}</p>
+              <p className="font-bold">{to?.company}</p>
+              <p className="font-medium">{to?.name}</p>
               <p className="whitespace-pre-line">{to?.address}</p>
               {to?.phone && <p>T: {to.phone}</p>}
               {to?.email && <p>E: {to.email}</p>}
@@ -247,12 +233,12 @@ export default function PrintableSalesReturnInvoice({ invoice, from, to }: Props
 
           {/* QR Code (Centered) */}
           {from?.qr_code && (
-            <div className="flex flex-col items-center justify-center min-w-[100px] self-center">
+            <div className="flex flex-col items-center justify-center min-w-[100px]">
               <div className="flex flex-col items-center justify-center rounded-sm bg-white">
                 <img
                   src={from?.qr_code}
                   alt="QR Code"
-                  className="w-16 h-16"
+                  className="w-25 h-25"
                 />
               </div>
             </div>

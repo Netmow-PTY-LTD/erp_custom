@@ -249,6 +249,7 @@ export default function EditOrderPage() {
   const grandTotal = calculatedItems.reduce((sum, it) => sum + it.total, 0);
 
   const onSubmit = async (values: SalesOrderFormValues) => {
+    console.log("values", values);
     if (!orderId) return;
     if (values.customer_id === 0) return toast.error("Please select a customer");
     if (values.items.some((i) => i.product_id === 0)) return toast.error("Please select all products");
@@ -609,9 +610,9 @@ export default function EditOrderPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm truncate">{order.customer.name}</div>
-                        {order.customer.company && (
-                          <div className="text-xs text-muted-foreground truncate">{order.customer.company}</div>
+                        <div className="font-medium text-sm truncate">{order.customer.company}</div>
+                        {order.customer.name && (
+                          <div className="text-xs text-muted-foreground truncate">{order.customer.name}</div>
                         )}
                         {order.customer.email && (
                           <div className="text-xs text-muted-foreground truncate">{order.customer.email}</div>

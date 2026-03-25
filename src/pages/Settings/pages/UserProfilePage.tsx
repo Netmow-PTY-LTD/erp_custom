@@ -254,7 +254,7 @@ export default function EditProfilePage() {
         {/* SUBMIT */}
         <div className="pt-6">
           <Button type="submit" disabled={isUpdating}>
-            {isUpdating ? <div className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> "Updating..."</div> : "Update profile"}
+            {isUpdating ? <div className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Updating...</div> : "Update profile"}
           </Button>
         </div>
       </form>
