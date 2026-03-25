@@ -31,7 +31,7 @@ export default function PrintablePurchaseOrder({ purchase, settings }: Props) {
   };
 
   return (
-    <div className="p-0 sm:p-6 print:p-0 font-sans text-[#333]">
+    <div className="px-0 sm:px-6 pt-6 print:p-0 font-sans text-[#333]">
       <style>{`
         @media print {
           @page {
@@ -99,15 +99,15 @@ export default function PrintablePurchaseOrder({ purchase, settings }: Props) {
 
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-1/3">
+        <div className="flex flex-wrap justify-between items-start mb-4">
+          <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-full sm:w-1/3">
             <h1 className="font-bold company-name">{settings?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
             <p className="leading-tight max-w-[400px] whitespace-pre-line">
               {settings?.address || "45, Jalan Industri USJ 1/10,\nTMN Perindustrian USJ 1, Subang Jaya"}
             </p>
             <p>T: {settings?.phone || "0380112772"}{settings?.email && `, E: ${settings.email}`}</p>
           </div>
-          <div className="w-1/3 flex justify-center items-center">
+          <div className="w-full sm:w-1/3 flex justify-start sm:justify-center items-center">
             <div className="mb-1">
               {settings?.logo_url ? (
                 <img src={settings.logo_url} alt="Logo" className="h-20 object-contain" />
@@ -118,7 +118,7 @@ export default function PrintablePurchaseOrder({ purchase, settings }: Props) {
               )}
             </div>
           </div>
-          <div className="text-right flex flex-col items-end w-1/3">
+          <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-1/3">
             <h2 className="font-bold text-gray-800 mb-1 uppercase details-text text-xl">Purchase Order</h2>
             <div className="details-text space-y-1">
               <p><strong>Date:</strong> {formatDate(purchase.order_date || "")}</p>
@@ -129,7 +129,7 @@ export default function PrintablePurchaseOrder({ purchase, settings }: Props) {
         </div>
 
         {/* Recipient Section */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           <div className="border border-gray-300 break-inside-avoid">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Vendor</div>
             <div className="p-3 details-text min-h-[80px]">
@@ -198,12 +198,12 @@ export default function PrintablePurchaseOrder({ purchase, settings }: Props) {
                     <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
                     <td className="border border-gray-300 p-2">{item.product?.sku}</td>
                     <td className="border border-gray-300 p-2">
-                       <span className="font-bold uppercase">{item.product?.name}</span>
-                        {(item.product?.specification) && (
-                          <span className="text-gray-600 italic ml-1 lowercase">
-                            ({item.product.specification.toLowerCase()})
-                          </span>
-                        )}
+                      <span className="font-bold uppercase">{item.product?.name}</span>
+                      {(item.product?.specification) && (
+                        <span className="text-gray-600 italic ml-1 lowercase">
+                          ({item.product.specification.toLowerCase()})
+                        </span>
+                      )}
                     </td>
                     <td className="border border-gray-300 p-2 text-center">{qty.toFixed(2)}</td>
                     <td className="border border-gray-300 p-2 text-right">{price.toFixed(2)}</td>
@@ -224,24 +224,10 @@ export default function PrintablePurchaseOrder({ purchase, settings }: Props) {
         {/* Footer Summary Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-2 w-full">
           {/* Note section */}
-          <div className="w-full sm:w-[38%] border border-gray-300 p-2 rounded-sm details-text">
+          <div className="w-full sm:w-[40%] border border-gray-300 p-2 rounded-sm details-text">
             <p className="font-bold mb-1 border-b-[1px] border-gray-200 pb-1">Notes:</p>
             <p className="whitespace-pre-line">{purchase.notes || "-"}</p>
           </div>
-
-          {/* QR Code (Centered) */}
-          {settings?.qr_code && (
-            <div className="flex flex-col items-center justify-center min-w-[100px] self-center">
-              <div className="flex flex-col items-center justify-center rounded-sm bg-white">
-                <img
-                  src={settings?.qr_code}
-                  alt="QR Code"
-                  className="w-16 h-16"
-                />
-              </div>
-            </div>
-          )}
-
           {/* Totals Table */}
           <div className="w-full sm:w-[35%] overflow-x-auto">
             <table className="w-full details-text font-bold border-collapse min-w-[200px] sm:min-w-full">

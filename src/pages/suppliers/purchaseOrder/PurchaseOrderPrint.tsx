@@ -53,7 +53,7 @@ export default function PurchaseOrderPrint() {
 
     return (
         <div className="">
-            <div className="max-w-[850px] mx-auto pt-6 px-4 sm:px-0 flex justify-between items-center print:hidden">
+            <div className="max-w-[850px] mx-auto pt-6 sm:px-0 flex justify-between items-center print:hidden">
                 <Link to="/dashboard/purchase-orders">
                     <Button variant="outline" className="gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back to List

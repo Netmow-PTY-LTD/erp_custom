@@ -134,7 +134,7 @@ export default function CustomerViewPage() {
                         <CardContent className="pt-0 relative px-6 pb-6">
                             <div className="flex justify-between items-end -mt-10 mb-4">
                                 <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
-                                    <AvatarImage src="" />
+                                    <AvatarImage src={customer.thumb_url} />
                                     <AvatarFallback className="text-xl font-bold bg-slate-100 text-slate-700">
                                         {getInitials(customer?.name || "")}
                                     </AvatarFallback>
