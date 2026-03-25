@@ -633,7 +633,7 @@ export default function PosOrder() {
 
                                 <div className={cn(
                                     "grid gap-3",
-                                    posLayout.showDueSale && posLayout.showCashSale ? "grid-cols-2" : "grid-cols-1"
+                                    posLayout.showDueSale && posLayout.showCashSale ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
                                 )}>
                                     {posLayout.showDueSale && (
                                         <Button
