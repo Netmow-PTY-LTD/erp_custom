@@ -39,7 +39,7 @@ export default function SalesOrderPrint() {
     }
 
     return (
-        <div className="bg-white min-h-screen py-10 print:bg-white print:py-0">
+        <div className="bg-white min-h-screen print:min-h-0 py-10 print:bg-white print:py-0">
             <div className="max-w-[850px] mx-auto mb-6 flex items-center justify-between print:hidden">
                 <Link to="/dashboard/sales/orders">
                     <Button variant="outline" className="gap-2">

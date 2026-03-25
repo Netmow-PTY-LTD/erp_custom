@@ -96,7 +96,7 @@ export default function PosOrder() {
     const currency = useAppSelector((state) => state.currency.value);
     const posLayout = useAppSelector((state) => state.layout.pos);
     const [showScrollTop, setShowScrollTop] = useState(false);
-    const [selectedImage, setSelectedImage] = useState<{ url: string; name: string } | null>(null);
+    const [selectedImage, setSelectedImage] = useState<{ url: string; name: string; product: any } | null>(null);
     const sentinelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -737,7 +737,7 @@ export default function PosOrder() {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     if (product.thumb_url) {
-                                                        setSelectedImage({ url: product.thumb_url, name: product.name });
+                                                        setSelectedImage({ url: product.thumb_url, name: product.name, product });
                                                     }
                                                 }}
                                             >
@@ -814,8 +814,55 @@ export default function PosOrder() {
                                 alt={selectedImage.name}
                                 className="w-full h-auto max-h-[85vh] object-contain"
                             />
-                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 text-white backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                                <p className="text-center font-medium">{selectedImage.name}</p>
+                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 text-white backdrop-blur-sm">
+                                <div className="flex justify-between items-center gap-4">
+                                    <p className="font-medium truncate flex-1">{selectedImage.name}</p>
+                                    {items.some(it => it.product_id === selectedImage.product.id) ? (
+                                        <div className="flex items-center gap-1 bg-white/20 rounded-md border border-white/30 p-0.5 shadow-sm h-8">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 rounded-sm text-white hover:bg-black/20"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const idx = items.findIndex(it => it.product_id === selectedImage.product.id);
+                                                    if (idx >= 0) adjustQuantity(idx, -1);
+                                                }}
+                                            >
+                                                <Minus className="h-3 w-3" />
+                                            </Button>
+                                            <span className="min-w-[1.5rem] text-center text-xs font-bold leading-none">
+                                                {items.find(it => it.product_id === selectedImage.product.id)?.quantity || 0}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 rounded-sm text-white hover:bg-black/20"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const idx = items.findIndex(it => it.product_id === selectedImage.product.id);
+                                                    if (idx >= 0) adjustQuantity(idx, 1);
+                                                }}
+                                            >
+                                                <Plus className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            size="sm"
+                                            className="bg-blue-600 hover:bg-blue-700 h-8 gap-1.5"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                addToCart(selectedImage.product);
+                                            }}
+                                        >
+                                            <ShoppingCart className="w-4 h-4" />
+                                            Add to Cart
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                             <Button
                                 variant="ghost"
