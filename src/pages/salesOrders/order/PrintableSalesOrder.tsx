@@ -39,34 +39,43 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
     return (
         <div className="p-0 sm:p-6 print:p-0 font-sans text-[#333]">
             <style>{`
-        @media print {
-          @page {
-            margin: 5mm;
-            size: A4;
-          }
-          html, body {
-            overflow: visible !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          ::-webkit-scrollbar {
-            display: none !important;
-          }
-          body {
-            -webkit-print-color-adjust: exact;
-            font-size: 11px !important;
-          }
-          .invoice-box {
-            max-width: 100% !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-          }
-          .print:hidden {
-            display: none !important;
-          }
+          @media print {
+            * {
+              overflow: visible !important;
+              scrollbar-width: none !important;
+              -ms-overflow-style: none !important;
+            }
+            *::-webkit-scrollbar {
+              display: none !important;
+              width: 0 !important;
+              height: 0 !important;
+            }
+            @page {
+              margin: 5mm;
+              size: A4;
+            }
+            html, body {
+              overflow: visible !important;
+              height: auto !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              background-color: white !important;
+            }
+            body {
+              -webkit-print-color-adjust: exact;
+            }
+            .invoice-box {
+              max-width: 100% !important;
+              width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            .print\:hidden {
+              display: none !important;
+            }
+            .print\:overflow-visible {
+              overflow: visible !important;
+            }
           .print-title {
             font-size: 28px !important;
             line-height: 1 !important;
@@ -106,15 +115,15 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
 
             <div id="invoice" className="invoice-box print:border-0 print:p-0">
                 {/* Header Section */}
-                <div className="flex justify-between items-start mb-4">
-                    <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-1/3">
+                <div className="flex flex-wrap justify-between items-start mb-4">
+                    <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-full sm:w-1/3">
                         <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
                         <p className="leading-tight max-w-[400px] whitespace-pre-line">
                             {from?.address || "45, Jalan Industri USJ 1/10,\nTMN Perindustrian USJ 1, Subang Jaya"}
                         </p>
                         <p>T: {from?.phone || "0380112772"}{from?.email && `, E: ${from.email}`}</p>
                     </div>
-                    <div className="w-1/3 flex justify-center items-center">
+                    <div className="w-full sm:w-1/3 flex justify-start sm:justify-center items-center">
                         <div className="mb-1">
                             {from?.logo_url ? (
                                 <img src={from.logo_url} alt="Logo" className="h-20 object-contain" />
@@ -125,7 +134,7 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                             )}
                         </div>
                     </div>
-                    <div className="text-right flex flex-col items-end w-1/3">
+                    <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-1/3">
                         <h2 className="font-bold text-gray-800 mb-1 uppercase details-text text-xl">Sales Order</h2>
                         <div className="details-text space-y-1">
                             <p><strong>Date:</strong> {formatDate(order?.order_date || "")}</p>
@@ -136,7 +145,7 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                 </div>
 
                 {/* Recipient Section */}
-                <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                     <div className="border border-gray-300">
                         <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Bill To</div>
                         <div className="p-3 details-text min-h-[80px]">
@@ -160,7 +169,7 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                 </div>
 
                 {/* Info Bar */}
-                <div className="w-full mb-6 text-xs table-border border-collapse overflow-x-auto">
+                <div className="w-full mb-6 text-xs table-border border-collapse overflow-x-auto print:overflow-visible">
                     <table className="w-full border-collapse min-w-[600px] sm:min-w-full">
                         <thead>
                             <tr className="bg-gray-100 text-center font-bold">
@@ -184,7 +193,7 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                 </div>
 
                 {/* Main Items Table */}
-                <div className="w-full mb-6 overflow-x-auto">
+                <div className="w-full mb-6 overflow-x-auto print:overflow-visible">
                     <table className="w-full table-text border-collapse min-w-[700px] sm:min-w-full">
                         <thead className="bg-gray-100 font-bold">
                             <tr>
@@ -272,7 +281,7 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                     )}
 
                     {/* Totals Table */}
-                    <div className="w-full sm:w-[35%] overflow-x-auto">
+                    <div className="w-full sm:w-[35%] overflow-x-auto print:overflow-visible">
                         <table className="w-full details-text font-bold border-collapse min-w-[200px] sm:min-w-full">
                             <tbody>
                                 <tr className="border border-gray-300">

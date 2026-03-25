@@ -81,7 +81,7 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
 
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex flex-wrap justify-between items-start mb-4">
           <div className="flex flex-col gap-2 mt-2 details-text">
             <h1 className="font-bold uppercase company-name">{to?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
             <p className="leading-tight max-w-[400px]">
@@ -89,7 +89,7 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
             </p>
             <p>T: {to?.phone || "0162759780"}{to?.email && `, E: ${to.email}`}</p>
           </div>
-          <div className="text-right flex flex-col items-end">
+          <div className="text-left sm:text-right flex flex-col items-start sm:items-end">
             <div className="mb-1">
               {to?.logo_url ? (
                 <img src={to.logo_url} alt="Logo" className="h-14 object-contain" />
@@ -108,7 +108,7 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
         </div>
 
         {/* Recipient Section */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           <div className="border border-gray-300">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Bill From</div>
             <div className="p-3 details-text min-h-[80px]">
@@ -220,15 +220,15 @@ export default function PrintablePurchaseInvoice({ invoice, from, to }: Props) {
         </div>
 
         {/* Footer Summary Section */}
-        <div className="flex justify-between items-start">
-          <div className="w-3/5 border border-gray-300 p-2 rounded-sm details-text">
+        <div className="flex flex-wrap justify-between items-start gap-5">
+          <div className="w-full sm:w-3/5 border border-gray-300 p-2 rounded-sm details-text">
             <p className="font-bold mb-1">Note:</p>
             <p>All Cheques should be crossed and made payable to</p>
             <p className="font-bold uppercase">{to?.company_name || "F&Z GLOBAL TRADE (M) SDN BHD"}</p>
             <p>Account Number: <span className="font-bold">564230815279</span> (Maybank Berhad)</p>
           </div>
 
-          <div className="w-1/3">
+          <div className="w-full sm:w-1/3">
             <table className="w-full details-text font-bold border-collapse">
               <tbody>
                 <tr className="border border-gray-300">

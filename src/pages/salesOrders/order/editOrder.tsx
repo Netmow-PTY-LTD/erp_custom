@@ -64,7 +64,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 const orderSchema = z
   .object({
     customer_id: z.coerce.number().min(1, "Customer is required"),
-    shipping_address: z.string().min(5, "Shipping address is required"),
+    shipping_address: z.string().min(1, "Shipping address is required"),
     order_date: z.string().min(1, "Order date is required"),
     due_date: z.string().min(1, "Due date is required"),
     delivery_date: z.string().optional(),
@@ -194,10 +194,10 @@ export default function EditOrderPage() {
           sku: it.product?.sku || "",
           specification: it.specification || it.product?.specification || "",
           unit: it.product?.unit?.name || "",
-          quantity: it.quantity,
-          unit_price: Number(it.unit_price),
-          discount: Number(it.discount),
-          sales_tax: Number(it.sales_tax),
+          quantity: Number(it.quantity || 0),
+          unit_price: Number(it.unit_price) || 0,
+          discount: Number(it.discount) || 0,
+          sales_tax: Number(it.sales_tax) || 0,
           stock_quantity: it.product?.stock_quantity || 0,
           remark: it.remark || "",
         })),
@@ -249,7 +249,9 @@ export default function EditOrderPage() {
   const grandTotal = calculatedItems.reduce((sum, it) => sum + it.total, 0);
 
   const onSubmit = async (values: SalesOrderFormValues) => {
-    console.log("values", values);
+    console.log("=== Sales Order Update Submission ===");
+    console.log("Form Values:", values);
+    toast.info("Preparing update...");
     if (!orderId) return;
     if (values.customer_id === 0) return toast.error("Please select a customer");
     if (values.items.some((i) => i.product_id === 0)) return toast.error("Please select all products");
@@ -257,24 +259,31 @@ export default function EditOrderPage() {
     try {
       const payload = {
         ...values,
-        items: values.items.map((i) => ({
+        items: (values.items || []).map((i) => ({
           ...i,
-          quantity: Number(i.quantity),
-          unit_price: Number(i.unit_price),
-          discount: Number(i.discount),
-          sales_tax: Number(i.sales_tax),
+          quantity: Number(i.quantity || 0),
+          unit_price: Number(i.unit_price || 0),
+          discount: Number(i.discount || 0),
+          sales_tax: Number(i.sales_tax || 0),
         })),
       };
 
+      console.log("Final Payload for API:", payload);
+      toast.info("Sending update request...");
+
       const res = await updateSalesOrder({ id: orderId, data: payload }).unwrap();
+
+      console.log("API Response:", res);
 
       if (res.status) {
         toast.success("Sales Order Updated Successfully!");
         navigate("/dashboard/sales/orders");
+      } else {
+        toast.error(res.message || "Failed to update order");
       }
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update sales order");
-      console.error(error);
+      console.error("Submission Error:", error);
+      toast.error(error?.data?.message || error?.message || "Failed to update sales order");
     }
   };
 
@@ -582,7 +591,13 @@ export default function EditOrderPage() {
       </div>
 
       <Form {...form}>
-        <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.error("Form Validation Errors:", errors);
+          const firstError: any = Object.values(errors)[0];
+          if (firstError) {
+            toast.error(`Validation Error: ${firstError.message || "Invalid field"}`);
+          }
+        })}>
           {/* Customer & Shipping */}
           <Card className="overflow-hidden border-2 transition-all duration-300 hover:border-blue-200 hover:shadow-lg max-w-5xl">
             <CardHeader className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-blue-950/30 border-b-1 border-blue-100 dark:border-blue-900 py-3 gap-0">
@@ -811,63 +826,63 @@ export default function EditOrderPage() {
                         </div>
 
                         {/* Unit */}
-                        <div className="w-24 text-center">
+                        <div className="w-24 text-left">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {watch(`items.${index}.unit`) || '-'}
                           </div>
                         </div>
 
                         {/* Stock */}
-                        <div className="w-24 text-right">
+                        <div className="w-24 text-left">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {watch(`items.${index}.stock_quantity`) || 0}
                           </div>
                         </div>
 
                         {/* Price */}
-                        <div className="w-32 text-right">
+                        <div className="w-32 text-left">
                           <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {currency} {Number(watch(`items.${index}.unit_price`) || 0).toFixed(2)}
                           </div>
                         </div>
 
                         {/* Qty */}
-                        <div className="w-24 text-right">
+                        <div className="w-24 text-left">
                           <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {watch(`items.${index}.quantity`) || 0}
                           </div>
                         </div>
 
                         {/* Discount */}
-                        <div className="w-24 text-right">
+                        <div className="w-24 text-left">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {currency} {Number(watch(`items.${index}.discount`) || 0).toFixed(2)}
                           </div>
                         </div>
 
                         {/* Pretax Amt */}
-                        <div className="w-32 text-right">
+                        <div className="w-32 text-left">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {currency} {(calculatedItems[index]?.pretaxAmount ?? 0).toFixed(2)}
                           </div>
                         </div>
 
                         {/* Tax % */}
-                        <div className="w-24 text-right">
+                        <div className="w-24 text-left">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {watch(`items.${index}.sales_tax`) || 0}%
                           </div>
                         </div>
 
                         {/* Total Tax */}
-                        <div className="w-32 text-right">
+                        <div className="w-32 text-left">
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {currency} {(calculatedItems[index]?.taxAmount ?? 0).toFixed(2)}
                           </div>
                         </div>
 
                         {/* Line Total */}
-                        <div className="w-36 text-right">
+                        <div className="w-36 text-left">
                           <div className="font-bold text-blue-600 dark:text-blue-400">
                             {currency} {(calculatedItems[index]?.total ?? 0).toFixed(2)}
                           </div>
