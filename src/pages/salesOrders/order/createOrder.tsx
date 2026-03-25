@@ -318,7 +318,7 @@ export default function CreateSalesOrderPage() {
                       <User className="h-4 w-4" />
                     </AvatarFallback>
                   </Avatar>
-                  <span className="truncate text-left font-medium min-w-0 flex-1">{selected.name}</span>
+                  <span className="truncate text-left font-medium min-w-0 flex-1">{selected.company}</span>
                 </>
               ) : (
                 <span className="text-muted-foreground">Select customer...</span>
@@ -359,9 +359,9 @@ export default function CreateSalesOrderPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col overflow-hidden flex-1">
-                        <span className="truncate font-medium text-sm">{customer.name}</span>
-                        {customer.company && (
-                          <span className="truncate text-xs text-muted-foreground">{customer.company}</span>
+                        <span className="truncate font-medium text-sm">{customer.company}</span>
+                        {customer.name && (
+                          <span className="truncate text-xs text-muted-foreground">{customer.name}</span>
                         )}
                         {customer.address && (
                           <span className="truncate text-xs text-muted-foreground/80">{customer.address}</span>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarcode, ChevronUp } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarcode, ChevronUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,12 @@ import {
     CommandItem,
 } from "@/components/ui/command";
 import { Textarea } from "@/components/ui/textarea";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import {
@@ -90,6 +96,7 @@ export default function PosOrder() {
     const currency = useAppSelector((state) => state.currency.value);
     const posLayout = useAppSelector((state) => state.layout.pos);
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<{ url: string; name: string } | null>(null);
     const sentinelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -305,7 +312,7 @@ export default function PosOrder() {
                         await addSalesPayment({
                             order_id: orderId,
                             invoice_id: invoiceId,
-                            amount: String(grandTotal), // Use grand total for full payment
+                            amount: Number(grandTotal), // Use grand total for full payment
                             payment_method: 'cash', // Default to cash for POS
                             payment_date: new Date().toISOString(),
                             status: 'completed',
@@ -339,12 +346,14 @@ export default function PosOrder() {
         return (
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between h-9">
-                        {selected ? selected.name : "Select Customer..."}
-                        <User className="h-4 w-4 opacity-50" />
+                    <Button variant="outline" className="w-full justify-between h-9 overflow-hidden">
+                        <span className="truncate text-left">
+                            {selected ? (selected.company || selected.name) : "Select Customer..."}
+                        </span>
+                        <User className="h-4 w-4 opacity-50 shrink-0" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[280px] p-0">
+                <PopoverContent className="w-[300px] p-0">
                     <Command>
                         <CommandInput placeholder="Search customer..." onValueChange={setQ} />
                         <CommandList>
@@ -358,9 +367,20 @@ export default function PosOrder() {
                                             if (c.address) setValue("shipping_address", c.address);
                                             setOpen(false);
                                         }}
+                                        className="flex flex-col items-start gap-0.5 py-2 cursor-pointer"
                                     >
-                                        {c.name}
-                                        {field.value === c.id && <CheckCircle2 className="ml-auto h-4 w-4" />}
+                                        <div className="flex items-center justify-between w-full">
+                                            <span className="font-bold text-sm">{c.company || c.name}</span>
+                                            {field.value === c.id && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                                        </div>
+                                        {c.company && c.name && (
+                                            <span className="text-xs text-muted-foreground">{c.name}</span>
+                                        )}
+                                        {c.address && (
+                                            <span className="text-[10px] text-muted-foreground/80 line-clamp-1">
+                                                {c.address}
+                                            </span>
+                                        )}
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
@@ -712,7 +732,15 @@ export default function PosOrder() {
                                 >
                                     <CardContent className={posLayout.cardStyle === 'compact' ? 'p-0' : 'p-0'}>
                                         {posLayout.showImages && (
-                                            <div className={`${posLayout.cardStyle === 'compact' ? 'aspect-[16/9]' : 'aspect-square'} bg-muted relative`}>
+                                            <div
+                                                className={`${posLayout.cardStyle === 'compact' ? 'aspect-[16/9]' : 'aspect-square'} bg-muted relative cursor-zoom-in`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (product.thumb_url) {
+                                                        setSelectedImage({ url: product.thumb_url, name: product.name });
+                                                    }
+                                                }}
+                                            >
                                                 {product.thumb_url ? (
                                                     <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
                                                 ) : (
@@ -773,6 +801,34 @@ export default function PosOrder() {
                     <ChevronUp className="h-6 w-6" />
                 </Button>
             )}
+            {/* Product Image Modal */}
+            <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+                <DialogContent showCloseButton={false} className="max-w-[800px] p-0 overflow-hidden border-none bg-transparent shadow-none">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>{selectedImage?.name}</DialogTitle>
+                    </DialogHeader>
+                    {selectedImage && (
+                        <div className="relative flex items-center justify-center group overflow-hidden rounded-lg">
+                            <img
+                                src={selectedImage.url}
+                                alt={selectedImage.name}
+                                className="w-full h-auto max-h-[85vh] object-contain"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 text-white backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                                <p className="text-center font-medium">{selectedImage.name}</p>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-2 right-2 rounded-full bg-black/50 text-white hover:bg-black/70"
+                                onClick={() => setSelectedImage(null)}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

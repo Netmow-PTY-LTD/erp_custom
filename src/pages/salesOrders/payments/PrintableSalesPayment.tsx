@@ -116,7 +116,8 @@ export default function PrintableSalesPayment({ payment, to, from }: Props) {
                     <div className="border border-gray-300">
                         <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Received From</div>
                         <div className="p-3 details-text min-h-[80px]">
-                            <p className="font-bold">{to?.name}</p>
+                            <p className="font-bold">{to?.company}</p>
+                            <p className="font-medium">{to?.name}</p>
                             <p className="whitespace-pre-line">{to?.address}</p>
                             {to?.phone && <p>T: {to.phone}</p>}
                             {to?.email && <p>E: {to.email}</p>}

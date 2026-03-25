@@ -1,11 +1,12 @@
 import { Link, useParams } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
 import type { Settings } from "@/types/types";
 import { useGetSalesReturnInvoiceByIdQuery } from "@/store/features/salesOrder/salesReturnApiService";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
 import PrintableSalesReturnInvoice from "./PrintableSalesReturnInvoice";
 import type { Customer } from "@/store/features/customers/types";
+import { Button } from "@/components/ui/button";
 
 export default function SalesReturnInvoicePrintPreview() {
     const invoiceId = useParams().id;
@@ -30,6 +31,9 @@ export default function SalesReturnInvoicePrintPreview() {
                 >
                     <ArrowLeft className="w-4 h-4" /> Back to Return Invoice
                 </Link>
+                <Button onClick={() => window.print()} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+                    <Printer className="h-4 w-4" /> Print Return Invoice
+                </Button>
             </div>
 
             <div className="max-w-4xl mx-auto bg-white print:max-w-none">
