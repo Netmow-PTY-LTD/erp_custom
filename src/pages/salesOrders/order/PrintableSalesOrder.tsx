@@ -157,40 +157,17 @@ export default function PrintableSalesOrder({ order, to, from }: Props) {
                         </div>
                     </div>
                     <div className="border border-gray-300">
-                        <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Ship To</div>
-                        <div className="p-3 details-text min-h-[80px]">
-                            <p className="font-bold">{to?.company}</p>
-                            <p className="font-medium">{to?.name}</p>
-                            <p className="whitespace-pre-line">{to?.address}</p>
-                            {to?.phone && <p>T: {to.phone}</p>}
-                            {to?.email && <p>E: {to.email}</p>}
+                        <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Order Details</div>
+                        <div className="p-3 details-text min-h-[80px] space-y-1">
+                            <p><strong>Sales Rep.:</strong> {order?.creator?.name || "Super Admin"}</p>
+                            <p><strong>Shipping Method:</strong> -</p>
+                            <p><strong>Delivery Date:</strong> {order?.delivery_date ? formatDate(String(order.delivery_date)) : "-"}</p>
+                            <p><strong>Payment Terms:</strong> -</p>
+                            <p><strong>Due Date:</strong> {formatDate(order?.due_date || "")}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Info Bar */}
-                <div className="w-full mb-6 text-xs table-border border-collapse overflow-x-auto print:overflow-visible">
-                    <table className="w-full border-collapse min-w-[600px] sm:min-w-full">
-                        <thead>
-                            <tr className="bg-gray-100 text-center font-bold">
-                                <th className="w-1/4 border border-gray-300 p-1">Sales Rep.</th>
-                                <th className="w-1/4 border border-gray-300 p-1">Shipping Method</th>
-                                <th className="w-1/4 border border-gray-300 p-1">Delivery Date</th>
-                                <th className="w-1/4 border border-gray-300 p-1">Due Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr className="text-center">
-                                <td className="border border-gray-300 p-1">{order?.creator?.name || "-"}</td>
-                                <td className="border border-gray-300 p-1">-</td>
-                                <td className="border border-gray-300 p-1">
-                                    {order?.delivery_date ? formatDate(String(order.delivery_date)) : "-"}
-                                </td>
-                                <td className="border border-gray-300 p-1">{formatDate(order?.due_date || "")}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
 
                 {/* Main Items Table */}
                 <div className="w-full mb-6 overflow-x-auto print:overflow-visible">
