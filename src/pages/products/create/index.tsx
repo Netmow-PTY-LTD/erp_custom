@@ -56,15 +56,15 @@ const productSchema = z.object({
   unit: z.number().min(1, "Required"),
   price: z.number().min(0, "Price must be at least 0"),
   costPrice: z.number().min(0, "Cost Price must be at least 0"),
-  initialStock: z.number(),
+  initialStock: z.number().min(0, "Initial Stock must be at least 0"),
   minStock: z.number().min(0, "Required"),
-  maxStock: z.number(),
-  purchase_tax: z.number(),
-  sales_tax: z.number(),
-  weight: z.number(),
-  width: z.number(),
-  height: z.number(),
-  length: z.number(),
+  maxStock: z.number().min(0, "Max Stock must be at least 0"),
+  purchase_tax: z.number().min(0, "Purchase Tax must be at least 0"),
+  sales_tax: z.number().min(0, "Sales Tax must be at least 0"),
+  weight: z.number().min(0, "Weight must be at least 0"),
+  width: z.number().min(0, "Width must be at least 0"),
+  height: z.number().min(0, "Height must be at least 0"),
+  length: z.number().min(0, "Length must be at least 0"),
   is_active: z.boolean().optional(),
   image: z.string().optional(),
   gallery_items: z.array(z.string()).optional(),
@@ -522,12 +522,12 @@ export default function AddProductPage() {
                     </FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        field.onChange(typeof val === "number" ? Math.max(0, val) : val);
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -543,12 +543,12 @@ export default function AddProductPage() {
                     </FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        field.onChange(typeof val === "number" ? Math.max(0, val) : val);
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -562,12 +562,12 @@ export default function AddProductPage() {
                     <FieldLabel>Initial Stock</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        field.onChange(typeof val === "number" ? Math.max(0, val) : val);
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -581,12 +581,12 @@ export default function AddProductPage() {
                     <FieldLabel>Min Stock</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        field.onChange(typeof val === "number" ? Math.max(0, val) : val);
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -600,12 +600,12 @@ export default function AddProductPage() {
                     <FieldLabel>Max Stock</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        field.onChange(typeof val === "number" ? Math.max(0, val) : val);
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -619,12 +619,12 @@ export default function AddProductPage() {
                     <FieldLabel>Purchase Tax (%)</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        field.onChange(typeof val === "number" ? Math.max(0, val) : val);
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -638,12 +638,12 @@ export default function AddProductPage() {
                     <FieldLabel>Sales Tax (%)</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
-                      }
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        field.onChange(typeof val === "number" ? Math.max(0, val) : val);
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -677,8 +677,12 @@ export default function AddProductPage() {
                     <Input
                       type="number"
                       step="0.01"
+                      min={0}
                       {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      onChange={(e) => {
+                        const val = e.target.valueAsNumber;
+                        field.onChange(isNaN(val) ? 0 : Math.max(0, val));
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -694,9 +698,13 @@ export default function AddProductPage() {
                     <FieldLabel>Width(cm)</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       placeholder="e.g. 2 cm"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      onChange={(e) => {
+                        const val = e.target.valueAsNumber;
+                        field.onChange(isNaN(val) ? 0 : Math.max(0, val));
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -712,9 +720,13 @@ export default function AddProductPage() {
                     <FieldLabel>Height(cm)</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       placeholder="e.g. 2 cm"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      onChange={(e) => {
+                        const val = e.target.valueAsNumber;
+                        field.onChange(isNaN(val) ? 0 : Math.max(0, val));
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -729,9 +741,13 @@ export default function AddProductPage() {
                     <FieldLabel>Length(cm)</FieldLabel>
                     <Input
                       type="number"
+                      min={0}
                       placeholder="e.g. 2 cm"
                       {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      onChange={(e) => {
+                        const val = e.target.valueAsNumber;
+                        field.onChange(isNaN(val) ? 0 : Math.max(0, val));
+                      }}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
