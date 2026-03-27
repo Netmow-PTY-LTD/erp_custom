@@ -19,6 +19,7 @@ import SalesModule from "@/pages/modules/details/SalesModule";
 import ProductsModule from "@/pages/modules/details/ProductsModule";
 
 import DashboardRedirect from "@/routes/DashboardRedirect";
+import GuestRoute from "@/routes/GuestRoute";
 
 // Generate dynamic dashboard routes (relative paths)
 const dashboardRoutes = generateRoutes(sidebarItemLink, "dashboard");
@@ -34,9 +35,14 @@ const rootRouter = createBrowserRouter([
     children: [{ index: true, element: <App /> }],
   },
 
-  { path: "/login", element: <Login /> },
-  { path: "/register", element: <RegisterPage /> },
-  { path: "/forgot-password", element: <ForgotPassword /> },
+  {
+    element: <GuestRoute />,
+    children: [
+      { path: "/login", element: <Login /> },
+      { path: "/register", element: <RegisterPage /> },
+      { path: "/forgot-password", element: <ForgotPassword /> },
+    ],
+  },
   { path: "/unauthorized", element: <UnauthorizedPage /> },
   { path: "/privacy", element: <Privacy /> },
   { path: "/terms", element: <Terms /> },
