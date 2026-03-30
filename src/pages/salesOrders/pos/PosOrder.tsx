@@ -62,7 +62,7 @@ const orderSchema = z
         items: z.array(
             z.object({
                 product_id: z.number().min(1, "Product is required"),
-                quantity: z.number().min(1, "Quantity must be at least 1"),
+                quantity: z.number().min(0.01, "Quantity must be at least 0.01"),
                 unit_price: z.number().min(0, "Unit price must be at least 0"),
                 discount: z.number().min(0, "Discount must be 0 or more"),
                 sales_tax: z.number().min(0, "Sales tax must be 0 or more"),
@@ -186,24 +186,25 @@ export default function PosOrder() {
         const existingIndex = items.findIndex((i) => i.product_id === product.id);
 
         if (existingIndex >= 0) {
-            // Increment quantity
+            // Increment quantity by 0.5 for decimal support
             const existingItem = items[existingIndex];
+            const newQty = Number((existingItem.quantity + 0.5).toFixed(2));
 
             // Check if incrementing exceeds stock
-            if (existingItem.quantity + 1 > availableStock) {
+            if (newQty > availableStock) {
                 toast.error(`Cannot add more. Only ${availableStock} in stock.`);
                 return;
             }
 
             update(existingIndex, {
                 ...existingItem,
-                quantity: existingItem.quantity + 1,
+                quantity: newQty,
             });
         } else {
-            // Add new item
+            // Add new item with default quantity 1.00
             append({
                 product_id: product.id,
-                quantity: 1,
+                quantity: 1.00,
                 unit_price: Number(product.price),
                 discount: 0,
                 sales_tax: Number(product.sales_tax || 0),
@@ -218,11 +219,11 @@ export default function PosOrder() {
     const adjustQuantity = (index: number, delta: number) => {
         const item = items[index];
         const stock = item.stock_quantity ?? 0;
-        const newQty = item.quantity + delta;
+        const newQty = Number((item.quantity + delta).toFixed(2));
 
         // If decreasing, just do it (unless it hits 0, which we handle below as updating to newQty)
         if (delta < 0) {
-            if (newQty > 0) {
+            if (newQty >= 0.01) {
                 update(index, { ...item, quantity: newQty });
             }
             return;
@@ -234,9 +235,26 @@ export default function PosOrder() {
             return;
         }
 
-        if (newQty > 0) {
+        if (newQty >= 0.01) {
             update(index, { ...item, quantity: newQty });
         }
+    };
+
+    const handleQuantityChange = (index: number, value: string) => {
+        const item = items[index];
+        const stock = item.stock_quantity ?? 0;
+        const newQty = Number(parseFloat(value));
+
+        if (isNaN(newQty) || newQty < 0.01) {
+            return;
+        }
+
+        if (newQty > stock) {
+            toast.error(`Cannot exceed available stock of ${stock}`);
+            return;
+        }
+
+        update(index, { ...item, quantity: newQty });
     };
 
     const handleNewOrder = () => {
@@ -543,11 +561,18 @@ export default function PosOrder() {
                                                 <div className="grid grid-cols-12 gap-2 mt-1 items-end">
                                                     {/* Quantity */}
                                                     <div className="col-span-4 flex items-center gap-0.5 bg-white rounded-md border p-0.5 shadow-sm h-8 relative">
-                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, -1)}>
+                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, -0.5)}>
                                                             <Minus className="h-3 w-3" />
                                                         </Button>
-                                                        <span className="flex-1 text-center text-xs font-medium">{items[index].quantity}</span>
-                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, 1)}>
+                                                        <Input
+                                                            type="number"
+                                                            step="any"
+                                                            min={0.01}
+                                                            value={items[index].quantity}
+                                                            onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                                            className="flex-1 h-6 text-xs px-1 text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                                                        />
+                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, 0.5)}>
                                                             <Plus className="h-3 w-3" />
                                                         </Button>
                                                     </div>

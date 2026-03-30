@@ -76,7 +76,7 @@ const orderSchema = z
         product_id: z.coerce.number().min(1, "Product is required"),
         product_name: z.string().optional(),
         sku: z.string().optional(),
-        quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+        quantity: z.coerce.number().min(0.01, "Quantity must be at least 0.01"),
         unit_price: z.coerce.number(),
         discount: z.coerce.number().min(0, "Discount must be 0 or more"),
         sales_tax: z.coerce.number().min(0, "Sales tax must be 0 or more"),
