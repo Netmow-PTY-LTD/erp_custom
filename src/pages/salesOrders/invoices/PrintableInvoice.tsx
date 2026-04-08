@@ -100,7 +100,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
         <div className="flex flex-wrap justify-between items-start mb-4">
-          <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-full sm:w-[45%]">
+          <div className="flex flex-col mt-2 details-text text-[13px] w-full sm:w-[45%]">
             <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
             <p className="leading-tight max-w-[400px] whitespace-pre-line">
               {from?.address || "45, Jalan Industri USJ 1/10,\nTMN Perindustrian USJ 1, Subang Jaya"}
@@ -131,7 +131,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           <div className="border border-gray-300">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Bill To</div>
-            <div className="p-3 details-text min-h-[80px]">
+            <div className="p-2 details-text min-h-[80px]">
               <p className="font-bold">{to?.company}</p>
               <p className="font-medium">{to?.name}</p>
               <p className="whitespace-pre-line">{to?.address}</p>
@@ -141,7 +141,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
           </div>
           <div className="border border-gray-300">
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Order Details</div>
-            <div className="p-3 details-text min-h-[80px] space-y-1">
+            <div className="p-2 details-text min-h-[80px] space-y-1">
               <p><strong>Sales Rep.:</strong> {invoice?.creator?.name || "Super Admin"}</p>
               <p><strong>Delivery Date:</strong> {invoice?.order?.delivery_date ? formatDate(String(invoice.order.delivery_date)) : "-"}</p>
               <p><strong>Due Date:</strong> {formatDate(invoice?.due_date || "")}</p>
@@ -203,7 +203,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
         {/* Footer Summary Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-2 w-full">
           {/* Note section */}
-          <div className="w-full sm:w-[38%] border border-gray-300 p-2 rounded-sm details-text">
+          <div className="w-full sm:w-[45%] border border-gray-300 p-2 rounded-sm details-text">
             <p className="font-bold mb-1 border-b-[1px] border-gray-200 pb-1">Note:</p>
             <p>All Cheques should be crossed and made payable to</p>
             <p className="font-bold capitalize text-sm">{from?.company_name || "F&Z GLOBAL TRADE (M) SDN BHD"}</p>
@@ -211,7 +211,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
           </div>
 
           {/* QR Code (Centered) */}
-          {from?.qr_code && (<div className="flex flex-col items-center justify-center min-w-[100px] self-center">
+          {from?.qr_code && (<div className="w-full sm:w-[25%] flex flex-col items-center justify-center self-center">
             <div className="flex flex-col items-center justify-center rounded-sm bg-white">
 
               <img
@@ -225,7 +225,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
           )}
 
           {/* Totals Table */}
-          <div className="w-full sm:w-[35%] overflow-x-auto">
+          <div className="w-full sm:w-[30%] overflow-x-auto">
             <table className="w-full details-text font-bold border-collapse min-w-[200px] sm:min-w-full">
               <tbody>
                 <tr className="border border-gray-300">
@@ -240,7 +240,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                   <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase">Tax</td>
                   <td className="p-1 px-4 text-right">RM {taxAmount.toFixed(2)}</td>
                 </tr>
-                <tr className="border border-gray-300 bg-gray-50 text-base">
+                <tr className="border border-gray-300 bg-gray-50">
                   <td className="p-1 px-4 text-left border-r border-gray-300 w-1/2 uppercase tracking-wider">Total</td>
                   <td className="p-1 px-4 text-right underline underline-offset-4 decoration-double">RM {total}</td>
                 </tr>
