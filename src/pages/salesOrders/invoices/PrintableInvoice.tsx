@@ -100,14 +100,14 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
       <div id="invoice" className="invoice-box print:border-0 print:p-0">
         {/* Header Section */}
         <div className="flex flex-wrap justify-between items-start mb-4">
-          <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-full sm:w-1/3">
+          <div className="flex flex-col gap-2 mt-2 details-text text-[13px] w-full sm:w-[45%]">
             <h1 className="font-bold company-name">{from?.company_name || "F&Z Global Trade (M) Sdn Bhd"}</h1>
             <p className="leading-tight max-w-[400px] whitespace-pre-line">
               {from?.address || "45, Jalan Industri USJ 1/10,\nTMN Perindustrian USJ 1, Subang Jaya"}
             </p>
             <p>T: {from?.phone || "0380112772"}{from?.email && `, E: ${from.email}`}</p>
           </div>
-          <div className="w-full sm:w-1/3 flex justify-start sm:justify-center items-center">
+          <div className="w-full sm:w-[25%] flex justify-start sm:justify-center items-center">
             <div className="mb-1">
               {from?.logo_url ? (
                 <img src={from.logo_url} alt="Logo" className="h-20 object-contain" />
@@ -118,7 +118,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
               )}
             </div>
           </div>
-          <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-1/3">
+          <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-[30%]">
             <h2 className="font-bold text-gray-800 mb-1 uppercase details-text text-xl">Tax Invoice</h2>
             <div className="details-text space-y-1">
               <p><strong>Date:</strong> {formatDate(invoice?.invoice_date || "")}</p>
@@ -143,9 +143,7 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
             <div className="bg-gray-100 px-3 py-1 font-bold details-text border-b border-gray-300">Order Details</div>
             <div className="p-3 details-text min-h-[80px] space-y-1">
               <p><strong>Sales Rep.:</strong> {invoice?.creator?.name || "Super Admin"}</p>
-              <p><strong>Shipping Method:</strong> -</p>
               <p><strong>Delivery Date:</strong> {invoice?.order?.delivery_date ? formatDate(String(invoice.order.delivery_date)) : "-"}</p>
-              <p><strong>Payment Terms:</strong> -</p>
               <p><strong>Due Date:</strong> {formatDate(invoice?.due_date || "")}</p>
             </div>
           </div>
@@ -248,6 +246,25 @@ export default function PrintableInvoice({ invoice, from, to }: Props) {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Signature Section */}
+        <div className="grid grid-cols-3 gap-8 mt-10 details-text">
+          <div className="text-center">
+            <div className="border-t border-gray-400 pt-2 mt-8">
+              <p className="font-semibold">Prepared By</p>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="border-t border-gray-400 pt-2 mt-8">
+              <p className="font-semibold">Delivered By</p>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="border-t border-gray-400 pt-2 mt-8">
+              <p className="font-semibold">Received By</p>
+            </div>
           </div>
         </div>
 

@@ -7,6 +7,7 @@ import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarc
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
     Form,
@@ -37,7 +38,10 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 
-import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import {
+    useGetAllProductsQuery,
+    useGetAllCategoriesQuery,
+} from "@/store/features/admin/productsApiService";
 import {
     useAddSalesInvoiceMutation,
     useAddSalesOrderMutation,
@@ -71,6 +75,7 @@ const orderSchema = z
                 sku: z.string().optional(),
                 stock_quantity: z.number().optional(),
                 unit: z.string().optional(),
+                specification: z.string().optional(),
             })
         ),
     })
@@ -91,6 +96,7 @@ type SalesOrderFormValues = z.infer<typeof orderSchema>;
 export default function PosOrder() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState<string>("all");
     const [barcode, setBarcode] = useState("");
     const [newlyAddedCustomer, setNewlyAddedCustomer] = useState<any>(null);
     const currency = useAppSelector((state) => state.currency.value);
@@ -122,10 +128,12 @@ export default function PosOrder() {
     };
 
     // API Hooks
+    const { data: categoriesData } = useGetAllCategoriesQuery({ page: 1, limit: 100 });
     const { data: productsData } = useGetAllProductsQuery({
         page: 1,
         limit: 100, // Fetch more for POS
         search: search,
+        category_id: selectedCategory !== "all" ? selectedCategory : undefined,
     });
     const [addSalesOrder, { isLoading: isOrdering }] = useAddSalesOrderMutation();
     const [createInvoice, { isLoading: isInvoicing }] = useAddSalesInvoiceMutation();
@@ -212,6 +220,7 @@ export default function PosOrder() {
                 sku: product.sku,
                 stock_quantity: availableStock,
                 unit: product.unit?.name || "",
+                specification: product.specification || "",
             }, { shouldFocus: false });
         }
     };
@@ -542,6 +551,11 @@ export default function PosOrder() {
                                                         <div className="font-medium text-sm">
                                                             {(field as any).name || "Item #" + (index + 1)}
                                                         </div>
+                                                        {(field as any).specification && (
+                                                            <div className="text-[11px] text-muted-foreground line-clamp-1">
+                                                                {(field as any).specification}
+                                                            </div>
+                                                        )}
                                                         <div className="flex items-center gap-2 mt-0.5">
                                                             <div className="text-xs text-muted-foreground">
                                                                 {currency} {Number(items[index].unit_price).toFixed(2)}
@@ -560,7 +574,9 @@ export default function PosOrder() {
                                                 {/* Controls: Qty, Discount, Tax */}
                                                 <div className="grid grid-cols-12 gap-2 mt-1 items-end">
                                                     {/* Quantity */}
-                                                    <div className="col-span-4 flex items-center gap-0.5 bg-white rounded-md border p-0.5 shadow-sm h-8 relative">
+                                                    <div className="col-span-4">
+                                                        <label className="text-[10px] text-muted-foreground uppercase block mb-0.5">Qty</label>
+                                                        <div className="flex items-center gap-0.5 bg-white rounded-md border p-0.5 shadow-sm h-8 relative">
                                                         <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, -0.5)}>
                                                             <Minus className="h-3 w-3" />
                                                         </Button>
@@ -575,6 +591,7 @@ export default function PosOrder() {
                                                         <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, 0.5)}>
                                                             <Plus className="h-3 w-3" />
                                                         </Button>
+                                                        </div>
                                                     </div>
 
                                                     {/* Discount Input */}
@@ -701,6 +718,24 @@ export default function PosOrder() {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
+                    <div className="w-full sm:w-56 lg:w-full xl:w-72">
+                        <Select
+                            value={selectedCategory}
+                            onValueChange={(value) => setSelectedCategory(value)}
+                        >
+                            <SelectTrigger className="w-full bg-background border border-input">
+                                <SelectValue placeholder="Filter by Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Categories</SelectItem>
+                                {categoriesData?.data?.map((category) => (
+                                    <SelectItem key={category.id} value={String(category.id)}>
+                                        {category.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     {/* Barcode Input */}
                     <div className="relative w-full sm:w-48 lg:w-full xl:w-64">
                         <ScanBarcode className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -787,6 +822,11 @@ export default function PosOrder() {
                                         )}
                                         <div className={posLayout.cardStyle === 'compact' ? 'p-2' : 'p-3'}>
                                             <div className="font-semibold truncate text-sm lg:text-base" title={product.name}>{product.name}</div>
+                                        {product.specification && (
+                                            <div className="text-[11px] lg:text-xs text-muted-foreground line-clamp-1" title={product.specification}>
+                                                {product.specification}
+                                            </div>
+                                        )}
                                             {posLayout.cardStyle !== 'compact' && (
                                                 <div className="flex justify-between items-center mt-1">
                                                     <div className="text-[10px] lg:text-xs text-muted-foreground">SKU: {product.sku}</div>

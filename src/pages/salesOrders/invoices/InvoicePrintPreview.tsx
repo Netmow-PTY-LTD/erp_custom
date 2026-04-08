@@ -6,7 +6,7 @@ import type { Settings } from "@/types/types";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
 import type { Customer } from "@/store/features/customers/types";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, Download } from "lucide-react";
 
 export default function InvoicePrintPreview() {
   const invoiceId = useParams().invoiceId;
@@ -23,6 +23,15 @@ export default function InvoicePrintPreview() {
 
   const to: Customer | undefined = invoice?.order?.customer;
 
+  const handlePrint = () => {
+    const customerName = to?.company || to?.name || "Customer";
+    const invoiceNo = invoice?.invoice_number || invoiceId;
+    const originalTitle = document.title;
+    document.title = `${customerName} - Invoice ${invoiceNo}`;
+    window.print();
+    document.title = originalTitle;
+  };
+
   return (
     <div className="">
       {/* Header with Back and Print buttons - Hidden when printing */}
@@ -33,9 +42,9 @@ export default function InvoicePrintPreview() {
             Back to Invoice
           </Button>
         </Link>
-        <Button onClick={() => window.print()} className="gap-2">
-          <Printer className="w-4 h-4" />
-          Print Invoice
+        <Button onClick={handlePrint} className="gap-2">
+          <Download className="w-4 h-4" />
+          Download / Print Invoice
         </Button>
       </div>
 

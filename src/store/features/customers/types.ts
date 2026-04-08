@@ -102,6 +102,7 @@ export interface GetCustomersParams {
     is_active?: boolean;
     search?: string;
     sort?: string;
+    filter_by?: "name" | "company" | "address" | "phone";
 }
 
 export interface Pagination {

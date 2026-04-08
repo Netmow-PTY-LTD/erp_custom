@@ -73,6 +73,7 @@ const productSchema = z.object({
     values: z.array(z.string())
   })).optional(),
   specification: z.string().optional(),
+  expiry_date: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -127,6 +128,7 @@ export default function AddProductPage() {
       is_active: true,
       attributes: [],
       specification: "",
+      expiry_date: "",
     },
   });
 
@@ -166,6 +168,7 @@ export default function AddProductPage() {
       is_active: values.is_active,
       attributes: values.attributes,
       specification: values.specification,
+      expiry_date: values.expiry_date || null,
     };
 
     console.log("Payload being sent:", payload);
@@ -653,6 +656,21 @@ export default function AddProductPage() {
                         const val = e.target.value === "" ? "" : Number(e.target.value);
                         field.onChange(typeof val === "number" ? Math.max(0, val) : val);
                       }}
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="expiry_date"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Expiry Date</FieldLabel>
+                    <Input
+                      type="date"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
