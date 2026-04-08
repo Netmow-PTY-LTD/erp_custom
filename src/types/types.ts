@@ -42,6 +42,7 @@ export type Product = {
   thumb_url: string;
   gallery_items: string[];
   specification?: string;
+  expiry_date?: string | null;
   is_active: boolean;
   // Nested relationship
   category: Category;

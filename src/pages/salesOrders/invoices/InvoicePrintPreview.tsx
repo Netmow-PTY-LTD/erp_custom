@@ -6,7 +6,7 @@ import type { Settings } from "@/types/types";
 import type { SalesInvoice } from "@/types/salesInvoice.types";
 import type { Customer } from "@/store/features/customers/types";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Printer, Download } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 
 export default function InvoicePrintPreview() {
   const invoiceId = useParams().invoiceId;
