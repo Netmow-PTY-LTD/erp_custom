@@ -10,11 +10,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
 import { SalesPermission, SuperAdminPermission } from "@/config/permissions";
 import {
   useGetAllSalesOrdersQuery,
   useGetSalesOrdersStatsQuery,
 } from "@/store/features/salesOrder/salesOrder";
+import { useGetCustomersQuery } from "@/store/features/customers/customersApi";
 import { useAppSelector } from "@/store/store";
 import type { SalesOrder } from "@/types/salesOrder.types";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -27,6 +41,8 @@ import {
   PlusCircle,
   Printer,
   ShoppingCart,
+  ChevronDown,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -41,6 +57,9 @@ export default function IntransitOrder() {
   const [isUpdateDeliveryStatusModalOpen, setIsUpdateDeliveryStatusModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [customerId, setCustomerId] = useState<string>("all");
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false);
   const [page, setPage] = useState(1); // backend starts from 1
   const [limit] = useState(10);
 
@@ -48,8 +67,13 @@ export default function IntransitOrder() {
     page,
     limit,
     search,
-    status: "in_transit"
+    status: "in_transit",
+    customer_id: customerId === "all" ? undefined : customerId,
   });
+
+  const { data: customersData } = useGetCustomersQuery({ page: 1, limit: 100, search: customerSearch });
+  const customers = customersData?.data || [];
+  const selectedCustomer = customerId !== "all" ? customers.find((c: any) => String(c.id) === customerId) : null;
 
   const orders = data?.data ?? [];
 
@@ -461,6 +485,52 @@ export default function IntransitOrder() {
                 setPage(1);
               }}
               isFetching={isLoading}
+              filters={
+                <Popover open={customerPopoverOpen} onOpenChange={setCustomerPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-[220px] justify-between font-normal">
+                      <span className="truncate">
+                        {selectedCustomer ? (selectedCustomer.company || selectedCustomer.name) : "All Customers"}
+                      </span>
+                      {customerId !== "all" ? (
+                        <X className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50 hover:opacity-100" onClick={(e) => { e.stopPropagation(); setCustomerId("all"); setPage(1); }} />
+                      ) : (
+                        <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[260px] p-0" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput placeholder="Search customer..." onValueChange={setCustomerSearch} />
+                      <CommandList>
+                        <CommandEmpty>No customer found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            onSelect={() => { setCustomerId("all"); setCustomerPopoverOpen(false); setPage(1); }}
+                            className={customerId === "all" ? "bg-accent" : ""}
+                          >
+                            All Customers
+                          </CommandItem>
+                          {customers.map((c: any) => (
+                            <CommandItem
+                              key={c.id}
+                              onSelect={() => { setCustomerId(String(c.id)); setCustomerPopoverOpen(false); setPage(1); }}
+                              className={customerId === String(c.id) ? "bg-accent" : ""}
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm">{c.company || c.name}</span>
+                                {c.company && c.name && (
+                                  <span className="text-xs text-muted-foreground">{c.name}</span>
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              }
             />
             {/* Page Summary - Hidden in Print */}
             <div className="mt-4 flex flex-col md:flex-row justify-end gap-4 md:gap-8 text-sm font-medium p-4 bg-muted/20 rounded-lg border border-border/50 animate-in slide-in-from-top-2 print:hidden">

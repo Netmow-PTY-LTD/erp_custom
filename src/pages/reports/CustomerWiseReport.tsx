@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, DollarSign, Calendar, User, Printer } from "lucide-react";
+import { FileText, DollarSign, Calendar, User, Printer, ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
 import { useGetCustomersQuery } from "@/store/features/customers/customersApiService";
 import { useGetCustomerWiseInvoicesQuery } from "@/store/features/reports/reportApiService";
 import { useAppSelector } from "@/store/store";
@@ -54,14 +67,17 @@ export default function CustomerWiseReport() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [customerPopoverOpen, setCustomerPopoverOpen] = useState(false);
   const limit = 10;
 
   const currency = useAppSelector((state) => state.currency.value);
 
   // Fetch customers for dropdown
   const { data: customersResponse } = useGetCustomersQuery({
-    limit: 1000,
+    limit: 100,
     status: "active",
+    search: customerSearch,
   });
   const customers = (customersResponse?.data as Customer[]) || [];
 
@@ -293,22 +309,47 @@ export default function CustomerWiseReport() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Customer Selection */}
               <div className="space-y-2">
-                <Label htmlFor="customer">Select Customer</Label>
-                <Select value={selectedCustomerId} onValueChange={(value) => {
-                  setSelectedCustomerId(value);
-                  setPage(1);
-                }}>
-                  <SelectTrigger id="customer">
-                    <SelectValue placeholder="Select a customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id.toString()}>
-                        {customer.company} ({customer.name})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Select Customer</Label>
+                <Popover open={customerPopoverOpen} onOpenChange={setCustomerPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between font-normal">
+                      <span className="truncate">
+                        {selectedCustomerId
+                          ? `${selectedCustomer?.company || selectedCustomer?.name}${selectedCustomer?.company && selectedCustomer?.name ? ` (${selectedCustomer.name})` : ''}`
+                          : "Select a customer"}
+                      </span>
+                      {selectedCustomerId ? (
+                        <X className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50 hover:opacity-100" onClick={(e) => { e.stopPropagation(); setSelectedCustomerId(""); setPage(1); }} />
+                      ) : (
+                        <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput placeholder="Search by name or company..." onValueChange={setCustomerSearch} />
+                      <CommandList>
+                        <CommandEmpty>No customer found.</CommandEmpty>
+                        <CommandGroup>
+                          {customers.map((customer) => (
+                            <CommandItem
+                              key={customer.id}
+                              onSelect={() => { setSelectedCustomerId(customer.id.toString()); setCustomerPopoverOpen(false); setPage(1); }}
+                              className={selectedCustomerId === customer.id.toString() ? "bg-accent" : ""}
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm">{customer.company || customer.name}</span>
+                                {customer.company && customer.name && (
+                                  <span className="text-xs text-muted-foreground">{customer.name}</span>
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Start Date */}
