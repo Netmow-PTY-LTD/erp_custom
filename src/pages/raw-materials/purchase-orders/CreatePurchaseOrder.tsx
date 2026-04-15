@@ -47,7 +47,7 @@ const orderSchema = z
       z.object({
         rawMaterialId: z.number().min(1, "Raw material is required"),
         quantity: z.number().min(1, "Quantity must be at least 1"),
-        unit_cost: z.number().min(1, "Unit price must be at least 1"),
+        unit_cost: z.number().min(0.01, "Unit price must be at least 0.01"),
       })
     ),
   })

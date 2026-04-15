@@ -55,7 +55,7 @@ const orderSchema = z
         specification: z.string().optional(),
         unit: z.string().optional(),
         quantity: z.number().min(0.01, "Quantity must be at least 0.01"),
-        unit_cost: z.number().min(1, "Unit price must be at least 1"),
+        unit_cost: z.number().min(0.01, "Unit price must be at least 0.01"),
         discount: z.number().min(0, "Discount must be 0 or more"),
         purchase_tax: z.number().min(0, "Purchase tax must be 0 or more"),
         stock_quantity: z.number().optional(),
