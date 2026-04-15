@@ -377,6 +377,11 @@ const ProductSelectField = ({
                       <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
                         SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'} | Stock: {product.stock_quantity || 0}
                       </span>
+                      {product.specification && (
+                        <span className="text-[10px] text-muted-foreground italic">
+                          Spec: {product.specification}
+                        </span>
+                      )}
                     </div>
                   </CommandItem>
                 ))}
