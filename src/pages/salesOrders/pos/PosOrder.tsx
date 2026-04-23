@@ -104,6 +104,25 @@ export default function PosOrder() {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [selectedImage, setSelectedImage] = useState<{ url: string; name: string; product: any } | null>(null);
     const sentinelRef = useRef<HTMLDivElement>(null);
+    // Infinite scroll state
+    const [page, setPage] = useState(1);
+    const [allProducts, setAllProducts] = useState<any[]>([]);
+    const [hasMore, setHasMore] = useState(true);
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    // API Hooks
+    const { data: categoriesData } = useGetAllCategoriesQuery({ page: 1, limit: 100 });
+    const { data: productsData, isFetching: isProductsFetching } = useGetAllProductsQuery({
+        page: page,
+        limit: 50,
+        search: search,
+        category_id: selectedCategory !== "all" ? selectedCategory : undefined,
+    });
+    const [addSalesOrder, { isLoading: isOrdering }] = useAddSalesOrderMutation();
+    const [createInvoice, { isLoading: isInvoicing }] = useAddSalesInvoiceMutation();
+    const [addSalesPayment, { isLoading: isPaying }] = useAddSalesPaymentMutation();
+
+    const isLoading = isOrdering || isInvoicing || isPaying;
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -121,25 +140,52 @@ export default function PosOrder() {
         return () => observer.disconnect();
     }, []);
 
+    // Load more products effect
+    useEffect(() => {
+        if (productsData?.data) {
+            const totalPages = productsData?.pagination?.totalPage || 1;
+            setHasMore(page < totalPages);
+
+            const inStockProducts = productsData.data.filter((p: any) => (p.stock_quantity ?? 0) > 0);
+
+            if (page === 1) {
+                setAllProducts(inStockProducts);
+            } else {
+                setAllProducts((prev) => [...prev, ...inStockProducts]);
+            }
+        }
+    }, [productsData, page]);
+
+    // Reset pagination when search or category changes
+    useEffect(() => {
+        setPage(1);
+        setAllProducts([]);
+        setHasMore(true);
+    }, [search, selectedCategory]);
+
+    // Infinite scroll observer
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && hasMore && !isProductsFetching) {
+                    setPage((prev) => prev + 1);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [hasMore, isProductsFetching]);
+
     const scrollToTop = () => {
         sentinelRef.current?.scrollIntoView({
             behavior: "smooth",
         });
     };
-
-    // API Hooks
-    const { data: categoriesData } = useGetAllCategoriesQuery({ page: 1, limit: 100 });
-    const { data: productsData } = useGetAllProductsQuery({
-        page: 1,
-        limit: 100, // Fetch more for POS
-        search: search,
-        category_id: selectedCategory !== "all" ? selectedCategory : undefined,
-    });
-    const [addSalesOrder, { isLoading: isOrdering }] = useAddSalesOrderMutation();
-    const [createInvoice, { isLoading: isInvoicing }] = useAddSalesInvoiceMutation();
-    const [addSalesPayment, { isLoading: isPaying }] = useAddSalesPaymentMutation();
-
-    const isLoading = isOrdering || isInvoicing || isPaying;
 
     // Form Setup
     const form = useForm<SalesOrderFormValues>({
@@ -286,7 +332,7 @@ export default function PosOrder() {
             if (!barcode) return;
 
             // Search product in loaded data
-            const product = productsData?.data?.find(
+            const product = allProducts?.find(
                 (p: any) => p.sku?.toLowerCase() === barcode.toLowerCase() || p.barcode === barcode
             );
 
@@ -365,10 +411,22 @@ export default function PosOrder() {
     const CustomerSelect = ({ field }: { field: any }) => {
         const [open, setOpen] = useState(false);
         const [q, setQ] = useState("");
-        const { data } = useGetCustomersQuery({ page: 1, limit: 10, search: q });
+        const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+        const { data } = useGetCustomersQuery({ page: 1, limit: 50, search: q });
         const list = data?.data || [];
         const selected = list.find((c) => c.id === field.value)
+            || selectedCustomer
             || (newlyAddedCustomer?.id === field.value ? newlyAddedCustomer : null);
+
+        // Sync selected customer when field value changes
+        useEffect(() => {
+            if (field.value && (!selectedCustomer || selectedCustomer.id !== field.value)) {
+                const found = list.find((c) => c.id === field.value);
+                if (found) {
+                    setSelectedCustomer(found);
+                }
+            }
+        }, [field.value, list]);
 
         return (
             <Popover open={open} onOpenChange={setOpen}>
@@ -381,7 +439,7 @@ export default function PosOrder() {
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
-                    <Command>
+                    <Command shouldFilter={false}>
                         <CommandInput placeholder="Search customer..." onValueChange={setQ} />
                         <CommandList>
                             <CommandEmpty>No customer found.</CommandEmpty>
@@ -390,6 +448,7 @@ export default function PosOrder() {
                                     <CommandItem
                                         key={c.id}
                                         onSelect={() => {
+                                            setSelectedCustomer(c);
                                             field.onChange(c.id);
                                             if (c.address) setValue("shipping_address", c.address);
                                             setOpen(false);
@@ -779,7 +838,7 @@ export default function PosOrder() {
                         }
                     `}</style>
                     <div className="pos-grid grid w-full col-span-full" style={{ gap: `${posLayout.gap * 4}px` }}>
-                        {productsData?.data?.map((product) => {
+                        {allProducts.map((product) => {
                             const stock = product.stock_quantity ?? 0;
                             const isOutOfStock = stock <= 0;
                             const isSelected = items.some((item) => item.product_id === product.id);
@@ -845,12 +904,22 @@ export default function PosOrder() {
                             );
                         })}
                     </div>
-                    {productsData?.data?.length === 0 && (
+                    {allProducts.length === 0 && !isProductsFetching && (
                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
                             <Search className="w-12 h-12 mb-2 opacity-20" />
                             <p>No products found matching "{search}"</p>
                         </div>
                     )}
+                    {isProductsFetching && allProducts.length > 0 && (
+                        <div className="col-span-full flex justify-center py-4">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                                <span>Loading more products...</span>
+                            </div>
+                        </div>
+                    )}
+                    {/* Bottom sentinel for infinite scroll */}
+                    <div ref={loadMoreRef} className="w-px h-px" aria-hidden="true" />
                 </div>
             </div>
 
