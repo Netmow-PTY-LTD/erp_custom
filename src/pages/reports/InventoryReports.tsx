@@ -15,6 +15,7 @@ import { DollarSign, AlertTriangle, Package, AlertCircle } from "lucide-react";
 export type LowStockRow = {
   sku: string;
   product: string;
+  specification?: string;
   stock: number;
   minLevel: number;
   total_purchase_amt: number;
@@ -45,7 +46,18 @@ export default function InventoryReports() {
 
   const columns: ColumnDef<LowStockRow>[] = [
     { accessorKey: "sku", header: "SKU" },
-    { accessorKey: "product", header: "Product" },
+    {
+      accessorKey: "product",
+      header: "Product",
+      cell: ({ row }) => (
+        <div>
+          <div className="font-semibold">{row.original.product}</div>
+          {row.original.specification && (
+            <div className="text-xs text-muted-foreground">{row.original.specification}</div>
+          )}
+        </div>
+      ),
+    },
     {
       accessorKey: "stock",
       header: "Stock",

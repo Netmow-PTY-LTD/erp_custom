@@ -37,7 +37,7 @@ export const ProductPermission = {
   // Categories
   VIEW_CATEGORIES: "products.categories.view" as const,
   CREATE_CATEGORIES: "products.categories.create" as const,
-  Edit_CATEGORIES: "products.categories.edit" as const,
+  EDIT_CATEGORIES: "products.categories.edit" as const,
   DELETE_CATEGORIES: "products.categories.delete" as const,
   // Units
   VIEW_UNITS: "products.units.view" as const,
@@ -75,6 +75,11 @@ export const SupplierPermission = {
   CREATE: "suppliers.create" as const,
   EDIT: "suppliers.edit" as const,
   DELETE: "suppliers.delete" as const,
+};
+
+export const PurchasePermission = {
+  VIEW: "purchases.view" as const,
+  LIST: "purchases.list" as const,
   VIEW_PURCHASE_ORDERS: "suppliers.purchase_orders.view" as const,
   VIEW_PURCHASE_ORDER_DETAILS: "suppliers.purchase_orders.details.view" as const,
   CREATE_PURCHASE_ORDER: "suppliers.purchase_orders.create" as const,
@@ -97,25 +102,32 @@ export const SupplierPermission = {
   VIEW_PURCHASE_RETURN_PAYMENT_DETAILS: "suppliers.purchase_return_payments.details.view" as const,
 };
 
-// --- Staffs ---
-export const StaffPermission = {
-  VIEW: "staffs.view" as const,
-  LIST: "staffs.list" as const,
-  DETAILS: "staffs.details.view" as const,
-  CREATE: "staffs.create" as const,
-  EDIT: "staffs.edit" as const,
-  DELETE: "staffs.delete" as const,
-  VIEW_DEPARTMENTS: "departments.view" as const,
-  CREATE_DEPARTMENTS: "departments.create" as const,
-  EDIT_DEPARTMENTS: "departments.edit" as const,
-  DELETE_DEPARTMENTS: "departments.delete" as const,
-  VIEW_ATTENDANCE: "attendance.view" as const,
-  MANAGE_LEAVES: "leaves.manage" as const,
-  VIEW_STAFF_MAP: "staffs.map.view" as const,
-  CHECK_IN: "staffs.check_in" as const,
-  VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
-  VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
-  ASSIGN_ROUTE: "staff.routes.assign" as const,
+export const PurchasePermissionGroup = {
+  VIEW: PurchasePermission.VIEW,
+  LIST: PurchasePermission.LIST,
+  VIEW_PURCHASE_ORDERS: PurchasePermission.VIEW_PURCHASE_ORDERS,
+  VIEW_PURCHASE_ORDER_DETAILS: PurchasePermission.VIEW_PURCHASE_ORDER_DETAILS,
+  CREATE_PURCHASE_ORDER: PurchasePermission.CREATE_PURCHASE_ORDER,
+  EDIT_PURCHASE_ORDER: PurchasePermission.EDIT_PURCHASE_ORDER,
+  VIEW_PURCHASE_INVOICES: PurchasePermission.VIEW_PURCHASE_INVOICES,
+  VIEW_PURCHASE_INVOICE_DETAILS: PurchasePermission.VIEW_PURCHASE_INVOICE_DETAILS,
+  PREVIEW_PURCHASE_INVOICE: PurchasePermission.PREVIEW_PURCHASE_INVOICE,
+  CREATE_PURCHASE_PAYMENT: PurchasePermission.CREATE_PURCHASE_PAYMENT,
+  VIEW_PURCHASE_PAYMENTS: PurchasePermission.VIEW_PURCHASE_PAYMENTS,
+  VIEW_PURCHASE_PAYMENT_DETAILS: PurchasePermission.VIEW_PURCHASE_PAYMENT_DETAILS,
+  VIEW_PURCHASE_ORDERS_MAP: PurchasePermission.VIEW_PURCHASE_ORDERS_MAP,
+};
+
+export const PurchaseReturnPermission = {
+  VIEW: PurchasePermission.VIEW_PURCHASE_RETURNS,
+  DETAILS: PurchasePermission.VIEW_PURCHASE_RETURN_DETAILS,
+  CREATE: PurchasePermission.CREATE_PURCHASE_RETURN,
+  VIEW_INVOICES: PurchasePermission.VIEW_PURCHASE_RETURN_INVOICES,
+  VIEW_INVOICE_DETAILS: PurchasePermission.VIEW_PURCHASE_RETURN_INVOICE_DETAILS,
+  PREVIEW_INVOICE: PurchasePermission.PREVIEW_PURCHASE_RETURN_INVOICE,
+  CREATE_PAYMENT: PurchasePermission.CREATE_PURCHASE_RETURN_PAYMENT,
+  VIEW_PAYMENTS: PurchasePermission.VIEW_PURCHASE_RETURN_PAYMENTS,
+  VIEW_PAYMENT_DETAILS: PurchasePermission.VIEW_PURCHASE_RETURN_PAYMENT_DETAILS,
 };
 
 // --- Sales & Orders ---
@@ -159,6 +171,68 @@ export const SalesPermission = {
   VIEW_SALES_RETURN_PAYMENT_DETAILS: "sales.sales_return_payments.details.view" as const,
 };
 
+export const SalesPermissionGroup = {
+  VIEW: SalesPermission.VIEW,
+  ORDERS: SalesPermission.ORDERS,
+  PENDING_ORDERS: SalesPermission.PENDING_ORDERS,
+  CONFIRMED_ORDERS: SalesPermission.CONFIRMED_ORDERS,
+  DELIVERED_ORDERS: SalesPermission.DELIVERED_ORDERS,
+  INTRANSIT_ORDERS: SalesPermission.INTRANSIT_ORDERS,
+  RETURNED_ORDERS: SalesPermission.RETURNED_ORDERS,
+  ORDER_DETAILS: SalesPermission.ORDER_DETAILS,
+  CREATE_ORDER: SalesPermission.CREATE_ORDER,
+  EDIT_ORDER: SalesPermission.EDIT_ORDER,
+  INVOICES: SalesPermission.INVOICES,
+  INVOICE_DETAILS: SalesPermission.INVOICE_DETAILS,
+  INVOICE_PREVIEW: SalesPermission.INVOICE_PREVIEW,
+  PAYMENTS: SalesPermission.PAYMENTS,
+  PAYMENT_DETAILS: SalesPermission.PAYMENT_DETAILS,
+  CREATE_PAYMENT: SalesPermission.CREATE_PAYMENT,
+  DELIVERY: SalesPermission.DELIVERY,
+  UPDATE_DELIVERY: SalesPermission.UPDATE_DELIVERY,
+  SALES_ROUTES: SalesPermission.SALES_ROUTES,
+  DETAILS_SALES_ROUTES: SalesPermission.DETAILS_SALES_ROUTES,
+  CREATE_ROUTE: SalesPermission.CREATE_ROUTE,
+  EDIT_ROUTE: SalesPermission.EDIT_ROUTE,
+  ASSIGN_ROUTE: SalesPermission.ASSIGN_ROUTE,
+  MARK_AS_PAID: SalesPermission.MARK_AS_PAID,
+  POS_ORDER: SalesPermission.POS_ORDER,
+  ASSIGN_STAFF_IN_ORDER: SalesPermission.ASSIGN_STAFF_IN_ORDER,
+};
+
+export const SalesReturnPermission = {
+  VIEW: SalesPermission.VIEW_SALES_RETURNS,
+  DETAILS: SalesPermission.VIEW_SALES_RETURN_DETAILS,
+  CREATE: SalesPermission.CREATE_SALES_RETURN,
+  VIEW_INVOICES: SalesPermission.VIEW_SALES_RETURN_INVOICES,
+  VIEW_INVOICE_DETAILS: SalesPermission.VIEW_SALES_RETURN_INVOICE_DETAILS,
+  PREVIEW_INVOICE: SalesPermission.PREVIEW_SALES_RETURN_INVOICE,
+  CREATE_PAYMENT: SalesPermission.CREATE_SALES_RETURN_PAYMENT,
+  VIEW_PAYMENTS: SalesPermission.VIEW_SALES_RETURN_PAYMENTS,
+  VIEW_PAYMENT_DETAILS: SalesPermission.VIEW_SALES_RETURN_PAYMENT_DETAILS,
+};
+
+// --- Staffs ---
+export const StaffPermission = {
+  VIEW: "staffs.view" as const,
+  LIST: "staffs.list" as const,
+  DETAILS: "staffs.details.view" as const,
+  CREATE: "staffs.create" as const,
+  EDIT: "staffs.edit" as const,
+  DELETE: "staffs.delete" as const,
+  VIEW_DEPARTMENTS: "departments.view" as const,
+  CREATE_DEPARTMENTS: "departments.create" as const,
+  EDIT_DEPARTMENTS: "departments.edit" as const,
+  DELETE_DEPARTMENTS: "departments.delete" as const,
+  VIEW_ATTENDANCE: "attendance.view" as const,
+  MANAGE_LEAVES: "leaves.manage" as const,
+  VIEW_STAFF_MAP: "staffs.map.view" as const,
+  CHECK_IN: "staffs.check_in" as const,
+  VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
+  VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
+  ASSIGN_ROUTE: "staff.routes.assign" as const,
+};
+
 // --- Accounting ---
 export const AccountingPermission = {
   VIEW: "accounting.view" as const,
@@ -192,6 +266,7 @@ export const AccountingPermission = {
   LEDGER_REPORT: "accounting.reports.ledger.view" as const,
   TRIAL_BALANCE: "accounting.reports.trial_balance.view" as const,
   PROFIT_AND_LOSS: "accounting.reports.profit_and_loss.view" as const,
+  PROFIT_BY_ITEM: "accounting.reports.profit_by_item.view" as const,
   BALANCE_SHEET: "accounting.reports.balance_sheet.view" as const,
   TAX_SUBMISSION: "accounting.tax_submission.view" as const,
 };
@@ -289,6 +364,11 @@ export const HelpPermission = {
 
 };
 
+// --- Gallery ---
+export const GalleryPermission = {
+  VIEW: "gallery.view" as const,
+};
+
 // --- System/Database ---
 export const SystemPermission = {
   VIEW_TABLES: "system.tables.view" as const,
@@ -298,11 +378,15 @@ export const SystemPermission = {
 export const PERMISSION_GROUPS = {
 
   Dashboard: DashboardPermission,
+  Gallery: GalleryPermission,
   Products: ProductPermission,
   Customers: CustomerPermission,
   Suppliers: SupplierPermission,
+  Purchase: PurchasePermissionGroup,
+  PurchaseReturn: PurchaseReturnPermission,
+  Sales: SalesPermissionGroup,
+  SalesReturn: SalesReturnPermission,
   Staffs: StaffPermission,
-  Sales: SalesPermission,
   Accounting: AccountingPermission,
   Users: UserPermission,
   Roles: RolePermission,
@@ -311,8 +395,8 @@ export const PERMISSION_GROUPS = {
   // RawMaterials: RawMaterialPermission,
   // Production: ProductionPermission,
   RouteOperations: RouteOperationPermission,
-  Help: HelpPermission,
   Payroll: PayrollPermission,
+  Help: HelpPermission,
   System: SystemPermission,
 } as const;
 
@@ -324,14 +408,17 @@ export type PermissionType =
   | typeof ProductPermission[keyof typeof ProductPermission]
   | typeof CustomerPermission[keyof typeof CustomerPermission]
   | typeof SupplierPermission[keyof typeof SupplierPermission]
-  | typeof StaffPermission[keyof typeof StaffPermission]
+  | typeof PurchasePermission[keyof typeof PurchasePermission]
   | typeof SalesPermission[keyof typeof SalesPermission]
+  | typeof StaffPermission[keyof typeof StaffPermission]
   | typeof AccountingPermission[keyof typeof AccountingPermission]
   | typeof UserPermission[keyof typeof UserPermission]
   | typeof RolePermission[keyof typeof RolePermission]
   | typeof SettingsPermission[keyof typeof SettingsPermission]
-  | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof ReportPermission[keyof typeof ReportPermission]
+  | typeof SalesReturnPermission[keyof typeof SalesReturnPermission]
+  | typeof PurchaseReturnPermission[keyof typeof PurchaseReturnPermission]
+  | typeof GalleryPermission[keyof typeof GalleryPermission]
   // | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
   // | typeof ProductionPermission[keyof typeof ProductionPermission]
   | typeof RouteOperationPermission[keyof typeof RouteOperationPermission]

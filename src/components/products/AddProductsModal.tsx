@@ -130,6 +130,7 @@ export function AddProductsModal({
                 return (
                     <div className="font-medium">
                         {product.name} {isInitiallySelected && <span className="text-xs text-blue-500 ml-2">(In Order)</span>}
+                        {product.specification && <div className="text-sm text-muted-foreground">{product.specification}</div>}
                     </div>
                 );
             },

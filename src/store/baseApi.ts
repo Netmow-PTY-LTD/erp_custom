@@ -147,7 +147,8 @@ export const baseApi = createApi({
     "SalesReturnInvoices",
     "SalesReturnInvoice",
     "SalesReturnPayments",
-    "Dashboard"
+    "Dashboard",
+    "Notifications"
   ],
   endpoints: () => ({}),
 });

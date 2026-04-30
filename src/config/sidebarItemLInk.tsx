@@ -134,11 +134,14 @@ import ExpensesPage from "@/pages/accounting/Expenses";
 import BalanceSheet from "@/pages/accounting/BalanceSheet";
 import {
   DashboardPermission,
+  GalleryPermission,
   ProductPermission,
   CustomerPermission,
   SupplierPermission,
-  StaffPermission,
+  PurchasePermission,
   SalesPermission,
+  SalesReturnPermission,
+  StaffPermission,
   AccountingPermission,
   UserPermission,
   RolePermission,
@@ -148,8 +151,9 @@ import {
   // ProductionPermission,
   SuperAdminPermission,
   RouteOperationPermission,
-  HelpPermission,
   PayrollPermission,
+  PurchaseReturnPermission,
+  HelpPermission,
   SystemPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
@@ -242,7 +246,6 @@ import CreateSalesReturnPayment from "@/pages/salesOrders/returns/CreateSalesRet
 import SalesReturnPaymentDetails from "@/pages/salesOrders/returns/SalesReturnPaymentDetails";
 import SalesReturnsList from "@/pages/salesOrders/returns/SalesReturnsList";
 import SalesReturnPrint from "@/pages/salesOrders/returns/SalesReturnPrint";
-import ModulesFunctionality from "@/pages/modules/ModulesFunctionality";
 
 import ApprovedPurchaseReturns from "@/pages/suppliers/purchaseOrder/ApprovedPurchaseReturns";
 import PendingPurchaseReturns from "@/pages/suppliers/purchaseOrder/PendingPurchaseReturns";
@@ -275,6 +278,7 @@ export const sidebarItemLink = [
     allowedPermissions: [
       SuperAdminPermission.ACCESS_ALL,
       DashboardPermission.VIEW,
+      GalleryPermission.VIEW,
     ],
   },
 
@@ -555,7 +559,7 @@ export const sidebarItemLink = [
         element: <ReturnedOrders />,
         icon: RotateCcw,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURNS,
+          SalesPermission.RETURNED_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -753,7 +757,7 @@ export const sidebarItemLink = [
     url: "#",
     icon: RotateCcw,
     allowedPermissions: [
-      SalesPermission.VIEW_SALES_RETURNS,
+      SalesReturnPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
@@ -763,7 +767,7 @@ export const sidebarItemLink = [
         element: <SalesReturnsList />,
         icon: List,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURNS,
+          SalesReturnPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -773,7 +777,7 @@ export const sidebarItemLink = [
         element: <ApprovedSalesReturns />,
         icon: CheckCircle,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURNS,
+          SalesReturnPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -783,7 +787,7 @@ export const sidebarItemLink = [
         element: <PendingSalesReturns />,
         icon: Clock,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURNS,
+          SalesReturnPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -793,7 +797,7 @@ export const sidebarItemLink = [
         element: <CreateSalesReturn />,
         icon: PlusCircle,
         allowedPermissions: [
-          SalesPermission.CREATE_SALES_RETURN,
+          SalesReturnPermission.CREATE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -802,7 +806,7 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/returns/:returnId",
         element: <ViewSalesReturn />,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_DETAILS,
+          SalesReturnPermission.DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -811,7 +815,7 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/returns/:returnId/print",
         element: <SalesReturnPrint />,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_DETAILS,
+          SalesReturnPermission.DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -820,7 +824,7 @@ export const sidebarItemLink = [
         url: "/dashboard/sales-return-invoices/:id",
         element: <SalesReturnInvoiceDetails />,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_INVOICE_DETAILS,
+          SalesReturnPermission.VIEW_INVOICE_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -829,7 +833,7 @@ export const sidebarItemLink = [
         url: "/dashboard/sales-return-invoices/:id/preview",
         element: <SalesReturnInvoicePrintPreview />,
         allowedPermissions: [
-          SalesPermission.PREVIEW_SALES_RETURN_INVOICE,
+          SalesReturnPermission.PREVIEW_INVOICE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -839,7 +843,7 @@ export const sidebarItemLink = [
         element: <SalesReturnPaymentsList />,
         icon: Banknote,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_PAYMENTS,
+          SalesReturnPermission.VIEW_PAYMENTS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -848,7 +852,7 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/returns/payments/create",
         element: <CreateSalesReturnPayment />,
         allowedPermissions: [
-          SalesPermission.CREATE_SALES_RETURN_PAYMENT,
+          SalesReturnPermission.CREATE_PAYMENT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -857,7 +861,7 @@ export const sidebarItemLink = [
         url: "/dashboard/sales/returns/payments/:id",
         element: <SalesReturnPaymentDetails />,
         allowedPermissions: [
-          SalesPermission.VIEW_SALES_RETURN_PAYMENT_DETAILS,
+          SalesReturnPermission.VIEW_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1334,7 +1338,7 @@ export const sidebarItemLink = [
     url: "#",
     icon: Car,
     allowedPermissions: [
-      SupplierPermission.VIEW,
+      PurchasePermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
@@ -1344,7 +1348,7 @@ export const sidebarItemLink = [
         element: <PurchaseOrdersList />,
         icon: List,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchasePermission.LIST,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1354,7 +1358,7 @@ export const sidebarItemLink = [
         element: <PendingPurchaseOrders />,
         icon: Clock,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchasePermission.LIST,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1364,7 +1368,7 @@ export const sidebarItemLink = [
         element: <ApprovedPurchaseOrders />,
         icon: CheckCircle,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchasePermission.LIST,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1374,7 +1378,7 @@ export const sidebarItemLink = [
         element: <RejectedPurchaseOrders />,
         icon: XCircle,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchasePermission.LIST,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1384,7 +1388,7 @@ export const sidebarItemLink = [
         element: <CreatePurchaseOrderPage />,
         icon: PlusCircle,
         allowedPermissions: [
-          SupplierPermission.CREATE_PURCHASE_ORDER,
+          PurchasePermission.CREATE_PURCHASE_ORDER,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1393,7 +1397,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-orders/:purchaseId",
         element: <ViewPurchaseOrderPage />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS,
+          PurchasePermission.VIEW_PURCHASE_ORDER_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1403,7 +1407,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-orders/:purchaseId/edit",
         element: <EditPurchaseOrderPage />,
         allowedPermissions: [
-          SupplierPermission.EDIT_PURCHASE_ORDER,
+          PurchasePermission.EDIT_PURCHASE_ORDER,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1412,7 +1416,7 @@ export const sidebarItemLink = [
         url: "/purchase-orders/create",
         element: <CreatePurchaseOrderPage />,
         allowedPermissions: [
-          SupplierPermission.CREATE_PURCHASE_ORDER,
+          PurchasePermission.CREATE_PURCHASE_ORDER,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1421,7 +1425,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-orders/print-preview",
         element: <PurchaseOrdersPrintPreview />,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchasePermission.VIEW_PURCHASE_ORDERS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1430,7 +1434,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-orders/:purchaseId/print",
         element: <PurchaseOrderPrint />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_ORDER_DETAILS,
+          PurchasePermission.VIEW_PURCHASE_ORDER_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1440,7 +1444,7 @@ export const sidebarItemLink = [
         element: <PurchaseInvoicesList />,
         icon: FileText,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_INVOICES,
+          PurchasePermission.VIEW_PURCHASE_INVOICES,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1449,7 +1453,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-invoices/:id",
         element: <PurchaseInvoicesDetails />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_INVOICE_DETAILS,
+          PurchasePermission.VIEW_PURCHASE_INVOICE_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1458,7 +1462,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-invoices/:id/preview",
         element: <PurchaseInvoicePrintPreview />,
         allowedPermissions: [
-          SupplierPermission.PREVIEW_PURCHASE_INVOICE,
+          PurchasePermission.PREVIEW_PURCHASE_INVOICE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1467,7 +1471,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-payments/create",
         element: <CreatePurchasePayments />,
         allowedPermissions: [
-          SupplierPermission.CREATE_PURCHASE_PAYMENT,
+          PurchasePermission.CREATE_PURCHASE_PAYMENT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1477,7 +1481,7 @@ export const sidebarItemLink = [
         element: <PurchasePayments />,
         icon: CreditCard,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_PAYMENTS,
+          PurchasePermission.VIEW_PURCHASE_PAYMENTS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1486,7 +1490,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-payments/:id",
         element: <PurchasePaymentsDetails />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS,
+          PurchasePermission.VIEW_PURCHASE_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1495,7 +1499,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-payments/:id/preview",
         element: <PurchasePaymentPrintPreview />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_PAYMENT_DETAILS,
+          PurchasePermission.VIEW_PURCHASE_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1505,7 +1509,7 @@ export const sidebarItemLink = [
         element: <PurchaseOrdersMapPage />,
         icon: MapPin,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_ORDERS_MAP,
+          PurchasePermission.VIEW_PURCHASE_ORDERS_MAP,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1518,7 +1522,7 @@ export const sidebarItemLink = [
     url: "#",
     icon: RotateCcw,
     allowedPermissions: [
-      SupplierPermission.VIEW,
+      PurchaseReturnPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
@@ -1528,7 +1532,7 @@ export const sidebarItemLink = [
         element: <ReturnedPurchaseOrders />,
         icon: List,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchaseReturnPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1538,7 +1542,7 @@ export const sidebarItemLink = [
         element: <ApprovedPurchaseReturns />,
         icon: CheckCircle,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchaseReturnPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1548,7 +1552,7 @@ export const sidebarItemLink = [
         element: <PendingPurchaseReturns />,
         icon: Clock,
         allowedPermissions: [
-          SupplierPermission.LIST,
+          PurchaseReturnPermission.VIEW,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1558,7 +1562,7 @@ export const sidebarItemLink = [
         element: <CreatePurchaseReturnPage />,
         icon: PlusCircle,
         allowedPermissions: [
-          SupplierPermission.CREATE_PURCHASE_ORDER,
+          PurchaseReturnPermission.CREATE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1567,7 +1571,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-returns/:returnId",
         element: <ViewPurchaseReturnPage />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_RETURN_DETAILS,
+          PurchaseReturnPermission.DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1576,7 +1580,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-returns/:returnId/print",
         element: <PurchaseReturnPrint />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_RETURN_DETAILS,
+          PurchaseReturnPermission.DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1585,7 +1589,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-return-invoices/:id",
         element: <PurchaseReturnInvoiceDetails />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_RETURN_INVOICE_DETAILS,
+          PurchaseReturnPermission.VIEW_INVOICE_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1594,7 +1598,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-return-invoices/:id/preview",
         element: <PurchaseReturnInvoicePrintPreview />,
         allowedPermissions: [
-          SupplierPermission.PREVIEW_PURCHASE_RETURN_INVOICE,
+          PurchaseReturnPermission.PREVIEW_INVOICE,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1603,7 +1607,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-returns/payments/create",
         element: <CreatePurchaseReturnPayment />,
         allowedPermissions: [
-          SupplierPermission.CREATE_PURCHASE_RETURN_PAYMENT,
+          PurchaseReturnPermission.CREATE_PAYMENT,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1613,7 +1617,7 @@ export const sidebarItemLink = [
         element: <PurchaseReturnPayments />,
         icon: Banknote,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_RETURN_PAYMENTS,
+          PurchaseReturnPermission.VIEW_PAYMENTS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1622,7 +1626,7 @@ export const sidebarItemLink = [
         url: "/dashboard/purchase-returns/payments/:id",
         element: <PurchaseReturnPaymentsDetails />,
         allowedPermissions: [
-          SupplierPermission.VIEW_PURCHASE_RETURN_PAYMENT_DETAILS,
+          PurchaseReturnPermission.VIEW_PAYMENT_DETAILS,
           SuperAdminPermission.ACCESS_ALL,
         ],
       },
@@ -1744,10 +1748,10 @@ export const sidebarItemLink = [
         url: "/dashboard/accounting/reports/profit-by-item",
         element: <ProfitByItem />,
         icon: CreditCard,
-        // allowedPermissions: [
-        //   AccountingPermission.PROFIT_BY_ITEM,
-        //   SuperAdminPermission.ACCESS_ALL,
-        // ],
+        allowedPermissions: [
+          AccountingPermission.PROFIT_BY_ITEM,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Tax Submissions",
@@ -2223,15 +2227,15 @@ export const sidebarItemLink = [
     ],
   },
 
-  {
-    title: "Modules",
-    url: "/dashboard/modules-functionality",
-    icon: Layers,
-    element: <ModulesFunctionality />,
-    allowedPermissions: [
-      SuperAdminPermission.ACCESS_ALL,
-    ],
-  },
+  // {
+  //   title: "Modules",
+  //   url: "/dashboard/modules-functionality",
+  //   icon: Layers,
+  //   element: <ModulesFunctionality />,
+  //   allowedPermissions: [
+  //     SuperAdminPermission.ACCESS_ALL,
+  //   ],
+  // },
 
   {
     title: "Help",

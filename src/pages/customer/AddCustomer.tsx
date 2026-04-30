@@ -47,6 +47,7 @@ const customerSchema = z.object({
   tax_id: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional(),
+  address_search: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
@@ -95,6 +96,7 @@ export default function AddCustomerPage() {
       tax_id: "",
       email: "",
       phone: "",
+      address_search: "",
       address: "",
       city: "",
       state: "",
@@ -127,7 +129,7 @@ export default function AddCustomerPage() {
 
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
     try {
-      const { salesRouteId, ...rest } = values;
+      const { salesRouteId, address_search, ...rest } = values;
       const payload: CreateCustomerRequest = {
         ...rest,
         sales_route_id: Number(salesRouteId),
@@ -522,15 +524,16 @@ export default function AddCustomerPage() {
             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
               <Controller
                 control={control}
-                name="address"
+                name="address_search"
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Address</FieldLabel>
+                    <FieldLabel>Search Address</FieldLabel>
                     <AddressAutocomplete
                       {...field}
                       placeholder="Search address"
                       onAddressSelect={(details) => {
                         field.onChange(details.address);
+                        setValue("address", details.address);
                         setValue("city", details.city);
                         setValue("state", details.state);
                         setValue("postal_code", details.postalCode);
@@ -634,6 +637,20 @@ export default function AddCustomerPage() {
                   </Field>
                 )}
               />
+
+              <div className="md:col-span-2">
+                <Controller
+                  control={control}
+                  name="address"
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Address (Optional)</FieldLabel>
+                      <Textarea placeholder="Enter full address" {...field} />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

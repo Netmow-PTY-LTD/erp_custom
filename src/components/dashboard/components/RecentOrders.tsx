@@ -36,7 +36,12 @@ export default function RecentOrders() {
       accessorKey: "customer",
       header: "Customer",
       cell: ({ row }) => (
-        <div className="font-semibold">{row.original.customer?.name}</div>
+        <div>
+          <div className="font-semibold">{row.original.customer?.name}</div>
+          {row.original.customer?.company && (
+            <div className="text-xs text-muted-foreground">{row.original.customer.company}</div>
+          )}
+        </div>
       ),
     },
 

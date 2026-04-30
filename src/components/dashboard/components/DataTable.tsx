@@ -56,6 +56,7 @@ interface DataTableProps<TData> {
   onPageSizeChange?: (size: number) => void;
   search?: string;
   onSearch?: (value: string) => void;
+  searchPlaceholder?: string;
   isFetching?: boolean | null;
 
   globalFilterValue?: string;
@@ -78,6 +79,7 @@ export function DataTable<TData>({
   onPageChange = () => { },
   onPageSizeChange = () => { },
   onSearch = () => { },
+  searchPlaceholder = "Search...",
   isFetching = null,
   // onGlobalFilterChange = () => {},
   globalFilterValue = "",
@@ -108,6 +110,7 @@ export function DataTable<TData>({
     getSortedRowModel: getSortedRowModel(),
     // onGlobalFilterChange: setGlobalFilter,
     manualPagination: true,
+    manualFiltering: true,
     pageCount: Math.ceil(totalCount / pageSize),
   });
 
@@ -117,7 +120,7 @@ export function DataTable<TData>({
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-4 justify-between print:hidden">
         <Input
-          placeholder="Search..."
+          placeholder={searchPlaceholder}
           value={globalFilter}
           onChange={(e) => {
             setGlobalFilter(e.target.value);

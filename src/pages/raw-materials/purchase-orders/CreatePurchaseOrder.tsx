@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/command";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppSelector } from "@/store/store";
 import { BackButton } from "@/components/BackButton";
 import z from "zod";
@@ -47,7 +47,7 @@ const orderSchema = z
       z.object({
         rawMaterialId: z.number().min(1, "Raw material is required"),
         quantity: z.number().min(1, "Quantity must be at least 1"),
-        unit_cost: z.number().min(1, "Unit price must be at least 1"),
+        unit_cost: z.number().min(0.01, "Unit price must be at least 0.01"),
       })
     ),
   })
@@ -131,7 +131,7 @@ export default function CreateRMPurchaseOrder() {
         </PopoverTrigger>
 
         <PopoverContent className="w-[320px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search suppliers..."
               onValueChange={(value) => setQuery(value)}
@@ -181,15 +181,27 @@ export default function CreateRMPurchaseOrder() {
   }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null);
 
     const { data, isLoading } = useGetAllRawMaterialsQuery({
       page: 1,
-      limit: 50,
+      limit: 100,
       search: query,
     });
 
     const list = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.find((m) => Number(m.id) === Number(field.value));
+    // Try to find selected material in search results first, otherwise use stored material
+    const selected = list.find((m) => Number(m.id) === Number(field.value)) || selectedMaterial;
+
+    // Update selectedMaterial when field value changes externally
+    useEffect(() => {
+      if (field.value && (!selectedMaterial || Number(selectedMaterial.id) !== Number(field.value))) {
+        const found = list.find((m) => Number(m.id) === Number(field.value));
+        if (found) {
+          setSelectedMaterial(found);
+        }
+      }
+    }, [field.value, list]);
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -212,7 +224,7 @@ export default function CreateRMPurchaseOrder() {
         </PopoverTrigger>
 
         <PopoverContent className="w-[320px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search raw materials..."
               onValueChange={(value) => setQuery(value)}
@@ -233,6 +245,7 @@ export default function CreateRMPurchaseOrder() {
                     <CommandItem
                       key={material.id}
                       onSelect={() => {
+                        setSelectedMaterial(material);
                         field.onChange(Number(material.id));
                         setOpen(false);
                       }}
