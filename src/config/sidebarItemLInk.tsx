@@ -757,7 +757,7 @@ export const sidebarItemLink = [
     url: "#",
     icon: RotateCcw,
     allowedPermissions: [
-      SalesPermission.VIEW_SALES_RETURNS,
+      SalesReturnPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
@@ -1522,7 +1522,7 @@ export const sidebarItemLink = [
     url: "#",
     icon: RotateCcw,
     allowedPermissions: [
-      PurchasePermission.VIEW,
+      PurchaseReturnPermission.VIEW,
       SuperAdminPermission.ACCESS_ALL,
     ],
     items: [
