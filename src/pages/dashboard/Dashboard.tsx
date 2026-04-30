@@ -42,8 +42,8 @@ export default function Dashboard() {
   const canDeliveredSalesListShow = userPermissions.includes(DashboardPermission.DELIVERED_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canInTransitSalesListShow = userPermissions.includes(DashboardPermission.INTRANSIT_SALES_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const isSuperAdmin = userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
-  const canRecentActiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_ACTIVE_CUSTOMERS_LIST) || isSuperAdmin;
-  const canRecentInactiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_INACTIVE_CUSTOMERS_LIST) || isSuperAdmin;
+  const canRecentActiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_ACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canRecentInactiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_INACTIVE_CUSTOMERS_LIST) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canStaffsChartShow = userPermissions.includes(DashboardPermission.STAFFS_CHART) && !isSuperAdmin;
 
   const [invoicePeriod, setInvoicePeriod] = useState<"today" | "thisMonth" | "lastMonth" | "thisYear">("thisMonth");
