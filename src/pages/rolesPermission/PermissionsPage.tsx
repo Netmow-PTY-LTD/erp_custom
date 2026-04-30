@@ -56,6 +56,19 @@ export default function PermissionsPage() {
   const { roleId } = useParams();
   const [activeTab, setActiveTab] = useState("dashboard");
 
+  const groupTitles: Record<string, string> = {
+    RouteOperations: "Route Operations",
+    PurchaseReturn: "Purchase Return",
+    SalesReturn: "Sales Return",
+    Payroll: "HR & Payroll",
+    Roles: "Roles & Permissions",
+    System: "Database",
+    Gallery: "Gallery",
+  };
+
+  const formatGroupName = (name: string) =>
+    groupTitles[name] ?? name.replace(/([a-z])([A-Z])/g, "$1 $2");
+
   const { data, isLoading } = useGetRoleByIdQuery(roleId as string, { skip: !roleId });
   const [updateRole, { isLoading: updateRoleIsLoading }] = useUpdateRoleMutation()
 
@@ -340,7 +353,7 @@ export default function PermissionsPage() {
                               <Card key={groupName} className="py-10" >
                                 <CardHeader className="flex flex-row items-center justify-between py-3">
                                   <CardTitle className="text-sm">
-                                    {groupName}
+                                    {formatGroupName(groupName)}
                                   </CardTitle>
                                   <Button
                                     type="button"
