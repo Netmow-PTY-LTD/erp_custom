@@ -130,7 +130,10 @@ export default function DeliveredOrders() {
       header: "Customer",
       meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => (
-        <div className="font-semibold">{row.original.customer?.name}</div>
+        <div className="font-semibold">
+          <div className="text-xs text-muted-foreground">{row.original.customer?.company || '-'}</div>
+          <div>{row.original.customer?.name}</div>
+        </div>
       ),
     },
 

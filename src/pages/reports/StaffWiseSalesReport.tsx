@@ -87,6 +87,33 @@ export default function StaffWiseSalesReport() {
                 </div>
             ),
         },
+        {
+            accessorKey: "total_paid",
+            header: () => <div className="text-right">Total Paid ({currency})</div>,
+            cell: (info) => (
+                <div className="text-right font-mono font-semibold text-blue-600">
+                    {(info.getValue() as number).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                    })}
+                </div>
+            ),
+        },
+        {
+            accessorKey: "due_amount",
+            header: () => <div className="text-right">Due ({currency})</div>,
+            cell: (info) => {
+                const value = info.getValue() as number;
+                return (
+                    <div className={`text-right font-mono font-semibold ${value > 0 ? 'text-red-600' : 'text-slate-600'}`}>
+                        {value.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                        })}
+                    </div>
+                );
+            },
+        },
     ];
 
     return (

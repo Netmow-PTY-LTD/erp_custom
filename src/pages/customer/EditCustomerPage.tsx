@@ -28,6 +28,7 @@ import {
 
 import { useNavigate, useParams } from "react-router";
 import { useGetCustomerByIdQuery, useUpdateCustomerMutation } from "@/store/features/customers/customersApi";
+import { type UpdateCustomerRequest } from "@/store/features/customers/types";
 import { toast } from "sonner";
 import { User, CheckCircle2, Phone, MapPin, Briefcase, Image as ImageIcon, Plus, Trash2, Edit2, Mail, BadgeCheck } from "lucide-react";
 
@@ -45,8 +46,8 @@ import { CustomerPermission, SuperAdminPermission } from "@/config/permissions";
 /* ------------------ ZOD SCHEMA ------------------ */
 
 const customerSchema = z.object({
-  name: z.string().min(1, "Required"),
-  company: z.string().optional(),
+  name: z.string().optional(),
+  company: z.string().min(1, "Company name is required"),
   customer_type: z.enum(["individual", "business", "retail"]),
   tax_id: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
@@ -56,9 +57,9 @@ const customerSchema = z.object({
   state: z.string().optional(),
   country: z.string().optional(),
   postal_code: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  credit_limit: z.number().min(0, "Credit limit must be 0 or more"),
+  latitude: z.coerce.number().optional().or(z.literal("")),
+  longitude: z.coerce.number().optional().or(z.literal("")),
+  credit_limit: z.coerce.number().min(0, "Credit limit must be 0 or more"),
   notes: z.string().optional(),
   is_active: z.boolean(),
   thumb_url: z.string().optional(),
@@ -170,9 +171,12 @@ export default function EditCustomerPage() {
         company: customer.company || "",
         customer_type: (function () {
           const raw = customer.customer_type;
-          const normalized = raw && typeof raw === 'string' ? raw.trim().toLowerCase() : "individual";
-          return (["individual", "business", "retail"].includes(normalized) ? normalized : "individual") as "individual" | "business" | "retail";
-        })(),
+          const normalized = raw && typeof raw === 'string' ? raw.trim().toLowerCase() : String(raw).toLowerCase();
+          // Map potential other values to business
+          if (["wholesale", "key_account", "key account", "business"].includes(normalized)) return "business";
+          if (normalized === "retail") return "retail";
+          return "individual";
+        })() as "individual" | "business" | "retail",
         tax_id: customer.tax_id || "",
         email: customer.email || "",
         phone: customer.phone || "",
@@ -197,11 +201,13 @@ export default function EditCustomerPage() {
   /* ------------------ SUBMIT ------------------ */
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
     try {
-      const payload = {
-        ...values,
-        salesRouteId: Number(values.salesRouteId)
-
-      }
+      const { salesRouteId, ...rest } = values;
+      const payload: UpdateCustomerRequest = {
+        ...rest,
+        sales_route_id: Number(salesRouteId),
+        latitude: rest.latitude === "" ? undefined : rest.latitude,
+        longitude: rest.longitude === "" ? undefined : rest.longitude,
+      };
 
 
       const res = await updateCustomer({
@@ -269,13 +275,14 @@ export default function EditCustomerPage() {
             <div className="flex flex-col md:flex-row gap-6 md:gap-12">
               {/* Left side: Name, Company, Type, Tax ID in a grid */}
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 <Controller
                   control={control}
-                  name="name"
+                  name="company"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Customer Name *</FieldLabel>
-                      <Input placeholder="e.g. John Doe" {...field} />
+                      <FieldLabel>Company Name *</FieldLabel>
+                      <Input placeholder="e.g. Acme Corp" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
@@ -283,11 +290,11 @@ export default function EditCustomerPage() {
 
                 <Controller
                   control={control}
-                  name="company"
+                  name="name"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Company Name</FieldLabel>
-                      <Input placeholder="e.g. Acme Corp" {...field} />
+                      <FieldLabel>Customer Name</FieldLabel>
+                      <Input placeholder="e.g. John Doe" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
@@ -299,7 +306,7 @@ export default function EditCustomerPage() {
                   render={({ field, fieldState }) => (
                     <Field>
                       <FieldLabel>Customer Type</FieldLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select key={field.value} value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>

@@ -253,6 +253,18 @@ export const staffAttendanceApiService = baseApi.injectEndpoints({
       providesTags: ["StaffCheckIn"],
     }),
 
+    // GET STAFF'S ROUTES WITH CUSTOMERS FOR CHECK-IN
+    getMyRoutesWithCustomers: builder.query<
+      AttendanceResponse<any[]>,
+      void
+    >({
+      query: () => ({
+        url: "/salesroutes/my-routes",
+        method: "GET",
+      }),
+      providesTags: ["StaffCheckIn"],
+    }),
+
 
   }),
 });
@@ -270,4 +282,5 @@ export const {
   useStaffCheckInMutation,
   useGetCheckInByIdQuery,
   useGetCustomerCheckInListByDateQuery,
+  useGetMyRoutesWithCustomersQuery,
 } = staffAttendanceApiService;

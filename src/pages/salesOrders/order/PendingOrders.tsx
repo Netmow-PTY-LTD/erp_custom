@@ -25,6 +25,7 @@ import {
   Clock,
   CreditCard,
   DollarSign,
+  Edit,
   Eye,
   PlusCircle,
   Printer,
@@ -65,6 +66,9 @@ export default function PendingOrders() {
     userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
   const canUpdateDelivery =
     userPermissions.includes(SalesPermission.UPDATE_DELIVERY) ||
+    userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canEditOrder =
+    userPermissions.includes(SalesPermission.EDIT_ORDER) ||
     userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
   const handleOpenUpdateDeliveryStatusModal = (order: any) => {
@@ -131,7 +135,10 @@ export default function PendingOrders() {
       header: "Customer",
       meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
       cell: ({ row }) => (
-        <div className="font-semibold">{row.original.customer?.name}</div>
+        <div className="font-semibold">
+          <div className="text-xs text-muted-foreground">{row.original.customer?.company || '-'}</div>
+          <div>{row.original.customer?.name}</div>
+        </div>
       ),
     },
 
@@ -281,6 +288,13 @@ export default function PendingOrders() {
                 <Printer className="w-4 h-4" />
               </Button>
             </Link>
+            {canEditOrder && item.status === "pending" && (
+              <Link to={`/dashboard/sales/orders/${item.id}/edit`}>
+                <Button size="sm" variant="outline" className="h-8 bg-amber-50 text-amber-600 hover:bg-amber-100 border-none shadow-none" title="Edit Order">
+                  <Edit className="w-4 h-4 mr-1" /> Edit
+                </Button>
+              </Link>
+            )}
             {canUpdateDelivery && (
               <Button
                 size="sm"

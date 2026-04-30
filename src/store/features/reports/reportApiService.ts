@@ -233,6 +233,174 @@ export const reportsApiService = baseApi.injectEndpoints({
       }),
       providesTags: ["Reports"],
     }),
+
+    // GET /api/reports/invoices/staff-wise
+    getStaffWiseInvoices: builder.query<
+      ReportResponse,
+      {
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+        staff_id?: string | number;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/invoices/staff-wise",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    // My Reports - GET /api/reports/my/*
+    getMySales: builder.query<
+      ReportResponse,
+      {
+        startDate?: string;
+        endDate?: string;
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+        customerId?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/my/sales",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    getMyInvoices: builder.query<
+      ReportResponse,
+      {
+        startDate?: string;
+        endDate?: string;
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+        customerId?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/my/invoices",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    getMyCustomerWiseSales: builder.query<
+      ReportResponse,
+      {
+        startDate?: string;
+        endDate?: string;
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/my/customer-wise-sales",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    getMyCustomerWiseInvoices: builder.query<
+      ReportResponse,
+      {
+        startDate?: string;
+        endDate?: string;
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/my/customer-wise-invoices",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    getCustomerWiseInvoices: builder.query<
+      ReportResponse,
+      {
+        customer_id: number | string;
+        startDate?: string;
+        endDate?: string;
+        start_date?: string;
+        end_date?: string;
+        page?: number;
+        limit?: number;
+        search?: string;
+        status?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "/reports/customer-wise-invoices",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    getMyCustomers: builder.query<
+      {
+        status: boolean;
+        message: string;
+        data: {
+          data: Array<{
+            id: number;
+            company: string;
+            name: string;
+            email: string;
+            phone: string;
+            address: string;
+            status: string;
+          }>;
+          pagination: {
+            total: number;
+            limit: number;
+          };
+        };
+      },
+      { search?: string; limit?: number }
+    >({
+      query: (params) => ({
+        url: "/reports/my/customers",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports"],
+    }),
+
+    // GET /api/dashboard/staffs/charts - Staff's month-wise total sales
+    getStaffsCharts: builder.query<
+      Array<{ name: string; total: number }>,
+      { staff_id?: number | string }
+    >({
+      query: (params) => ({
+        url: "/dashboard/staffs/charts",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["Reports", "Dashboard"],
+    }),
   }),
 });
 
@@ -253,4 +421,12 @@ export const {
   useGetHrPayrollQuery,
   useGetProfitLossQuery,
   useGetStaffWiseSalesQuery,
+  useGetStaffWiseInvoicesQuery,
+  useGetMySalesQuery,
+  useGetMyInvoicesQuery,
+  useGetMyCustomerWiseSalesQuery,
+  useGetMyCustomerWiseInvoicesQuery,
+  useGetCustomerWiseInvoicesQuery,
+  useGetMyCustomersQuery,
+  useGetStaffsChartsQuery,
 } = reportsApiService;

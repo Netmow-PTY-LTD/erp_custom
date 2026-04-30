@@ -21,6 +21,8 @@ export const DashboardPermission = {
   INTRANSIT_SALES_LIST: "dashboard.intransit_sales.list" as const,
   RECENT_ACTIVE_CUSTOMERS_LIST: "dashboard.recent_active_customers.list" as const,
   RECENT_INACTIVE_CUSTOMERS_LIST: "dashboard.recent_inactive_customers.list" as const,
+  STAFFS_STATS: "dashboard.staffs.stats" as const,
+  STAFFS_CHART: "dashboard.staffs.chart" as const,
 };
 
 // --- Products ---
@@ -230,6 +232,11 @@ export const ReportPermission = {
   INVENTORY: "reports.inventory.view" as const,
   CUSTOMERS: "reports.customers.view" as const,
   STAFFS: "reports.staffs.view" as const,
+  STAFFWISE_SALES: "reports.staffwise_sales.view" as const,
+  STAFFWISE_INVOICES: "reports.staffwise_invoices.view" as const,
+  MYREPORTS: "reports.myreports.view" as const,
+  MYSALES: "reports.mysales.view" as const,
+  MYINVOICES: "reports.myinvoices.view" as const,
 };
 
 // --- Raw Materials ---

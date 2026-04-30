@@ -195,6 +195,8 @@ export default function EditProductPage() {
       initial_stock: Number(values.initialStock),
       min_stock_level: Number(values.minStock),
       max_stock_level: Number(values.maxStock),
+      purchase_tax: Number(values.purchase_tax),
+      sales_tax: Number(values.sales_tax),
       weight: Number(values.weight),
       width: Number(values.width),
       height: Number(values.height),
@@ -281,7 +283,7 @@ export default function EditProductPage() {
                     render={({ field, fieldState }) => (
                       <Field>
                         <FieldLabel>SKU</FieldLabel>
-                        <Input disabled placeholder="SKU123" {...field} />
+                        <Input placeholder="SKU123" {...field} />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </Field>
                     )}
@@ -566,7 +568,7 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>
-                      Price {currency ? `(${currency})` : ""}{" "}
+                      Selling Price {currency ? `(${currency})` : ""}{" "}
                     </FieldLabel>
                     <Input
                       type="number"
@@ -587,7 +589,7 @@ export default function EditProductPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>
-                      Cost Price {currency ? `(${currency})` : ""}{" "}
+                      Buying Price {currency ? `(${currency})` : ""}{" "}
                     </FieldLabel>
                     <Input
                       type="number"

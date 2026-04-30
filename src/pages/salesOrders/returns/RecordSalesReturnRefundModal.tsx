@@ -235,7 +235,7 @@ export default function RecordSalesReturnRefundModal({ open, onOpenChange, defau
                                         <FormLabel className="font-semibold text-slate-700">Payment Method <span className="text-red-500">*</span></FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="h-11">
+                                                <SelectTrigger className="h-11 w-full">
                                                     <SelectValue placeholder="Select Method" />
                                                 </SelectTrigger>
                                             </FormControl>

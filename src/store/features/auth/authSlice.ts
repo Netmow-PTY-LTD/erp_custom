@@ -29,6 +29,8 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       Cookies.remove('token');
+      // Clear localStorage to remove persisted state
+      localStorage.removeItem('reduxState');
     },
   },
   extraReducers: (builder) => {

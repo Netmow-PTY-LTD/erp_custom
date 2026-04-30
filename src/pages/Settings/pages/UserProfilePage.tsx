@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import { setCurrency } from "@/store/currencySlice";
 import { useAppDispatch } from "@/store/store";
 import ImageUploaderPro from "@/components/form/ImageUploaderPro";
+import { Loader2 } from "lucide-react";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const profileSchema = z.object({
@@ -24,6 +25,7 @@ const profileSchema = z.object({
   address: z.string().optional(),
   currency: z.string().optional(),
   logo_url: z.string().optional(),
+  qr_code: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -44,6 +46,7 @@ export default function EditProfilePage() {
       address: "",
       currency: "",
       logo_url: "",
+      qr_code: "",
     },
   });
 
@@ -74,12 +77,13 @@ export default function EditProfilePage() {
         address: settings?.address,
         currency: settings?.currency,
         logo_url: settings?.logo_url,
+        qr_code: settings?.qr_code,
       });
     }
   }, [settings, form]);
 
 
-  const [updateCompanyProfile] = useUpdateSettingsInfoMutation();
+  const [updateCompanyProfile, { isLoading: isUpdating }] = useUpdateSettingsInfoMutation();
 
   const onSubmit: SubmitHandler<ProfileFormValues> = async (values) => {
     console.log("Updated profile:", values);
@@ -98,7 +102,7 @@ export default function EditProfilePage() {
   };
 
   return (
-    <div className=" py-2 px-2 space-y-6 max-w-[700px] w-full">
+    <div className="py-2 px-2 space-y-6 max-w-[700px] w-full p-8 rounded-2xl bg-white dark:bg-gray-900 mt-6 mx-auto mb-10 transition-all duration-300">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl font-semibold">Company Profile</h1>
@@ -125,6 +129,19 @@ export default function EditProfilePage() {
             </Field>
           )}
         />
+        {/* QR CODE */}
+        <Controller
+          control={control}
+          name="qr_code"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Payment QR Code</FieldLabel>
+              <ImageUploaderPro value={field.value} onChange={field.onChange} />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+
         {/* USERNAME */}
         <Controller
           control={control}
@@ -235,8 +252,10 @@ export default function EditProfilePage() {
         </div> */}
 
         {/* SUBMIT */}
-        <div className="pt-4">
-          <Button type="submit">Update profile</Button>
+        <div className="pt-6">
+          <Button type="submit" disabled={isUpdating}>
+            {isUpdating ? <div className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Updating...</div> : "Update profile"}
+          </Button>
         </div>
       </form>
     </div>

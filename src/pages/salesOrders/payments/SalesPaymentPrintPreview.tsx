@@ -20,8 +20,8 @@ export default function SalesPaymentPrintPreview() {
     if (isLoading) return <div className="p-8 text-center text-muted-foreground text-lg">Loading payment preview...</div>;
 
     return (
-        <div className="bg-white min-h-screen py-10 print:bg-white print:py-0">
-            <div className="max-w-[850px] mx-auto mb-6 px-4 print:hidden">
+        <div className="bg-white py-10 print:bg-white print:py-0">
+            <div className="max-w-[850px] mx-auto mb-6 print:hidden">
                 <Link to="/dashboard/sales/payments">
                     <Button variant="outline" className="gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back to Payments

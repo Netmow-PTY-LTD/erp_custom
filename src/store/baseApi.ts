@@ -67,7 +67,6 @@ const baseQueryWithRefreshToken: BaseQueryFn<
         }
       } else {
         api.dispatch(logout());
-        // optional: trigger logout endpoint if needed
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
@@ -147,7 +146,8 @@ export const baseApi = createApi({
     "SalesReturn",
     "SalesReturnInvoices",
     "SalesReturnInvoice",
-    "SalesReturnPayments"
+    "SalesReturnPayments",
+    "Dashboard"
   ],
   endpoints: () => ({}),
 });

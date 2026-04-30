@@ -26,6 +26,14 @@ export default defineConfig({
   optimizeDeps: {
     include: ['leaflet', 'react-leaflet'],
   },
+  server: {
+    proxy: {
+      '/module-docs': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
 })
 
 

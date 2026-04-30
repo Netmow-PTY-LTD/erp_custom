@@ -87,7 +87,10 @@ export default function Payments() {
       accessorKey: "order.customer_id",
       header: "Customer",
       cell: ({ row }) => (
-        <div className="font-semibold">{row.original.order?.customer.name}</div>
+        <div className="font-semibold">
+          <div className="text-xs text-muted-foreground">{row.original.order?.customer?.company || '-'}</div>
+          <div>{row.original.order?.customer?.name}</div>
+        </div>
       ),
     },
     // {
@@ -122,8 +125,8 @@ export default function Payments() {
         <div className="text-right">Amount ({currency})</div>
       ),
       cell: ({ row }) => {
-        const value = parseFloat(row.original.amount);
-        return <div className="text-right">{value.toFixed(2)}</div>;
+        const value = row.original.amount;
+        return <div className="text-right">{value?.toFixed(2) || "0.00"}</div>;
       },
     },
     {

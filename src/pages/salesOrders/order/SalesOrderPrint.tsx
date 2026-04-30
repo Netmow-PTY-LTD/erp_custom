@@ -4,7 +4,7 @@ import { useGetSalesOrderByIdQuery } from "@/store/features/salesOrder/salesOrde
 import PrintableSalesOrder from "./PrintableSalesOrder";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import type { Settings } from "@/types/types";
 
 export default function SalesOrderPrint() {
@@ -39,13 +39,16 @@ export default function SalesOrderPrint() {
     }
 
     return (
-        <div className="bg-white min-h-screen py-10 print:bg-white print:py-0">
-            <div className="max-w-[850px] mx-auto mb-6 px-4 print:hidden">
+        <div className="bg-white min-h-screen print:min-h-0 py-10 print:bg-white print:py-0">
+            <div className="max-w-[850px] mx-auto mb-6 flex items-center justify-between print:hidden">
                 <Link to="/dashboard/sales/orders">
                     <Button variant="outline" className="gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back to Orders
                     </Button>
                 </Link>
+                <Button onClick={() => window.print()} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md">
+                    <Printer className="h-4 w-4" /> Print Order
+                </Button>
             </div>
             <PrintableSalesOrder
                 order={orderData.data}

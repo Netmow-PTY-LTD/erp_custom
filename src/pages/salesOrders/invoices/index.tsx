@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/dashboard/components/DataTable";
 import { format } from "date-fns";
 import { PlusCircle, FileText, CheckCircle, Clock, AlertTriangle, Printer } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -20,7 +20,8 @@ import { useAppSelector } from "@/store/store";
 export default function Invoices() {
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
 
   const [limit, setLimit] = useState<number>(10);
 
@@ -108,18 +109,31 @@ export default function Invoices() {
       ),
       enableSorting: false,
       enableHiding: false,
+      meta: { className: "print:hidden" } as any,
     },
     {
       accessorKey: "invoice_number",
       header: "Invoice #",
       meta: { className: "md:sticky md:left-0 z-20 bg-background min-w-[120px]" } as any,
-      cell: ({ row }) => <span className="font-medium">{row.getValue("invoice_number")}</span>,
+      cell: ({ row }) => (
+        <Link 
+          to={`/dashboard/sales/invoices/${row.original.id}`}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          {row.getValue("invoice_number")}
+        </Link>
+      ),
     },
     {
       accessorKey: "order.customer.name",
       header: "Customer",
       meta: { className: "md:sticky md:left-[120px] z-20 bg-background md:shadow-[4px_0px_5px_-2px_rgba(0,0,0,0.1)]" } as any,
-      cell: ({ row }) => row.original?.order?.customer.name,
+      cell: ({ row }) => (
+        <div className="font-semibold">
+          <div className="text-xs text-muted-foreground">{row.original?.order?.customer?.company || '-'}</div>
+          <div>{row.original?.order?.customer?.name}</div>
+        </div>
+      ),
     },
     {
       accessorKey: "order.order_number",
@@ -271,11 +285,14 @@ export default function Invoices() {
     },
     {
       id: "actions",
-      header: "Actions",
+      meta: { className: "print:hidden" } as any,
+      header: () => (
+        <div className="print:hidden">Actions</div>
+      ),
       cell: ({ row }) => {
         const invoice = row.original;
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 print:hidden">
             <Link to={`/dashboard/sales/invoices/${invoice.id}`}>
               <Button size="sm" variant="outline-info">View</Button>
             </Link>
@@ -298,7 +315,24 @@ export default function Invoices() {
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-slate-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-slate-500/40 active:translate-y-0 active:shadow-none"
           >
             <Printer size={18} />
-            Print
+            Print All
+          </button>
+          <button
+            onClick={() => {
+              const selectedIdsKeys = Object.keys(rowSelection);
+              if (selectedIdsKeys.length === 0) {
+                alert("Please select at least one invoice to print.");
+                return;
+              }
+              const selected = invoices.filter((_, index) => selectedIdsKeys.includes(index.toString()));
+              navigate("/dashboard/sales/invoices/print-preview", {
+                state: { selectedInvoices: selected }
+              });
+            }}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-teal-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-teal-500/40 active:translate-y-0 active:shadow-none"
+          >
+            <Printer size={18} />
+            Print Selected
           </button>
           <Link to="/dashboard/sales/orders/create">
             <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-2.5 font-medium text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 active:shadow-none">
@@ -420,9 +454,6 @@ export default function Invoices() {
               text-align: left !important;
               line-height: 1.2 !important;
               text-transform: uppercase !important;
-            }
-            th:nth-child(11), td:nth-child(11) {
-              display: none !important;
             }
             .text-4xl {
               font-size: 18px !important;

@@ -26,6 +26,7 @@ import {
 //import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router";
 import { useCreateCustomerMutation } from "@/store/features/customers/customersApi";
+import { type CreateCustomerRequest } from "@/store/features/customers/types";
 import { toast } from "sonner";
 import { useAppSelector } from "@/store/store";
 import { AddressAutocomplete } from "@/components/form/AddressAutocomplete";
@@ -40,23 +41,20 @@ import { Button } from "@/components/ui/button";
 
 /* ------------------ ZOD SCHEMA ------------------ */
 const customerSchema = z.object({
-  name: z.string().min(1, "Required"),
-  company: z.string().optional(),
+  name: z.string().optional(),
+  company: z.string().min(1, "Company name is required"),
   customer_type: z.enum(["individual", "business", "retail"]).default("individual"),
   tax_id: z.string().optional(),
-  email: z.string()
-    .email("Invalid email")
-    .optional()
-    .or(z.literal('')),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
   country: z.string().optional(),
   postal_code: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  credit_limit: z.number().min(0, "Credit limit must be 0 or more").default(0),
+  latitude: z.coerce.number().optional().or(z.literal("")),
+  longitude: z.coerce.number().optional().or(z.literal("")),
+  credit_limit: z.coerce.number().min(0, "Credit limit must be 0 or more").default(0),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),
   thumb_url: z.string().optional(),
@@ -129,12 +127,13 @@ export default function AddCustomerPage() {
 
   const onSubmit: SubmitHandler<CustomerFormValues> = async (values) => {
     try {
-      const payload = {
-        ...values,
-        sales_route_id: Number(values.salesRouteId),
+      const { salesRouteId, ...rest } = values;
+      const payload: CreateCustomerRequest = {
+        ...rest,
+        sales_route_id: Number(salesRouteId),
+        latitude: rest.latitude === "" ? undefined : rest.latitude,
+        longitude: rest.longitude === "" ? undefined : rest.longitude,
       };
-      // @ts-ignore
-      delete payload.salesRouteId;
 
       const res = await createCustomer(payload).unwrap();
       if (res.status) {
@@ -180,11 +179,11 @@ export default function AddCustomerPage() {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Controller
                   control={control}
-                  name="name"
+                  name="company"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Customer Name *</FieldLabel>
-                      <Input placeholder="e.g. John Doe" {...field} />
+                      <FieldLabel>Company Name *</FieldLabel>
+                      <Input placeholder="e.g. Acme Corp" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
@@ -192,11 +191,11 @@ export default function AddCustomerPage() {
 
                 <Controller
                   control={control}
-                  name="company"
+                  name="name"
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Company Name</FieldLabel>
-                      <Input placeholder="e.g. Acme Corp" {...field} />
+                      <FieldLabel>Customer Name</FieldLabel>
+                      <Input placeholder="e.g. John Doe" {...field} />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}

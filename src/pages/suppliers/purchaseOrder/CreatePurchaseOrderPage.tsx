@@ -292,11 +292,12 @@ export default function CreatePurchaseOrderPage() {
       if (product) {
         // Auto-set values for this row
         setValue(`items.${index}.purchase_tax`, product.purchase_tax || 0);
-        setValue(`items.${index}.unit_cost`, Number(product.cost) || 0); // Using cost for PO
+        setValue(`items.${index}.unit_cost`, Number(product.cost) || 0); // Using price for PO
         setValue(`items.${index}.sku`, product.sku || "");
         setValue(`items.${index}.specification`, product.specification || "");
         setValue(`items.${index}.unit`, product.unit?.name || "");
         setValue(`items.${index}.stock_quantity`, product.stock_quantity || 0);
+
       }
     };
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
-import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User } from "lucide-react";
+import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarcode, ChevronUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,12 @@ import {
     CommandItem,
 } from "@/components/ui/command";
 import { Textarea } from "@/components/ui/textarea";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
 import {
@@ -85,9 +91,35 @@ type SalesOrderFormValues = z.infer<typeof orderSchema>;
 export default function PosOrder() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const [barcode, setBarcode] = useState("");
     const [newlyAddedCustomer, setNewlyAddedCustomer] = useState<any>(null);
     const currency = useAppSelector((state) => state.currency.value);
     const posLayout = useAppSelector((state) => state.layout.pos);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<{ url: string; name: string; product: any } | null>(null);
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // When sentinel is NOT intersecting (scrolled past), show button
+                setShowScrollTop(!entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
+
+        if (sentinelRef.current) {
+            observer.observe(sentinelRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    const scrollToTop = () => {
+        sentinelRef.current?.scrollIntoView({
+            behavior: "smooth",
+        });
+    };
 
     // API Hooks
     const { data: productsData } = useGetAllProductsQuery({
@@ -179,7 +211,7 @@ export default function PosOrder() {
                 sku: product.sku,
                 stock_quantity: availableStock,
                 unit: product.unit?.name || "",
-            });
+            }, { shouldFocus: false });
         }
     };
 
@@ -217,6 +249,28 @@ export default function PosOrder() {
         });
         setNewlyAddedCustomer(null);
         setSearch("");
+        setBarcode("");
+    };
+
+    // Barcode Handler
+    const handleBarcodeScan = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (!barcode) return;
+
+            // Search product in loaded data
+            const product = productsData?.data?.find(
+                (p: any) => p.sku?.toLowerCase() === barcode.toLowerCase() || p.barcode === barcode
+            );
+
+            if (product) {
+                addToCart(product);
+                setBarcode("");
+                toast.success(`Added ${product.name}`);
+            } else {
+                toast.error("Product not found or not in loaded list");
+            }
+        }
     };
 
     // Submit Handler
@@ -258,7 +312,7 @@ export default function PosOrder() {
                         await addSalesPayment({
                             order_id: orderId,
                             invoice_id: invoiceId,
-                            amount: String(grandTotal), // Use grand total for full payment
+                            amount: Number(grandTotal), // Use grand total for full payment
                             payment_method: 'cash', // Default to cash for POS
                             payment_date: new Date().toISOString(),
                             status: 'completed',
@@ -292,12 +346,14 @@ export default function PosOrder() {
         return (
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between h-9">
-                        {selected ? selected.name : "Select Customer..."}
-                        <User className="h-4 w-4 opacity-50" />
+                    <Button variant="outline" className="w-full justify-between h-9 overflow-hidden">
+                        <span className="truncate text-left">
+                            {selected ? (selected.company || selected.name) : "Select Customer..."}
+                        </span>
+                        <User className="h-4 w-4 opacity-50 shrink-0" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[280px] p-0">
+                <PopoverContent className="w-[300px] p-0">
                     <Command>
                         <CommandInput placeholder="Search customer..." onValueChange={setQ} />
                         <CommandList>
@@ -311,9 +367,20 @@ export default function PosOrder() {
                                             if (c.address) setValue("shipping_address", c.address);
                                             setOpen(false);
                                         }}
+                                        className="flex flex-col items-start gap-0.5 py-2 cursor-pointer"
                                     >
-                                        {c.name}
-                                        {field.value === c.id && <CheckCircle2 className="ml-auto h-4 w-4" />}
+                                        <div className="flex items-center justify-between w-full">
+                                            <span className="font-bold text-sm">{c.company || c.name}</span>
+                                            {field.value === c.id && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                                        </div>
+                                        {c.company && c.name && (
+                                            <span className="text-xs text-muted-foreground">{c.name}</span>
+                                        )}
+                                        {c.address && (
+                                            <span className="text-[10px] text-muted-foreground/80 line-clamp-1">
+                                                {c.address}
+                                            </span>
+                                        )}
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
@@ -326,6 +393,8 @@ export default function PosOrder() {
 
     return (
         <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-6rem)] gap-4">
+            {/* Sentinel for Scroll Detection */}
+            <div ref={sentinelRef} className="absolute top-0 left-0 w-px h-px pointer-events-none" aria-hidden="true" />
             {/* RIGHT: Cart / Checkout Form - Shows first on mobile */}
             <div className="w-full lg:w-[400px] flex flex-col lg:order-2">
                 <Form {...form}>
@@ -351,73 +420,88 @@ export default function PosOrder() {
                                 </div>
 
                                 {/* Customer Select & Add */}
-                                <div className="flex gap-2 items-end">
-                                    <div className="flex-1 space-y-2">
-                                        <FormField
-                                            control={control}
-                                            name="customer_id"
-                                            render={({ field }) => (
-                                                <FormItem className="space-y-0">
-                                                    <FormLabel className="sr-only">Customer</FormLabel>
-                                                    <FormControl>
-                                                        <CustomerSelect field={field} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
+                                <div className="space-y-2">
+                                    <FormLabel>Customer</FormLabel>
+                                    <div className="flex gap-2">
+                                        <div className="flex-1">
+                                            <FormField
+                                                control={control}
+                                                name="customer_id"
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-0">
+                                                        <FormControl>
+                                                            <CustomerSelect field={field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <PosAddCustomer
+                                            onCustomerAdded={(c) => {
+                                                setNewlyAddedCustomer(c);
+                                                setValue("customer_id", c.id);
+                                                if (c.address) setValue("shipping_address", c.address);
+                                            }}
                                         />
                                     </div>
-                                    <PosAddCustomer
-                                        onCustomerAdded={(c) => {
-                                            setNewlyAddedCustomer(c);
-                                            setValue("customer_id", c.id);
-                                            if (c.address) setValue("shipping_address", c.address);
-                                        }}
-                                    />
                                 </div>
 
                                 {/* Dates & Address (Collapsible or Compact) */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                <div className="space-y-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                            <FormLabel className="text-xs">Order Date</FormLabel>
+                                            <FormField
+                                                control={control}
+                                                name="order_date"
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-0">
+                                                        <FormControl>
+                                                            <Input type="date" {...field} className="h-8 text-xs block" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <FormLabel className="text-xs">Delivery Date</FormLabel>
+                                            <FormField
+                                                control={form.control}
+                                                name="due_date"
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-0">
+                                                        <FormControl>
+                                                            <Input type="date" {...field} className="h-8 text-xs block" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <FormLabel className="text-xs">Shipping Address</FormLabel>
                                     <FormField
                                         control={control}
-                                        name="order_date"
+                                        name="shipping_address"
                                         render={({ field }) => (
                                             <FormItem className="space-y-0">
                                                 <FormControl>
-                                                    <Input type="date" {...field} className="h-8 text-xs block" />
+                                                    <Textarea
+                                                        placeholder="Shipping Address..."
+                                                        {...field}
+                                                        className="min-h-[2.5rem] py-1 text-xs resize-none"
+                                                        rows={1}
+                                                    />
                                                 </FormControl>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="due_date"
-                                        render={({ field }) => (
-                                            <FormItem className="space-y-0">
-                                                <FormControl>
-                                                    <Input type="date" {...field} className="h-8 text-xs block" />
-                                                </FormControl>
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-                                <FormField
-                                    control={control}
-                                    name="shipping_address"
-                                    render={({ field }) => (
-                                        <FormItem className="space-y-0">
-                                            <FormControl>
-                                                <Textarea
-                                                    placeholder="Shipping Address..."
-                                                    {...field}
-                                                    className="min-h-[2.5rem] py-1 text-xs resize-none"
-                                                    rows={1}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             </CardHeader>
 
                             {/* 2. Cart Items List */}
@@ -437,7 +521,7 @@ export default function PosOrder() {
                                             <div key={field.id} className="flex flex-col gap-2 p-3 bg-muted/20 rounded-lg border group relative hover:border-blue-200 transition-colors">
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex-1 pr-2">
-                                                        <div className="font-medium text-sm truncate">
+                                                        <div className="font-medium text-sm">
                                                             {(field as any).name || "Item #" + (index + 1)}
                                                         </div>
                                                         <div className="flex items-center gap-2 mt-0.5">
@@ -549,7 +633,7 @@ export default function PosOrder() {
 
                                 <div className={cn(
                                     "grid gap-3",
-                                    posLayout.showDueSale && posLayout.showCashSale ? "grid-cols-2" : "grid-cols-1"
+                                    posLayout.showDueSale && posLayout.showCashSale ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
                                 )}>
                                     {posLayout.showDueSale && (
                                         <Button
@@ -581,8 +665,8 @@ export default function PosOrder() {
 
             {/* LEFT: Product Grid - Shows second on mobile */}
             <div className="flex-1 flex flex-col gap-4 lg:order-1">
-                <div className="flex items-center gap-4 bg-card p-3 lg:p-4 rounded-xl shadow-sm border">
-                    <div className="relative flex-1">
+                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 bg-card p-3 lg:p-4 rounded-xl shadow-sm border">
+                    <div className="relative w-full sm:flex-1 lg:w-full xl:flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             type="search"
@@ -592,10 +676,22 @@ export default function PosOrder() {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
+                    {/* Barcode Input */}
+                    <div className="relative w-full sm:w-48 lg:w-full xl:w-64">
+                        <ScanBarcode className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Scan Barcode..."
+                            className="pl-8 bg-background"
+                            value={barcode}
+                            onChange={(e) => setBarcode(e.target.value)}
+                            onKeyDown={handleBarcodeScan}
+                        />
+                    </div>
                 </div>
 
                 <div
-                    className="grid overflow-y-auto p-1 pr-2 pb-4 lg:pb-1"
+                    className="grid overflow-y-auto pb-4 lg:pb-1"
                     style={{
                         gridTemplateColumns: `repeat(auto-fill, minmax(0, 1fr))`,
                         display: 'grid',
@@ -626,15 +722,25 @@ export default function PosOrder() {
                         {productsData?.data?.map((product) => {
                             const stock = product.stock_quantity ?? 0;
                             const isOutOfStock = stock <= 0;
+                            const isSelected = items.some((item) => item.product_id === product.id);
+
                             return (
                                 <Card
                                     key={product.id}
-                                    className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 ${isOutOfStock ? 'opacity-60 grayscale' : ''} ${posLayout.cardStyle === 'compact' ? 'h-fit' : ''} ${posLayout.cardStyle === 'bordered' ? 'border-muted-foreground/20' : ''}`}
+                                    className={`cursor-pointer hover:border-blue-500 hover:shadow-md transition-all group border-2 overflow-hidden ${isOutOfStock ? 'opacity-60 grayscale' : ''} ${posLayout.cardStyle === 'compact' ? 'h-fit' : ''} ${posLayout.cardStyle === 'bordered' ? 'border-muted-foreground/20' : ''} ${isSelected ? 'border-blue-600 bg-blue-50/50 shadow-sm' : ''}`}
                                     onClick={() => addToCart(product)}
                                 >
                                     <CardContent className={posLayout.cardStyle === 'compact' ? 'p-0' : 'p-0'}>
                                         {posLayout.showImages && (
-                                            <div className={`${posLayout.cardStyle === 'compact' ? 'aspect-[16/9]' : 'aspect-square'} bg-muted relative`}>
+                                            <div
+                                                className={`${posLayout.cardStyle === 'compact' ? 'aspect-[16/9]' : 'aspect-square'} bg-muted relative cursor-zoom-in`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (product.thumb_url) {
+                                                        setSelectedImage({ url: product.thumb_url, name: product.name, product });
+                                                    }
+                                                }}
+                                            >
                                                 {product.thumb_url ? (
                                                     <img src={product.thumb_url} alt={product.name} className="w-full h-full object-cover" />
                                                 ) : (
@@ -682,6 +788,94 @@ export default function PosOrder() {
                     )}
                 </div>
             </div>
+
+            {/* Floating Go to Top Button */}
+            {showScrollTop && (
+                <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="fixed bottom-6 right-6 rounded-full shadow-lg z-50 bg-primary text-primary-foreground hover:bg-primary/90 lg:hidden"
+                    onClick={scrollToTop}
+                >
+                    <ChevronUp className="h-6 w-6" />
+                </Button>
+            )}
+            {/* Product Image Modal */}
+            <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+                <DialogContent showCloseButton={false} className="max-w-[800px] p-0 overflow-hidden border-none bg-transparent shadow-none">
+                    <DialogHeader className="sr-only">
+                        <DialogTitle>{selectedImage?.name}</DialogTitle>
+                    </DialogHeader>
+                    {selectedImage && (
+                        <div className="relative flex items-center justify-center group overflow-hidden rounded-lg">
+                            <img
+                                src={selectedImage.url}
+                                alt={selectedImage.name}
+                                className="w-full h-auto max-h-[85vh] object-contain"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/60 text-white backdrop-blur-sm">
+                                <div className="flex justify-between items-center gap-4">
+                                    <p className="font-medium truncate flex-1">{selectedImage.name}</p>
+                                    {items.some(it => it.product_id === selectedImage.product.id) ? (
+                                        <div className="flex items-center gap-1 bg-white/20 rounded-md border border-white/30 p-0.5 shadow-sm h-8">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 rounded-sm text-white hover:bg-black/20"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const idx = items.findIndex(it => it.product_id === selectedImage.product.id);
+                                                    if (idx >= 0) adjustQuantity(idx, -1);
+                                                }}
+                                            >
+                                                <Minus className="h-3 w-3" />
+                                            </Button>
+                                            <span className="min-w-[1.5rem] text-center text-xs font-bold leading-none">
+                                                {items.find(it => it.product_id === selectedImage.product.id)?.quantity || 0}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7 rounded-sm text-white hover:bg-black/20"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const idx = items.findIndex(it => it.product_id === selectedImage.product.id);
+                                                    if (idx >= 0) adjustQuantity(idx, 1);
+                                                }}
+                                            >
+                                                <Plus className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <Button
+                                            size="sm"
+                                            className="bg-blue-600 hover:bg-blue-700 h-8 gap-1.5"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                addToCart(selectedImage.product);
+                                            }}
+                                        >
+                                            <ShoppingCart className="w-4 h-4" />
+                                            Add to Cart
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-2 right-2 rounded-full bg-black/50 text-white hover:bg-black/70"
+                                onClick={() => setSelectedImage(null)}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
