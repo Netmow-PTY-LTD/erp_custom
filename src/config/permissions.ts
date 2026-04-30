@@ -37,7 +37,7 @@ export const ProductPermission = {
   // Categories
   VIEW_CATEGORIES: "products.categories.view" as const,
   CREATE_CATEGORIES: "products.categories.create" as const,
-  Edit_CATEGORIES: "products.categories.edit" as const,
+  EDIT_CATEGORIES: "products.categories.edit" as const,
   DELETE_CATEGORIES: "products.categories.delete" as const,
   // Units
   VIEW_UNITS: "products.units.view" as const,
@@ -337,7 +337,6 @@ export type PermissionType =
   | typeof AccountingPermission[keyof typeof AccountingPermission]
   | typeof UserPermission[keyof typeof UserPermission]
   | typeof RolePermission[keyof typeof RolePermission]
-  | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof SettingsPermission[keyof typeof SettingsPermission]
   | typeof ReportPermission[keyof typeof ReportPermission]
   // | typeof RawMaterialPermission[keyof typeof RawMaterialPermission]
