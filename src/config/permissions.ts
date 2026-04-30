@@ -75,6 +75,11 @@ export const SupplierPermission = {
   CREATE: "suppliers.create" as const,
   EDIT: "suppliers.edit" as const,
   DELETE: "suppliers.delete" as const,
+};
+
+export const PurchasePermission = {
+  VIEW: "purchases.view" as const,
+  LIST: "purchases.list" as const,
   VIEW_PURCHASE_ORDERS: "suppliers.purchase_orders.view" as const,
   VIEW_PURCHASE_ORDER_DETAILS: "suppliers.purchase_orders.details.view" as const,
   CREATE_PURCHASE_ORDER: "suppliers.purchase_orders.create" as const,
@@ -302,6 +307,7 @@ export const PERMISSION_GROUPS = {
   Products: ProductPermission,
   Customers: CustomerPermission,
   Suppliers: SupplierPermission,
+  Purchase: PurchasePermission,
   Staffs: StaffPermission,
   Sales: SalesPermission,
   Accounting: AccountingPermission,
@@ -325,6 +331,7 @@ export type PermissionType =
   | typeof ProductPermission[keyof typeof ProductPermission]
   | typeof CustomerPermission[keyof typeof CustomerPermission]
   | typeof SupplierPermission[keyof typeof SupplierPermission]
+  | typeof PurchasePermission[keyof typeof PurchasePermission]
   | typeof StaffPermission[keyof typeof StaffPermission]
   | typeof SalesPermission[keyof typeof SalesPermission]
   | typeof AccountingPermission[keyof typeof AccountingPermission]
