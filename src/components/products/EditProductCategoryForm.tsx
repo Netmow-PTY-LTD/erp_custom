@@ -55,7 +55,7 @@ export default function EditProductCategoryForm({
 }) {
 
   const userPermissions = useAppSelector((state) => state.auth.user?.role.permissions || []);
-  const canEditCategory = userPermissions.includes(ProductPermission.Edit_CATEGORIES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
+  const canEditCategory = userPermissions.includes(ProductPermission.EDIT_CATEGORIES) || userPermissions.includes(SuperAdminPermission.ACCESS_ALL);
 
 
 
