@@ -1743,10 +1743,10 @@ export const sidebarItemLink = [
         url: "/dashboard/accounting/reports/profit-by-item",
         element: <ProfitByItem />,
         icon: CreditCard,
-        // allowedPermissions: [
-        //   AccountingPermission.PROFIT_BY_ITEM,
-        //   SuperAdminPermission.ACCESS_ALL,
-        // ],
+        allowedPermissions: [
+          AccountingPermission.PROFIT_BY_ITEM,
+          SuperAdminPermission.ACCESS_ALL,
+        ],
       },
       {
         title: "Tax Submissions",
