@@ -65,6 +65,7 @@ const OrderManage = () => {
         id: number | string;
         order_number: string;
         customer: string;
+        customerName: string;
         date: string;
         total: number;
         status: string;
@@ -93,7 +94,8 @@ const OrderManage = () => {
     const orders: Order[] = salesOrderData?.data?.map((apiOrder: SalesOrder) => ({
         id: apiOrder.id,
         order_number: apiOrder.order_number,
-        customer: apiOrder.customer?.name || "Unknown",
+        customer: apiOrder.customer?.company || apiOrder.customer?.name || "Unknown",
+        customerName: apiOrder.customer?.name || "",
         date: apiOrder.order_date ? new Date(apiOrder.order_date).toLocaleDateString() : "N/A",
         total: Number(apiOrder.total_amount) || 0,
         total_amount: Number(apiOrder.total_amount) || 0,
@@ -295,7 +297,12 @@ const OrderManage = () => {
                                             />
                                         </TableCell>
                                         <TableCell className="font-medium">{order.order_number}</TableCell>
-                                        <TableCell>{order.customer}</TableCell>
+                                        <TableCell>
+                                            <div className="font-semibold">{order.customer}</div>
+                                            {order.customerName && order.customer !== order.customerName && (
+                                                <div className="text-xs text-muted-foreground">{order.customerName}</div>
+                                            )}
+                                        </TableCell>
                                         <TableCell>{order.date}</TableCell>
                                         <TableCell>
                                             <Badge

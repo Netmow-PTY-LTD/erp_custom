@@ -73,6 +73,7 @@ const productSchema = z.object({
     values: z.array(z.string())
   })).optional(),
   specification: z.string().optional(),
+  expiry_date: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -127,6 +128,7 @@ export default function AddProductPage() {
       is_active: true,
       attributes: [],
       specification: "",
+      expiry_date: "",
     },
   });
 
@@ -140,7 +142,7 @@ export default function AddProductPage() {
   const [addProduct, { isLoading }] = useAddProductMutation();
 
   const onSubmit = async (values: ProductFormValues) => {
-    console.log(values);
+    console.log("Form values:", values);
 
     const payload = {
       sku: values.sku,
@@ -152,10 +154,10 @@ export default function AddProductPage() {
       unit_id: Number(values.unit),
       price: Number(values.price),
       cost: Number(values.costPrice),
-      initial_stock: Number(values.initialStock),
-      stock_quantity: Number(values.initialStock),
-      min_stock_level: Number(values.minStock),
-      max_stock_level: Number(values.maxStock),
+      initial_stock: Number(values.initialStock || 0),
+      stock_quantity: Number(values.initialStock || 0),
+      min_stock_level: Number(values.minStock || 0),
+      max_stock_level: Number(values.maxStock || 0),
       purchase_tax: Number(values?.purchase_tax),
       sales_tax: Number(values.sales_tax),
       weight: Number(values.weight),
@@ -166,7 +168,10 @@ export default function AddProductPage() {
       is_active: values.is_active,
       attributes: values.attributes,
       specification: values.specification,
+      expiry_date: values.expiry_date || null,
     };
+
+    console.log("Payload being sent:", payload);
 
     try {
       const res = await addProduct(payload).unwrap();
@@ -522,6 +527,7 @@ export default function AddProductPage() {
                     </FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -543,6 +549,7 @@ export default function AddProductPage() {
                     </FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -562,6 +569,7 @@ export default function AddProductPage() {
                     <FieldLabel>Initial Stock</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -581,6 +589,7 @@ export default function AddProductPage() {
                     <FieldLabel>Min Stock</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -600,6 +609,7 @@ export default function AddProductPage() {
                     <FieldLabel>Max Stock</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -619,6 +629,7 @@ export default function AddProductPage() {
                     <FieldLabel>Purchase Tax (%)</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -638,12 +649,28 @@ export default function AddProductPage() {
                     <FieldLabel>Sales Tax (%)</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       value={field.value ?? ""}
                       onChange={(e) => {
                         const val = e.target.value === "" ? "" : Number(e.target.value);
                         field.onChange(typeof val === "number" ? Math.max(0, val) : val);
                       }}
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="expiry_date"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Expiry Date</FieldLabel>
+                    <Input
+                      type="date"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
@@ -676,7 +703,7 @@ export default function AddProductPage() {
                     <FieldLabel>Weight (kg)</FieldLabel>
                     <Input
                       type="number"
-                      step="0.01"
+                      step="any"
                       min={0}
                       {...field}
                       onChange={(e) => {
@@ -698,6 +725,7 @@ export default function AddProductPage() {
                     <FieldLabel>Width(cm)</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       placeholder="e.g. 2 cm"
                       {...field}
@@ -720,6 +748,7 @@ export default function AddProductPage() {
                     <FieldLabel>Height(cm)</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       placeholder="e.g. 2 cm"
                       {...field}
@@ -741,6 +770,7 @@ export default function AddProductPage() {
                     <FieldLabel>Length(cm)</FieldLabel>
                     <Input
                       type="number"
+                      step="any"
                       min={0}
                       placeholder="e.g. 2 cm"
                       {...field}

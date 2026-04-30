@@ -56,6 +56,17 @@ export default function Login() {
           {/* {companyProfileSettings?.data?.company_name || "Inleads IT"} */}
         </Link>
         <LoginForm />
+        <div className="text-center text-sm text-muted-foreground">
+          Developed by{" "}
+          <a
+            href="https://inleadsit.com.my/"
+            className="hover:underline text-primary font-medium"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Inleads IT
+          </a>
+        </div>
       </div>
     </div>
   );

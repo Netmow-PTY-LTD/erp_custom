@@ -63,7 +63,7 @@ const orderSchema = z
       z.object({
         product_id: z.coerce.number().min(1, "Product is required"),
         sku: z.string().optional(),
-        quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+        quantity: z.coerce.number().min(0.01, "Quantity must be at least 0.01"),
         unit_price: z.coerce.number(),
         discount: z.coerce.number().min(0, "Discount must be 0 or more"),
         sales_tax: z.coerce.number().min(0, "Sales tax must be 0 or more"),
@@ -159,7 +159,7 @@ const CustomerSelectField = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search customers..."
             onValueChange={setQuery}
@@ -254,7 +254,7 @@ const StaffSelectField = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search staff..."
             onValueChange={setQuery}
@@ -307,17 +307,29 @@ const ProductSelectField = ({
       onChange: (v: number) => void;
     };
     onProductSelect?: (product: Product) => void;
-    watchItems: any[];
   }) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { data, isLoading } = useGetAllProductsQuery({
     page: 1,
-    limit: 50,
+    limit: 100,
     search: query,
   });
   const list = Array.isArray(data?.data) ? data.data : [];
-  const selected = list.find((p) => p.id === field.value);
+
+  // Try to find selected product in search results first, otherwise use stored product
+  const selected = list.find((p) => p.id === field.value) || selectedProduct;
+
+  // Update selectedProduct when field value changes externally
+  useEffect(() => {
+    if (field.value && (!selectedProduct || selectedProduct.id !== field.value)) {
+      const found = list.find((p) => p.id === field.value);
+      if (found) {
+        setSelectedProduct(found);
+      }
+    }
+  }, [field.value, list]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -339,7 +351,7 @@ const ProductSelectField = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search products..."
             onValueChange={setQuery}
@@ -357,6 +369,7 @@ const ProductSelectField = ({
                   <CommandItem
                     key={product.id}
                     onSelect={() => {
+                      setSelectedProduct(product);
                       if (onProductSelect) {
                         onProductSelect(product);
                       } else {
@@ -377,6 +390,11 @@ const ProductSelectField = ({
                       <span className="text-[10px] text-muted-foreground uppercase tracking-tight">
                         SKU: {product.sku} | Unit: {product.unit?.name || 'N/A'} | Stock: {product.stock_quantity || 0}
                       </span>
+                      {product.specification && (
+                        <span className="text-[10px] text-muted-foreground italic">
+                          Spec: {product.specification}
+                        </span>
+                      )}
                     </div>
                   </CommandItem>
                 ))}
@@ -809,7 +827,6 @@ export default function CreateSalesOrderPage() {
                               <FormControl>
                                 <ProductSelectField
                                   field={field}
-                                  watchItems={items}
                                   onProductSelect={(product) => {
                                     const isDuplicate = items.some((it, idx) => it.product_id === product.id && idx !== index);
                                     if (isDuplicate) {

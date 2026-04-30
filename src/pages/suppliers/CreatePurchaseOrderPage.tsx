@@ -36,7 +36,8 @@ import { Link, useNavigate } from "react-router";
 import { useGetAllSuppliersQuery } from "@/store/features/suppliers/supplierApiService";
 import type { Supplier } from "@/types/supplier.types";
 import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
-import  { useState } from "react";
+import type { Product } from "@/types/types";
+import  { useState, useEffect } from "react";
 
 /* ---------------- TYPES ---------------- */
 interface POItem {
@@ -120,7 +121,7 @@ export default function CreatePurchaseOrderPage() {
         </PopoverTrigger>
 
         <PopoverContent className="w-[320px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search suppliers..."
               onValueChange={(value) => setQuery(value)}
@@ -168,18 +169,30 @@ export default function CreatePurchaseOrderPage() {
   }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
     const { data, isLoading } = useGetAllProductsQuery({
       page: 1,
-      limit: 50,
+      limit: 100,
       search: query,
     });
 
     const list = Array.isArray(data?.data) ? data.data : [];
 
+    // Try to find selected product in search results first, otherwise use stored product
     const selected = list.find(
       (p) => String(p.id) === String(field.value)
-    );
+    ) || selectedProduct;
+
+    // Update selectedProduct when field value changes externally
+    useEffect(() => {
+      if (field.value && (!selectedProduct || String(selectedProduct.id) !== String(field.value))) {
+        const found = list.find((p) => String(p.id) === String(field.value));
+        if (found) {
+          setSelectedProduct(found);
+        }
+      }
+    }, [field.value, list]);
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -192,7 +205,7 @@ export default function CreatePurchaseOrderPage() {
         </PopoverTrigger>
 
         <PopoverContent className="w-[320px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search products..."
               onValueChange={(value) => setQuery(value)}
@@ -213,6 +226,7 @@ export default function CreatePurchaseOrderPage() {
                     <CommandItem
                       key={product.id}
                       onSelect={() => {
+                        setSelectedProduct(product);
                         field.onChange(String(product.id));
                         setOpen(false);
                       }}

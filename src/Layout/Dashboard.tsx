@@ -6,9 +6,10 @@ import {
 
 import { AppSidebar } from "../components/app-sidebar";
 import { ProfileDropdown } from "../components/dashboard/components/ProfileDropdown";
+import { NotificationDropdown } from "../components/dashboard/components/NotificationDropdown";
 
 import { ThemeSwitch } from "../components/theme-switch";
-import { Link, Outlet } from "react-router";
+import { Outlet } from "react-router";
 import { useAuthUserQuery } from "@/store/features/auth/authApiService";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { useGetSettingsInfoQuery } from "@/store/features/admin/settingsApiService";
@@ -34,6 +35,7 @@ export default function DashboardLayout() {
             <SidebarTrigger className="-ml-1 cursor-pointer" />
             <div className="ml-auto flex items-center gap-4">
               <span className="text-xs bg-blue-100 px-3 py-1 rounded-full text-blue-600 font-semibold">{user?.role?.display_name}</span>
+              {user?.role?.name?.toLowerCase() === 'superadmin' && <NotificationDropdown />}
               <ThemeSwitch />
               <ProfileDropdown />
             </div>
@@ -43,21 +45,21 @@ export default function DashboardLayout() {
           <Outlet />
         </main>
         <footer>
-          <div className="p-4 text-center text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-3 print:hidden">
-            &copy; {new Date().getFullYear()} ERP. Designed and Developed by{" "}
-            <Link
-              to="https://inleadsit.com.my"
-              className="flex items-center gap-2"
-              target="_blank"
-            >
-              <img
-                src="https://inleadsit.com.my/wp-content/uploads/2023/07/favicon-2.png"
-                alt=""
-                className="w-5 h-5"
-              />
-              Inleads IT
-            </Link>
-            .
+          <div className="p-4 text-center text-sm text-muted-foreground flex flex-col items-center justify-center gap-1 print:hidden">
+            <div>
+              &copy; {new Date().getFullYear()} {settings?.data?.company_name || 'ERP'}. All rights reserved.
+            </div>
+            <div className="flex items-center gap-1">
+              Developed by{" "}
+              <a
+                href="https://inleadsit.com.my/"
+                className="hover:underline text-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Inleads IT
+              </a>
+            </div>
           </div>
         </footer>
       </SidebarInset>

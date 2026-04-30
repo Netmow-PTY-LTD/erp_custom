@@ -109,7 +109,7 @@ export default function EditRawMaterialPurchaseOrder() {
         </PopoverTrigger>
 
         <PopoverContent className="w-[320px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search suppliers..."
               onValueChange={(value) => setQuery(value)}
@@ -153,15 +153,27 @@ export default function EditRawMaterialPurchaseOrder() {
   }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null);
 
     const { data, isLoading } = useGetAllRawMaterialsQuery({
       page: 1,
-      limit: 50,
+      limit: 100,
       search: query,
     });
 
     const list = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.find((r: any) => r.id === field.value);
+    // Try to find selected material in search results first, otherwise use stored material
+    const selected = list.find((r: any) => r.id === field.value) || selectedMaterial;
+
+    // Update selectedMaterial when field value changes externally
+    useEffect(() => {
+      if (field.value && (!selectedMaterial || selectedMaterial.id !== field.value)) {
+        const found = list.find((r: any) => r.id === field.value);
+        if (found) {
+          setSelectedMaterial(found);
+        }
+      }
+    }, [field.value, list]);
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -172,7 +184,7 @@ export default function EditRawMaterialPurchaseOrder() {
         </PopoverTrigger>
 
         <PopoverContent className="w-[320px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search raw materials..."
               onValueChange={(value) => setQuery(value)}
@@ -193,6 +205,7 @@ export default function EditRawMaterialPurchaseOrder() {
                     <CommandItem
                       key={material.id}
                       onSelect={() => {
+                        setSelectedMaterial(material);
                         field.onChange(material.id);
                         setOpen(false);
                       }}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -31,6 +31,7 @@ const defaultMapData = {
             email: "rabby@example.com",
             address: "Banani, Dhaka",
             city: "Dhaka",
+            country: "Bangladesh",
             coordinates: { lat: 23.7925, lng: 90.4078 }
         },
         {
@@ -41,6 +42,7 @@ const defaultMapData = {
             email: "mahmud@example.com",
             address: "Uttara",
             city: "Dhaka",
+            country: "Bangladesh",
             coordinates: { lat: 23.8759, lng: 90.3795 }
         },
         {
@@ -48,6 +50,7 @@ const defaultMapData = {
             name: "Sadia Akter",
             address: "Chittagong",
             city: "Chattogram",
+            country: "Bangladesh",
             coordinates: { lat: 22.3569, lng: 91.7832 }
         }
     ]
@@ -55,13 +58,31 @@ const defaultMapData = {
 // -------------------------------------------------
 
 const CustomersMapPage: React.FC = () => {
-    const { data } = useGetCustomerMapsQuery();
+    const [selectedCountry, setSelectedCountry] = useState<string>("");
+
+    // Fetch all customers (without filter) to get country list
+    const { data: allData } = useGetCustomerMapsQuery();
+
+    // Fetch filtered data when country is selected
+    const { data: filteredData } = useGetCustomerMapsQuery(
+        selectedCountry ? { country: selectedCountry } : undefined,
+        { skip: !selectedCountry }
+    );
 
     // Use API data OR fallback default data
-    const mapData = data?.data ?? defaultMapData;
+    const mapData = (selectedCountry ? filteredData?.data : allData?.data) ?? defaultMapData;
 
     const customers = mapData.locations;
     const total = mapData.total;
+
+    // Extract unique countries from all customers
+    const countries = useMemo(() => {
+        const allCustomers = allData?.data?.locations ?? defaultMapData.locations;
+        const uniqueCountries = Array.from(
+            new Set(allCustomers.map((c: any) => c.country).filter(Boolean))
+        ).sort();
+        return uniqueCountries;
+    }, [allData]);
 
     const defaultCenter: [number, number] = [23.8103, 90.4125];
 
@@ -76,7 +97,29 @@ const CustomersMapPage: React.FC = () => {
 
     return (
         <div className="max-w-7xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Customers Map ({total} locations)</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                <h1 className="text-2xl font-bold">Customers Map ({total} locations)</h1>
+
+                {/* Country Filter */}
+                <div className="flex items-center gap-2">
+                    <label htmlFor="country-filter" className="text-sm font-medium whitespace-nowrap">
+                        Filter by Country:
+                    </label>
+                    <select
+                        id="country-filter"
+                        value={selectedCountry}
+                        onChange={(e) => setSelectedCountry(e.target.value)}
+                        className="px-3 py-2 border border-input rounded-md bg-background text-sm min-w-[200px] focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                        <option value="">All Countries</option>
+                        {countries.map((country: string) => (
+                            <option key={country} value={country}>
+                                {country}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
 
             <MapContainer
                 center={center}
@@ -103,6 +146,7 @@ const CustomersMapPage: React.FC = () => {
                                     {customer.company && <><br />{customer.company}</>}
                                     <br />{customer.address || "-"}
                                     {customer.city && <><br />{customer.city}</>}
+                                    {customer.country && <><br />🏳️ {customer.country}</>}
                                     {customer.phone && <><br />📱 {customer.phone}</>}
                                     {customer.email && <><br />✉️ {customer.email}</>}
                                     <div className="mt-3">

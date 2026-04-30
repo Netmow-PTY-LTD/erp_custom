@@ -7,6 +7,7 @@ import { ShoppingCart, Search, Plus, Minus, Trash2, CheckCircle2, User, ScanBarc
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
     Form,
@@ -37,7 +38,10 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 
-import { useGetAllProductsQuery } from "@/store/features/admin/productsApiService";
+import {
+    useGetAllProductsQuery,
+    useGetAllCategoriesQuery,
+} from "@/store/features/admin/productsApiService";
 import {
     useAddSalesInvoiceMutation,
     useAddSalesOrderMutation,
@@ -62,7 +66,7 @@ const orderSchema = z
         items: z.array(
             z.object({
                 product_id: z.number().min(1, "Product is required"),
-                quantity: z.number().min(1, "Quantity must be at least 1"),
+                quantity: z.number().min(0.01, "Quantity must be at least 0.01"),
                 unit_price: z.number().min(0, "Unit price must be at least 0"),
                 discount: z.number().min(0, "Discount must be 0 or more"),
                 sales_tax: z.number().min(0, "Sales tax must be 0 or more"),
@@ -71,6 +75,7 @@ const orderSchema = z
                 sku: z.string().optional(),
                 stock_quantity: z.number().optional(),
                 unit: z.string().optional(),
+                specification: z.string().optional(),
             })
         ),
     })
@@ -91,6 +96,7 @@ type SalesOrderFormValues = z.infer<typeof orderSchema>;
 export default function PosOrder() {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState<string>("all");
     const [barcode, setBarcode] = useState("");
     const [newlyAddedCustomer, setNewlyAddedCustomer] = useState<any>(null);
     const currency = useAppSelector((state) => state.currency.value);
@@ -98,6 +104,25 @@ export default function PosOrder() {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [selectedImage, setSelectedImage] = useState<{ url: string; name: string; product: any } | null>(null);
     const sentinelRef = useRef<HTMLDivElement>(null);
+    // Infinite scroll state
+    const [page, setPage] = useState(1);
+    const [allProducts, setAllProducts] = useState<any[]>([]);
+    const [hasMore, setHasMore] = useState(true);
+    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    // API Hooks
+    const { data: categoriesData } = useGetAllCategoriesQuery({ page: 1, limit: 100 });
+    const { data: productsData, isFetching: isProductsFetching } = useGetAllProductsQuery({
+        page: page,
+        limit: 50,
+        search: search,
+        category_id: selectedCategory !== "all" ? selectedCategory : undefined,
+    });
+    const [addSalesOrder, { isLoading: isOrdering }] = useAddSalesOrderMutation();
+    const [createInvoice, { isLoading: isInvoicing }] = useAddSalesInvoiceMutation();
+    const [addSalesPayment, { isLoading: isPaying }] = useAddSalesPaymentMutation();
+
+    const isLoading = isOrdering || isInvoicing || isPaying;
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -115,23 +140,52 @@ export default function PosOrder() {
         return () => observer.disconnect();
     }, []);
 
+    // Load more products effect
+    useEffect(() => {
+        if (productsData?.data) {
+            const totalPages = productsData?.pagination?.totalPage || 1;
+            setHasMore(page < totalPages);
+
+            const inStockProducts = productsData.data.filter((p: any) => (p.stock_quantity ?? 0) > 0);
+
+            if (page === 1) {
+                setAllProducts(inStockProducts);
+            } else {
+                setAllProducts((prev) => [...prev, ...inStockProducts]);
+            }
+        }
+    }, [productsData, page]);
+
+    // Reset pagination when search or category changes
+    useEffect(() => {
+        setPage(1);
+        setAllProducts([]);
+        setHasMore(true);
+    }, [search, selectedCategory]);
+
+    // Infinite scroll observer
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && hasMore && !isProductsFetching) {
+                    setPage((prev) => prev + 1);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [hasMore, isProductsFetching]);
+
     const scrollToTop = () => {
         sentinelRef.current?.scrollIntoView({
             behavior: "smooth",
         });
     };
-
-    // API Hooks
-    const { data: productsData } = useGetAllProductsQuery({
-        page: 1,
-        limit: 100, // Fetch more for POS
-        search: search,
-    });
-    const [addSalesOrder, { isLoading: isOrdering }] = useAddSalesOrderMutation();
-    const [createInvoice, { isLoading: isInvoicing }] = useAddSalesInvoiceMutation();
-    const [addSalesPayment, { isLoading: isPaying }] = useAddSalesPaymentMutation();
-
-    const isLoading = isOrdering || isInvoicing || isPaying;
 
     // Form Setup
     const form = useForm<SalesOrderFormValues>({
@@ -186,24 +240,25 @@ export default function PosOrder() {
         const existingIndex = items.findIndex((i) => i.product_id === product.id);
 
         if (existingIndex >= 0) {
-            // Increment quantity
+            // Increment quantity by 0.5 for decimal support
             const existingItem = items[existingIndex];
+            const newQty = Number((existingItem.quantity + 0.5).toFixed(2));
 
             // Check if incrementing exceeds stock
-            if (existingItem.quantity + 1 > availableStock) {
+            if (newQty > availableStock) {
                 toast.error(`Cannot add more. Only ${availableStock} in stock.`);
                 return;
             }
 
             update(existingIndex, {
                 ...existingItem,
-                quantity: existingItem.quantity + 1,
+                quantity: newQty,
             });
         } else {
-            // Add new item
+            // Add new item with default quantity 1.00
             append({
                 product_id: product.id,
-                quantity: 1,
+                quantity: 1.00,
                 unit_price: Number(product.price),
                 discount: 0,
                 sales_tax: Number(product.sales_tax || 0),
@@ -211,6 +266,7 @@ export default function PosOrder() {
                 sku: product.sku,
                 stock_quantity: availableStock,
                 unit: product.unit?.name || "",
+                specification: product.specification || "",
             }, { shouldFocus: false });
         }
     };
@@ -218,11 +274,11 @@ export default function PosOrder() {
     const adjustQuantity = (index: number, delta: number) => {
         const item = items[index];
         const stock = item.stock_quantity ?? 0;
-        const newQty = item.quantity + delta;
+        const newQty = Number((item.quantity + delta).toFixed(2));
 
         // If decreasing, just do it (unless it hits 0, which we handle below as updating to newQty)
         if (delta < 0) {
-            if (newQty > 0) {
+            if (newQty >= 0.01) {
                 update(index, { ...item, quantity: newQty });
             }
             return;
@@ -234,9 +290,26 @@ export default function PosOrder() {
             return;
         }
 
-        if (newQty > 0) {
+        if (newQty >= 0.01) {
             update(index, { ...item, quantity: newQty });
         }
+    };
+
+    const handleQuantityChange = (index: number, value: string) => {
+        const item = items[index];
+        const stock = item.stock_quantity ?? 0;
+        const newQty = Number(parseFloat(value));
+
+        if (isNaN(newQty) || newQty < 0.01) {
+            return;
+        }
+
+        if (newQty > stock) {
+            toast.error(`Cannot exceed available stock of ${stock}`);
+            return;
+        }
+
+        update(index, { ...item, quantity: newQty });
     };
 
     const handleNewOrder = () => {
@@ -259,7 +332,7 @@ export default function PosOrder() {
             if (!barcode) return;
 
             // Search product in loaded data
-            const product = productsData?.data?.find(
+            const product = allProducts?.find(
                 (p: any) => p.sku?.toLowerCase() === barcode.toLowerCase() || p.barcode === barcode
             );
 
@@ -338,10 +411,22 @@ export default function PosOrder() {
     const CustomerSelect = ({ field }: { field: any }) => {
         const [open, setOpen] = useState(false);
         const [q, setQ] = useState("");
-        const { data } = useGetCustomersQuery({ page: 1, limit: 10, search: q });
+        const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+        const { data } = useGetCustomersQuery({ page: 1, limit: 50, search: q });
         const list = data?.data || [];
         const selected = list.find((c) => c.id === field.value)
+            || selectedCustomer
             || (newlyAddedCustomer?.id === field.value ? newlyAddedCustomer : null);
+
+        // Sync selected customer when field value changes
+        useEffect(() => {
+            if (field.value && (!selectedCustomer || selectedCustomer.id !== field.value)) {
+                const found = list.find((c) => c.id === field.value);
+                if (found) {
+                    setSelectedCustomer(found);
+                }
+            }
+        }, [field.value, list]);
 
         return (
             <Popover open={open} onOpenChange={setOpen}>
@@ -354,7 +439,7 @@ export default function PosOrder() {
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0">
-                    <Command>
+                    <Command shouldFilter={false}>
                         <CommandInput placeholder="Search customer..." onValueChange={setQ} />
                         <CommandList>
                             <CommandEmpty>No customer found.</CommandEmpty>
@@ -363,6 +448,7 @@ export default function PosOrder() {
                                     <CommandItem
                                         key={c.id}
                                         onSelect={() => {
+                                            setSelectedCustomer(c);
                                             field.onChange(c.id);
                                             if (c.address) setValue("shipping_address", c.address);
                                             setOpen(false);
@@ -524,6 +610,11 @@ export default function PosOrder() {
                                                         <div className="font-medium text-sm">
                                                             {(field as any).name || "Item #" + (index + 1)}
                                                         </div>
+                                                        {(field as any).specification && (
+                                                            <div className="text-[11px] text-muted-foreground line-clamp-1">
+                                                                {(field as any).specification}
+                                                            </div>
+                                                        )}
                                                         <div className="flex items-center gap-2 mt-0.5">
                                                             <div className="text-xs text-muted-foreground">
                                                                 {currency} {Number(items[index].unit_price).toFixed(2)}
@@ -542,14 +633,24 @@ export default function PosOrder() {
                                                 {/* Controls: Qty, Discount, Tax */}
                                                 <div className="grid grid-cols-12 gap-2 mt-1 items-end">
                                                     {/* Quantity */}
-                                                    <div className="col-span-4 flex items-center gap-0.5 bg-white rounded-md border p-0.5 shadow-sm h-8 relative">
-                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, -1)}>
+                                                    <div className="col-span-4">
+                                                        <label className="text-[10px] text-muted-foreground uppercase block mb-0.5">Qty</label>
+                                                        <div className="flex items-center gap-0.5 bg-white rounded-md border p-0.5 shadow-sm h-8 relative">
+                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, -0.5)}>
                                                             <Minus className="h-3 w-3" />
                                                         </Button>
-                                                        <span className="flex-1 text-center text-xs font-medium">{items[index].quantity}</span>
-                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, 1)}>
+                                                        <Input
+                                                            type="number"
+                                                            step="any"
+                                                            min={0.01}
+                                                            value={items[index].quantity}
+                                                            onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                                            className="flex-1 h-6 text-xs px-1 text-center border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                                                        />
+                                                        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-sm" onClick={() => adjustQuantity(index, 0.5)}>
                                                             <Plus className="h-3 w-3" />
                                                         </Button>
+                                                        </div>
                                                     </div>
 
                                                     {/* Discount Input */}
@@ -676,6 +777,24 @@ export default function PosOrder() {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
+                    <div className="w-full sm:w-56 lg:w-full xl:w-72">
+                        <Select
+                            value={selectedCategory}
+                            onValueChange={(value) => setSelectedCategory(value)}
+                        >
+                            <SelectTrigger className="w-full bg-background border border-input">
+                                <SelectValue placeholder="Filter by Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Categories</SelectItem>
+                                {categoriesData?.data?.map((category) => (
+                                    <SelectItem key={category.id} value={String(category.id)}>
+                                        {category.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     {/* Barcode Input */}
                     <div className="relative w-full sm:w-48 lg:w-full xl:w-64">
                         <ScanBarcode className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -719,7 +838,7 @@ export default function PosOrder() {
                         }
                     `}</style>
                     <div className="pos-grid grid w-full col-span-full" style={{ gap: `${posLayout.gap * 4}px` }}>
-                        {productsData?.data?.map((product) => {
+                        {allProducts.map((product) => {
                             const stock = product.stock_quantity ?? 0;
                             const isOutOfStock = stock <= 0;
                             const isSelected = items.some((item) => item.product_id === product.id);
@@ -762,6 +881,11 @@ export default function PosOrder() {
                                         )}
                                         <div className={posLayout.cardStyle === 'compact' ? 'p-2' : 'p-3'}>
                                             <div className="font-semibold truncate text-sm lg:text-base" title={product.name}>{product.name}</div>
+                                        {product.specification && (
+                                            <div className="text-[11px] lg:text-xs text-muted-foreground line-clamp-1" title={product.specification}>
+                                                {product.specification}
+                                            </div>
+                                        )}
                                             {posLayout.cardStyle !== 'compact' && (
                                                 <div className="flex justify-between items-center mt-1">
                                                     <div className="text-[10px] lg:text-xs text-muted-foreground">SKU: {product.sku}</div>
@@ -780,12 +904,22 @@ export default function PosOrder() {
                             );
                         })}
                     </div>
-                    {productsData?.data?.length === 0 && (
+                    {allProducts.length === 0 && !isProductsFetching && (
                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
                             <Search className="w-12 h-12 mb-2 opacity-20" />
                             <p>No products found matching "{search}"</p>
                         </div>
                     )}
+                    {isProductsFetching && allProducts.length > 0 && (
+                        <div className="col-span-full flex justify-center py-4">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                                <span>Loading more products...</span>
+                            </div>
+                        </div>
+                    )}
+                    {/* Bottom sentinel for infinite scroll */}
+                    <div ref={loadMoreRef} className="w-px h-px" aria-hidden="true" />
                 </div>
             </div>
 

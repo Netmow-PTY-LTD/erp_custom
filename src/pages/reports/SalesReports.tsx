@@ -148,7 +148,18 @@ export default function SalesReportsPage() {
 
   const topProductsColumns: ColumnDef<any>[] = [
     { accessorKey: "sku", header: "SKU" },
-    { accessorKey: "name", header: "Product" },
+    {
+      accessorKey: "name",
+      header: "Product",
+      cell: ({ row }) => (
+        <div>
+          <div className="font-semibold">{row.original.name}</div>
+          {row.original.specification && (
+            <div className="text-xs text-muted-foreground">{row.original.specification}</div>
+          )}
+        </div>
+      ),
+    },
     {
       accessorKey: "total_quantity_sold",
       header: "Qty",
@@ -179,8 +190,18 @@ export default function SalesReportsPage() {
   const topCustomers = topCustomersData?.data || [];
 
   const topCustomersColumns: ColumnDef<any>[] = [
-    { accessorKey: "name", header: "Customer" },
-    { accessorKey: "email", header: "Email" },
+    {
+      accessorKey: "name",
+      header: "Customer",
+      cell: ({ row }) => (
+        <div>
+          <div className="font-semibold">{row.original.company || row.original.name}</div>
+          {row.original.company && row.original.name && (
+            <div className="text-xs text-muted-foreground">{row.original.name}</div>
+          )}
+        </div>
+      ),
+    },
     {
       accessorKey: "order_count",
       header: "Orders",

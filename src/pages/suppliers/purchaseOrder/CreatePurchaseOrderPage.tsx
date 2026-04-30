@@ -54,8 +54,8 @@ const orderSchema = z
         sku: z.string().optional(),
         specification: z.string().optional(),
         unit: z.string().optional(),
-        quantity: z.number().min(1, "Quantity must be at least 1"),
-        unit_cost: z.number().min(1, "Unit price must be at least 1"),
+        quantity: z.number().min(0.01, "Quantity must be at least 0.01"),
+        unit_cost: z.number().min(0.01, "Unit price must be at least 0.01"),
         discount: z.number().min(0, "Discount must be 0 or more"),
         purchase_tax: z.number().min(0, "Purchase tax must be 0 or more"),
         stock_quantity: z.number().optional(),
@@ -314,11 +314,16 @@ export default function CreatePurchaseOrderPage() {
                   </AvatarFallback>
                 </Avatar>
               )}
-              <span className="truncate text-left min-w-0 flex-1 text-sm">
-                {selected
-                  ? selected.name
-                  : "Select product..."}
-              </span>
+              <div className="truncate min-w-0 flex-1 text-left">
+                <span className="truncate text-sm block">
+                  {selected ? selected.name : "Select product..."}
+                </span>
+                {selected?.specification && (
+                  <span className="truncate text-[10px] text-muted-foreground block">
+                    {selected.specification}
+                  </span>
+                )}
+              </div>
             </div>
             {/* <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" /> */}
           </Button>
@@ -360,6 +365,11 @@ export default function CreatePurchaseOrderPage() {
                         <span className="text-xs text-muted-foreground">
                           SKU: {product.sku} | Unit: {product.unit?.name || "-"} | Stock: {product.stock_quantity || 0}
                         </span>
+                        {product.specification && (
+                          <span className="text-[10px] text-muted-foreground line-clamp-1">
+                            {product.specification}
+                          </span>
+                        )}
                       </div>
                     </CommandItem>
                   ))}

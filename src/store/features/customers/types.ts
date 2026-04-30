@@ -102,6 +102,7 @@ export interface GetCustomersParams {
     is_active?: boolean;
     search?: string;
     sort?: string;
+    filter_by?: "name" | "company" | "address" | "phone";
 }
 
 export interface Pagination {
@@ -135,6 +136,7 @@ export interface CustomerMapLocation {
     company?: string;
     address?: string;
     city?: string;
+    country?: string;
     phone?: string;
     email?: string;
     coordinates: {

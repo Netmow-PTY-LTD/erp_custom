@@ -76,6 +76,7 @@ const productSchema = z.object({
     values: z.array(z.string())
   })).optional(),
   specification: z.string().optional(),
+  expiry_date: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -135,6 +136,7 @@ export default function EditProductPage() {
       is_active: true,
       attributes: [],
       specification: "",
+      expiry_date: "",
     },
   });
 
@@ -174,6 +176,7 @@ export default function EditProductPage() {
         length: fetchedProduct?.data?.length || 0,
         is_active: fetchedProduct?.data?.is_active,
         specification: fetchedProduct?.data?.specification || "",
+        expiry_date: fetchedProduct?.data?.expiry_date ? fetchedProduct.data.expiry_date.split('T')[0] : "",
       });
     }
   }, [fetchedProduct?.data, form]);
@@ -204,6 +207,7 @@ export default function EditProductPage() {
       barcode: "9876543210987",
       is_active: values.is_active,
       specification: values.specification,
+      expiry_date: values.expiry_date || null,
     };
 
     try {
@@ -694,6 +698,21 @@ export default function EditProductPage() {
                           e.target.value === "" ? "" : Number(e.target.value)
                         )
                       }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="expiry_date"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Expiry Date</FieldLabel>
+                    <Input
+                      type="date"
+                      value={field.value ?? ""}
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>

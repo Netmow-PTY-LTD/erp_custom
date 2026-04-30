@@ -74,6 +74,7 @@ export default function Customers() {
   // const [deleteId, setDeleteId] = useState<number | null>(null);
   const [mapLocation, setMapLocation] = useState<string | null>(null);
   const [sort, setSort] = useState<string>("newest");
+  const [filterBy, setFilterBy] = useState<"name" | "company" | "address" | "phone" | "">("");
   const { data: settingsData } = useGetSettingsInfoQuery();
   const from = settingsData?.data;
   const [previewData, setPreviewData] = useState<{
@@ -98,7 +99,8 @@ export default function Customers() {
     page: currentPage,
     limit: pageSize,
     search: searchTerm || undefined,
-    sort: sort !== 'newest' ? sort : undefined
+    sort: sort !== 'newest' ? sort : undefined,
+    filter_by: filterBy || undefined,
   });
 
   // const [deleteCustomer, { isLoading: isDeleting }] =
@@ -642,6 +644,7 @@ export default function Customers() {
                 pageSize={pageSize}
                 totalCount={totalCustomers}
                 onPageChange={setPageIndex}
+                searchPlaceholder={filterBy ? `Search by ${filterBy === 'name' ? 'Customer Name' : filterBy === 'company' ? 'Company Name' : filterBy === 'address' ? 'Address' : 'Phone'}` : "Search customers..."}
                 onSearch={(value) => {
                   setSearchTerm(value);
                   setPageIndex(0);
@@ -651,6 +654,28 @@ export default function Customers() {
                   setPageIndex(0);
                 }}
                 isFetching={isLoading}
+                filters={
+                  <Select
+                    value={filterBy || "all"}
+                    onValueChange={(value) => {
+                      setFilterBy(value === "all" ? "" : value as "name" | "company" | "address" | "phone");
+                      setSearchTerm("");
+                      setPageIndex(0);
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px] bg-white dark:bg-slate-950 border-gray-200 dark:border-gray-800">
+                      <Filter className="w-4 h-4 mr-2 text-gray-500" />
+                      <SelectValue placeholder="Filter By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Fields</SelectItem>
+                      <SelectItem value="name">Customer Name</SelectItem>
+                      <SelectItem value="company">Company Name</SelectItem>
+                      <SelectItem value="address">Address</SelectItem>
+                      <SelectItem value="phone">Phone</SelectItem>
+                    </SelectContent>
+                  </Select>
+                }
               />
             )}
           </CardContent>

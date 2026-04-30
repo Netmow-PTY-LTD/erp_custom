@@ -76,7 +76,7 @@ const orderSchema = z
         product_id: z.coerce.number().min(1, "Product is required"),
         product_name: z.string().optional(),
         sku: z.string().optional(),
-        quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+        quantity: z.coerce.number().min(0.01, "Quantity must be at least 0.01"),
         unit_price: z.coerce.number(),
         discount: z.coerce.number().min(0, "Discount must be 0 or more"),
         sales_tax: z.coerce.number().min(0, "Sales tax must be 0 or more"),
@@ -399,7 +399,7 @@ export default function EditOrderPage() {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search staff..."
               onValueChange={setQuery}
@@ -453,13 +453,26 @@ export default function EditOrderPage() {
   }) => {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const { data, isLoading } = useGetAllProductsQuery({
       page: 1,
-      limit: 50,
+      limit: 100,
       search: query,
     });
     const list = Array.isArray(data?.data) ? data.data : [];
-    const selected = list.find((p) => p.id === field.value);
+
+    // Try to find selected product in search results first, otherwise use stored product
+    const selected = list.find((p) => p.id === field.value) || selectedProduct;
+
+    // Update selectedProduct when field value changes externally
+    useEffect(() => {
+      if (field.value && (!selectedProduct || selectedProduct.id !== field.value)) {
+        const found = list.find((p) => p.id === field.value);
+        if (found) {
+          setSelectedProduct(found);
+        }
+      }
+    }, [field.value, list]);
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -481,7 +494,7 @@ export default function EditOrderPage() {
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
-          <Command>
+          <Command shouldFilter={false}>
             <CommandInput
               placeholder="Search products..."
               onValueChange={setQuery}
@@ -494,6 +507,7 @@ export default function EditOrderPage() {
                     <CommandItem
                       key={product.id}
                       onSelect={() => {
+                        setSelectedProduct(product);
                         if (onProductSelect) {
                           onProductSelect(product);
                         } else {

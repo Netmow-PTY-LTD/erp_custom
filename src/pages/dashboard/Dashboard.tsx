@@ -46,10 +46,11 @@ export default function Dashboard() {
   const canRecentInactiveCustomersShow = userPermissions.includes(DashboardPermission.RECENT_INACTIVE_CUSTOMERS_LIST) || isSuperAdmin;
   const canStaffsChartShow = userPermissions.includes(DashboardPermission.STAFFS_CHART) && !isSuperAdmin;
 
-  const [invoicePeriod, setInvoicePeriod] = useState<"thisMonth" | "lastMonth" | "thisYear">("thisMonth");
+  const [invoicePeriod, setInvoicePeriod] = useState<"today" | "thisMonth" | "lastMonth" | "thisYear">("thisMonth");
 
   // Map UI dropdown values to API filter param
   const periodFilterMap: Record<string, string> = {
+    today: "today",
     thisMonth: "thisMonth",
     lastMonth: "lastMonth",
     thisYear: "thisYear",
@@ -169,6 +170,7 @@ export default function Dashboard() {
                       onChange={(e) => setInvoicePeriod(e.target.value as typeof invoicePeriod)}
                       className="appearance-none rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 pl-3 pr-8 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
+                      <option value="today">Today</option>
                       <option value="thisMonth">This Month</option>
                       <option value="lastMonth">Last Month</option>
                       <option value="thisYear">This Year</option>

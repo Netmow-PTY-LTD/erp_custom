@@ -52,14 +52,16 @@ export default function RecentStatusCustomers({ status }: RecentStatusCustomersP
                                     {initials}
                                 </div>
 
-                                {/* Name & Email */}
-                                <div>
+                                {/* Name & Company */}
+                                <div className="min-w-0">
                                     <p className="text-sm font-medium leading-none">
                                         {customer.name}
                                     </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        {customer.email}
-                                    </p>
+                                    {customer.company && (
+                                        <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                                            {customer.company}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 

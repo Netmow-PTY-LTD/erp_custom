@@ -101,7 +101,12 @@ export default function CustomerReports() {
       accessorKey: "customer",
       header: "Customer",
       cell: ({ row }) => (
-        <span className="font-medium">{row.getValue("customer")}</span>
+        <div>
+          <div className="font-semibold">{(row.original as any).company || row.getValue("customer")}</div>
+          {(row.original as any).company && (row.original as any).company !== row.getValue("customer") && (
+            <div className="text-xs text-muted-foreground">{row.getValue("customer")}</div>
+          )}
+        </div>
       ),
     },
     { accessorKey: "orders", header: "Orders" },
@@ -124,7 +129,18 @@ export default function CustomerReports() {
         <span className="font-medium">{row.getValue("invoiceNumber")}</span>
       ),
     },
-    { accessorKey: "customer", header: "Customer" },
+    {
+      accessorKey: "customer",
+      header: "Customer",
+      cell: ({ row }) => (
+        <div>
+          <div className="font-semibold">{(row.original as any).company || row.getValue("customer")}</div>
+          {(row.original as any).company && (row.original as any).company !== row.getValue("customer") && (
+            <div className="text-xs text-muted-foreground">{row.getValue("customer")}</div>
+          )}
+        </div>
+      ),
+    },
     { accessorKey: "date", header: "Date" },
     { accessorKey: "due", header: "Due" },
     {
