@@ -102,27 +102,6 @@ export const PurchasePermission = {
   VIEW_PURCHASE_RETURN_PAYMENT_DETAILS: "suppliers.purchase_return_payments.details.view" as const,
 };
 
-// --- Staffs ---
-export const StaffPermission = {
-  VIEW: "staffs.view" as const,
-  LIST: "staffs.list" as const,
-  DETAILS: "staffs.details.view" as const,
-  CREATE: "staffs.create" as const,
-  EDIT: "staffs.edit" as const,
-  DELETE: "staffs.delete" as const,
-  VIEW_DEPARTMENTS: "departments.view" as const,
-  CREATE_DEPARTMENTS: "departments.create" as const,
-  EDIT_DEPARTMENTS: "departments.edit" as const,
-  DELETE_DEPARTMENTS: "departments.delete" as const,
-  VIEW_ATTENDANCE: "attendance.view" as const,
-  MANAGE_LEAVES: "leaves.manage" as const,
-  VIEW_STAFF_MAP: "staffs.map.view" as const,
-  CHECK_IN: "staffs.check_in" as const,
-  VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
-  VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
-  ASSIGN_ROUTE: "staff.routes.assign" as const,
-};
-
 // --- Sales & Orders ---
 export const SalesPermission = {
   VIEW: "sales.view" as const,
@@ -162,6 +141,27 @@ export const SalesPermission = {
   CREATE_SALES_RETURN_PAYMENT: "sales.sales_return_payments.create" as const,
   VIEW_SALES_RETURN_PAYMENTS: "sales.sales_return_payments.view" as const,
   VIEW_SALES_RETURN_PAYMENT_DETAILS: "sales.sales_return_payments.details.view" as const,
+};
+
+// --- Staffs ---
+export const StaffPermission = {
+  VIEW: "staffs.view" as const,
+  LIST: "staffs.list" as const,
+  DETAILS: "staffs.details.view" as const,
+  CREATE: "staffs.create" as const,
+  EDIT: "staffs.edit" as const,
+  DELETE: "staffs.delete" as const,
+  VIEW_DEPARTMENTS: "departments.view" as const,
+  CREATE_DEPARTMENTS: "departments.create" as const,
+  EDIT_DEPARTMENTS: "departments.edit" as const,
+  DELETE_DEPARTMENTS: "departments.delete" as const,
+  VIEW_ATTENDANCE: "attendance.view" as const,
+  MANAGE_LEAVES: "leaves.manage" as const,
+  VIEW_STAFF_MAP: "staffs.map.view" as const,
+  CHECK_IN: "staffs.check_in" as const,
+  VIEW_CHECK_IN_LIST: "staffs.view_check_in_list" as const,
+  VIEW_ROUTE_DETAILS: "staff.routes.details.view" as const,
+  ASSIGN_ROUTE: "staff.routes.assign" as const,
 };
 
 // --- Accounting ---
@@ -308,8 +308,8 @@ export const PERMISSION_GROUPS = {
   Customers: CustomerPermission,
   Suppliers: SupplierPermission,
   Purchase: PurchasePermission,
-  Staffs: StaffPermission,
   Sales: SalesPermission,
+  Staffs: StaffPermission,
   Accounting: AccountingPermission,
   Users: UserPermission,
   Roles: RolePermission,
@@ -318,8 +318,8 @@ export const PERMISSION_GROUPS = {
   // RawMaterials: RawMaterialPermission,
   // Production: ProductionPermission,
   RouteOperations: RouteOperationPermission,
-  Help: HelpPermission,
   Payroll: PayrollPermission,
+  Help: HelpPermission,
   System: SystemPermission,
 } as const;
 
@@ -332,8 +332,8 @@ export type PermissionType =
   | typeof CustomerPermission[keyof typeof CustomerPermission]
   | typeof SupplierPermission[keyof typeof SupplierPermission]
   | typeof PurchasePermission[keyof typeof PurchasePermission]
-  | typeof StaffPermission[keyof typeof StaffPermission]
   | typeof SalesPermission[keyof typeof SalesPermission]
+  | typeof StaffPermission[keyof typeof StaffPermission]
   | typeof AccountingPermission[keyof typeof AccountingPermission]
   | typeof UserPermission[keyof typeof UserPermission]
   | typeof RolePermission[keyof typeof RolePermission]

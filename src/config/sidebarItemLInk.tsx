@@ -138,8 +138,8 @@ import {
   CustomerPermission,
   SupplierPermission,
   PurchasePermission,
-  StaffPermission,
   SalesPermission,
+  StaffPermission,
   AccountingPermission,
   UserPermission,
   RolePermission,
@@ -149,8 +149,8 @@ import {
   // ProductionPermission,
   SuperAdminPermission,
   RouteOperationPermission,
-  HelpPermission,
   PayrollPermission,
+  HelpPermission,
   SystemPermission,
 } from "./permissions";
 import SalesReportsPage from "@/pages/reports/SalesReports";
